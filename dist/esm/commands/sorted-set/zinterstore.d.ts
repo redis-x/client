@@ -9,4 +9,4 @@ export type ZinterstoreOptions = {
      */
     AGGREGATE?: 'SUM' | 'MIN' | 'MAX';
 };
-export declare function input(destination: string, arg1: string[] | Record<string, number>, options?: ZinterstoreOptions): Command<number>;
+export declare function input(destination: string, arg1: (string | number)[] | Record<string, number>, options?: ZinterstoreOptions): Command<number>;

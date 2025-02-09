@@ -35,4 +35,4 @@ export type ZaddOptions = {
      */
     INCR?: boolean;
 };
-export declare function input(key: string, arg1: number | Record<string, number>, arg2?: string | ZaddOptions, arg3?: ZaddOptions): Command;
+export declare function input(key: string, arg1: number | Record<string, number>, arg2?: string | number | ZaddOptions, arg3?: ZaddOptions): Command;

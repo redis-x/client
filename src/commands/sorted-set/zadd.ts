@@ -51,7 +51,7 @@ export type ZaddOptions = {
 declare function _command(
 	key: string,
 	score: number,
-	member: string,
+	member: string | number,
 	options?: ZaddOptions,
 ): number;
 
@@ -77,7 +77,7 @@ export function input(
 	arg1:
 		| number
 		| Record<string, number>,
-	arg2?: string | ZaddOptions,
+	arg2?: string | number | ZaddOptions,
 	arg3?: ZaddOptions,
 ): Command {
 	const args = [
@@ -102,7 +102,7 @@ export function input(
 		}
 	}
 
-	const options = typeof arg2 === 'string' ? arg3 : arg2;
+	const options = (typeof arg2 === 'string' || typeof arg2 === 'number') ? arg3 : arg2;
 
 	if (options) {
 		if (options.NX) {

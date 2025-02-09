@@ -10,7 +10,7 @@ import type { Command } from '../../types.js';
  */
 declare function _command(
 	key: string,
-	...members: string[]
+	...members: (string | number)[]
 ): number;
 
 /**
@@ -23,25 +23,30 @@ declare function _command(
  */
 declare function _command(
 	key: string,
-	members: string[] | Set<string> | IterableIterator<string>,
+	members: (string | number)[] | Set<string> | IterableIterator<string>,
 ): number;
 
 // eslint-disable-next-line jsdoc/require-jsdoc
 export function input(
 	key: string,
-	arg1: string | string[] | Set<string> | IterableIterator<string>,
-	...args_rest: string[]
+	arg1: string | number | (string | number)[] | Set<string> | IterableIterator<string>,
+	...args_rest: (string | number)[]
 ): Command<number> {
 	const args = [
 		'ZREM',
 		key,
 	];
 
-	if (typeof arg1 === 'string') {
-		args.push(arg1, ...args_rest);
+	if (typeof arg1 === 'string' || typeof arg1 === 'number') {
+		args.push(
+			String(arg1),
+			...args_rest.map(String),
+		);
 	}
 	else {
-		args.push(...arg1);
+		args.push(
+			...[ ...arg1 ].map(String),
+		);
 	}
 
 	return {

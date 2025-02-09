@@ -4,11 +4,11 @@ export function input(key, arg1, ...args_rest) {
         'ZREM',
         key,
     ];
-    if (typeof arg1 === 'string') {
-        args.push(arg1, ...args_rest);
+    if (typeof arg1 === 'string' || typeof arg1 === 'number') {
+        args.push(String(arg1), ...args_rest.map(String));
     }
     else {
-        args.push(...arg1);
+        args.push(...[...arg1].map(String));
     }
     return {
         kind: '#schema',

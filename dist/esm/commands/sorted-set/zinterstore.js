@@ -5,7 +5,7 @@ export function input(destination, arg1, options) {
         destination,
     ];
     if (Array.isArray(arg1)) {
-        args.push(String(arg1.length), ...arg1);
+        args.push(String(arg1.length), ...arg1.map(String));
     }
     else {
         const entries = Object.entries(arg1);

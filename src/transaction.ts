@@ -276,7 +276,7 @@ export class RedisXTransaction<
 	 * @param member Member in the sorted set.
 	 * @returns The score of the member (a double-precision floating point number), represented as a string, or `null` if member does not exist in the sorted set, or the key does not exist.
 	 */
-	ZSCORE(key: string, member: string): RedisXTransaction<AddToList<L, number | null>, C, D> {
+	ZSCORE(key: string, member: string | number): RedisXTransaction<AddToList<L, number | null>, C, D> {
 		return this.useCommand(input_zscore(key, member));
 	}
 
@@ -294,7 +294,7 @@ export class RedisXTransaction<
 	ZADD(
 		key: string,
 		score: number,
-		member: string,
+		member: string | number,
 		options?: ZaddOptions,
 	): RedisXTransaction<AddToList<L, number>, C, D>;
 	/**
@@ -318,7 +318,7 @@ export class RedisXTransaction<
 		arg1:
 			| number
 			| Record<string, number>,
-		arg2?: string | ZaddOptions,
+		arg2?: string | number | ZaddOptions,
 		arg3?: ZaddOptions,
 	) {
 		return this.useCommand(input_zadd(key, arg1, arg2, arg3));
@@ -334,7 +334,7 @@ export class RedisXTransaction<
 	 */
 	ZREM(
 		key: string,
-		...members: string[]
+		...members: (string | number)[]
 	): RedisXTransaction<AddToList<L, number>, C, D>;
 	/**
 	 * Removes the specified members from the sorted set stored at key. Non existing members are ignored.
@@ -346,13 +346,13 @@ export class RedisXTransaction<
 	 */
 	ZREM(
 		key: string,
-		members: string[] | Set<string> | IterableIterator<string>,
+		members: (string | number)[] | Set<string> | IterableIterator<string>,
 	): RedisXTransaction<AddToList<L, number>, C, D>;
 
 	ZREM(
 		key: string,
-		arg1: string | string[] | Set<string> | IterableIterator<string>,
-		...args_rest: string[]
+		arg1: string | number | (string | number)[] | Set<string> | IterableIterator<string>,
+		...args_rest: (string | number)[]
 	): RedisXTransaction<AddToList<L, number>, C, D> {
 		return this.useCommand(input_zrem(key, arg1, ...args_rest));
 	}
@@ -413,7 +413,7 @@ export class RedisXTransaction<
 	 */
 	ZINTERSTORE(
 		destination: string,
-		keys: string[],
+		keys: (string | number)[],
 		options?: ZinterstoreOptions,
 	): RedisXTransaction<AddToList<L, number>, C, D>;
 	/**
@@ -433,7 +433,7 @@ export class RedisXTransaction<
 
 	ZINTERSTORE(
 		destination: string,
-		arg1: string[] | Record<string, number>,
+		arg1: (string | number)[] | Record<string, number>,
 		options?: ZinterstoreOptions,
 	): RedisXTransaction<AddToList<L, number>, C, D> {
 		return this.useCommand(input_zinterstore(destination, arg1, options));

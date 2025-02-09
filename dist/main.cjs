@@ -197,7 +197,7 @@ function input8(key, member) {
     args: [
       "ZSCORE",
       key,
-      member
+      String(member)
     ],
     replyTransform(result) {
       return result ? Number.parseFloat(result) : null;
@@ -219,7 +219,7 @@ function input9(key, arg1, arg2, arg3) {
       pairs.push(String(score), member);
     }
   }
-  const options = typeof arg2 === "string" ? arg3 : arg2;
+  const options = typeof arg2 === "string" || typeof arg2 === "number" ? arg3 : arg2;
   if (options) {
     if (options.NX) {
       args.push("NX");
@@ -259,10 +259,10 @@ function input10(key, arg1, ...args_rest) {
     "ZREM",
     key
   ];
-  if (typeof arg1 === "string") {
-    args.push(arg1, ...args_rest);
+  if (typeof arg1 === "string" || typeof arg1 === "number") {
+    args.push(String(arg1), ...args_rest.map(String));
   } else {
-    args.push(...arg1);
+    args.push(...[...arg1].map(String));
   }
   return {
     kind: "#schema",
@@ -318,7 +318,7 @@ function input12(destination, arg1, options) {
     destination
   ];
   if (Array.isArray(arg1)) {
-    args.push(String(arg1.length), ...arg1);
+    args.push(String(arg1.length), ...arg1.map(String));
   } else {
     const entries = Object.entries(arg1);
     args.push(String(entries.length));

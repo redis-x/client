@@ -120,7 +120,7 @@ export declare class RedisXTransaction<L = [], C extends boolean = false, D = un
      * @param member Member in the sorted set.
      * @returns The score of the member (a double-precision floating point number), represented as a string, or `null` if member does not exist in the sorted set, or the key does not exist.
      */
-    ZSCORE(key: string, member: string): RedisXTransaction<AddToList<L, number | null>, C, D>;
+    ZSCORE(key: string, member: string | number): RedisXTransaction<AddToList<L, number | null>, C, D>;
     /**
      * Adds member with the specified score to the sorted set stored at key.
      * - Available since: 1.2.0
@@ -132,7 +132,7 @@ export declare class RedisXTransaction<L = [], C extends boolean = false, D = un
      * @param options -
      * @returns The number of fields that were added.
      */
-    ZADD(key: string, score: number, member: string, options?: ZaddOptions): RedisXTransaction<AddToList<L, number>, C, D>;
+    ZADD(key: string, score: number, member: string | number, options?: ZaddOptions): RedisXTransaction<AddToList<L, number>, C, D>;
     /**
      * Adds all the specified members with the specified scores to the sorted set stored at key.
      * - Available since: 1.2.0
@@ -152,7 +152,7 @@ export declare class RedisXTransaction<L = [], C extends boolean = false, D = un
      * @param members Members to remove.
      * @returns The number of members removed from the sorted set, not including non-existing members.
      */
-    ZREM(key: string, ...members: string[]): RedisXTransaction<AddToList<L, number>, C, D>;
+    ZREM(key: string, ...members: (string | number)[]): RedisXTransaction<AddToList<L, number>, C, D>;
     /**
      * Removes the specified members from the sorted set stored at key. Non existing members are ignored.
      * - Available since: 1.2.0
@@ -161,7 +161,7 @@ export declare class RedisXTransaction<L = [], C extends boolean = false, D = un
      * @param members Members to remove.
      * @returns The number of members removed from the sorted set, not including non-existing members.
      */
-    ZREM(key: string, members: string[] | Set<string> | IterableIterator<string>): RedisXTransaction<AddToList<L, number>, C, D>;
+    ZREM(key: string, members: (string | number)[] | Set<string> | IterableIterator<string>): RedisXTransaction<AddToList<L, number>, C, D>;
     /**
      * Returns the specified range of elements in the sorted set stored at key.
      * - Available since: 1.2.0
@@ -196,7 +196,7 @@ export declare class RedisXTransaction<L = [], C extends boolean = false, D = un
      * @param options -
      * @returns The number of members in the resulting sorted set at the destination.
      */
-    ZINTERSTORE(destination: string, keys: string[], options?: ZinterstoreOptions): RedisXTransaction<AddToList<L, number>, C, D>;
+    ZINTERSTORE(destination: string, keys: (string | number)[], options?: ZinterstoreOptions): RedisXTransaction<AddToList<L, number>, C, D>;
     /**
      * Computes the intersection of sorted sets given by the specified keys, and stores the result in destination. It is mandatory to provide the number of input keys (numkeys) before passing the input keys and the other (optional) arguments.
      * - Available since: 2.0.0.

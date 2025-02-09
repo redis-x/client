@@ -12,7 +12,7 @@ export function input(key, member) {
         args: [
             'ZSCORE',
             key,
-            member,
+            String(member),
         ],
         replyTransform(result) {
             return result ? Number.parseFloat(result) : null;

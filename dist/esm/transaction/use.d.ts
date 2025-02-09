@@ -109,7 +109,7 @@ export declare class RedisXTransactionUse {
      * @param member Member in the sorted set.
      * @returns The score of the member (a double-precision floating point number), represented as a string, or `null` if member does not exist in the sorted set, or the key does not exist.
      */
-    ZSCORE(key: string, member: string): RedisXTransactionCommand<number | null>;
+    ZSCORE(key: string, member: string | number): RedisXTransactionCommand<number | null>;
     /**
      * Adds member with the specified score to the sorted set stored at key.
      * - Available since: 1.2.0
@@ -121,7 +121,7 @@ export declare class RedisXTransactionUse {
      * @param options -
      * @returns The number of fields that were added.
      */
-    ZADD(key: string, score: number, member: string, options?: ZaddOptions): RedisXTransactionCommand<number>;
+    ZADD(key: string, score: number, member: string | number, options?: ZaddOptions): RedisXTransactionCommand<number>;
     /**
      * Adds all the specified members with the specified scores to the sorted set stored at key.
      * - Available since: 1.2.0
@@ -141,7 +141,7 @@ export declare class RedisXTransactionUse {
      * @param members Members to remove.
      * @returns The number of members removed from the sorted set, not including non-existing members.
      */
-    ZREM(key: string, ...members: string[]): RedisXTransactionCommand<number>;
+    ZREM(key: string, ...members: (string | number)[]): RedisXTransactionCommand<number>;
     /**
      * Removes the specified members from the sorted set stored at key. Non existing members are ignored.
      * - Available since: 1.2.0
@@ -150,7 +150,7 @@ export declare class RedisXTransactionUse {
      * @param members Members to remove.
      * @returns The number of members removed from the sorted set, not including non-existing members.
      */
-    ZREM(key: string, members: string[] | Set<string> | IterableIterator<string>): RedisXTransactionCommand<number>;
+    ZREM(key: string, members: (string | number)[] | Set<string> | IterableIterator<string>): RedisXTransactionCommand<number>;
     /**
      * Returns the specified range of elements in the sorted set stored at key.
      * - Available since: 1.2.0
@@ -185,7 +185,7 @@ export declare class RedisXTransactionUse {
      * @param options -
      * @returns The number of members in the resulting sorted set at the destination.
      */
-    ZINTERSTORE(destination: string, keys: string[], options?: ZinterstoreOptions): RedisXTransactionCommand<number>;
+    ZINTERSTORE(destination: string, keys: (string | number)[], options?: ZinterstoreOptions): RedisXTransactionCommand<number>;
     /**
      * Computes the intersection of sorted sets given by the specified keys, and stores the result in destination. It is mandatory to provide the number of input keys (numkeys) before passing the input keys and the other (optional) arguments.
      * - Available since: 2.0.0.

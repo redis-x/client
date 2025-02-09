@@ -22,7 +22,7 @@ export type ZinterstoreOptions = {
  */
 declare function _command(
 	destination: string,
-	keys: string[],
+	keys: (string | number)[],
 	options?: ZinterstoreOptions,
 ): number;
 
@@ -44,7 +44,7 @@ declare function _command(
 // eslint-disable-next-line jsdoc/require-jsdoc
 export function input(
 	destination: string,
-	arg1: string[] | Record<string, number>,
+	arg1: (string | number)[] | Record<string, number>,
 	options?: ZinterstoreOptions,
 ): Command<number> {
 	const args = [
@@ -55,7 +55,7 @@ export function input(
 	if (Array.isArray(arg1)) {
 		args.push(
 			String(arg1.length),
-			...arg1,
+			...arg1.map(String),
 		);
 	}
 	else {

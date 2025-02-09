@@ -13,7 +13,7 @@ export function input(key, arg1, arg2, arg3) {
             pairs.push(String(score), member);
         }
     }
-    const options = typeof arg2 === 'string' ? arg3 : arg2;
+    const options = (typeof arg2 === 'string' || typeof arg2 === 'number') ? arg3 : arg2;
     if (options) {
         if (options.NX) {
             args.push('NX');
