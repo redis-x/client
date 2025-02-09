@@ -15,7 +15,7 @@ test('command', () => {
 	);
 
 	expect(
-		command.replyTransform?.([
+		command.replyTransform!([
 			'key1',
 			'value1',
 			'key2',

@@ -258,6 +258,188 @@ export class RedisXTransaction<
 	}
 
 	/**
+	 * Returns the sorted set cardinality (number of elements) of the sorted set stored at key.
+	 * - Available since: 1.2.0.
+	 * - Time complexity: O(1).
+	 * @param key Key holds a sorted set.
+	 * @returns The cardinality (number of members) of the sorted set, or 0 if the key doesn't exist.
+	 */
+	ZCARD(key: string): RedisXTransaction<AddToList<L, number>, C, D> {
+		return this.useCommand(input_zcard(key));
+	}
+
+	/**
+	 * Returns the score of member in the sorted set at key.
+	 * - Available since: 1.0.0.
+	 * - Time complexity: O(1).
+	 * @param key Key holds a sorted set.
+	 * @param member Member in the sorted set.
+	 * @returns The score of the member (a double-precision floating point number), represented as a string, or `null` if member does not exist in the sorted set, or the key does not exist.
+	 */
+	ZSCORE(key: string, member: string): RedisXTransaction<AddToList<L, number | null>, C, D> {
+		return this.useCommand(input_zscore(key, member));
+	}
+
+	/**
+	 * Adds member with the specified score to the sorted set stored at key.
+	 * - Available since: 1.2.0
+	 * - Multiple score/member pairs are available since Redis 2.4.0.
+	 * - Time complexity: O(log(N)) for each item added, where N is the number of elements in the sorted set.
+	 * @param key - Key holds a sorted set.
+	 * @param score - Score associated with the member.
+	 * @param member - Member to add.
+	 * @param options -
+	 * @returns The number of fields that were added.
+	 */
+	ZADD(
+		key: string,
+		score: number,
+		member: string,
+		options?: ZaddOptions,
+	): RedisXTransaction<AddToList<L, number>, C, D>;
+	/**
+	 * Adds all the specified members with the specified scores to the sorted set stored at key.
+	 * - Available since: 1.2.0
+	 * - Multiple score/member pairs are available since Redis 2.4.0.
+	 * - Time complexity: O(log(N)) for each item added, where N is the number of elements in the sorted set.
+	 * @param key - Key holds a sorted set.
+	 * @param pairs - Object containing score/member pairs to set.
+	 * @param options -
+	 * @returns The number of fields that were added.
+	 */
+	ZADD(
+		key: string,
+		pairs: Record<string, number>,
+		options?: Omit<ZaddOptions, 'INCR'>,
+	): RedisXTransaction<AddToList<L, number>, C, D>;
+
+	ZADD(
+		key: string,
+		arg1:
+			| number
+			| Record<string, number>,
+		arg2?: string | ZaddOptions,
+		arg3?: ZaddOptions,
+	) {
+		return this.useCommand(input_zadd(key, arg1, arg2, arg3));
+	}
+
+	/**
+	 * Removes the specified members from the sorted set stored at key. Non existing members are ignored.
+	 * - Available since: 1.2.0
+	 * - Time complexity: O(M*log(N)) with N being the number of elements in the sorted set and M the number of elements to be removed.
+	 * @param key Key holds a sorted set.
+	 * @param members Members to remove.
+	 * @returns The number of members removed from the sorted set, not including non-existing members.
+	 */
+	ZREM(
+		key: string,
+		...members: string[]
+	): RedisXTransaction<AddToList<L, number>, C, D>;
+	/**
+	 * Removes the specified members from the sorted set stored at key. Non existing members are ignored.
+	 * - Available since: 1.2.0
+	 * - Time complexity: O(M*log(N)) with N being the number of elements in the sorted set and M the number of elements to be removed.
+	 * @param key Key holds a sorted set.
+	 * @param members Members to remove.
+	 * @returns The number of members removed from the sorted set, not including non-existing members.
+	 */
+	ZREM(
+		key: string,
+		members: string[] | Set<string> | IterableIterator<string>,
+	): RedisXTransaction<AddToList<L, number>, C, D>;
+
+	ZREM(
+		key: string,
+		arg1: string | string[] | Set<string> | IterableIterator<string>,
+		...args_rest: string[]
+	): RedisXTransaction<AddToList<L, number>, C, D> {
+		return this.useCommand(input_zrem(key, arg1, ...args_rest));
+	}
+
+	/**
+	 * Returns the specified range of elements in the sorted set stored at key.
+	 * - Available since: 1.2.0
+	 * - Time complexity: O(log(N)+M) with N being the number of elements in the sorted set and M the number of elements returned.
+	 * @param key - Key that contains the hash.
+	 * @param start - Start index by default, minimum score if BY is `SCORE` or minimum lexicographical string if BY is `LEX`.
+	 * @param stop - Stop index by default, minimum score if BY is `SCORE` or minimum lexicographical string if BY is `LEX`.
+	 * @param options -
+	 * @returns List of members in the specified range.
+	 */
+	ZRANGE(
+		key: string,
+		start: string | number,
+		stop: string | number,
+		options?: Omit<ZrangeOptions, 'WITHSCORES'>,
+	): RedisXTransaction<AddToList<L, string[]>, C, D>;
+	/**
+	 * Returns the specified range of elements in the sorted set stored at key.
+	 * - Available since: 1.2.0
+	 * - Time complexity: O(log(N)+M) with N being the number of elements in the sorted set and M the number of elements returned.
+	 * @param key - Key that contains the hash.
+	 * @param start - Start index by default, minimum score if BY is `SCORE` or minimum lexicographical string if BY is `LEX`.
+	 * @param stop - Stop index by default, minimum score if BY is `SCORE` or minimum lexicographical string if BY is `LEX`.
+	 * @param options -
+	 * @returns List of members in the specified range with their scores.
+	 */
+	ZRANGE(
+		key: string,
+		start: string | number,
+		stop: string | number,
+		options: ZrangeOptions,
+	): RedisXTransaction<AddToList<L, {
+		member: string,
+		score: number,
+	}[]>, C, D>;
+
+	ZRANGE(
+		key: string,
+		start: string | number,
+		stop: string | number,
+		options?: ZrangeOptions,
+	) {
+		return this.useCommand(input_zrange(key, start, stop, options));
+	}
+
+	/**
+	 * Computes the intersection of sorted sets given by the specified keys, and stores the result in destination. It is mandatory to provide the number of input keys (numkeys) before passing the input keys and the other (optional) arguments.
+	 * - Available since: 2.0.0.
+	 * - Time complexity: O(N*K)+O(M*log(M)).
+	 * @param destination Destination key where the resulting sorted set should be stored.
+	 * @param keys List of keys that holds sorted sets.
+	 * @param options -
+	 * @returns The number of members in the resulting sorted set at the destination.
+	 */
+	ZINTERSTORE(
+		destination: string,
+		keys: string[],
+		options?: ZinterstoreOptions,
+	): RedisXTransaction<AddToList<L, number>, C, D>;
+	/**
+	 * Computes the intersection of sorted sets given by the specified keys, and stores the result in destination. It is mandatory to provide the number of input keys (numkeys) before passing the input keys and the other (optional) arguments.
+	 * - Available since: 2.0.0.
+	 * - Time complexity: O(N*K)+O(M*log(M)).
+	 * @param destination Destination key where the resulting sorted set should be stored.
+	 * @param keys_with_weights Record where keys are the keys that holds sorted sets and values are the weights to apply to the sorted sets.
+	 * @param options -
+	 * @returns The number of members in the resulting sorted set at the destination.
+	 */
+	ZINTERSTORE(
+		destination: string,
+		keys_with_weights: Record<string, number>,
+		options?: ZinterstoreOptions,
+	): RedisXTransaction<AddToList<L, number>, C, D>;
+
+	ZINTERSTORE(
+		destination: string,
+		arg1: string[] | Record<string, number>,
+		options?: ZinterstoreOptions,
+	): RedisXTransaction<AddToList<L, number>, C, D> {
+		return this.useCommand(input_zinterstore(destination, arg1, options));
+	}
+
+	/**
 	 * Sets the specified fields to their respective values in the hash stored at key.
 	 * - Available since: 2.0.0.
 	 * - Multiple field/value pairs are available since Redis 4.0.0.
@@ -354,6 +536,27 @@ import {
 import {
 	input as input_lpush,
 } from './commands/list/lpush.js';
+import {
+	input as input_zcard,
+} from './commands/sorted-set/zcard.js';
+import {
+	input as input_zscore,
+} from './commands/sorted-set/zscore.js';
+import {
+	type ZaddOptions,
+	input as input_zadd,
+} from './commands/sorted-set/zadd.js';
+import {
+	input as input_zrem,
+} from './commands/sorted-set/zrem.js';
+import {
+	type ZrangeOptions,
+	input as input_zrange,
+} from './commands/sorted-set/zrange.js';
+import {
+	type ZinterstoreOptions,
+	input as input_zinterstore,
+} from './commands/sorted-set/zinterstore.js';
 import {
 	input as input_hset,
 } from './commands/hash/hset.js';

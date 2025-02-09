@@ -179,8 +179,167 @@ function input6(key, ...elements) {
   };
 }
 
+// dist/esm/commands/sorted-set/zcard.js
+function input7(key) {
+  return {
+    kind: "#schema",
+    args: [
+      "ZCARD",
+      key
+    ]
+  };
+}
+
+// dist/esm/commands/sorted-set/zscore.js
+function input8(key, member) {
+  return {
+    kind: "#schema",
+    args: [
+      "ZSCORE",
+      key,
+      member
+    ],
+    replyTransform(result) {
+      return result ? Number.parseFloat(result) : null;
+    }
+  };
+}
+
+// dist/esm/commands/sorted-set/zadd.js
+function input9(key, arg1, arg2, arg3) {
+  const args = [
+    "ZADD",
+    key
+  ];
+  const pairs = [];
+  if (typeof arg1 === "number") {
+    pairs.push(String(arg1), arg2);
+  } else {
+    for (const [member, score] of Object.entries(arg1)) {
+      pairs.push(String(score), member);
+    }
+  }
+  const options = typeof arg2 === "string" ? arg3 : arg2;
+  if (options) {
+    if (options.NX) {
+      args.push("NX");
+    }
+    if (options.XX) {
+      args.push("XX");
+    }
+    if (options.GT) {
+      args.push("GT");
+    }
+    if (options.LT) {
+      args.push("LT");
+    }
+    if (options.CH) {
+      args.push("CH");
+    }
+    if (options.INCR) {
+      args.push("INCR");
+    }
+  }
+  args.push(...pairs);
+  return {
+    kind: "#schema",
+    args,
+    replyTransform(result) {
+      if (typeof result === "string") {
+        return Number.parseFloat(result);
+      }
+      return result;
+    }
+  };
+}
+
+// dist/esm/commands/sorted-set/zrem.js
+function input10(key, arg1, ...args_rest) {
+  const args = [
+    "ZREM",
+    key
+  ];
+  if (typeof arg1 === "string") {
+    args.push(arg1, ...args_rest);
+  } else {
+    args.push(...arg1);
+  }
+  return {
+    kind: "#schema",
+    args
+  };
+}
+
+// dist/esm/commands/sorted-set/zrange.js
+function input11(key, start, stop, options) {
+  const args = [
+    "ZRANGE",
+    key,
+    String(start),
+    String(stop)
+  ];
+  if (options) {
+    if (options.BY) {
+      args.push(`BY${options.BY}`);
+    }
+    if (options.REV) {
+      args.push("REV");
+    }
+    if (options.LIMIT) {
+      args.push("LIMIT", String(options.LIMIT[0]), String(options.LIMIT[1]));
+    }
+    if (options.WITHSCORES) {
+      args.push("WITHSCORES");
+    }
+  }
+  return {
+    kind: "#schema",
+    args,
+    replyTransform(result) {
+      if (options?.WITHSCORES) {
+        const transformed_result = [];
+        for (let index = 0; index < result.length; index += 2) {
+          transformed_result.push({
+            member: result[index],
+            score: Number(result[index + 1])
+          });
+        }
+        return transformed_result;
+      }
+      return result;
+    }
+  };
+}
+
+// dist/esm/commands/sorted-set/zinterstore.js
+function input12(destination, arg1, options) {
+  const args = [
+    "ZINTERSTORE",
+    destination
+  ];
+  if (Array.isArray(arg1)) {
+    args.push(String(arg1.length), ...arg1);
+  } else {
+    const entries = Object.entries(arg1);
+    args.push(String(entries.length));
+    const weights = [];
+    for (const [key, weight] of entries) {
+      args.push(key);
+      weights.push(String(weight));
+    }
+    args.push("WEIGHTS", ...weights);
+  }
+  if (options?.AGGREGATE) {
+    args.push("AGGREGATE", options.AGGREGATE);
+  }
+  return {
+    kind: "#schema",
+    args
+  };
+}
+
 // dist/esm/commands/hash/hset.js
-function input7(key, arg1, arg2) {
+function input13(key, arg1, arg2) {
   const pairs = [];
   if (typeof arg1 === "string") {
     pairs.push(arg1, String(arg2));
@@ -200,7 +359,7 @@ function input7(key, arg1, arg2) {
 }
 
 // dist/esm/commands/hash/hgetall.js
-function input8(key) {
+function input14(key) {
   return {
     kind: "#schema",
     args: [
@@ -212,7 +371,7 @@ function input8(key) {
 }
 
 // dist/esm/commands/scripting/eval.js
-function input9(script, keys, args) {
+function input15(script, keys, args) {
   const command_args = [
     "EVAL",
     script,
@@ -235,6 +394,15 @@ var RedisXTransactionUse = class {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any, no-empty-function, no-useless-constructor
   constructor(transaction) {
     this.transaction = transaction;
+  }
+  addCommand(command, ...args) {
+    return this.useCommand({
+      kind: "#schema",
+      args: [
+        command,
+        ...args.map(String)
+      ]
+    });
   }
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   useCommand(command) {
@@ -313,8 +481,41 @@ var RedisXTransactionUse = class {
   LPUSH(key, ...elements) {
     return this.useCommand(input6(key, ...elements));
   }
+  /**
+   * Returns the sorted set cardinality (number of elements) of the sorted set stored at key.
+   * - Available since: 1.2.0.
+   * - Time complexity: O(1).
+   * @param key Key holds a sorted set.
+   * @returns The cardinality (number of members) of the sorted set, or 0 if the key doesn't exist.
+   */
+  ZCARD(key) {
+    return this.useCommand(input7(key));
+  }
+  /**
+   * Returns the score of member in the sorted set at key.
+   * - Available since: 1.0.0.
+   * - Time complexity: O(1).
+   * @param key Key holds a sorted set.
+   * @param member Member in the sorted set.
+   * @returns The score of the member (a double-precision floating point number), represented as a string, or `null` if member does not exist in the sorted set, or the key does not exist.
+   */
+  ZSCORE(key, member) {
+    return this.useCommand(input8(key, member));
+  }
+  ZADD(key, arg1, arg2, arg3) {
+    return this.useCommand(input9(key, arg1, arg2, arg3));
+  }
+  ZREM(key, arg1, ...args_rest) {
+    return this.useCommand(input10(key, arg1, ...args_rest));
+  }
+  ZRANGE(key, start, stop, options) {
+    return this.useCommand(input11(key, start, stop, options));
+  }
+  ZINTERSTORE(destination, arg1, options) {
+    return this.useCommand(input12(destination, arg1, options));
+  }
   HSET(key, arg1, arg2) {
-    return this.useCommand(input7(key, arg1, arg2));
+    return this.useCommand(input13(key, arg1, arg2));
   }
   /**
    * Returns all fields and values of the hash stored at key.
@@ -324,7 +525,7 @@ var RedisXTransactionUse = class {
    * @returns Value of the key.
    */
   HGETALL(key) {
-    return this.useCommand(input8(key));
+    return this.useCommand(input14(key));
   }
   /**
    * Invoke the execution of a server-side Lua script.
@@ -336,7 +537,7 @@ var RedisXTransactionUse = class {
    * @returns Value returned by the script.
    */
   EVAL(script, keys, args) {
-    return this.useCommand(input9(script, keys, args));
+    return this.useCommand(input15(script, keys, args));
   }
 };
 
@@ -481,8 +682,41 @@ var RedisXTransaction = class {
   LPUSH(key, ...elements) {
     return this.useCommand(input6(key, ...elements));
   }
+  /**
+   * Returns the sorted set cardinality (number of elements) of the sorted set stored at key.
+   * - Available since: 1.2.0.
+   * - Time complexity: O(1).
+   * @param key Key holds a sorted set.
+   * @returns The cardinality (number of members) of the sorted set, or 0 if the key doesn't exist.
+   */
+  ZCARD(key) {
+    return this.useCommand(input7(key));
+  }
+  /**
+   * Returns the score of member in the sorted set at key.
+   * - Available since: 1.0.0.
+   * - Time complexity: O(1).
+   * @param key Key holds a sorted set.
+   * @param member Member in the sorted set.
+   * @returns The score of the member (a double-precision floating point number), represented as a string, or `null` if member does not exist in the sorted set, or the key does not exist.
+   */
+  ZSCORE(key, member) {
+    return this.useCommand(input8(key, member));
+  }
+  ZADD(key, arg1, arg2, arg3) {
+    return this.useCommand(input9(key, arg1, arg2, arg3));
+  }
+  ZREM(key, arg1, ...args_rest) {
+    return this.useCommand(input10(key, arg1, ...args_rest));
+  }
+  ZRANGE(key, start, stop, options) {
+    return this.useCommand(input11(key, start, stop, options));
+  }
+  ZINTERSTORE(destination, arg1, options) {
+    return this.useCommand(input12(destination, arg1, options));
+  }
   HSET(key, arg1, arg2) {
-    return this.useCommand(input7(key, arg1, arg2));
+    return this.useCommand(input13(key, arg1, arg2));
   }
   /**
    * Returns all fields and values of the hash stored at key.
@@ -492,7 +726,7 @@ var RedisXTransaction = class {
    * @returns Value of the key.
    */
   HGETALL(key) {
-    return this.useCommand(input8(key));
+    return this.useCommand(input14(key));
   }
   /**
    * Invoke the execution of a server-side Lua script.
@@ -504,7 +738,7 @@ var RedisXTransaction = class {
    * @returns Value returned by the script.
    */
   EVAL(script, keys, args) {
-    return this.useCommand(input9(script, keys, args));
+    return this.useCommand(input15(script, keys, args));
   }
 };
 
@@ -600,8 +834,41 @@ var RedisXClient = class {
   LPUSH(key, ...elements) {
     return this.useCommand(input6(key, ...elements));
   }
+  /**
+   * Returns the sorted set cardinality (number of elements) of the sorted set stored at key.
+   * - Available since: 1.2.0.
+   * - Time complexity: O(1).
+   * @param key Key holds a sorted set.
+   * @returns The cardinality (number of members) of the sorted set, or 0 if the key doesn't exist.
+   */
+  ZCARD(key) {
+    return this.useCommand(input7(key));
+  }
+  /**
+   * Returns the score of member in the sorted set at key.
+   * - Available since: 1.0.0.
+   * - Time complexity: O(1).
+   * @param key Key holds a sorted set.
+   * @param member Member in the sorted set.
+   * @returns The score of the member (a double-precision floating point number), represented as a string, or `null` if member does not exist in the sorted set, or the key does not exist.
+   */
+  ZSCORE(key, member) {
+    return this.useCommand(input8(key, member));
+  }
+  ZADD(key, arg1, arg2, arg3) {
+    return this.useCommand(input9(key, arg1, arg2, arg3));
+  }
+  ZREM(key, arg1, ...args_rest) {
+    return this.useCommand(input10(key, arg1, ...args_rest));
+  }
+  ZRANGE(key, start, stop, options) {
+    return this.useCommand(input11(key, start, stop, options));
+  }
+  ZINTERSTORE(destination, arg1, options) {
+    return this.useCommand(input12(destination, arg1, options));
+  }
   HSET(key, arg1, arg2) {
-    return this.useCommand(input7(key, arg1, arg2));
+    return this.useCommand(input13(key, arg1, arg2));
   }
   /**
    * Returns all fields and values of the hash stored at key.
@@ -611,7 +878,7 @@ var RedisXClient = class {
    * @returns Value of the key.
    */
   HGETALL(key) {
-    return this.useCommand(input8(key));
+    return this.useCommand(input14(key));
   }
   /**
    * Invoke the execution of a server-side Lua script.
@@ -623,7 +890,7 @@ var RedisXClient = class {
    * @returns Value returned by the script.
    */
   EVAL(script, keys, args) {
-    return this.useCommand(input9(script, keys, args));
+    return this.useCommand(input15(script, keys, args));
   }
 };
 // Annotate the CommonJS export names for ESM import in node:

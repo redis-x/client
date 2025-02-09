@@ -96,13 +96,13 @@ class TargetFile {
 	addCommand(commandFile: CommandFile) {
 		for (const overload of commandFile.overloads) {
 			this.contents.methods += `\t${overload.getJsDoc().replaceAll(/\n/g, '\n\t')}\n`;
-			this.contents.methods += `\t${commandFile.command}${overload.arguments.raw}: ${this.options.getReturnType(overload.return_type)};\n`;
+			this.contents.methods += `\t${commandFile.command}${overload.arguments.raw}: ${this.options.getReturnType(overload.return_type).replaceAll(/\n/g, '\n\t')};\n`;
 		}
 
 		if (commandFile.implementation.getJsDoc) {
 			this.contents.methods += `\t${commandFile.implementation.getJsDoc().replaceAll(/\n/g, '\n\t')}`;
 		}
-		this.contents.methods += `\n\t${commandFile.command}${commandFile.implementation.arguments.raw}${commandFile.implementation.return_type ? `: ${this.options.getReturnType(commandFile.implementation.return_type)}` : ''} {\n`;
+		this.contents.methods += `\n\t${commandFile.command}${commandFile.implementation.arguments.raw}${commandFile.implementation.return_type ? `: ${this.options.getReturnType(commandFile.implementation.return_type).replaceAll(/\n/g, '\n\t')}` : ''} {\n`;
 		this.contents.methods += `\t\treturn this.useCommand(${commandFile.import_input}(${commandFile.implementation.arguments.list}));\n`;
 		this.contents.methods += `\t}\n\n`;
 

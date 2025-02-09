@@ -146,6 +146,39 @@ export class RedisXTransaction {
     LPUSH(key, ...elements) {
         return this.useCommand(input_lpush(key, ...elements));
     }
+    /**
+     * Returns the sorted set cardinality (number of elements) of the sorted set stored at key.
+     * - Available since: 1.2.0.
+     * - Time complexity: O(1).
+     * @param key Key holds a sorted set.
+     * @returns The cardinality (number of members) of the sorted set, or 0 if the key doesn't exist.
+     */
+    ZCARD(key) {
+        return this.useCommand(input_zcard(key));
+    }
+    /**
+     * Returns the score of member in the sorted set at key.
+     * - Available since: 1.0.0.
+     * - Time complexity: O(1).
+     * @param key Key holds a sorted set.
+     * @param member Member in the sorted set.
+     * @returns The score of the member (a double-precision floating point number), represented as a string, or `null` if member does not exist in the sorted set, or the key does not exist.
+     */
+    ZSCORE(key, member) {
+        return this.useCommand(input_zscore(key, member));
+    }
+    ZADD(key, arg1, arg2, arg3) {
+        return this.useCommand(input_zadd(key, arg1, arg2, arg3));
+    }
+    ZREM(key, arg1, ...args_rest) {
+        return this.useCommand(input_zrem(key, arg1, ...args_rest));
+    }
+    ZRANGE(key, start, stop, options) {
+        return this.useCommand(input_zrange(key, start, stop, options));
+    }
+    ZINTERSTORE(destination, arg1, options) {
+        return this.useCommand(input_zinterstore(destination, arg1, options));
+    }
     HSET(key, arg1, arg2) {
         return this.useCommand(input_hset(key, arg1, arg2));
     }
@@ -179,6 +212,12 @@ import { input as input_expire, } from './commands/generic/expire.js';
 import { input as input_keys, } from './commands/generic/keys.js';
 import { input as input_del, } from './commands/generic/del.js';
 import { input as input_lpush, } from './commands/list/lpush.js';
+import { input as input_zcard, } from './commands/sorted-set/zcard.js';
+import { input as input_zscore, } from './commands/sorted-set/zscore.js';
+import { input as input_zadd, } from './commands/sorted-set/zadd.js';
+import { input as input_zrem, } from './commands/sorted-set/zrem.js';
+import { input as input_zrange, } from './commands/sorted-set/zrange.js';
+import { input as input_zinterstore, } from './commands/sorted-set/zinterstore.js';
 import { input as input_hset, } from './commands/hash/hset.js';
 import { input as input_hgetall, } from './commands/hash/hgetall.js';
 import { input as input_eval, } from './commands/scripting/eval.js';

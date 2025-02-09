@@ -99,6 +99,19 @@ describe('use', () => {
 		expect(result).toStrictEqual({});
 	});
 
+	test('addCommand', async () => {
+		const result = await new RedisXTransaction(redisClient)
+			.GET(`${PREFIX}:2`)
+			.use((transaction) => {
+				return {
+					value: transaction.addCommand('SET', 'foo', 1),
+				};
+			})
+			.execute();
+
+		expect(result).toStrictEqual({ value: 'OK' });
+	});
+
 	test('multiple with if', async () => {
 		for (const ref of [ true, false ]) {
 			// eslint-disable-next-line no-await-in-loop
