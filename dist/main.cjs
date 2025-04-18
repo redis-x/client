@@ -522,7 +522,7 @@ var RedisXTransactionUse = class {
    * - Available since: 2.0.0.
    * - Time complexity: O(N) where N is the size of the hash.
    * @param key -
-   * @returns Value of the key.
+   * @returns A record of fields and their values stored in the hash.
    */
   HGETALL(key) {
     return this.useCommand(input14(key));
@@ -723,7 +723,7 @@ var RedisXTransaction = class {
    * - Available since: 2.0.0.
    * - Time complexity: O(N) where N is the size of the hash.
    * @param key -
-   * @returns Value of the key.
+   * @returns A record of fields and their values stored in the hash.
    */
   HGETALL(key) {
     return this.useCommand(input14(key));
@@ -875,7 +875,7 @@ var RedisXClient = class {
    * - Available since: 2.0.0.
    * - Time complexity: O(N) where N is the size of the hash.
    * @param key -
-   * @returns Value of the key.
+   * @returns A record of fields and their values stored in the hash.
    */
   HGETALL(key) {
     return this.useCommand(input14(key));

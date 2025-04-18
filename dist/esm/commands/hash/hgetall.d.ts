@@ -4,6 +4,6 @@ import type { Command } from '../../types.js';
  * - Available since: 2.0.0.
  * - Time complexity: O(N) where N is the size of the hash.
  * @param key -
- * @returns Value of the key.
+ * @returns A record of fields and their values stored in the hash.
  */
 export declare function input(key: string): Command<Record<string, string>>;

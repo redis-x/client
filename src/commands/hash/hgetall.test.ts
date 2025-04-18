@@ -38,5 +38,11 @@ describe('returns', () => {
 			key1: 'value1',
 			key2: 'value2',
 		});
+
+		expect(
+			await redisXClient.HGETALL(
+				createRandomKey(),
+			),
+		).toStrictEqual({});
 	});
 });
