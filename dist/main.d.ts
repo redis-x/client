@@ -70,12 +70,14 @@ type SetOptions = {
   * - Available since: 6.0.0.
   */
   KEEPTTL?: boolean;
+};
+type SetOptionsGet = {
   /**
   * Get the value of the key before the SET operation.
   * - Incompatible with option `NX` before 7.0.0.
   * - Available since: 6.2.0.
   */
-  GET?: true;
+  GET: true;
 }; //#endregion
 //#region src/commands/generic/expire.d.ts
 type ExpireOptions = {
@@ -237,7 +239,7 @@ declare class RedisXTransactionUse {
   * @param options Comand options.
   * @returns Returns string `"OK"` if the key was set, or `null` if operation was aborted (conflict with one of the XX/NX options).
   */
-  SET(key: string, value: string | number, options: Omit<SetOptions, "GET">): RedisXTransactionCommand<"OK" | null>;
+  SET(key: string, value: string | number, options: SetOptions): RedisXTransactionCommand<"OK" | null>;
   /**
   * Set the string value of a key.
   * - Available since: 1.0.0.
@@ -247,7 +249,7 @@ declare class RedisXTransactionUse {
   * @param options Comand options.
   * @returns Returns string with the previous value of the key, or `null` if the key didn't exist before the SET.
   */
-  SET(key: string, value: string | number, options: SetOptions): RedisXTransactionCommand<string | null>;
+  SET(key: string, value: string | number, options: SetOptions & SetOptionsGet): RedisXTransactionCommand<string | null>;
   /**
   * Set a timeout on key.
   *
@@ -484,7 +486,7 @@ declare class RedisXTransaction<L = [], C extends boolean = false, D = unknown> 
   * @param options Comand options.
   * @returns Returns string `"OK"` if the key was set, or `null` if operation was aborted (conflict with one of the XX/NX options).
   */
-  SET(key: string, value: string | number, options: Omit<SetOptions, "GET">): RedisXTransaction<AddToList<L, "OK" | null>, C, D>;
+  SET(key: string, value: string | number, options: SetOptions): RedisXTransaction<AddToList<L, "OK" | null>, C, D>;
   /**
   * Set the string value of a key.
   * - Available since: 1.0.0.
@@ -494,7 +496,7 @@ declare class RedisXTransaction<L = [], C extends boolean = false, D = unknown> 
   * @param options Comand options.
   * @returns Returns string with the previous value of the key, or `null` if the key didn't exist before the SET.
   */
-  SET(key: string, value: string | number, options: SetOptions): RedisXTransaction<AddToList<L, string | null>, C, D>;
+  SET(key: string, value: string | number, options: SetOptions & SetOptionsGet): RedisXTransaction<AddToList<L, string | null>, C, D>;
   /**
   * Set a timeout on key.
   *
@@ -719,7 +721,7 @@ declare class RedisXClient {
   * @param options Comand options.
   * @returns Returns string `"OK"` if the key was set, or `null` if operation was aborted (conflict with one of the XX/NX options).
   */
-  SET(key: string, value: string | number, options: Omit<SetOptions, "GET">): Promise<"OK" | null>;
+  SET(key: string, value: string | number, options: SetOptions): Promise<"OK" | null>;
   /**
   * Set the string value of a key.
   * - Available since: 1.0.0.
@@ -729,7 +731,7 @@ declare class RedisXClient {
   * @param options Comand options.
   * @returns Returns string with the previous value of the key, or `null` if the key didn't exist before the SET.
   */
-  SET(key: string, value: string | number, options: SetOptions): Promise<string | null>;
+  SET(key: string, value: string | number, options: SetOptions & SetOptionsGet): Promise<string | null>;
   /**
   * Set a timeout on key.
   *

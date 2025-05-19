@@ -44,12 +44,14 @@ export type SetOptions = {
 	 * - Available since: 6.0.0.
 	 */
 	KEEPTTL?: boolean,
+};
+export type SetOptionsGet = {
 	/**
 	 * Get the value of the key before the SET operation.
 	 * - Incompatible with option `NX` before 7.0.0.
 	 * - Available since: 6.2.0.
 	 */
-	GET?: true,
+	GET: true,
 };
 
 /**
@@ -71,7 +73,7 @@ declare function _command(key: string, value: string | number): 'OK' | null;
  * @param options Comand options.
  * @returns Returns string `"OK"` if the key was set, or `null` if operation was aborted (conflict with one of the XX/NX options).
  */
-declare function _command(key: string, value: string | number, options: Omit<SetOptions, 'GET'>): 'OK' | null;
+declare function _command(key: string, value: string | number, options: SetOptions): 'OK' | null;
 
 /**
  * Set the string value of a key.
@@ -82,10 +84,10 @@ declare function _command(key: string, value: string | number, options: Omit<Set
  * @param options Comand options.
  * @returns Returns string with the previous value of the key, or `null` if the key didn't exist before the SET.
  */
-declare function _command(key: string, value: string | number, options: SetOptions): string | null;
+declare function _command(key: string, value: string | number, options: SetOptions & SetOptionsGet): string | null;
 
 // eslint-disable-next-line jsdoc/require-jsdoc
-export function input(key: string, value: string | number, options?: SetOptions): Command {
+export function input(key: string, value: string | number, options?: SetOptions & Partial<SetOptionsGet>): Command {
 	const args_options: string[] = [];
 
 	if (options) {

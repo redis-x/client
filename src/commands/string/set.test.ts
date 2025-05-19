@@ -24,9 +24,7 @@ for (const option of [ 'NX', 'XX', 'KEEPTTL' ]) {
 				const command = input(
 					'key',
 					'value',
-					{
-						[option]: value,
-					},
+					{ [option]: value },
 				);
 
 				expect(command.args).toStrictEqual(
@@ -46,9 +44,7 @@ for (const option of [ 'EX', 'PX', 'EXAT', 'PXAT' ]) {
 		const command = input(
 			'key',
 			'value',
-			{
-				[option]: 1000,
-			},
+			{ [option]: 1000 },
 		);
 
 		expect(command.args).toStrictEqual(

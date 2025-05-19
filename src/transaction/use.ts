@@ -71,7 +71,7 @@ export class RedisXTransactionUse {
 	 * @param options Comand options.
 	 * @returns Returns string `"OK"` if the key was set, or `null` if operation was aborted (conflict with one of the XX/NX options).
 	 */
-	SET(key: string, value: string | number, options: Omit<SetOptions, 'GET'>): RedisXTransactionCommand<'OK' | null>;
+	SET(key: string, value: string | number, options: SetOptions): RedisXTransactionCommand<'OK' | null>;
 	/**
 	 * Set the string value of a key.
 	 * - Available since: 1.0.0.
@@ -81,9 +81,9 @@ export class RedisXTransactionUse {
 	 * @param options Comand options.
 	 * @returns Returns string with the previous value of the key, or `null` if the key didn't exist before the SET.
 	 */
-	SET(key: string, value: string | number, options: SetOptions): RedisXTransactionCommand<string | null>;
+	SET(key: string, value: string | number, options: SetOptions & SetOptionsGet): RedisXTransactionCommand<string | null>;
 
-	SET(key: string, value: string | number, options?: SetOptions) {
+	SET(key: string, value: string | number, options?: SetOptions & Partial<SetOptionsGet>) {
 		return this.useCommand(input_set(key, value, options));
 	}
 
@@ -408,6 +408,7 @@ import {
 } from '../commands/string/get.js';
 import {
 	type SetOptions,
+	type SetOptionsGet,
 	input as input_set,
 } from '../commands/string/set.js';
 import {
