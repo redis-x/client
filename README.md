@@ -126,7 +126,7 @@ const multi = client.MULTI()
   .GET('counter')
   .SET('last-updated', Date.now());
 const result = await multi.exec<'typed'>(); // [string | null, string | null]
-result[0]; // string | null
+const counter = result[0]; // string | null
 ```
 
 This approach is error-prone if you later modify your transaction by adding or removing commands.
@@ -136,9 +136,10 @@ With `redis-x`, you can name your results using `as`:
 ```typescript
 const transaction = await redisXClient.createTransaction()
   .GET('counter')
-  .as('foo')
+  .as('counter')
   .SET('last-updated', Date.now());
 const result = transaction.execute(); //  [string | null, "OK" | null] & { foo: string | null }
+const { counter } = result; // string | null
 ```
 
 This naming system makes your code more readable and resilient to changes in transaction structure.
