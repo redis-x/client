@@ -7,17 +7,8 @@ A strongly-typed Redis client built on top of the standard "redis" package, prov
 - 🔒 **Strong TypeScript Support** - Full type safety for all Redis commands, parameters, and return values
 - 🔄 **Enhanced Transactions** - Improved transaction support with named results and easier command chaining
 - 🧩 **Smart Data Transformations** - Automatic conversion of Redis responses to appropriate JavaScript types
-- 📦 **Modern ESM & CJS Support** - Use with either import or require syntax
+- 📦 **Compatibility** - Use with either import or require syntax
 - 🔍 **Intuitive API** - Discover Redis commands through IDE autocomplete
-
-## Why redis-x?
-
-While the standard Redis client for Node.js is powerful, it lacks strong typing and has a cumbersome API for transactions. redis-x addresses these issues by:
-
-1. Providing complete TypeScript definitions for all Redis commands
-2. Transforming Redis responses into more useful JavaScript structures
-3. Offering an improved transaction API with named results
-4. Supporting modern JavaScript patterns and module systems
 
 ## Installation
 
