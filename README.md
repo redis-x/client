@@ -188,7 +188,7 @@ async function getChatRooms(roomIds: string[]) {
 
 This approach works but has several drawbacks:
 - We need to manually process the flat results array
-- We must carefully track array indexes and maintain the i += 2 pattern
+- We must carefully track array indexes and maintain the `i += 2` pattern
 - If we later modify the transaction to include more data per room, we'd need to update this index calculation
 - It's easy to make mistakes when matching results back to room IDs
 
