@@ -91,6 +91,16 @@ const keys = await client.KEYS('user:*');
 
 Unlike the standard `redis` client, every command (and every option!) in `redis-x` is fully documented with Redis documentation, allowing you to easily understand each command's purpose and usage directly in your IDE.
 
+#### `redis`
+
+![Screenshot 2025-05-19 at 15 37 40](https://github.com/user-attachments/assets/13719296-e0a5-462c-b244-0537cd8a0395)
+![Screenshot 2025-05-19 at 15 37 50](https://github.com/user-attachments/assets/222a3d83-f2e2-499f-a2f2-3d3ed26e068a)
+
+#### `redis-x`
+![Screenshot 2025-05-19 at 15 38 02](https://github.com/user-attachments/assets/458db310-8e1f-446e-a8e5-c2fe5ec271b5)
+![Screenshot 2025-05-19 at 15 38 11](https://github.com/user-attachments/assets/3687799b-3097-400d-b4ee-3cd0b8c81758)
+
+
 ### Regular transactions
 
 The standard `redis` client's transaction API works well but only supports type safety in version 5:
