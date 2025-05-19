@@ -207,7 +207,11 @@ async function getChatRooms(roomIds: string[]) {
     })
     .execute();
 }
-// That shit is fully typed!
+```
+
+That shit is fully typed out of the box!
+
+```typescript
 function getChatRooms(roomIds: string[]): Promise<{
   id: string;
   title: string | null;
