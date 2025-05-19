@@ -1,5 +1,3 @@
-"use strict";
-
 //#region src/utils.ts
 /**
 * Checks if a value is a plain object.
@@ -850,4 +848,4 @@ var RedisXClient = class {
 };
 
 //#endregion
-exports.RedisXClient = RedisXClient;
+export { RedisXClient };

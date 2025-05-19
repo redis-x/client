@@ -4,6 +4,7 @@
 		"isolatedDeclarations": false
 	},
 	"include": [
-		"./**/*.ts"
+		"./**/*.ts",
+		"../src/**/*.test.ts"
 	]
 }

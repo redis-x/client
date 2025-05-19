@@ -29,7 +29,7 @@ export class RedisXClient {
 		return result;
 	}
 
-	createTransaction() {
+	createTransaction(): RedisXTransaction<[], false, unknown> {
 		return new RedisXTransaction(this.redisClient);
 	}
 

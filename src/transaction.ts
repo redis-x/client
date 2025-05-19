@@ -1,5 +1,6 @@
 /* eslint-disable promise/always-return */
 
+import type { Promisable } from 'type-fest';
 import {
 	type UnwrapRedisXTransactionCommand,
 	RedisXTransactionCommand,
@@ -7,7 +8,6 @@ import {
 } from './transaction/command.js';
 import { RedisXTransactionUse } from './transaction/use.js';
 import type {
-	Awaitable,
 	Command,
 	RedisClient,
 } from './types.js';
@@ -85,7 +85,7 @@ export class RedisXTransaction<
 	}
 
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	use<const CB extends (transaction: RedisXTransactionUse) => Awaitable<Record<string, any> | void>>(callback: CB) {
+	use<const CB extends (transaction: RedisXTransactionUse) => Promisable<Record<string, any> | void>>(callback: CB) {
 		this.return_no_array = true;
 		this.promise = this.promise.then(async () => {
 			const transaction_use = new RedisXTransactionUse(this);
@@ -108,25 +108,24 @@ export class RedisXTransaction<
 			);
 		});
 
-		type R = Awaited<ReturnType<CB>>;
 		return this as unknown as RedisXTransaction<
 			[],
 			true,
 			// eslint-disable-next-line @typescript-eslint/no-explicit-any
-			R extends Record<string, any>
-				? UnwrapRedisXTransactionCommand<R> & D
+			Awaited<ReturnType<CB>> extends Record<string, any>
+				? UnwrapRedisXTransactionCommand<Awaited<ReturnType<CB>>> & D
 				: D
 		>;
 	}
 
-	async execute() {
-		type RL = C extends true ? unknown : (L extends [] ? unknown : L);
-		type R = unknown extends D
+	async execute<
+		RL = C extends true ? unknown : (L extends [] ? unknown : L),
+		R = unknown extends D
 			? unknown extends RL
 				? Record<string, never>
 				: RL
-			: RL & { [K in keyof D]: D[K] };
-
+			: RL & { [K in keyof D]: D[K] },
+	>(): Promise<R> {
 		await this.promise;
 
 		const result = await this.multi.exec() as unknown[];

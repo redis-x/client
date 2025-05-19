@@ -1,5 +1,5 @@
-import { type RedisXTransaction } from '../transaction.js';
-import { Command } from '../types.js';
+import type { RedisXTransaction } from '../transaction.js';
+import type { Command } from '../types.js';
 import { RedisXTransactionCommand } from './command.js';
 
 export class RedisXTransactionUse {

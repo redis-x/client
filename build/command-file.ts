@@ -50,7 +50,7 @@ export class CommandFile {
 		public path: string,
 		contents: string,
 	) {
-		this.command = path.split('/').pop()!.split('.')[0].toUpperCase();
+		this.command = path.split('/').pop()!.split('.')[0]!.toUpperCase();
 		this.import_input = `input_${this.command.toLowerCase()}`;
 
 		const oxc = parseSync(path, contents);
