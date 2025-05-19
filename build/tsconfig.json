@@ -1,13 +1,5 @@
 {
 	"compileOnSave": false,
-	"include": [
-		"src/"
-	],
-	"exclude": [
-		"test/",
-		"**/*.test.js",
-		"**/*.test.ts"
-	],
 	"compilerOptions": {
 		"outDir": "dist/esm",
 		"declaration": true,
