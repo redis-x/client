@@ -264,7 +264,7 @@ declare class RedisXTransactionUse {
   * - Time complexity: O(1).
   * @param key Key to set.
   * @param value Value to set.
-  * @param options Comand options.
+  * @param options Command options.
   * @returns Returns string `"OK"` if the key was set, or `null` if operation was aborted (conflict with one of the XX/NX options).
   * @see {@link https://redis.io/commands/set}
   */
@@ -275,7 +275,7 @@ declare class RedisXTransactionUse {
   * - Time complexity: O(1).
   * @param key Key to set.
   * @param value Value to set.
-  * @param options Comand options.
+  * @param options Command options.
   * @returns Returns string with the previous value of the key, or `null` if the key didn't exist before the SET.
   * @see {@link https://redis.io/commands/set}
   */
@@ -567,7 +567,7 @@ declare class RedisXTransaction<L = [], C extends boolean = false, D = unknown> 
   * - Time complexity: O(1).
   * @param key Key to set.
   * @param value Value to set.
-  * @param options Comand options.
+  * @param options Command options.
   * @returns Returns string `"OK"` if the key was set, or `null` if operation was aborted (conflict with one of the XX/NX options).
   * @see {@link https://redis.io/commands/set}
   */
@@ -578,7 +578,7 @@ declare class RedisXTransaction<L = [], C extends boolean = false, D = unknown> 
   * - Time complexity: O(1).
   * @param key Key to set.
   * @param value Value to set.
-  * @param options Comand options.
+  * @param options Command options.
   * @returns Returns string with the previous value of the key, or `null` if the key didn't exist before the SET.
   * @see {@link https://redis.io/commands/set}
   */
@@ -858,7 +858,7 @@ declare class RedisXClient {
   * - Time complexity: O(1).
   * @param key Key to set.
   * @param value Value to set.
-  * @param options Comand options.
+  * @param options Command options.
   * @returns Returns string `"OK"` if the key was set, or `null` if operation was aborted (conflict with one of the XX/NX options).
   * @see {@link https://redis.io/commands/set}
   */
@@ -869,7 +869,7 @@ declare class RedisXClient {
   * - Time complexity: O(1).
   * @param key Key to set.
   * @param value Value to set.
-  * @param options Comand options.
+  * @param options Command options.
   * @returns Returns string with the previous value of the key, or `null` if the key didn't exist before the SET.
   * @see {@link https://redis.io/commands/set}
   */
