@@ -251,10 +251,10 @@ The `redis-x` client is more a proof of concept than a complete implementation. 
 (X/Y) / (1/7)
 -->
 
-| Section               | Commands available   | Command names |
+| Section               | Commands available    | Command names |
 | --------------------- | - | - |
 | Connection management | 🟥🟥🟥🟥🟥🟥🟥 <br>  **0** / 32 | — |
-| Generic               | 🟩🟩🟩🟩🟥🟥🟥 <br> **10** / 32 | `COPY` `DEL` `EXISTS` `EXPIRE` `EXPIREAT` `EXPIRETIME` `KEYS` `PEXPIRE` `PEXPIREAT` `PEXPIRETIME` |
+| Generic               | 🟩🟩🟥🟥🟥🟥🟥 <br> **10** / 32 | `COPY` `DEL` `EXISTS` `EXPIRE` `EXPIREAT` `EXPIRETIME` `KEYS` `PEXPIRE` `PEXPIREAT` `PEXPIRETIME` |
 | Hash                  | 🟨🟥🟥🟥🟥🟥🟥 <br>  **2** / 28 | `HGETALL` `HSET` |
 | List                  | 🟥🟥🟥🟥🟥🟥🟥 <br>  **1** / 22 | `LPUSH` |
 | Scripting             | 🟨🟥🟥🟥🟥🟥🟥 <br>  **1** / 19 | `EVAL` |
