@@ -245,18 +245,19 @@ The `redis-x` client is more a proof of concept than a complete implementation. 
 <!--
 7 blocks:
 - red means no support
-- yellow at least 50%
+- orange means at lease 33% support
+- yellow at least 67%
 - green at least 100%
-3 / 28 / (1/7)
+(X/Y) / (1/7)
 -->
 
 | Section               | Commands available    | Command names |
 | --------------------- | - | - |
 | Connection management | 🟥🟥🟥🟥🟥🟥🟥 <br>  **0** / 32 | — |
-| Generic               | 🟩🟩🟩🟨🟥🟥🟥 <br> **16** / 32 | `COPY` `DEL` `EXISTS` `EXPIRE` `EXPIREAT` `EXPIRETIME` `KEYS` `PERSIST` `PEXPIRE` `PEXPIREAT` `PEXPIRETIME` `PTTL` `RENAME` `RENAMENX` `TTL` `TYPE` |
-| Hash                  | 🟨🟥🟥🟥🟥🟥🟥 <br>  **3** / 28 | `HGET` `HGETALL` `HSET` |
+| Generic               | 🟩🟩🟩🟧🟥🟥🟥 <br> **16** / 32 | `COPY` `DEL` `EXISTS` `EXPIRE` `EXPIREAT` `EXPIRETIME` `KEYS` `PERSIST` `PEXPIRE` `PEXPIREAT` `PEXPIRETIME` `PTTL` `RENAME` `RENAMENX` `TTL` `TYPE` |
+| Hash                  | 🟨🟥🟥🟥🟥🟥🟥 <br>  **2** / 28 | `HGETALL` `HSET` |
 | List                  | 🟥🟥🟥🟥🟥🟥🟥 <br>  **1** / 22 | `LPUSH` |
-| Scripting             | 🟥🟥🟥🟥🟥🟥🟥 <br>  **1** / 19 | `EVAL` |
+| Scripting             | 🟨🟥🟥🟥🟥🟥🟥 <br>  **1** / 19 | `EVAL` |
 | Set                   | 🟥🟥🟥🟥🟥🟥🟥 <br>  **0** / 17 | — |
-| Sorted Set            | 🟩🟥🟥🟥🟥🟥🟥 <br>  **6** / 35 | `ZADD` `ZCARD` `ZINTERSTORE` `ZRANGE` `ZREM` `ZSCORE` |
-| String                | 🟨🟥🟥🟥🟥🟥🟥 <br>  **2** / 22 | `GET` `SET` |
+| Sorted Set            | 🟩🟨🟥🟥🟥🟥🟥 <br>  **6** / 35 | `ZADD` `ZCARD` `ZINTERSTORE` `ZRANGE` `ZREM` `ZSCORE` |
+| String                | 🟩🟩🟩🟩🟩🟩🟨 <br> **21** / 22 | `APPEND` `DECR` `DECRBY` `GET` `GETDEL` `GETEX` `GETRANGE` `GETSET` `INCR` `INCRBY` `INCRBYFLOAT` `MGET` `MSET` `MSETNX` `PSETEX` `SET` `SETEX` `SETNX` `SETRANGE` `STRLEN` `SUBSTR` |

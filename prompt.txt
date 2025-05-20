@@ -1,5 +1,2 @@
-As a contrubutor, add command to repo. Respect contributing guideline and current command and test code structure. Create only files for command, do not modify anything else.
-
-Documentation from Redis:
-
-<paste docs here>
+As a contrubutor, add will add command to repo. Respect contributing guideline and current command and test code structure. Create only files for command, do not modify anything else.
+Study repository and how to add commands to repo. After you are ready, I will provide command to add.

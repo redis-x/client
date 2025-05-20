@@ -2,6 +2,7 @@ import { parseSync } from 'oxc-parser';
 
 type CommandOverload = {
 	getJsDoc: (returns_text?: string) => string,
+	type_parameters: string,
 	arguments: {
 		raw: string,
 	},
@@ -9,6 +10,7 @@ type CommandOverload = {
 }
 type CommandImplementation = {
 	getJsDoc?: (returns_text?: string) => string,
+	type_parameters: string,
 	arguments: {
 		raw: string,
 		list: string,
@@ -40,6 +42,7 @@ export class CommandFile {
 	imports: string = '';
 	overloads: CommandOverload[] = [];
 	implementation: CommandImplementation = {
+		type_parameters: '',
 		arguments: {
 			raw: '',
 			list: '',
@@ -104,6 +107,12 @@ export class CommandFile {
 
 				this.overloads.push({
 					getJsDoc,
+					type_parameters: node.typeParameters
+						? contents.slice(
+							node.typeParameters.start,
+							node.typeParameters.end,
+						)
+						: '',
 					arguments: {
 						raw: processRawArguments(arguments_raw),
 					},
@@ -137,6 +146,12 @@ export class CommandFile {
 
 				this.implementation = {
 					getJsDoc,
+					type_parameters: node.declaration.typeParameters
+						? contents.slice(
+							node.declaration.typeParameters.start,
+							node.declaration.typeParameters.end,
+						)
+						: '',
 					arguments: {
 						raw: processRawArguments(
 							contents.slice(

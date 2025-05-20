@@ -79,7 +79,54 @@ type SetOptionsGet = {
   */
   GET: true;
 }; //#endregion
+//#region src/commands/string/getex.d.ts
+type GetexOptions = {
+  /**
+  * Set the specified expire time, in *seconds*.
+  * - Incompatible with options `PX`, `EXAT`, `PXAT` and `PERSIST`.
+  * - Available since: 6.2.0.
+  */
+  EX?: number;
+  /**
+  * Set the specified expire time, in *milliseconds*.
+  * - Incompatible with options `EX`, `EXAT`, `PXAT` and `PERSIST`.
+  * - Available since: 6.2.0.
+  */
+  PX?: number;
+  /**
+  * Set the specified Unix time at which the key will expire, in *seconds*.
+  * - Incompatible with options `EX`, `PX`, `PXAT` and `PERSIST`.
+  * - Available since: 6.2.0.
+  */
+  EXAT?: number;
+  /**
+  * Set the specified Unix time at which the key will expire, in *milliseconds*.
+  * - Incompatible with options `EX`, `PX`, `EXAT` and `PERSIST`.
+  * - Available since: 6.2.0.
+  */
+  PXAT?: number;
+  /**
+  * Remove the time to live associated with the key.
+  * - Incompatible with options `EX`, `PX`, `EXAT` and `PXAT`.
+  * - Available since: 6.2.0.
+  */
+  PERSIST?: boolean;
+};
+
+//#endregion
 //#region src/commands/generic/pexpire.d.ts
+/**
+* Get the value of key and optionally set its expiration.
+* GETEX is similar to GET, but is a write command with additional options.
+*
+* An error is returned if the value stored at key is not a string, because GETEX only handles string values.
+* - Available since: 6.2.0.
+* - Time complexity: O(1).
+* @param key Key to get.
+* @param options Command options.
+* @returns The value of key, or `null` when key does not exist.
+* @see {@link https://redis.io/commands/getex}
+*/
 type PexpireOptions = {
   /**
   * Set expiry only when the key has no expiry.
@@ -370,6 +417,30 @@ declare class RedisXTransactionUse {
   addCommand(command: string, ...args: (string | number)[]): RedisXTransactionCommand<unknown>;
   private useCommand;
   /**
+  * Sets the given keys to their respective values. MSETNX will not perform
+  * any operation at all even if just a single key already exists.
+  *
+  * - Available since: 1.0.1.
+  * - Time complexity: O(N) where N is the number of keys to set.
+  * @param pairs A record of key-value pairs.
+  * @returns `true` if all the keys were set, `false` if no key was set (at least one key already existed).
+  * @see {@link https://redis.io/commands/msetnx}
+  */
+  MSETNX(pairs: Record<string, string | number>): RedisXTransactionCommand<boolean>;
+  /**
+  * Set key to hold string value if key does not exist. In that case, it is equal to SET.
+  * When key already holds a value, no operation is performed. SETNX is short for "SET if Not eXists".
+  *
+  * - Available since: 1.0.0.
+  * - Time complexity: O(1).
+  * @deprecated As of Redis version 2.6.12, this command is regarded as deprecated. It can be replaced by SET with the NX argument when migrating or writing new code.
+  * @param key Key to set.
+  * @param value Value to set.
+  * @returns Integer reply: 1 if the key was set, 0 if the key was not set.
+  * @see {@link https://redis.io/commands/setnx}
+  */
+  SETNX(key: string, value: string | number): RedisXTransactionCommand<boolean>;
+  /**
   * Get the value of key.
   *
   * If the key does not exist `null` is returned.
@@ -414,6 +485,239 @@ declare class RedisXTransactionUse {
   * @see {@link https://redis.io/commands/set}
   */
   SET(key: string, value: string | number, options: SetOptions & SetOptionsGet): RedisXTransactionCommand<string | null>;
+  /**
+  * Append a value to a key.
+  *
+  * If key already exists and is a string, this command appends the value at the end of the string.
+  * If key does not exist it is created and set as an empty string, so APPEND will be similar to SET in this special case.
+  * - Available since: 2.0.0.
+  * - Time complexity: O(1). The amortized time complexity is O(1) assuming the appended value is small and the already present value is of any size, since the dynamic string library used by Redis will double the free space available on every reallocation.
+  * @param key Key to append to.
+  * @param value Value to append.
+  * @returns The length of the string after the append operation.
+  * @see {@link https://redis.io/commands/append}
+  */
+  APPEND(key: string, value: string): RedisXTransactionCommand<number>;
+  /**
+  * Increments the number stored at key by one. If the key does not exist,
+  * it is set to 0 before performing the operation. An error is returned if the
+  * key contains a value of the wrong type or contains a string that can not
+  * be represented as integer. This operation is limited to 64 bit signed integers.
+  * - Available since: 1.0.0.
+  * - Time complexity: O(1).
+  * @param key Key to increment.
+  * @returns The value of the key after incrementing it.
+  * @see {@link https://redis.io/commands/incr}
+  */
+  INCR(key: string): RedisXTransactionCommand<number>;
+  /**
+  * Increment the string representing a floating point number stored at key by the specified increment.
+  * By using a negative increment value, the result is that the value stored at the key is decremented.
+  * If the key does not exist, it is set to 0 before performing the operation.
+  *
+  * - Available since: 2.6.0.
+  * - Time complexity: O(1).
+  * @param key Key to increment.
+  * @param increment Value to increment by.
+  * @returns The value of key after the increment.
+  * @see {@link https://redis.io/commands/incrbyfloat}
+  */
+  INCRBYFLOAT(key: string, increment: number): RedisXTransactionCommand<string>;
+  /**
+  * Returns the values of all specified keys. For every key that does not hold a
+  * string value or does not exist, the special value `null` is returned.
+  * Because of this, the operation never fails.
+  *
+  * - Available since: 1.0.0.
+  * - Time complexity: O(N) where N is the number of keys to retrieve.
+  * @param keys The keys to get.
+  * @returns Array reply: a list of values at the specified keys.
+  * @see {@link https://redis.io/commands/mget}
+  */
+  MGET<const K extends string[]>(keys: K): RedisXTransactionCommand<{ [I in keyof K]: string | null }>;
+  /**
+  * Returns the values of all specified keys. For every key that does not hold a
+  * string value or does not exist, the special value `null` is returned.
+  * Because of this, the operation never fails.
+  *
+  * - Available since: 1.0.0.
+  * - Time complexity: O(N) where N is the number of keys to retrieve.
+  * @param keys The keys to get.
+  * @returns Array reply: a list of values at the specified keys.
+  * @see {@link https://redis.io/commands/mget}
+  */
+  MGET<const K extends string[]>(...keys: K): RedisXTransactionCommand<{ [I in keyof K]: string | null }>;
+  /**
+  * Get the value of key and delete the key. This command is similar to GET, except for the fact
+  * that it also deletes the key on success (if and only if the key's value type is a string).
+  *
+  * - Available since: 6.2.0.
+  * - Time complexity: O(1).
+  * @param key Key to get and delete.
+  * @returns The value of key, or `null` when key does not exist or its value is not a string.
+  * @see {@link https://redis.io/commands/getdel}
+  */
+  GETDEL(key: string): RedisXTransactionCommand<string | null>;
+  /**
+  * Sets the given keys to their respective values. MSET replaces existing values with new values, just as regular SET.
+  * MSET is atomic, so all given keys are set at once. It is not possible for clients to see that some of the keys were updated while others are unchanged.
+  * - Available since: 1.0.1.
+  * - Time complexity: O(N) where N is the number of keys to set.
+  * @param pairs A record of key-value pairs.
+  * @returns "OK"
+  * @see {@link https://redis.io/commands/mset}
+  */
+  MSET(pairs: Record<string, string | number>): RedisXTransactionCommand<"OK">;
+  /**
+  * Increments the number stored at key by increment. If the key does not exist, it is set to 0 before performing the operation.
+  * An error is returned if the key contains a value of the wrong type or contains a string that cannot be represented as integer.
+  * This operation is limited to 64 bit signed integers.
+  *
+  * - Available since: 1.0.0.
+  * - Time complexity: O(1).
+  * @param key Key to increment.
+  * @param increment Amount to increment by.
+  * @returns The value of the key after the increment.
+  * @see {@link https://redis.io/commands/incrby}
+  */
+  INCRBY(key: string, increment: number): RedisXTransactionCommand<number>;
+  /**
+  * Overwrites part of the string stored at key, starting at the specified offset, for the entire length of value.
+  * If the offset is larger than the current length of the string at key, the string is padded with zero-bytes to make offset fit.
+  * Non-existing keys are considered as empty strings, so this command will make sure it holds a string large enough to be able to set value at offset.
+  *
+  * Note that the maximum offset that you can set is `2^29-1` (536870911), as Redis Strings are limited to 512 megabytes.
+  *
+  * - Available since: 2.2.0.
+  * - Time complexity: O(1), not counting the time taken to copy the new string in place. Usually, this string is very small so the amortized complexity is O(1). Otherwise, complexity is O(M) with M being the length of the value argument.
+  * @param key Key to modify.
+  * @param offset Position at which the overwrite should begin.
+  * @param value String that will be written to the key, starting at the specified offset.
+  * @returns The length of the string after it was modified by the command.
+  * @see {@link https://redis.io/commands/setrange}
+  */
+  SETRANGE(key: string, offset: number, value: string): RedisXTransactionCommand<number>;
+  /**
+  * Returns the substring of the string value stored at key, determined by the offsets start and end (both are inclusive).
+  * Negative offsets can be used in order to provide an offset starting from the end of the string.
+  * So -1 means the last character, -2 the penultimate and so forth.
+  * - Available since: 1.0.0.
+  * - Time complexity: O(N) where N is the length of the returned string. The complexity is ultimately determined by the returned length, but because creating a substring from an existing string is very cheap, it can be considered O(1) for small strings.
+  * @deprecated As of Redis version 2.0.0, this command is regarded as deprecated. It can be replaced by GETRANGE when migrating or writing new code.
+  * @param key Key to get the substring from.
+  * @param start Start offset (inclusive).
+  * @param end End offset (inclusive).
+  * @returns The substring of the string value stored at key.
+  * @see {@link https://redis.io/commands/substr}
+  */
+  SUBSTR(key: string, start: number, end: number): RedisXTransactionCommand<string>;
+  /**
+  * Atomically sets key to value and returns the old value stored at key.
+  * Returns an error when key exists but does not hold a string value.
+  * Any previous time to live associated with the key is discarded on successful SET operation.
+  *
+  * - Available since: 1.0.0.
+  * - Time complexity: O(1).
+  * @deprecated As of Redis version 6.2.0, this command is regarded as deprecated. It can be replaced by SET with the GET argument when migrating or writing new code.
+  * @param key Key to set.
+  * @param value Value to set.
+  * @returns The old value stored at key, or `null` if key did not exist.
+  * @see {@link https://redis.io/commands/getset}
+  */
+  GETSET(key: string, value: string | number): RedisXTransactionCommand<string | null>;
+  /**
+  * Reduces the value stored at the specified key by the specified decrement.
+  * If the key does not exist, it is initialized with a value of 0 before performing the operation.
+  * If the key's value is not of the correct type or cannot be represented as an integer, an error is returned.
+  * This operation is limited to 64-bit signed integers.
+  *
+  * - Available since: 1.0.0.
+  * - Time complexity: O(1).
+  * @param key Key to decrement.
+  * @param decrement The value to decrement by.
+  * @returns The value of the key after decrementing it.
+  * @see {@link https://redis.io/commands/decrby}
+  */
+  DECRBY(key: string, decrement: number): RedisXTransactionCommand<number>;
+  /**
+  * Returns the substring of the string value stored at key, determined by the offsets start and end (both are inclusive).
+  * Negative offsets can be used in order to provide an offset starting from the end of the string.
+  * So -1 means the last character, -2 the penultimate and so forth.
+  *
+  * The function handles out of range requests by limiting the resulting range to the actual length of the string.
+  * - Available since: 2.4.0.
+  * - Time complexity: O(N) where N is the length of the returned string. The complexity is ultimately determined by the returned length, but because creating a substring from an existing string is very cheap, it can be considered O(1) for small strings.
+  * @param key The key holding the string value.
+  * @param start The starting offset. Can be negative to count from the end of the string.
+  * @param end The ending offset (inclusive). Can be negative to count from the end of the string.
+  * @returns The substring.
+  * @see {@link https://redis.io/commands/getrange}
+  */
+  GETRANGE(key: string, start: number, end: number): RedisXTransactionCommand<string>;
+  /**
+  * Set key to hold the string value and set key to timeout after a given number of seconds.
+  * This command is equivalent to SET key value EX seconds.
+  *
+  * - Available since: 2.0.0.
+  * - Time complexity: O(1).
+  * @deprecated As of Redis version 2.6.12, this command is regarded as deprecated. It can be replaced by SET with the EX argument when migrating or writing new code.
+  * @param key Key to set.
+  * @param seconds Timeout in seconds.
+  * @param value Value to set.
+  * @returns Simple string reply: OK.
+  * @see {@link https://redis.io/commands/setex}
+  */
+  SETEX(key: string, seconds: number, value: string | number): RedisXTransactionCommand<"OK">;
+  /**
+  * Get the value of key and optionally set its expiration.
+  * GETEX is similar to GET, but is a write command with additional options.
+  *
+  * An error is returned if the value stored at key is not a string, because GETEX only handles string values.
+  * - Available since: 6.2.0.
+  * - Time complexity: O(1).
+  * @param key Key to get.
+  * @param options Command options.
+  * @returns The value of key, or `null` when key does not exist.
+  * @see {@link https://redis.io/commands/getex}
+  */
+  GETEX(key: string, options?: GetexOptions): RedisXTransactionCommand<string | null>;
+  /**
+  * Returns the length of the string value stored at key.
+  * An error is returned when key holds a non-string value.
+  *
+  * - Available since: 2.2.0.
+  * - Time complexity: O(1).
+  * @param key Key to get length of.
+  * @returns The length of the string stored at key, or 0 when the key does not exist.
+  * @see {@link https://redis.io/commands/strlen}
+  */
+  STRLEN(key: string): RedisXTransactionCommand<number>;
+  /**
+  * Decrements the number stored at key by one. If the key does not exist,
+  * it is set to 0 before performing the operation. An error is returned if the
+  * key contains a value of the wrong type or contains a string that can not
+  * be represented as integer. This operation is limited to 64 bit signed integers.
+  * - Available since: 1.0.0.
+  * - Time complexity: O(1).
+  * @param key Key to decrement.
+  * @returns The value of the key after decrementing it.
+  * @see {@link https://redis.io/commands/decr}
+  */
+  DECR(key: string): RedisXTransactionCommand<number>;
+  /**
+  * Set key to hold the string value and set key to timeout after a given number of milliseconds.
+  * This command is similar to SETEX, except that the expiration time is specified in milliseconds instead of seconds.
+  *
+  * - Available since: 2.6.0.
+  * - Time complexity: O(1).
+  * @deprecated As of Redis version 2.6.12, this command is regarded as deprecated. It can be replaced by SET with the PX argument when migrating or writing new code.
+  * @param key Key to set.
+  * @param milliseconds Expiration time in milliseconds.
+  * @param value Value to set.
+  * @returns "OK" if the command was executed successfully.
+  * @see {@link https://redis.io/commands/psetex}
+  */
+  PSETEX(key: string, milliseconds: number, value: string | number): RedisXTransactionCommand<"OK">;
   /**
   * This command works exactly like EXPIRE but the time to live of the key is specified in milliseconds instead of seconds.
   * - Available since: 2.6.0.
@@ -809,6 +1113,30 @@ declare class RedisXTransaction<L = [], C extends boolean = false, D = unknown> 
   use<const CB extends (transaction: RedisXTransactionUse) => Promisable<Record<string, any> | void>>(callback: CB): RedisXTransaction<[], true, Awaited<ReturnType<CB>> extends Record<string, any> ? UnwrapRedisXTransactionCommand<Awaited<ReturnType<CB>>> & D : D>;
   execute<RL = (C extends true ? unknown : (L extends [] ? unknown : L)), R = (unknown extends D ? unknown extends RL ? Record<string, never> : RL : RL & { [K in keyof D]: D[K] })>(): Promise<R>;
   /**
+  * Sets the given keys to their respective values. MSETNX will not perform
+  * any operation at all even if just a single key already exists.
+  *
+  * - Available since: 1.0.1.
+  * - Time complexity: O(N) where N is the number of keys to set.
+  * @param pairs A record of key-value pairs.
+  * @returns `true` if all the keys were set, `false` if no key was set (at least one key already existed).
+  * @see {@link https://redis.io/commands/msetnx}
+  */
+  MSETNX(pairs: Record<string, string | number>): RedisXTransaction<AddToList<L, boolean>, C, D>;
+  /**
+  * Set key to hold string value if key does not exist. In that case, it is equal to SET.
+  * When key already holds a value, no operation is performed. SETNX is short for "SET if Not eXists".
+  *
+  * - Available since: 1.0.0.
+  * - Time complexity: O(1).
+  * @deprecated As of Redis version 2.6.12, this command is regarded as deprecated. It can be replaced by SET with the NX argument when migrating or writing new code.
+  * @param key Key to set.
+  * @param value Value to set.
+  * @returns Integer reply: 1 if the key was set, 0 if the key was not set.
+  * @see {@link https://redis.io/commands/setnx}
+  */
+  SETNX(key: string, value: string | number): RedisXTransaction<AddToList<L, boolean>, C, D>;
+  /**
   * Get the value of key.
   *
   * If the key does not exist `null` is returned.
@@ -853,6 +1181,239 @@ declare class RedisXTransaction<L = [], C extends boolean = false, D = unknown> 
   * @see {@link https://redis.io/commands/set}
   */
   SET(key: string, value: string | number, options: SetOptions & SetOptionsGet): RedisXTransaction<AddToList<L, string | null>, C, D>;
+  /**
+  * Append a value to a key.
+  *
+  * If key already exists and is a string, this command appends the value at the end of the string.
+  * If key does not exist it is created and set as an empty string, so APPEND will be similar to SET in this special case.
+  * - Available since: 2.0.0.
+  * - Time complexity: O(1). The amortized time complexity is O(1) assuming the appended value is small and the already present value is of any size, since the dynamic string library used by Redis will double the free space available on every reallocation.
+  * @param key Key to append to.
+  * @param value Value to append.
+  * @returns The length of the string after the append operation.
+  * @see {@link https://redis.io/commands/append}
+  */
+  APPEND(key: string, value: string): RedisXTransaction<AddToList<L, number>, C, D>;
+  /**
+  * Increments the number stored at key by one. If the key does not exist,
+  * it is set to 0 before performing the operation. An error is returned if the
+  * key contains a value of the wrong type or contains a string that can not
+  * be represented as integer. This operation is limited to 64 bit signed integers.
+  * - Available since: 1.0.0.
+  * - Time complexity: O(1).
+  * @param key Key to increment.
+  * @returns The value of the key after incrementing it.
+  * @see {@link https://redis.io/commands/incr}
+  */
+  INCR(key: string): RedisXTransaction<AddToList<L, number>, C, D>;
+  /**
+  * Increment the string representing a floating point number stored at key by the specified increment.
+  * By using a negative increment value, the result is that the value stored at the key is decremented.
+  * If the key does not exist, it is set to 0 before performing the operation.
+  *
+  * - Available since: 2.6.0.
+  * - Time complexity: O(1).
+  * @param key Key to increment.
+  * @param increment Value to increment by.
+  * @returns The value of key after the increment.
+  * @see {@link https://redis.io/commands/incrbyfloat}
+  */
+  INCRBYFLOAT(key: string, increment: number): RedisXTransaction<AddToList<L, string>, C, D>;
+  /**
+  * Returns the values of all specified keys. For every key that does not hold a
+  * string value or does not exist, the special value `null` is returned.
+  * Because of this, the operation never fails.
+  *
+  * - Available since: 1.0.0.
+  * - Time complexity: O(N) where N is the number of keys to retrieve.
+  * @param keys The keys to get.
+  * @returns Array reply: a list of values at the specified keys.
+  * @see {@link https://redis.io/commands/mget}
+  */
+  MGET<const K extends string[]>(keys: K): RedisXTransaction<AddToList<L, { [I in keyof K]: string | null }>, C, D>;
+  /**
+  * Returns the values of all specified keys. For every key that does not hold a
+  * string value or does not exist, the special value `null` is returned.
+  * Because of this, the operation never fails.
+  *
+  * - Available since: 1.0.0.
+  * - Time complexity: O(N) where N is the number of keys to retrieve.
+  * @param keys The keys to get.
+  * @returns Array reply: a list of values at the specified keys.
+  * @see {@link https://redis.io/commands/mget}
+  */
+  MGET<const K extends string[]>(...keys: K): RedisXTransaction<AddToList<L, { [I in keyof K]: string | null }>, C, D>;
+  /**
+  * Get the value of key and delete the key. This command is similar to GET, except for the fact
+  * that it also deletes the key on success (if and only if the key's value type is a string).
+  *
+  * - Available since: 6.2.0.
+  * - Time complexity: O(1).
+  * @param key Key to get and delete.
+  * @returns The value of key, or `null` when key does not exist or its value is not a string.
+  * @see {@link https://redis.io/commands/getdel}
+  */
+  GETDEL(key: string): RedisXTransaction<AddToList<L, string | null>, C, D>;
+  /**
+  * Sets the given keys to their respective values. MSET replaces existing values with new values, just as regular SET.
+  * MSET is atomic, so all given keys are set at once. It is not possible for clients to see that some of the keys were updated while others are unchanged.
+  * - Available since: 1.0.1.
+  * - Time complexity: O(N) where N is the number of keys to set.
+  * @param pairs A record of key-value pairs.
+  * @returns "OK"
+  * @see {@link https://redis.io/commands/mset}
+  */
+  MSET(pairs: Record<string, string | number>): RedisXTransaction<AddToList<L, "OK">, C, D>;
+  /**
+  * Increments the number stored at key by increment. If the key does not exist, it is set to 0 before performing the operation.
+  * An error is returned if the key contains a value of the wrong type or contains a string that cannot be represented as integer.
+  * This operation is limited to 64 bit signed integers.
+  *
+  * - Available since: 1.0.0.
+  * - Time complexity: O(1).
+  * @param key Key to increment.
+  * @param increment Amount to increment by.
+  * @returns The value of the key after the increment.
+  * @see {@link https://redis.io/commands/incrby}
+  */
+  INCRBY(key: string, increment: number): RedisXTransaction<AddToList<L, number>, C, D>;
+  /**
+  * Overwrites part of the string stored at key, starting at the specified offset, for the entire length of value.
+  * If the offset is larger than the current length of the string at key, the string is padded with zero-bytes to make offset fit.
+  * Non-existing keys are considered as empty strings, so this command will make sure it holds a string large enough to be able to set value at offset.
+  *
+  * Note that the maximum offset that you can set is `2^29-1` (536870911), as Redis Strings are limited to 512 megabytes.
+  *
+  * - Available since: 2.2.0.
+  * - Time complexity: O(1), not counting the time taken to copy the new string in place. Usually, this string is very small so the amortized complexity is O(1). Otherwise, complexity is O(M) with M being the length of the value argument.
+  * @param key Key to modify.
+  * @param offset Position at which the overwrite should begin.
+  * @param value String that will be written to the key, starting at the specified offset.
+  * @returns The length of the string after it was modified by the command.
+  * @see {@link https://redis.io/commands/setrange}
+  */
+  SETRANGE(key: string, offset: number, value: string): RedisXTransaction<AddToList<L, number>, C, D>;
+  /**
+  * Returns the substring of the string value stored at key, determined by the offsets start and end (both are inclusive).
+  * Negative offsets can be used in order to provide an offset starting from the end of the string.
+  * So -1 means the last character, -2 the penultimate and so forth.
+  * - Available since: 1.0.0.
+  * - Time complexity: O(N) where N is the length of the returned string. The complexity is ultimately determined by the returned length, but because creating a substring from an existing string is very cheap, it can be considered O(1) for small strings.
+  * @deprecated As of Redis version 2.0.0, this command is regarded as deprecated. It can be replaced by GETRANGE when migrating or writing new code.
+  * @param key Key to get the substring from.
+  * @param start Start offset (inclusive).
+  * @param end End offset (inclusive).
+  * @returns The substring of the string value stored at key.
+  * @see {@link https://redis.io/commands/substr}
+  */
+  SUBSTR(key: string, start: number, end: number): RedisXTransaction<AddToList<L, string>, C, D>;
+  /**
+  * Atomically sets key to value and returns the old value stored at key.
+  * Returns an error when key exists but does not hold a string value.
+  * Any previous time to live associated with the key is discarded on successful SET operation.
+  *
+  * - Available since: 1.0.0.
+  * - Time complexity: O(1).
+  * @deprecated As of Redis version 6.2.0, this command is regarded as deprecated. It can be replaced by SET with the GET argument when migrating or writing new code.
+  * @param key Key to set.
+  * @param value Value to set.
+  * @returns The old value stored at key, or `null` if key did not exist.
+  * @see {@link https://redis.io/commands/getset}
+  */
+  GETSET(key: string, value: string | number): RedisXTransaction<AddToList<L, string | null>, C, D>;
+  /**
+  * Reduces the value stored at the specified key by the specified decrement.
+  * If the key does not exist, it is initialized with a value of 0 before performing the operation.
+  * If the key's value is not of the correct type or cannot be represented as an integer, an error is returned.
+  * This operation is limited to 64-bit signed integers.
+  *
+  * - Available since: 1.0.0.
+  * - Time complexity: O(1).
+  * @param key Key to decrement.
+  * @param decrement The value to decrement by.
+  * @returns The value of the key after decrementing it.
+  * @see {@link https://redis.io/commands/decrby}
+  */
+  DECRBY(key: string, decrement: number): RedisXTransaction<AddToList<L, number>, C, D>;
+  /**
+  * Returns the substring of the string value stored at key, determined by the offsets start and end (both are inclusive).
+  * Negative offsets can be used in order to provide an offset starting from the end of the string.
+  * So -1 means the last character, -2 the penultimate and so forth.
+  *
+  * The function handles out of range requests by limiting the resulting range to the actual length of the string.
+  * - Available since: 2.4.0.
+  * - Time complexity: O(N) where N is the length of the returned string. The complexity is ultimately determined by the returned length, but because creating a substring from an existing string is very cheap, it can be considered O(1) for small strings.
+  * @param key The key holding the string value.
+  * @param start The starting offset. Can be negative to count from the end of the string.
+  * @param end The ending offset (inclusive). Can be negative to count from the end of the string.
+  * @returns The substring.
+  * @see {@link https://redis.io/commands/getrange}
+  */
+  GETRANGE(key: string, start: number, end: number): RedisXTransaction<AddToList<L, string>, C, D>;
+  /**
+  * Set key to hold the string value and set key to timeout after a given number of seconds.
+  * This command is equivalent to SET key value EX seconds.
+  *
+  * - Available since: 2.0.0.
+  * - Time complexity: O(1).
+  * @deprecated As of Redis version 2.6.12, this command is regarded as deprecated. It can be replaced by SET with the EX argument when migrating or writing new code.
+  * @param key Key to set.
+  * @param seconds Timeout in seconds.
+  * @param value Value to set.
+  * @returns Simple string reply: OK.
+  * @see {@link https://redis.io/commands/setex}
+  */
+  SETEX(key: string, seconds: number, value: string | number): RedisXTransaction<AddToList<L, "OK">, C, D>;
+  /**
+  * Get the value of key and optionally set its expiration.
+  * GETEX is similar to GET, but is a write command with additional options.
+  *
+  * An error is returned if the value stored at key is not a string, because GETEX only handles string values.
+  * - Available since: 6.2.0.
+  * - Time complexity: O(1).
+  * @param key Key to get.
+  * @param options Command options.
+  * @returns The value of key, or `null` when key does not exist.
+  * @see {@link https://redis.io/commands/getex}
+  */
+  GETEX(key: string, options?: GetexOptions): RedisXTransaction<AddToList<L, string | null>, C, D>;
+  /**
+  * Returns the length of the string value stored at key.
+  * An error is returned when key holds a non-string value.
+  *
+  * - Available since: 2.2.0.
+  * - Time complexity: O(1).
+  * @param key Key to get length of.
+  * @returns The length of the string stored at key, or 0 when the key does not exist.
+  * @see {@link https://redis.io/commands/strlen}
+  */
+  STRLEN(key: string): RedisXTransaction<AddToList<L, number>, C, D>;
+  /**
+  * Decrements the number stored at key by one. If the key does not exist,
+  * it is set to 0 before performing the operation. An error is returned if the
+  * key contains a value of the wrong type or contains a string that can not
+  * be represented as integer. This operation is limited to 64 bit signed integers.
+  * - Available since: 1.0.0.
+  * - Time complexity: O(1).
+  * @param key Key to decrement.
+  * @returns The value of the key after decrementing it.
+  * @see {@link https://redis.io/commands/decr}
+  */
+  DECR(key: string): RedisXTransaction<AddToList<L, number>, C, D>;
+  /**
+  * Set key to hold the string value and set key to timeout after a given number of milliseconds.
+  * This command is similar to SETEX, except that the expiration time is specified in milliseconds instead of seconds.
+  *
+  * - Available since: 2.6.0.
+  * - Time complexity: O(1).
+  * @deprecated As of Redis version 2.6.12, this command is regarded as deprecated. It can be replaced by SET with the PX argument when migrating or writing new code.
+  * @param key Key to set.
+  * @param milliseconds Expiration time in milliseconds.
+  * @param value Value to set.
+  * @returns "OK" if the command was executed successfully.
+  * @see {@link https://redis.io/commands/psetex}
+  */
+  PSETEX(key: string, milliseconds: number, value: string | number): RedisXTransaction<AddToList<L, "OK">, C, D>;
   /**
   * This command works exactly like EXPIRE but the time to live of the key is specified in milliseconds instead of seconds.
   * - Available since: 2.6.0.
@@ -1234,6 +1795,30 @@ declare class RedisXClient {
   private useCommand;
   createTransaction(): RedisXTransaction<[], false, unknown>;
   /**
+  * Sets the given keys to their respective values. MSETNX will not perform
+  * any operation at all even if just a single key already exists.
+  *
+  * - Available since: 1.0.1.
+  * - Time complexity: O(N) where N is the number of keys to set.
+  * @param pairs A record of key-value pairs.
+  * @returns `true` if all the keys were set, `false` if no key was set (at least one key already existed).
+  * @see {@link https://redis.io/commands/msetnx}
+  */
+  MSETNX(pairs: Record<string, string | number>): Promise<boolean>;
+  /**
+  * Set key to hold string value if key does not exist. In that case, it is equal to SET.
+  * When key already holds a value, no operation is performed. SETNX is short for "SET if Not eXists".
+  *
+  * - Available since: 1.0.0.
+  * - Time complexity: O(1).
+  * @deprecated As of Redis version 2.6.12, this command is regarded as deprecated. It can be replaced by SET with the NX argument when migrating or writing new code.
+  * @param key Key to set.
+  * @param value Value to set.
+  * @returns Integer reply: 1 if the key was set, 0 if the key was not set.
+  * @see {@link https://redis.io/commands/setnx}
+  */
+  SETNX(key: string, value: string | number): Promise<boolean>;
+  /**
   * Get the value of key.
   *
   * If the key does not exist `null` is returned.
@@ -1278,6 +1863,239 @@ declare class RedisXClient {
   * @see {@link https://redis.io/commands/set}
   */
   SET(key: string, value: string | number, options: SetOptions & SetOptionsGet): Promise<string | null>;
+  /**
+  * Append a value to a key.
+  *
+  * If key already exists and is a string, this command appends the value at the end of the string.
+  * If key does not exist it is created and set as an empty string, so APPEND will be similar to SET in this special case.
+  * - Available since: 2.0.0.
+  * - Time complexity: O(1). The amortized time complexity is O(1) assuming the appended value is small and the already present value is of any size, since the dynamic string library used by Redis will double the free space available on every reallocation.
+  * @param key Key to append to.
+  * @param value Value to append.
+  * @returns The length of the string after the append operation.
+  * @see {@link https://redis.io/commands/append}
+  */
+  APPEND(key: string, value: string): Promise<number>;
+  /**
+  * Increments the number stored at key by one. If the key does not exist,
+  * it is set to 0 before performing the operation. An error is returned if the
+  * key contains a value of the wrong type or contains a string that can not
+  * be represented as integer. This operation is limited to 64 bit signed integers.
+  * - Available since: 1.0.0.
+  * - Time complexity: O(1).
+  * @param key Key to increment.
+  * @returns The value of the key after incrementing it.
+  * @see {@link https://redis.io/commands/incr}
+  */
+  INCR(key: string): Promise<number>;
+  /**
+  * Increment the string representing a floating point number stored at key by the specified increment.
+  * By using a negative increment value, the result is that the value stored at the key is decremented.
+  * If the key does not exist, it is set to 0 before performing the operation.
+  *
+  * - Available since: 2.6.0.
+  * - Time complexity: O(1).
+  * @param key Key to increment.
+  * @param increment Value to increment by.
+  * @returns The value of key after the increment.
+  * @see {@link https://redis.io/commands/incrbyfloat}
+  */
+  INCRBYFLOAT(key: string, increment: number): Promise<string>;
+  /**
+  * Returns the values of all specified keys. For every key that does not hold a
+  * string value or does not exist, the special value `null` is returned.
+  * Because of this, the operation never fails.
+  *
+  * - Available since: 1.0.0.
+  * - Time complexity: O(N) where N is the number of keys to retrieve.
+  * @param keys The keys to get.
+  * @returns Array reply: a list of values at the specified keys.
+  * @see {@link https://redis.io/commands/mget}
+  */
+  MGET<const K extends string[]>(keys: K): Promise<{ [I in keyof K]: string | null }>;
+  /**
+  * Returns the values of all specified keys. For every key that does not hold a
+  * string value or does not exist, the special value `null` is returned.
+  * Because of this, the operation never fails.
+  *
+  * - Available since: 1.0.0.
+  * - Time complexity: O(N) where N is the number of keys to retrieve.
+  * @param keys The keys to get.
+  * @returns Array reply: a list of values at the specified keys.
+  * @see {@link https://redis.io/commands/mget}
+  */
+  MGET<const K extends string[]>(...keys: K): Promise<{ [I in keyof K]: string | null }>;
+  /**
+  * Get the value of key and delete the key. This command is similar to GET, except for the fact
+  * that it also deletes the key on success (if and only if the key's value type is a string).
+  *
+  * - Available since: 6.2.0.
+  * - Time complexity: O(1).
+  * @param key Key to get and delete.
+  * @returns The value of key, or `null` when key does not exist or its value is not a string.
+  * @see {@link https://redis.io/commands/getdel}
+  */
+  GETDEL(key: string): Promise<string | null>;
+  /**
+  * Sets the given keys to their respective values. MSET replaces existing values with new values, just as regular SET.
+  * MSET is atomic, so all given keys are set at once. It is not possible for clients to see that some of the keys were updated while others are unchanged.
+  * - Available since: 1.0.1.
+  * - Time complexity: O(N) where N is the number of keys to set.
+  * @param pairs A record of key-value pairs.
+  * @returns "OK"
+  * @see {@link https://redis.io/commands/mset}
+  */
+  MSET(pairs: Record<string, string | number>): Promise<"OK">;
+  /**
+  * Increments the number stored at key by increment. If the key does not exist, it is set to 0 before performing the operation.
+  * An error is returned if the key contains a value of the wrong type or contains a string that cannot be represented as integer.
+  * This operation is limited to 64 bit signed integers.
+  *
+  * - Available since: 1.0.0.
+  * - Time complexity: O(1).
+  * @param key Key to increment.
+  * @param increment Amount to increment by.
+  * @returns The value of the key after the increment.
+  * @see {@link https://redis.io/commands/incrby}
+  */
+  INCRBY(key: string, increment: number): Promise<number>;
+  /**
+  * Overwrites part of the string stored at key, starting at the specified offset, for the entire length of value.
+  * If the offset is larger than the current length of the string at key, the string is padded with zero-bytes to make offset fit.
+  * Non-existing keys are considered as empty strings, so this command will make sure it holds a string large enough to be able to set value at offset.
+  *
+  * Note that the maximum offset that you can set is `2^29-1` (536870911), as Redis Strings are limited to 512 megabytes.
+  *
+  * - Available since: 2.2.0.
+  * - Time complexity: O(1), not counting the time taken to copy the new string in place. Usually, this string is very small so the amortized complexity is O(1). Otherwise, complexity is O(M) with M being the length of the value argument.
+  * @param key Key to modify.
+  * @param offset Position at which the overwrite should begin.
+  * @param value String that will be written to the key, starting at the specified offset.
+  * @returns The length of the string after it was modified by the command.
+  * @see {@link https://redis.io/commands/setrange}
+  */
+  SETRANGE(key: string, offset: number, value: string): Promise<number>;
+  /**
+  * Returns the substring of the string value stored at key, determined by the offsets start and end (both are inclusive).
+  * Negative offsets can be used in order to provide an offset starting from the end of the string.
+  * So -1 means the last character, -2 the penultimate and so forth.
+  * - Available since: 1.0.0.
+  * - Time complexity: O(N) where N is the length of the returned string. The complexity is ultimately determined by the returned length, but because creating a substring from an existing string is very cheap, it can be considered O(1) for small strings.
+  * @deprecated As of Redis version 2.0.0, this command is regarded as deprecated. It can be replaced by GETRANGE when migrating or writing new code.
+  * @param key Key to get the substring from.
+  * @param start Start offset (inclusive).
+  * @param end End offset (inclusive).
+  * @returns The substring of the string value stored at key.
+  * @see {@link https://redis.io/commands/substr}
+  */
+  SUBSTR(key: string, start: number, end: number): Promise<string>;
+  /**
+  * Atomically sets key to value and returns the old value stored at key.
+  * Returns an error when key exists but does not hold a string value.
+  * Any previous time to live associated with the key is discarded on successful SET operation.
+  *
+  * - Available since: 1.0.0.
+  * - Time complexity: O(1).
+  * @deprecated As of Redis version 6.2.0, this command is regarded as deprecated. It can be replaced by SET with the GET argument when migrating or writing new code.
+  * @param key Key to set.
+  * @param value Value to set.
+  * @returns The old value stored at key, or `null` if key did not exist.
+  * @see {@link https://redis.io/commands/getset}
+  */
+  GETSET(key: string, value: string | number): Promise<string | null>;
+  /**
+  * Reduces the value stored at the specified key by the specified decrement.
+  * If the key does not exist, it is initialized with a value of 0 before performing the operation.
+  * If the key's value is not of the correct type or cannot be represented as an integer, an error is returned.
+  * This operation is limited to 64-bit signed integers.
+  *
+  * - Available since: 1.0.0.
+  * - Time complexity: O(1).
+  * @param key Key to decrement.
+  * @param decrement The value to decrement by.
+  * @returns The value of the key after decrementing it.
+  * @see {@link https://redis.io/commands/decrby}
+  */
+  DECRBY(key: string, decrement: number): Promise<number>;
+  /**
+  * Returns the substring of the string value stored at key, determined by the offsets start and end (both are inclusive).
+  * Negative offsets can be used in order to provide an offset starting from the end of the string.
+  * So -1 means the last character, -2 the penultimate and so forth.
+  *
+  * The function handles out of range requests by limiting the resulting range to the actual length of the string.
+  * - Available since: 2.4.0.
+  * - Time complexity: O(N) where N is the length of the returned string. The complexity is ultimately determined by the returned length, but because creating a substring from an existing string is very cheap, it can be considered O(1) for small strings.
+  * @param key The key holding the string value.
+  * @param start The starting offset. Can be negative to count from the end of the string.
+  * @param end The ending offset (inclusive). Can be negative to count from the end of the string.
+  * @returns The substring.
+  * @see {@link https://redis.io/commands/getrange}
+  */
+  GETRANGE(key: string, start: number, end: number): Promise<string>;
+  /**
+  * Set key to hold the string value and set key to timeout after a given number of seconds.
+  * This command is equivalent to SET key value EX seconds.
+  *
+  * - Available since: 2.0.0.
+  * - Time complexity: O(1).
+  * @deprecated As of Redis version 2.6.12, this command is regarded as deprecated. It can be replaced by SET with the EX argument when migrating or writing new code.
+  * @param key Key to set.
+  * @param seconds Timeout in seconds.
+  * @param value Value to set.
+  * @returns Simple string reply: OK.
+  * @see {@link https://redis.io/commands/setex}
+  */
+  SETEX(key: string, seconds: number, value: string | number): Promise<"OK">;
+  /**
+  * Get the value of key and optionally set its expiration.
+  * GETEX is similar to GET, but is a write command with additional options.
+  *
+  * An error is returned if the value stored at key is not a string, because GETEX only handles string values.
+  * - Available since: 6.2.0.
+  * - Time complexity: O(1).
+  * @param key Key to get.
+  * @param options Command options.
+  * @returns The value of key, or `null` when key does not exist.
+  * @see {@link https://redis.io/commands/getex}
+  */
+  GETEX(key: string, options?: GetexOptions): Promise<string | null>;
+  /**
+  * Returns the length of the string value stored at key.
+  * An error is returned when key holds a non-string value.
+  *
+  * - Available since: 2.2.0.
+  * - Time complexity: O(1).
+  * @param key Key to get length of.
+  * @returns The length of the string stored at key, or 0 when the key does not exist.
+  * @see {@link https://redis.io/commands/strlen}
+  */
+  STRLEN(key: string): Promise<number>;
+  /**
+  * Decrements the number stored at key by one. If the key does not exist,
+  * it is set to 0 before performing the operation. An error is returned if the
+  * key contains a value of the wrong type or contains a string that can not
+  * be represented as integer. This operation is limited to 64 bit signed integers.
+  * - Available since: 1.0.0.
+  * - Time complexity: O(1).
+  * @param key Key to decrement.
+  * @returns The value of the key after decrementing it.
+  * @see {@link https://redis.io/commands/decr}
+  */
+  DECR(key: string): Promise<number>;
+  /**
+  * Set key to hold the string value and set key to timeout after a given number of milliseconds.
+  * This command is similar to SETEX, except that the expiration time is specified in milliseconds instead of seconds.
+  *
+  * - Available since: 2.6.0.
+  * - Time complexity: O(1).
+  * @deprecated As of Redis version 2.6.12, this command is regarded as deprecated. It can be replaced by SET with the PX argument when migrating or writing new code.
+  * @param key Key to set.
+  * @param milliseconds Expiration time in milliseconds.
+  * @param value Value to set.
+  * @returns "OK" if the command was executed successfully.
+  * @see {@link https://redis.io/commands/psetex}
+  */
+  PSETEX(key: string, milliseconds: number, value: string | number): Promise<"OK">;
   /**
   * This command works exactly like EXPIRE but the time to live of the key is specified in milliseconds instead of seconds.
   * - Available since: 2.6.0.
@@ -1650,7 +2468,5 @@ declare class RedisXClient {
   * @see {@link https://redis.io/commands/eval}
   */
   EVAL(script: string, keys: (string | number)[], args?: (string | number)[]): Promise<unknown>;
-}
-
-//#endregion
+} //#endregion
 export { RedisXClient, RedisXTransaction };
