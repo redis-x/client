@@ -55,7 +55,7 @@ The structure for implementing Redis commands follows these rules:
   - Documentation should cite the Redis command reference, must include Redis version when the command was added and time complexity.
   - If there are NO overloads, document the `input` function with complete JSDoc.
   - If there ARE overloads, document each `_command` declaration instead.
-  - Every parameter and return value must be documented.
+  - If the command accepts an options object, document the options fields only in the exported options type, and **do not** reference it from the command documentation.
 
 4. **Options**:
   - If a command accepts options, declare its type as `export type <CommandName>Options`.

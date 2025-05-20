@@ -7,6 +7,7 @@ import { stringBulkToObject } from '../../utils.js';
  * - Time complexity: O(N) where N is the size of the hash.
  * @param key -
  * @returns A record of fields and their values stored in the hash.
+ * @see {@link https://redis.io/commands/hgetall}
  */
 export function input(key: string): Command<Record<string, string>> {
 	return {

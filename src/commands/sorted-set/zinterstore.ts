@@ -19,6 +19,7 @@ export type ZinterstoreOptions = {
  * @param keys List of keys that holds sorted sets.
  * @param options -
  * @returns The number of members in the resulting sorted set at the destination.
+ * @see {@link https://redis.io/commands/zinterstore}
  */
 declare function _command(
 	destination: string,
@@ -34,6 +35,7 @@ declare function _command(
  * @param keys_with_weights Record where keys are the keys that holds sorted sets and values are the weights to apply to the sorted sets.
  * @param options -
  * @returns The number of members in the resulting sorted set at the destination.
+ * @see {@link https://redis.io/commands/zinterstore}
  */
 declare function _command(
 	destination: string,

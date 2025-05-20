@@ -8,6 +8,7 @@ import type { Command } from '../../types.js';
  * @param keys Keys accessed by the script.
  * @param args Arguments passed to the script.
  * @returns Value returned by the script.
+ * @see {@link https://redis.io/commands/eval}
  */
 export function input(
 	script: string,

@@ -47,6 +47,7 @@ export type ZaddOptions = {
  * @param member - Member to add.
  * @param options -
  * @returns The number of fields that were added.
+ * @see {@link https://redis.io/commands/zadd}
  */
 declare function _command(
 	key: string,
@@ -64,6 +65,7 @@ declare function _command(
  * @param pairs - Object containing score/member pairs to set.
  * @param options -
  * @returns The number of fields that were added.
+ * @see {@link https://redis.io/commands/zadd}
  */
 declare function _command(
 	key: string,

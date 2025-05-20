@@ -9,6 +9,7 @@ import type { Command } from '../../types.js';
  * @param field Field to set.
  * @param value Value to set.
  * @returns The number of fields that were added.
+ * @see {@link https://redis.io/commands/hset}
  */
 declare function _command(
 	key: string,
@@ -24,6 +25,7 @@ declare function _command(
  * @param key Key that contains the hash.
  * @param pairs Object containing field/value pairs to set.
  * @returns The number of fields that were added.
+ * @see {@link https://redis.io/commands/hset}
  */
 declare function _command(
 	key: string,

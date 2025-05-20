@@ -52,8 +52,9 @@ function unwrapRedisTransactionCommand(target, result) {
 * - Time complexity: O(1).
 * @param key Key to get.
 * @returns The value of key, or `null` when key does not exist.
+* @see {@link https://redis.io/commands/get}
 */
-function input$15(key) {
+function input$17(key) {
 	return {
 		kind: "#schema",
 		args: ["GET", key]
@@ -62,7 +63,7 @@ function input$15(key) {
 
 //#endregion
 //#region src/commands/string/set.ts
-function input$14(key, value, options) {
+function input$16(key, value, options) {
 	const args_options = [];
 	if (options) {
 		if (options.NX) args_options.push("NX");
@@ -97,8 +98,9 @@ function input$14(key, value, options) {
 * @param seconds Time to live in seconds.
 * @param options Command options.
 * @returns Returns `true` if the timeout was set. Returns `false` if the timeout was not set; for example, the key doesn't exist, or the operation was skipped because of the provided arguments.
+* @see {@link https://redis.io/commands/expire}
 */
-function input$13(key, seconds, options) {
+function input$15(key, seconds, options) {
 	const args_options = [];
 	if (options) {
 		if (options.NX) args_options.push("NX");
@@ -114,11 +116,11 @@ function input$13(key, seconds, options) {
 			String(seconds),
 			...args_options
 		],
-		replyTransform: replyTransform$1
+		replyTransform: replyTransform$2
 	};
 }
-function replyTransform$1(result) {
-	return result === 1;
+function replyTransform$2(reply) {
+	return reply === 1;
 }
 
 //#endregion
@@ -129,16 +131,67 @@ function replyTransform$1(result) {
 * - Time complexity: O(N) with N being the number of keys in the database.
 * @param pattern Pattern to match.
 * @returns A set of keys matching pattern.
+* @see {@link https://redis.io/commands/keys}
 */
-function input$12(pattern) {
+function input$14(pattern) {
 	return {
 		kind: "#schema",
 		args: ["KEYS", pattern],
+		replyTransform: replyTransform$1
+	};
+}
+function replyTransform$1(reply) {
+	return new Set(reply);
+}
+
+//#endregion
+//#region src/commands/generic/copy.ts
+/**
+* Copy the value stored at the source key to the destination key.
+* - Available since: 6.2.0.
+* - Time complexity: O(N) worst case for collections, where N is the number of nested items. O(1) for string values.
+* @param source The source key.
+* @param destination The destination key.
+* @param options Command options.
+* @returns Whether the copy was successful.
+* @see {@link https://redis.io/commands/copy}
+*/
+function input$13(source, destination, options) {
+	const args = [
+		"COPY",
+		source,
+		destination
+	];
+	if ((options === null || options === void 0 ? void 0 : options.DB) !== void 0) args.push("DB", String(options.DB));
+	if (options === null || options === void 0 ? void 0 : options.REPLACE) args.push("REPLACE");
+	return {
+		kind: "#schema",
+		args,
 		replyTransform
 	};
 }
-function replyTransform(result) {
-	return new Set(result);
+function replyTransform(reply) {
+	return reply === 1;
+}
+
+//#endregion
+//#region src/commands/generic/expiretime.ts
+/**
+* Returns the absolute Unix timestamp (since January 1, 1970) in seconds at which the given key will expire.
+* - Available since: 7.0.0.
+* - Time complexity: O(1).
+* @param key Key to get expiration time for.
+* @returns One of the following:
+* - A number representing the expiration Unix timestamp in seconds.
+* - `-1` if the key exists but has no associated expiration time.
+* - `-2` if the key does not exist.
+* @see {@link https://redis.io/commands/expiretime}
+*/
+function input$12(key) {
+	return {
+		kind: "#schema",
+		args: ["EXPIRETIME", key]
+	};
 }
 
 //#endregion
@@ -151,6 +204,7 @@ function replyTransform(result) {
 * - Time complexity: O(N) where N is the number of keys that will be removed. When a key to remove holds a value other than a string, the individual complexity for this key is O(M) where M is the number of elements in the list, set, sorted set or hash.
 * @param keys Keys to delete.
 * @returns The number of keys that were removed.
+* @see {@link https://redis.io/commands/del}
 */
 function input$11(...keys) {
 	return {
@@ -169,6 +223,7 @@ function input$11(...keys) {
 * - Time complexity: O(N) where N is the number of keys to check.
 * @param keys Keys to check.
 * @returns The number of keys existing among the ones specified as arguments.
+* @see {@link https://redis.io/commands/exists}
 */
 function input$10(...keys) {
 	return {
@@ -189,6 +244,7 @@ function input$10(...keys) {
 * @param key -
 * @param elements -
 * @returns The length of the list after the push operation.
+* @see {@link https://redis.io/commands/lpush}
 */
 function input$9(key, ...elements) {
 	return {
@@ -209,6 +265,7 @@ function input$9(key, ...elements) {
 * - Time complexity: O(1).
 * @param key Key holds a sorted set.
 * @returns The cardinality (number of members) of the sorted set, or 0 if the key doesn't exist.
+* @see {@link https://redis.io/commands/zcard}
 */
 function input$8(key) {
 	return {
@@ -226,6 +283,7 @@ function input$8(key) {
 * @param key Key holds a sorted set.
 * @param member Member in the sorted set.
 * @returns The score of the member (a double-precision floating point number), represented as a string, or `null` if member does not exist in the sorted set, or the key does not exist.
+* @see {@link https://redis.io/commands/zscore}
 */
 function input$7(key, member) {
 	return {
@@ -358,6 +416,7 @@ function input$2(key, arg1, arg2) {
 * - Time complexity: O(N) where N is the size of the hash.
 * @param key -
 * @returns A record of fields and their values stored in the hash.
+* @see {@link https://redis.io/commands/hgetall}
 */
 function input$1(key) {
 	return {
@@ -377,6 +436,7 @@ function input$1(key) {
 * @param keys Keys accessed by the script.
 * @param args Arguments passed to the script.
 * @returns Value returned by the script.
+* @see {@link https://redis.io/commands/eval}
 */
 function input(script, keys, args) {
 	const command_args = [
@@ -423,12 +483,13 @@ var RedisXTransactionUse = class {
 	* - Time complexity: O(1).
 	* @param key Key to get.
 	* @returns The value of key, or `null` when key does not exist.
+	* @see {@link https://redis.io/commands/get}
 	*/
 	GET(key) {
-		return this.useCommand(input$15(key));
+		return this.useCommand(input$17(key));
 	}
 	SET(key, value, options) {
-		return this.useCommand(input$14(key, value, options));
+		return this.useCommand(input$16(key, value, options));
 	}
 	/**
 	* Set a timeout on key.
@@ -440,9 +501,10 @@ var RedisXTransactionUse = class {
 	* @param seconds Time to live in seconds.
 	* @param options Command options.
 	* @returns Returns `true` if the timeout was set. Returns `false` if the timeout was not set; for example, the key doesn't exist, or the operation was skipped because of the provided arguments.
+	* @see {@link https://redis.io/commands/expire}
 	*/
 	EXPIRE(key, seconds, options) {
-		return this.useCommand(input$13(key, seconds, options));
+		return this.useCommand(input$15(key, seconds, options));
 	}
 	/**
 	* Returns all keys matching pattern.
@@ -450,9 +512,37 @@ var RedisXTransactionUse = class {
 	* - Time complexity: O(N) with N being the number of keys in the database.
 	* @param pattern Pattern to match.
 	* @returns A set of keys matching pattern.
+	* @see {@link https://redis.io/commands/keys}
 	*/
 	KEYS(pattern) {
-		return this.useCommand(input$12(pattern));
+		return this.useCommand(input$14(pattern));
+	}
+	/**
+	* Copy the value stored at the source key to the destination key.
+	* - Available since: 6.2.0.
+	* - Time complexity: O(N) worst case for collections, where N is the number of nested items. O(1) for string values.
+	* @param source The source key.
+	* @param destination The destination key.
+	* @param options Command options.
+	* @returns Whether the copy was successful.
+	* @see {@link https://redis.io/commands/copy}
+	*/
+	COPY(source, destination, options) {
+		return this.useCommand(input$13(source, destination, options));
+	}
+	/**
+	* Returns the absolute Unix timestamp (since January 1, 1970) in seconds at which the given key will expire.
+	* - Available since: 7.0.0.
+	* - Time complexity: O(1).
+	* @param key Key to get expiration time for.
+	* @returns One of the following:
+	* - A number representing the expiration Unix timestamp in seconds.
+	* - `-1` if the key exists but has no associated expiration time.
+	* - `-2` if the key does not exist.
+	* @see {@link https://redis.io/commands/expiretime}
+	*/
+	EXPIRETIME(key) {
+		return this.useCommand(input$12(key));
 	}
 	/**
 	* Removes the specified keys.
@@ -462,6 +552,7 @@ var RedisXTransactionUse = class {
 	* - Time complexity: O(N) where N is the number of keys that will be removed. When a key to remove holds a value other than a string, the individual complexity for this key is O(M) where M is the number of elements in the list, set, sorted set or hash.
 	* @param keys Keys to delete.
 	* @returns The number of keys that were removed.
+	* @see {@link https://redis.io/commands/del}
 	*/
 	DEL(...keys) {
 		return this.useCommand(input$11(...keys));
@@ -474,6 +565,7 @@ var RedisXTransactionUse = class {
 	* - Time complexity: O(N) where N is the number of keys to check.
 	* @param keys Keys to check.
 	* @returns The number of keys existing among the ones specified as arguments.
+	* @see {@link https://redis.io/commands/exists}
 	*/
 	EXISTS(...keys) {
 		return this.useCommand(input$10(...keys));
@@ -488,6 +580,7 @@ var RedisXTransactionUse = class {
 	* @param key -
 	* @param elements -
 	* @returns The length of the list after the push operation.
+	* @see {@link https://redis.io/commands/lpush}
 	*/
 	LPUSH(key, ...elements) {
 		return this.useCommand(input$9(key, ...elements));
@@ -498,6 +591,7 @@ var RedisXTransactionUse = class {
 	* - Time complexity: O(1).
 	* @param key Key holds a sorted set.
 	* @returns The cardinality (number of members) of the sorted set, or 0 if the key doesn't exist.
+	* @see {@link https://redis.io/commands/zcard}
 	*/
 	ZCARD(key) {
 		return this.useCommand(input$8(key));
@@ -509,6 +603,7 @@ var RedisXTransactionUse = class {
 	* @param key Key holds a sorted set.
 	* @param member Member in the sorted set.
 	* @returns The score of the member (a double-precision floating point number), represented as a string, or `null` if member does not exist in the sorted set, or the key does not exist.
+	* @see {@link https://redis.io/commands/zscore}
 	*/
 	ZSCORE(key, member) {
 		return this.useCommand(input$7(key, member));
@@ -534,6 +629,7 @@ var RedisXTransactionUse = class {
 	* - Time complexity: O(N) where N is the size of the hash.
 	* @param key -
 	* @returns A record of fields and their values stored in the hash.
+	* @see {@link https://redis.io/commands/hgetall}
 	*/
 	HGETALL(key) {
 		return this.useCommand(input$1(key));
@@ -546,6 +642,7 @@ var RedisXTransactionUse = class {
 	* @param keys Keys accessed by the script.
 	* @param args Arguments passed to the script.
 	* @returns Value returned by the script.
+	* @see {@link https://redis.io/commands/eval}
 	*/
 	EVAL(script, keys, args) {
 		return this.useCommand(input(script, keys, args));
@@ -622,12 +719,13 @@ var RedisXTransaction = class {
 	* - Time complexity: O(1).
 	* @param key Key to get.
 	* @returns The value of key, or `null` when key does not exist.
+	* @see {@link https://redis.io/commands/get}
 	*/
 	GET(key) {
-		return this.useCommand(input$15(key));
+		return this.useCommand(input$17(key));
 	}
 	SET(key, value, options) {
-		return this.useCommand(input$14(key, value, options));
+		return this.useCommand(input$16(key, value, options));
 	}
 	/**
 	* Set a timeout on key.
@@ -639,9 +737,10 @@ var RedisXTransaction = class {
 	* @param seconds Time to live in seconds.
 	* @param options Command options.
 	* @returns Returns `true` if the timeout was set. Returns `false` if the timeout was not set; for example, the key doesn't exist, or the operation was skipped because of the provided arguments.
+	* @see {@link https://redis.io/commands/expire}
 	*/
 	EXPIRE(key, seconds, options) {
-		return this.useCommand(input$13(key, seconds, options));
+		return this.useCommand(input$15(key, seconds, options));
 	}
 	/**
 	* Returns all keys matching pattern.
@@ -649,9 +748,37 @@ var RedisXTransaction = class {
 	* - Time complexity: O(N) with N being the number of keys in the database.
 	* @param pattern Pattern to match.
 	* @returns A set of keys matching pattern.
+	* @see {@link https://redis.io/commands/keys}
 	*/
 	KEYS(pattern) {
-		return this.useCommand(input$12(pattern));
+		return this.useCommand(input$14(pattern));
+	}
+	/**
+	* Copy the value stored at the source key to the destination key.
+	* - Available since: 6.2.0.
+	* - Time complexity: O(N) worst case for collections, where N is the number of nested items. O(1) for string values.
+	* @param source The source key.
+	* @param destination The destination key.
+	* @param options Command options.
+	* @returns Whether the copy was successful.
+	* @see {@link https://redis.io/commands/copy}
+	*/
+	COPY(source, destination, options) {
+		return this.useCommand(input$13(source, destination, options));
+	}
+	/**
+	* Returns the absolute Unix timestamp (since January 1, 1970) in seconds at which the given key will expire.
+	* - Available since: 7.0.0.
+	* - Time complexity: O(1).
+	* @param key Key to get expiration time for.
+	* @returns One of the following:
+	* - A number representing the expiration Unix timestamp in seconds.
+	* - `-1` if the key exists but has no associated expiration time.
+	* - `-2` if the key does not exist.
+	* @see {@link https://redis.io/commands/expiretime}
+	*/
+	EXPIRETIME(key) {
+		return this.useCommand(input$12(key));
 	}
 	/**
 	* Removes the specified keys.
@@ -661,6 +788,7 @@ var RedisXTransaction = class {
 	* - Time complexity: O(N) where N is the number of keys that will be removed. When a key to remove holds a value other than a string, the individual complexity for this key is O(M) where M is the number of elements in the list, set, sorted set or hash.
 	* @param keys Keys to delete.
 	* @returns The number of keys that were removed.
+	* @see {@link https://redis.io/commands/del}
 	*/
 	DEL(...keys) {
 		return this.useCommand(input$11(...keys));
@@ -673,6 +801,7 @@ var RedisXTransaction = class {
 	* - Time complexity: O(N) where N is the number of keys to check.
 	* @param keys Keys to check.
 	* @returns The number of keys existing among the ones specified as arguments.
+	* @see {@link https://redis.io/commands/exists}
 	*/
 	EXISTS(...keys) {
 		return this.useCommand(input$10(...keys));
@@ -687,6 +816,7 @@ var RedisXTransaction = class {
 	* @param key -
 	* @param elements -
 	* @returns The length of the list after the push operation.
+	* @see {@link https://redis.io/commands/lpush}
 	*/
 	LPUSH(key, ...elements) {
 		return this.useCommand(input$9(key, ...elements));
@@ -697,6 +827,7 @@ var RedisXTransaction = class {
 	* - Time complexity: O(1).
 	* @param key Key holds a sorted set.
 	* @returns The cardinality (number of members) of the sorted set, or 0 if the key doesn't exist.
+	* @see {@link https://redis.io/commands/zcard}
 	*/
 	ZCARD(key) {
 		return this.useCommand(input$8(key));
@@ -708,6 +839,7 @@ var RedisXTransaction = class {
 	* @param key Key holds a sorted set.
 	* @param member Member in the sorted set.
 	* @returns The score of the member (a double-precision floating point number), represented as a string, or `null` if member does not exist in the sorted set, or the key does not exist.
+	* @see {@link https://redis.io/commands/zscore}
 	*/
 	ZSCORE(key, member) {
 		return this.useCommand(input$7(key, member));
@@ -733,6 +865,7 @@ var RedisXTransaction = class {
 	* - Time complexity: O(N) where N is the size of the hash.
 	* @param key -
 	* @returns A record of fields and their values stored in the hash.
+	* @see {@link https://redis.io/commands/hgetall}
 	*/
 	HGETALL(key) {
 		return this.useCommand(input$1(key));
@@ -745,6 +878,7 @@ var RedisXTransaction = class {
 	* @param keys Keys accessed by the script.
 	* @param args Arguments passed to the script.
 	* @returns Value returned by the script.
+	* @see {@link https://redis.io/commands/eval}
 	*/
 	EVAL(script, keys, args) {
 		return this.useCommand(input(script, keys, args));
@@ -778,12 +912,13 @@ var RedisXClient = class {
 	* - Time complexity: O(1).
 	* @param key Key to get.
 	* @returns The value of key, or `null` when key does not exist.
+	* @see {@link https://redis.io/commands/get}
 	*/
 	GET(key) {
-		return this.useCommand(input$15(key));
+		return this.useCommand(input$17(key));
 	}
 	SET(key, value, options) {
-		return this.useCommand(input$14(key, value, options));
+		return this.useCommand(input$16(key, value, options));
 	}
 	/**
 	* Set a timeout on key.
@@ -795,9 +930,10 @@ var RedisXClient = class {
 	* @param seconds Time to live in seconds.
 	* @param options Command options.
 	* @returns Returns `true` if the timeout was set. Returns `false` if the timeout was not set; for example, the key doesn't exist, or the operation was skipped because of the provided arguments.
+	* @see {@link https://redis.io/commands/expire}
 	*/
 	EXPIRE(key, seconds, options) {
-		return this.useCommand(input$13(key, seconds, options));
+		return this.useCommand(input$15(key, seconds, options));
 	}
 	/**
 	* Returns all keys matching pattern.
@@ -805,9 +941,37 @@ var RedisXClient = class {
 	* - Time complexity: O(N) with N being the number of keys in the database.
 	* @param pattern Pattern to match.
 	* @returns A set of keys matching pattern.
+	* @see {@link https://redis.io/commands/keys}
 	*/
 	KEYS(pattern) {
-		return this.useCommand(input$12(pattern));
+		return this.useCommand(input$14(pattern));
+	}
+	/**
+	* Copy the value stored at the source key to the destination key.
+	* - Available since: 6.2.0.
+	* - Time complexity: O(N) worst case for collections, where N is the number of nested items. O(1) for string values.
+	* @param source The source key.
+	* @param destination The destination key.
+	* @param options Command options.
+	* @returns Whether the copy was successful.
+	* @see {@link https://redis.io/commands/copy}
+	*/
+	COPY(source, destination, options) {
+		return this.useCommand(input$13(source, destination, options));
+	}
+	/**
+	* Returns the absolute Unix timestamp (since January 1, 1970) in seconds at which the given key will expire.
+	* - Available since: 7.0.0.
+	* - Time complexity: O(1).
+	* @param key Key to get expiration time for.
+	* @returns One of the following:
+	* - A number representing the expiration Unix timestamp in seconds.
+	* - `-1` if the key exists but has no associated expiration time.
+	* - `-2` if the key does not exist.
+	* @see {@link https://redis.io/commands/expiretime}
+	*/
+	EXPIRETIME(key) {
+		return this.useCommand(input$12(key));
 	}
 	/**
 	* Removes the specified keys.
@@ -817,6 +981,7 @@ var RedisXClient = class {
 	* - Time complexity: O(N) where N is the number of keys that will be removed. When a key to remove holds a value other than a string, the individual complexity for this key is O(M) where M is the number of elements in the list, set, sorted set or hash.
 	* @param keys Keys to delete.
 	* @returns The number of keys that were removed.
+	* @see {@link https://redis.io/commands/del}
 	*/
 	DEL(...keys) {
 		return this.useCommand(input$11(...keys));
@@ -829,6 +994,7 @@ var RedisXClient = class {
 	* - Time complexity: O(N) where N is the number of keys to check.
 	* @param keys Keys to check.
 	* @returns The number of keys existing among the ones specified as arguments.
+	* @see {@link https://redis.io/commands/exists}
 	*/
 	EXISTS(...keys) {
 		return this.useCommand(input$10(...keys));
@@ -843,6 +1009,7 @@ var RedisXClient = class {
 	* @param key -
 	* @param elements -
 	* @returns The length of the list after the push operation.
+	* @see {@link https://redis.io/commands/lpush}
 	*/
 	LPUSH(key, ...elements) {
 		return this.useCommand(input$9(key, ...elements));
@@ -853,6 +1020,7 @@ var RedisXClient = class {
 	* - Time complexity: O(1).
 	* @param key Key holds a sorted set.
 	* @returns The cardinality (number of members) of the sorted set, or 0 if the key doesn't exist.
+	* @see {@link https://redis.io/commands/zcard}
 	*/
 	ZCARD(key) {
 		return this.useCommand(input$8(key));
@@ -864,6 +1032,7 @@ var RedisXClient = class {
 	* @param key Key holds a sorted set.
 	* @param member Member in the sorted set.
 	* @returns The score of the member (a double-precision floating point number), represented as a string, or `null` if member does not exist in the sorted set, or the key does not exist.
+	* @see {@link https://redis.io/commands/zscore}
 	*/
 	ZSCORE(key, member) {
 		return this.useCommand(input$7(key, member));
@@ -889,6 +1058,7 @@ var RedisXClient = class {
 	* - Time complexity: O(N) where N is the size of the hash.
 	* @param key -
 	* @returns A record of fields and their values stored in the hash.
+	* @see {@link https://redis.io/commands/hgetall}
 	*/
 	HGETALL(key) {
 		return this.useCommand(input$1(key));
@@ -901,6 +1071,7 @@ var RedisXClient = class {
 	* @param keys Keys accessed by the script.
 	* @param args Arguments passed to the script.
 	* @returns Value returned by the script.
+	* @see {@link https://redis.io/commands/eval}
 	*/
 	EVAL(script, keys, args) {
 		return this.useCommand(input(script, keys, args));

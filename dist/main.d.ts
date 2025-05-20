@@ -112,7 +112,7 @@ type ExpireOptions = {
 };
 
 //#endregion
-//#region src/commands/sorted-set/zadd.d.ts
+//#region src/commands/generic/copy.d.ts
 /**
 * Set a timeout on key.
 *
@@ -123,6 +123,32 @@ type ExpireOptions = {
 * @param seconds Time to live in seconds.
 * @param options Command options.
 * @returns Returns `true` if the timeout was set. Returns `false` if the timeout was not set; for example, the key doesn't exist, or the operation was skipped because of the provided arguments.
+* @see {@link https://redis.io/commands/expire}
+*/
+type CopyOptions = {
+  /**
+  * Logical database index for the destination key.
+  * - Available since: 6.2.0.
+  */
+  DB?: number;
+  /**
+  * If true, will replace the destination key if it already exists.
+  * - Available since: 6.2.0.
+  */
+  REPLACE?: boolean;
+};
+
+//#endregion
+//#region src/commands/sorted-set/zadd.d.ts
+/**
+* Copy the value stored at the source key to the destination key.
+* - Available since: 6.2.0.
+* - Time complexity: O(N) worst case for collections, where N is the number of nested items. O(1) for string values.
+* @param source The source key.
+* @param destination The destination key.
+* @param options Command options.
+* @returns Whether the copy was successful.
+* @see {@link https://redis.io/commands/copy}
 */
 type ZaddOptions = {
   /**
@@ -219,6 +245,7 @@ declare class RedisXTransactionUse {
   * - Time complexity: O(1).
   * @param key Key to get.
   * @returns The value of key, or `null` when key does not exist.
+  * @see {@link https://redis.io/commands/get}
   */
   GET(key: string): RedisXTransactionCommand<string | null>;
   /**
@@ -228,6 +255,7 @@ declare class RedisXTransactionUse {
   * @param key Key to set.
   * @param value Value to set.
   * @returns Returns string `"OK"` if the key was set, or `null` if operation was aborted (conflict with one of the XX/NX options).
+  * @see {@link https://redis.io/commands/set}
   */
   SET(key: string, value: string | number): RedisXTransactionCommand<"OK" | null>;
   /**
@@ -238,6 +266,7 @@ declare class RedisXTransactionUse {
   * @param value Value to set.
   * @param options Comand options.
   * @returns Returns string `"OK"` if the key was set, or `null` if operation was aborted (conflict with one of the XX/NX options).
+  * @see {@link https://redis.io/commands/set}
   */
   SET(key: string, value: string | number, options: SetOptions): RedisXTransactionCommand<"OK" | null>;
   /**
@@ -248,6 +277,7 @@ declare class RedisXTransactionUse {
   * @param value Value to set.
   * @param options Comand options.
   * @returns Returns string with the previous value of the key, or `null` if the key didn't exist before the SET.
+  * @see {@link https://redis.io/commands/set}
   */
   SET(key: string, value: string | number, options: SetOptions & SetOptionsGet): RedisXTransactionCommand<string | null>;
   /**
@@ -260,6 +290,7 @@ declare class RedisXTransactionUse {
   * @param seconds Time to live in seconds.
   * @param options Command options.
   * @returns Returns `true` if the timeout was set. Returns `false` if the timeout was not set; for example, the key doesn't exist, or the operation was skipped because of the provided arguments.
+  * @see {@link https://redis.io/commands/expire}
   */
   EXPIRE(key: string, seconds: number, options?: ExpireOptions): RedisXTransactionCommand<boolean>;
   /**
@@ -268,8 +299,32 @@ declare class RedisXTransactionUse {
   * - Time complexity: O(N) with N being the number of keys in the database.
   * @param pattern Pattern to match.
   * @returns A set of keys matching pattern.
+  * @see {@link https://redis.io/commands/keys}
   */
   KEYS(pattern: string): RedisXTransactionCommand<Set<string>>;
+  /**
+  * Copy the value stored at the source key to the destination key.
+  * - Available since: 6.2.0.
+  * - Time complexity: O(N) worst case for collections, where N is the number of nested items. O(1) for string values.
+  * @param source The source key.
+  * @param destination The destination key.
+  * @param options Command options.
+  * @returns Whether the copy was successful.
+  * @see {@link https://redis.io/commands/copy}
+  */
+  COPY(source: string, destination: string, options?: CopyOptions): RedisXTransactionCommand<boolean>;
+  /**
+  * Returns the absolute Unix timestamp (since January 1, 1970) in seconds at which the given key will expire.
+  * - Available since: 7.0.0.
+  * - Time complexity: O(1).
+  * @param key Key to get expiration time for.
+  * @returns One of the following:
+  * - A number representing the expiration Unix timestamp in seconds.
+  * - `-1` if the key exists but has no associated expiration time.
+  * - `-2` if the key does not exist.
+  * @see {@link https://redis.io/commands/expiretime}
+  */
+  EXPIRETIME(key: string): RedisXTransactionCommand<number>;
   /**
   * Removes the specified keys.
   *
@@ -278,6 +333,7 @@ declare class RedisXTransactionUse {
   * - Time complexity: O(N) where N is the number of keys that will be removed. When a key to remove holds a value other than a string, the individual complexity for this key is O(M) where M is the number of elements in the list, set, sorted set or hash.
   * @param keys Keys to delete.
   * @returns The number of keys that were removed.
+  * @see {@link https://redis.io/commands/del}
   */
   DEL(...keys: string[]): RedisXTransactionCommand<number>;
   /**
@@ -288,6 +344,7 @@ declare class RedisXTransactionUse {
   * - Time complexity: O(N) where N is the number of keys to check.
   * @param keys Keys to check.
   * @returns The number of keys existing among the ones specified as arguments.
+  * @see {@link https://redis.io/commands/exists}
   */
   EXISTS(...keys: string[]): RedisXTransactionCommand<number>;
   /**
@@ -300,6 +357,7 @@ declare class RedisXTransactionUse {
   * @param key -
   * @param elements -
   * @returns The length of the list after the push operation.
+  * @see {@link https://redis.io/commands/lpush}
   */
   LPUSH(key: string, ...elements: (string | number)[]): RedisXTransactionCommand<number>;
   /**
@@ -308,6 +366,7 @@ declare class RedisXTransactionUse {
   * - Time complexity: O(1).
   * @param key Key holds a sorted set.
   * @returns The cardinality (number of members) of the sorted set, or 0 if the key doesn't exist.
+  * @see {@link https://redis.io/commands/zcard}
   */
   ZCARD(key: string): RedisXTransactionCommand<number>;
   /**
@@ -317,6 +376,7 @@ declare class RedisXTransactionUse {
   * @param key Key holds a sorted set.
   * @param member Member in the sorted set.
   * @returns The score of the member (a double-precision floating point number), represented as a string, or `null` if member does not exist in the sorted set, or the key does not exist.
+  * @see {@link https://redis.io/commands/zscore}
   */
   ZSCORE(key: string, member: string | number): RedisXTransactionCommand<number | null>;
   /**
@@ -329,6 +389,7 @@ declare class RedisXTransactionUse {
   * @param member - Member to add.
   * @param options -
   * @returns The number of fields that were added.
+  * @see {@link https://redis.io/commands/zadd}
   */
   ZADD(key: string, score: number, member: string | number, options?: ZaddOptions): RedisXTransactionCommand<number>;
   /**
@@ -340,6 +401,7 @@ declare class RedisXTransactionUse {
   * @param pairs - Object containing score/member pairs to set.
   * @param options -
   * @returns The number of fields that were added.
+  * @see {@link https://redis.io/commands/zadd}
   */
   ZADD(key: string, pairs: Record<string, number>, options?: Omit<ZaddOptions, "INCR">): RedisXTransactionCommand<number>;
   /**
@@ -349,6 +411,7 @@ declare class RedisXTransactionUse {
   * @param key Key holds a sorted set.
   * @param members Members to remove.
   * @returns The number of members removed from the sorted set, not including non-existing members.
+  * @see {@link https://redis.io/commands/zrem}
   */
   ZREM(key: string, ...members: (string | number)[]): RedisXTransactionCommand<number>;
   /**
@@ -358,6 +421,7 @@ declare class RedisXTransactionUse {
   * @param key Key holds a sorted set.
   * @param members Members to remove.
   * @returns The number of members removed from the sorted set, not including non-existing members.
+  * @see {@link https://redis.io/commands/zrem}
   */
   ZREM(key: string, members: (string | number)[] | Set<string> | IterableIterator<string>): RedisXTransactionCommand<number>;
   /**
@@ -369,6 +433,7 @@ declare class RedisXTransactionUse {
   * @param stop - Stop index by default, minimum score if BY is `SCORE` or minimum lexicographical string if BY is `LEX`.
   * @param options -
   * @returns List of members in the specified range.
+  * @see {@link https://redis.io/commands/zrange}
   */
   ZRANGE(key: string, start: string | number, stop: string | number, options?: Omit<ZrangeOptions, "WITHSCORES">): RedisXTransactionCommand<string[]>;
   /**
@@ -380,6 +445,7 @@ declare class RedisXTransactionUse {
   * @param stop - Stop index by default, minimum score if BY is `SCORE` or minimum lexicographical string if BY is `LEX`.
   * @param options -
   * @returns List of members in the specified range with their scores.
+  * @see {@link https://redis.io/commands/zrange}
   */
   ZRANGE(key: string, start: string | number, stop: string | number, options: ZrangeOptions): RedisXTransactionCommand<{
     member: string;
@@ -393,6 +459,7 @@ declare class RedisXTransactionUse {
   * @param keys List of keys that holds sorted sets.
   * @param options -
   * @returns The number of members in the resulting sorted set at the destination.
+  * @see {@link https://redis.io/commands/zinterstore}
   */
   ZINTERSTORE(destination: string, keys: (string | number)[], options?: ZinterstoreOptions): RedisXTransactionCommand<number>;
   /**
@@ -403,6 +470,7 @@ declare class RedisXTransactionUse {
   * @param keys_with_weights Record where keys are the keys that holds sorted sets and values are the weights to apply to the sorted sets.
   * @param options -
   * @returns The number of members in the resulting sorted set at the destination.
+  * @see {@link https://redis.io/commands/zinterstore}
   */
   ZINTERSTORE(destination: string, keys_with_weights: Record<string, number>, options?: ZinterstoreOptions): RedisXTransactionCommand<number>;
   /**
@@ -414,6 +482,7 @@ declare class RedisXTransactionUse {
   * @param field Field to set.
   * @param value Value to set.
   * @returns The number of fields that were added.
+  * @see {@link https://redis.io/commands/hset}
   */
   HSET(key: string, field: string, value: string | number): RedisXTransactionCommand<number>;
   /**
@@ -424,6 +493,7 @@ declare class RedisXTransactionUse {
   * @param key Key that contains the hash.
   * @param pairs Object containing field/value pairs to set.
   * @returns The number of fields that were added.
+  * @see {@link https://redis.io/commands/hset}
   */
   HSET(key: string, pairs: Record<string, string | number>): RedisXTransactionCommand<number>;
   /**
@@ -432,6 +502,7 @@ declare class RedisXTransactionUse {
   * - Time complexity: O(N) where N is the size of the hash.
   * @param key -
   * @returns A record of fields and their values stored in the hash.
+  * @see {@link https://redis.io/commands/hgetall}
   */
   HGETALL(key: string): RedisXTransactionCommand<Record<string, string>>;
   /**
@@ -442,6 +513,7 @@ declare class RedisXTransactionUse {
   * @param keys Keys accessed by the script.
   * @param args Arguments passed to the script.
   * @returns Value returned by the script.
+  * @see {@link https://redis.io/commands/eval}
   */
   EVAL(script: string, keys: (string | number)[], args?: (string | number)[]): RedisXTransactionCommand<unknown>;
 } //#endregion
@@ -476,6 +548,7 @@ declare class RedisXTransaction<L = [], C extends boolean = false, D = unknown> 
   * - Time complexity: O(1).
   * @param key Key to get.
   * @returns The value of key, or `null` when key does not exist.
+  * @see {@link https://redis.io/commands/get}
   */
   GET(key: string): RedisXTransaction<AddToList<L, string | null>, C, D>;
   /**
@@ -485,6 +558,7 @@ declare class RedisXTransaction<L = [], C extends boolean = false, D = unknown> 
   * @param key Key to set.
   * @param value Value to set.
   * @returns Returns string `"OK"` if the key was set, or `null` if operation was aborted (conflict with one of the XX/NX options).
+  * @see {@link https://redis.io/commands/set}
   */
   SET(key: string, value: string | number): RedisXTransaction<AddToList<L, "OK" | null>, C, D>;
   /**
@@ -495,6 +569,7 @@ declare class RedisXTransaction<L = [], C extends boolean = false, D = unknown> 
   * @param value Value to set.
   * @param options Comand options.
   * @returns Returns string `"OK"` if the key was set, or `null` if operation was aborted (conflict with one of the XX/NX options).
+  * @see {@link https://redis.io/commands/set}
   */
   SET(key: string, value: string | number, options: SetOptions): RedisXTransaction<AddToList<L, "OK" | null>, C, D>;
   /**
@@ -505,6 +580,7 @@ declare class RedisXTransaction<L = [], C extends boolean = false, D = unknown> 
   * @param value Value to set.
   * @param options Comand options.
   * @returns Returns string with the previous value of the key, or `null` if the key didn't exist before the SET.
+  * @see {@link https://redis.io/commands/set}
   */
   SET(key: string, value: string | number, options: SetOptions & SetOptionsGet): RedisXTransaction<AddToList<L, string | null>, C, D>;
   /**
@@ -517,6 +593,7 @@ declare class RedisXTransaction<L = [], C extends boolean = false, D = unknown> 
   * @param seconds Time to live in seconds.
   * @param options Command options.
   * @returns Returns `true` if the timeout was set. Returns `false` if the timeout was not set; for example, the key doesn't exist, or the operation was skipped because of the provided arguments.
+  * @see {@link https://redis.io/commands/expire}
   */
   EXPIRE(key: string, seconds: number, options?: ExpireOptions): RedisXTransaction<AddToList<L, boolean>, C, D>;
   /**
@@ -525,8 +602,32 @@ declare class RedisXTransaction<L = [], C extends boolean = false, D = unknown> 
   * - Time complexity: O(N) with N being the number of keys in the database.
   * @param pattern Pattern to match.
   * @returns A set of keys matching pattern.
+  * @see {@link https://redis.io/commands/keys}
   */
   KEYS(pattern: string): RedisXTransaction<AddToList<L, Set<string>>, C, D>;
+  /**
+  * Copy the value stored at the source key to the destination key.
+  * - Available since: 6.2.0.
+  * - Time complexity: O(N) worst case for collections, where N is the number of nested items. O(1) for string values.
+  * @param source The source key.
+  * @param destination The destination key.
+  * @param options Command options.
+  * @returns Whether the copy was successful.
+  * @see {@link https://redis.io/commands/copy}
+  */
+  COPY(source: string, destination: string, options?: CopyOptions): RedisXTransaction<AddToList<L, boolean>, C, D>;
+  /**
+  * Returns the absolute Unix timestamp (since January 1, 1970) in seconds at which the given key will expire.
+  * - Available since: 7.0.0.
+  * - Time complexity: O(1).
+  * @param key Key to get expiration time for.
+  * @returns One of the following:
+  * - A number representing the expiration Unix timestamp in seconds.
+  * - `-1` if the key exists but has no associated expiration time.
+  * - `-2` if the key does not exist.
+  * @see {@link https://redis.io/commands/expiretime}
+  */
+  EXPIRETIME(key: string): RedisXTransaction<AddToList<L, number>, C, D>;
   /**
   * Removes the specified keys.
   *
@@ -535,6 +636,7 @@ declare class RedisXTransaction<L = [], C extends boolean = false, D = unknown> 
   * - Time complexity: O(N) where N is the number of keys that will be removed. When a key to remove holds a value other than a string, the individual complexity for this key is O(M) where M is the number of elements in the list, set, sorted set or hash.
   * @param keys Keys to delete.
   * @returns The number of keys that were removed.
+  * @see {@link https://redis.io/commands/del}
   */
   DEL(...keys: string[]): RedisXTransaction<AddToList<L, number>, C, D>;
   /**
@@ -545,6 +647,7 @@ declare class RedisXTransaction<L = [], C extends boolean = false, D = unknown> 
   * - Time complexity: O(N) where N is the number of keys to check.
   * @param keys Keys to check.
   * @returns The number of keys existing among the ones specified as arguments.
+  * @see {@link https://redis.io/commands/exists}
   */
   EXISTS(...keys: string[]): RedisXTransaction<AddToList<L, number>, C, D>;
   /**
@@ -557,6 +660,7 @@ declare class RedisXTransaction<L = [], C extends boolean = false, D = unknown> 
   * @param key -
   * @param elements -
   * @returns The length of the list after the push operation.
+  * @see {@link https://redis.io/commands/lpush}
   */
   LPUSH(key: string, ...elements: (string | number)[]): RedisXTransaction<AddToList<L, number>, C, D>;
   /**
@@ -565,6 +669,7 @@ declare class RedisXTransaction<L = [], C extends boolean = false, D = unknown> 
   * - Time complexity: O(1).
   * @param key Key holds a sorted set.
   * @returns The cardinality (number of members) of the sorted set, or 0 if the key doesn't exist.
+  * @see {@link https://redis.io/commands/zcard}
   */
   ZCARD(key: string): RedisXTransaction<AddToList<L, number>, C, D>;
   /**
@@ -574,6 +679,7 @@ declare class RedisXTransaction<L = [], C extends boolean = false, D = unknown> 
   * @param key Key holds a sorted set.
   * @param member Member in the sorted set.
   * @returns The score of the member (a double-precision floating point number), represented as a string, or `null` if member does not exist in the sorted set, or the key does not exist.
+  * @see {@link https://redis.io/commands/zscore}
   */
   ZSCORE(key: string, member: string | number): RedisXTransaction<AddToList<L, number | null>, C, D>;
   /**
@@ -586,6 +692,7 @@ declare class RedisXTransaction<L = [], C extends boolean = false, D = unknown> 
   * @param member - Member to add.
   * @param options -
   * @returns The number of fields that were added.
+  * @see {@link https://redis.io/commands/zadd}
   */
   ZADD(key: string, score: number, member: string | number, options?: ZaddOptions): RedisXTransaction<AddToList<L, number>, C, D>;
   /**
@@ -597,6 +704,7 @@ declare class RedisXTransaction<L = [], C extends boolean = false, D = unknown> 
   * @param pairs - Object containing score/member pairs to set.
   * @param options -
   * @returns The number of fields that were added.
+  * @see {@link https://redis.io/commands/zadd}
   */
   ZADD(key: string, pairs: Record<string, number>, options?: Omit<ZaddOptions, "INCR">): RedisXTransaction<AddToList<L, number>, C, D>;
   /**
@@ -606,6 +714,7 @@ declare class RedisXTransaction<L = [], C extends boolean = false, D = unknown> 
   * @param key Key holds a sorted set.
   * @param members Members to remove.
   * @returns The number of members removed from the sorted set, not including non-existing members.
+  * @see {@link https://redis.io/commands/zrem}
   */
   ZREM(key: string, ...members: (string | number)[]): RedisXTransaction<AddToList<L, number>, C, D>;
   /**
@@ -615,6 +724,7 @@ declare class RedisXTransaction<L = [], C extends boolean = false, D = unknown> 
   * @param key Key holds a sorted set.
   * @param members Members to remove.
   * @returns The number of members removed from the sorted set, not including non-existing members.
+  * @see {@link https://redis.io/commands/zrem}
   */
   ZREM(key: string, members: (string | number)[] | Set<string> | IterableIterator<string>): RedisXTransaction<AddToList<L, number>, C, D>;
   /**
@@ -626,6 +736,7 @@ declare class RedisXTransaction<L = [], C extends boolean = false, D = unknown> 
   * @param stop - Stop index by default, minimum score if BY is `SCORE` or minimum lexicographical string if BY is `LEX`.
   * @param options -
   * @returns List of members in the specified range.
+  * @see {@link https://redis.io/commands/zrange}
   */
   ZRANGE(key: string, start: string | number, stop: string | number, options?: Omit<ZrangeOptions, "WITHSCORES">): RedisXTransaction<AddToList<L, string[]>, C, D>;
   /**
@@ -637,6 +748,7 @@ declare class RedisXTransaction<L = [], C extends boolean = false, D = unknown> 
   * @param stop - Stop index by default, minimum score if BY is `SCORE` or minimum lexicographical string if BY is `LEX`.
   * @param options -
   * @returns List of members in the specified range with their scores.
+  * @see {@link https://redis.io/commands/zrange}
   */
   ZRANGE(key: string, start: string | number, stop: string | number, options: ZrangeOptions): RedisXTransaction<AddToList<L, {
     member: string;
@@ -650,6 +762,7 @@ declare class RedisXTransaction<L = [], C extends boolean = false, D = unknown> 
   * @param keys List of keys that holds sorted sets.
   * @param options -
   * @returns The number of members in the resulting sorted set at the destination.
+  * @see {@link https://redis.io/commands/zinterstore}
   */
   ZINTERSTORE(destination: string, keys: (string | number)[], options?: ZinterstoreOptions): RedisXTransaction<AddToList<L, number>, C, D>;
   /**
@@ -660,6 +773,7 @@ declare class RedisXTransaction<L = [], C extends boolean = false, D = unknown> 
   * @param keys_with_weights Record where keys are the keys that holds sorted sets and values are the weights to apply to the sorted sets.
   * @param options -
   * @returns The number of members in the resulting sorted set at the destination.
+  * @see {@link https://redis.io/commands/zinterstore}
   */
   ZINTERSTORE(destination: string, keys_with_weights: Record<string, number>, options?: ZinterstoreOptions): RedisXTransaction<AddToList<L, number>, C, D>;
   /**
@@ -671,6 +785,7 @@ declare class RedisXTransaction<L = [], C extends boolean = false, D = unknown> 
   * @param field Field to set.
   * @param value Value to set.
   * @returns The number of fields that were added.
+  * @see {@link https://redis.io/commands/hset}
   */
   HSET(key: string, field: string, value: string | number): RedisXTransaction<AddToList<L, number>, C, D>;
   /**
@@ -681,6 +796,7 @@ declare class RedisXTransaction<L = [], C extends boolean = false, D = unknown> 
   * @param key Key that contains the hash.
   * @param pairs Object containing field/value pairs to set.
   * @returns The number of fields that were added.
+  * @see {@link https://redis.io/commands/hset}
   */
   HSET(key: string, pairs: Record<string, string | number>): RedisXTransaction<AddToList<L, number>, C, D>;
   /**
@@ -689,6 +805,7 @@ declare class RedisXTransaction<L = [], C extends boolean = false, D = unknown> 
   * - Time complexity: O(N) where N is the size of the hash.
   * @param key -
   * @returns A record of fields and their values stored in the hash.
+  * @see {@link https://redis.io/commands/hgetall}
   */
   HGETALL(key: string): RedisXTransaction<AddToList<L, Record<string, string>>, C, D>;
   /**
@@ -699,6 +816,7 @@ declare class RedisXTransaction<L = [], C extends boolean = false, D = unknown> 
   * @param keys Keys accessed by the script.
   * @param args Arguments passed to the script.
   * @returns Value returned by the script.
+  * @see {@link https://redis.io/commands/eval}
   */
   EVAL(script: string, keys: (string | number)[], args?: (string | number)[]): RedisXTransaction<AddToList<L, unknown>, C, D>;
 }
@@ -721,6 +839,7 @@ declare class RedisXClient {
   * - Time complexity: O(1).
   * @param key Key to get.
   * @returns The value of key, or `null` when key does not exist.
+  * @see {@link https://redis.io/commands/get}
   */
   GET(key: string): Promise<string | null>;
   /**
@@ -730,6 +849,7 @@ declare class RedisXClient {
   * @param key Key to set.
   * @param value Value to set.
   * @returns Returns string `"OK"` if the key was set, or `null` if operation was aborted (conflict with one of the XX/NX options).
+  * @see {@link https://redis.io/commands/set}
   */
   SET(key: string, value: string | number): Promise<"OK" | null>;
   /**
@@ -740,6 +860,7 @@ declare class RedisXClient {
   * @param value Value to set.
   * @param options Comand options.
   * @returns Returns string `"OK"` if the key was set, or `null` if operation was aborted (conflict with one of the XX/NX options).
+  * @see {@link https://redis.io/commands/set}
   */
   SET(key: string, value: string | number, options: SetOptions): Promise<"OK" | null>;
   /**
@@ -750,6 +871,7 @@ declare class RedisXClient {
   * @param value Value to set.
   * @param options Comand options.
   * @returns Returns string with the previous value of the key, or `null` if the key didn't exist before the SET.
+  * @see {@link https://redis.io/commands/set}
   */
   SET(key: string, value: string | number, options: SetOptions & SetOptionsGet): Promise<string | null>;
   /**
@@ -762,6 +884,7 @@ declare class RedisXClient {
   * @param seconds Time to live in seconds.
   * @param options Command options.
   * @returns Returns `true` if the timeout was set. Returns `false` if the timeout was not set; for example, the key doesn't exist, or the operation was skipped because of the provided arguments.
+  * @see {@link https://redis.io/commands/expire}
   */
   EXPIRE(key: string, seconds: number, options?: ExpireOptions): Promise<boolean>;
   /**
@@ -770,8 +893,32 @@ declare class RedisXClient {
   * - Time complexity: O(N) with N being the number of keys in the database.
   * @param pattern Pattern to match.
   * @returns A set of keys matching pattern.
+  * @see {@link https://redis.io/commands/keys}
   */
   KEYS(pattern: string): Promise<Set<string>>;
+  /**
+  * Copy the value stored at the source key to the destination key.
+  * - Available since: 6.2.0.
+  * - Time complexity: O(N) worst case for collections, where N is the number of nested items. O(1) for string values.
+  * @param source The source key.
+  * @param destination The destination key.
+  * @param options Command options.
+  * @returns Whether the copy was successful.
+  * @see {@link https://redis.io/commands/copy}
+  */
+  COPY(source: string, destination: string, options?: CopyOptions): Promise<boolean>;
+  /**
+  * Returns the absolute Unix timestamp (since January 1, 1970) in seconds at which the given key will expire.
+  * - Available since: 7.0.0.
+  * - Time complexity: O(1).
+  * @param key Key to get expiration time for.
+  * @returns One of the following:
+  * - A number representing the expiration Unix timestamp in seconds.
+  * - `-1` if the key exists but has no associated expiration time.
+  * - `-2` if the key does not exist.
+  * @see {@link https://redis.io/commands/expiretime}
+  */
+  EXPIRETIME(key: string): Promise<number>;
   /**
   * Removes the specified keys.
   *
@@ -780,6 +927,7 @@ declare class RedisXClient {
   * - Time complexity: O(N) where N is the number of keys that will be removed. When a key to remove holds a value other than a string, the individual complexity for this key is O(M) where M is the number of elements in the list, set, sorted set or hash.
   * @param keys Keys to delete.
   * @returns The number of keys that were removed.
+  * @see {@link https://redis.io/commands/del}
   */
   DEL(...keys: string[]): Promise<number>;
   /**
@@ -790,6 +938,7 @@ declare class RedisXClient {
   * - Time complexity: O(N) where N is the number of keys to check.
   * @param keys Keys to check.
   * @returns The number of keys existing among the ones specified as arguments.
+  * @see {@link https://redis.io/commands/exists}
   */
   EXISTS(...keys: string[]): Promise<number>;
   /**
@@ -802,6 +951,7 @@ declare class RedisXClient {
   * @param key -
   * @param elements -
   * @returns The length of the list after the push operation.
+  * @see {@link https://redis.io/commands/lpush}
   */
   LPUSH(key: string, ...elements: (string | number)[]): Promise<number>;
   /**
@@ -810,6 +960,7 @@ declare class RedisXClient {
   * - Time complexity: O(1).
   * @param key Key holds a sorted set.
   * @returns The cardinality (number of members) of the sorted set, or 0 if the key doesn't exist.
+  * @see {@link https://redis.io/commands/zcard}
   */
   ZCARD(key: string): Promise<number>;
   /**
@@ -819,6 +970,7 @@ declare class RedisXClient {
   * @param key Key holds a sorted set.
   * @param member Member in the sorted set.
   * @returns The score of the member (a double-precision floating point number), represented as a string, or `null` if member does not exist in the sorted set, or the key does not exist.
+  * @see {@link https://redis.io/commands/zscore}
   */
   ZSCORE(key: string, member: string | number): Promise<number | null>;
   /**
@@ -831,6 +983,7 @@ declare class RedisXClient {
   * @param member - Member to add.
   * @param options -
   * @returns The number of fields that were added.
+  * @see {@link https://redis.io/commands/zadd}
   */
   ZADD(key: string, score: number, member: string | number, options?: ZaddOptions): Promise<number>;
   /**
@@ -842,6 +995,7 @@ declare class RedisXClient {
   * @param pairs - Object containing score/member pairs to set.
   * @param options -
   * @returns The number of fields that were added.
+  * @see {@link https://redis.io/commands/zadd}
   */
   ZADD(key: string, pairs: Record<string, number>, options?: Omit<ZaddOptions, "INCR">): Promise<number>;
   /**
@@ -851,6 +1005,7 @@ declare class RedisXClient {
   * @param key Key holds a sorted set.
   * @param members Members to remove.
   * @returns The number of members removed from the sorted set, not including non-existing members.
+  * @see {@link https://redis.io/commands/zrem}
   */
   ZREM(key: string, ...members: (string | number)[]): Promise<number>;
   /**
@@ -860,6 +1015,7 @@ declare class RedisXClient {
   * @param key Key holds a sorted set.
   * @param members Members to remove.
   * @returns The number of members removed from the sorted set, not including non-existing members.
+  * @see {@link https://redis.io/commands/zrem}
   */
   ZREM(key: string, members: (string | number)[] | Set<string> | IterableIterator<string>): Promise<number>;
   /**
@@ -871,6 +1027,7 @@ declare class RedisXClient {
   * @param stop - Stop index by default, minimum score if BY is `SCORE` or minimum lexicographical string if BY is `LEX`.
   * @param options -
   * @returns List of members in the specified range.
+  * @see {@link https://redis.io/commands/zrange}
   */
   ZRANGE(key: string, start: string | number, stop: string | number, options?: Omit<ZrangeOptions, "WITHSCORES">): Promise<string[]>;
   /**
@@ -882,6 +1039,7 @@ declare class RedisXClient {
   * @param stop - Stop index by default, minimum score if BY is `SCORE` or minimum lexicographical string if BY is `LEX`.
   * @param options -
   * @returns List of members in the specified range with their scores.
+  * @see {@link https://redis.io/commands/zrange}
   */
   ZRANGE(key: string, start: string | number, stop: string | number, options: ZrangeOptions): Promise<{
     member: string;
@@ -895,6 +1053,7 @@ declare class RedisXClient {
   * @param keys List of keys that holds sorted sets.
   * @param options -
   * @returns The number of members in the resulting sorted set at the destination.
+  * @see {@link https://redis.io/commands/zinterstore}
   */
   ZINTERSTORE(destination: string, keys: (string | number)[], options?: ZinterstoreOptions): Promise<number>;
   /**
@@ -905,6 +1064,7 @@ declare class RedisXClient {
   * @param keys_with_weights Record where keys are the keys that holds sorted sets and values are the weights to apply to the sorted sets.
   * @param options -
   * @returns The number of members in the resulting sorted set at the destination.
+  * @see {@link https://redis.io/commands/zinterstore}
   */
   ZINTERSTORE(destination: string, keys_with_weights: Record<string, number>, options?: ZinterstoreOptions): Promise<number>;
   /**
@@ -916,6 +1076,7 @@ declare class RedisXClient {
   * @param field Field to set.
   * @param value Value to set.
   * @returns The number of fields that were added.
+  * @see {@link https://redis.io/commands/hset}
   */
   HSET(key: string, field: string, value: string | number): Promise<number>;
   /**
@@ -926,6 +1087,7 @@ declare class RedisXClient {
   * @param key Key that contains the hash.
   * @param pairs Object containing field/value pairs to set.
   * @returns The number of fields that were added.
+  * @see {@link https://redis.io/commands/hset}
   */
   HSET(key: string, pairs: Record<string, string | number>): Promise<number>;
   /**
@@ -934,6 +1096,7 @@ declare class RedisXClient {
   * - Time complexity: O(N) where N is the size of the hash.
   * @param key -
   * @returns A record of fields and their values stored in the hash.
+  * @see {@link https://redis.io/commands/hgetall}
   */
   HGETALL(key: string): Promise<Record<string, string>>;
   /**
@@ -944,6 +1107,7 @@ declare class RedisXClient {
   * @param keys Keys accessed by the script.
   * @param args Arguments passed to the script.
   * @returns Value returned by the script.
+  * @see {@link https://redis.io/commands/eval}
   */
   EVAL(script: string, keys: (string | number)[], args?: (string | number)[]): Promise<unknown>;
 }

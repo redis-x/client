@@ -6,6 +6,7 @@ import type { Command } from '../../types.js';
  * - Time complexity: O(1).
  * @param key Key holds a sorted set.
  * @returns The cardinality (number of members) of the sorted set, or 0 if the key doesn't exist.
+ * @see {@link https://redis.io/commands/zcard}
  */
 export function input(key: string): Command<number> {
 	return {

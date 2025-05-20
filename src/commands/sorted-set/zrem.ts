@@ -7,6 +7,7 @@ import type { Command } from '../../types.js';
  * @param key Key holds a sorted set.
  * @param members Members to remove.
  * @returns The number of members removed from the sorted set, not including non-existing members.
+ * @see {@link https://redis.io/commands/zrem}
  */
 declare function _command(
 	key: string,
@@ -20,6 +21,7 @@ declare function _command(
  * @param key Key holds a sorted set.
  * @param members Members to remove.
  * @returns The number of members removed from the sorted set, not including non-existing members.
+ * @see {@link https://redis.io/commands/zrem}
  */
 declare function _command(
 	key: string,

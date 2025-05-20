@@ -10,6 +10,7 @@ import type { Command } from '../../types.js';
  * - Time complexity: O(1).
  * @param key Key to get.
  * @returns The value of key, or `null` when key does not exist.
+ * @see {@link https://redis.io/commands/get}
  */
 export function input(key: string): Command<string | null> {
 	return {

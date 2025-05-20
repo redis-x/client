@@ -1,0 +1,5 @@
+As a contrubutor, add command to repo. Respect contributing guideline and current command and test code structure. Create only files for command, do not modify anything else.
+
+Documentation from Redis:
+
+<paste docs here>

@@ -6,6 +6,7 @@ import type { Command } from '../../types.js';
  * - Time complexity: O(N) with N being the number of keys in the database.
  * @param pattern Pattern to match.
  * @returns A set of keys matching pattern.
+ * @see {@link https://redis.io/commands/keys}
  */
 export function input(pattern: string): Command<Set<string>> {
 	return {
@@ -19,6 +20,6 @@ export function input(pattern: string): Command<Set<string>> {
 }
 
 // eslint-disable-next-line jsdoc/require-jsdoc
-function replyTransform(result: string[]): Set<string> {
-	return new Set(result);
+function replyTransform(reply: string[]): Set<string> {
+	return new Set(reply);
 }

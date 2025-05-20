@@ -10,6 +10,7 @@ import type { Command } from '../../types.js';
  * @param key -
  * @param elements -
  * @returns The length of the list after the push operation.
+ * @see {@link https://redis.io/commands/lpush}
  */
 export function input(
 	key: string,

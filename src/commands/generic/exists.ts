@@ -8,6 +8,7 @@ import type { Command } from '../../types.js';
  * - Time complexity: O(N) where N is the number of keys to check.
  * @param keys Keys to check.
  * @returns The number of keys existing among the ones specified as arguments.
+ * @see {@link https://redis.io/commands/exists}
  */
 export function input(...keys: string[]): Command<number> {
 	return {

@@ -44,6 +44,7 @@ export class RedisXClient {
 	 * - Time complexity: O(1).
 	 * @param key Key to get.
 	 * @returns The value of key, or `null` when key does not exist.
+	 * @see {@link https://redis.io/commands/get}
 	 */
 	GET(key: string): Promise<string | null> {
 		return this.useCommand(input_get(key));
@@ -56,6 +57,7 @@ export class RedisXClient {
 	 * @param key Key to set.
 	 * @param value Value to set.
 	 * @returns Returns string `"OK"` if the key was set, or `null` if operation was aborted (conflict with one of the XX/NX options).
+	 * @see {@link https://redis.io/commands/set}
 	 */
 	SET(key: string, value: string | number): Promise<'OK' | null>;
 	/**
@@ -66,6 +68,7 @@ export class RedisXClient {
 	 * @param value Value to set.
 	 * @param options Comand options.
 	 * @returns Returns string `"OK"` if the key was set, or `null` if operation was aborted (conflict with one of the XX/NX options).
+	 * @see {@link https://redis.io/commands/set}
 	 */
 	SET(key: string, value: string | number, options: SetOptions): Promise<'OK' | null>;
 	/**
@@ -76,6 +79,7 @@ export class RedisXClient {
 	 * @param value Value to set.
 	 * @param options Comand options.
 	 * @returns Returns string with the previous value of the key, or `null` if the key didn't exist before the SET.
+	 * @see {@link https://redis.io/commands/set}
 	 */
 	SET(key: string, value: string | number, options: SetOptions & SetOptionsGet): Promise<string | null>;
 
@@ -93,6 +97,7 @@ export class RedisXClient {
 	 * @param seconds Time to live in seconds.
 	 * @param options Command options.
 	 * @returns Returns `true` if the timeout was set. Returns `false` if the timeout was not set; for example, the key doesn't exist, or the operation was skipped because of the provided arguments.
+	 * @see {@link https://redis.io/commands/expire}
 	 */
 	EXPIRE(key: string, seconds: number, options?: ExpireOptions): Promise<boolean> {
 		return this.useCommand(input_expire(key, seconds, options));
@@ -104,9 +109,43 @@ export class RedisXClient {
 	 * - Time complexity: O(N) with N being the number of keys in the database.
 	 * @param pattern Pattern to match.
 	 * @returns A set of keys matching pattern.
+	 * @see {@link https://redis.io/commands/keys}
 	 */
 	KEYS(pattern: string): Promise<Set<string>> {
 		return this.useCommand(input_keys(pattern));
+	}
+
+	/**
+	 * Copy the value stored at the source key to the destination key.
+	 * - Available since: 6.2.0.
+	 * - Time complexity: O(N) worst case for collections, where N is the number of nested items. O(1) for string values.
+	 * @param source The source key.
+	 * @param destination The destination key.
+	 * @param options Command options.
+	 * @returns Whether the copy was successful.
+	 * @see {@link https://redis.io/commands/copy}
+	 */
+	COPY(
+		source: string,
+		destination: string,
+		options?: CopyOptions,
+	): Promise<boolean> {
+		return this.useCommand(input_copy(source, destination, options));
+	}
+
+	/**
+	 * Returns the absolute Unix timestamp (since January 1, 1970) in seconds at which the given key will expire.
+	 * - Available since: 7.0.0.
+	 * - Time complexity: O(1).
+	 * @param key Key to get expiration time for.
+	 * @returns One of the following:
+	 * - A number representing the expiration Unix timestamp in seconds.
+	 * - `-1` if the key exists but has no associated expiration time.
+	 * - `-2` if the key does not exist.
+	 * @see {@link https://redis.io/commands/expiretime}
+	 */
+	EXPIRETIME(key: string): Promise<number> {
+		return this.useCommand(input_expiretime(key));
 	}
 
 	/**
@@ -117,6 +156,7 @@ export class RedisXClient {
 	 * - Time complexity: O(N) where N is the number of keys that will be removed. When a key to remove holds a value other than a string, the individual complexity for this key is O(M) where M is the number of elements in the list, set, sorted set or hash.
 	 * @param keys Keys to delete.
 	 * @returns The number of keys that were removed.
+	 * @see {@link https://redis.io/commands/del}
 	 */
 	DEL(...keys: string[]): Promise<number> {
 		return this.useCommand(input_del(...keys));
@@ -130,6 +170,7 @@ export class RedisXClient {
 	 * - Time complexity: O(N) where N is the number of keys to check.
 	 * @param keys Keys to check.
 	 * @returns The number of keys existing among the ones specified as arguments.
+	 * @see {@link https://redis.io/commands/exists}
 	 */
 	EXISTS(...keys: string[]): Promise<number> {
 		return this.useCommand(input_exists(...keys));
@@ -145,6 +186,7 @@ export class RedisXClient {
 	 * @param key -
 	 * @param elements -
 	 * @returns The length of the list after the push operation.
+	 * @see {@link https://redis.io/commands/lpush}
 	 */
 	LPUSH(
 		key: string,
@@ -159,6 +201,7 @@ export class RedisXClient {
 	 * - Time complexity: O(1).
 	 * @param key Key holds a sorted set.
 	 * @returns The cardinality (number of members) of the sorted set, or 0 if the key doesn't exist.
+	 * @see {@link https://redis.io/commands/zcard}
 	 */
 	ZCARD(key: string): Promise<number> {
 		return this.useCommand(input_zcard(key));
@@ -171,6 +214,7 @@ export class RedisXClient {
 	 * @param key Key holds a sorted set.
 	 * @param member Member in the sorted set.
 	 * @returns The score of the member (a double-precision floating point number), represented as a string, or `null` if member does not exist in the sorted set, or the key does not exist.
+	 * @see {@link https://redis.io/commands/zscore}
 	 */
 	ZSCORE(key: string, member: string | number): Promise<number | null> {
 		return this.useCommand(input_zscore(key, member));
@@ -186,6 +230,7 @@ export class RedisXClient {
 	 * @param member - Member to add.
 	 * @param options -
 	 * @returns The number of fields that were added.
+	 * @see {@link https://redis.io/commands/zadd}
 	 */
 	ZADD(
 		key: string,
@@ -202,6 +247,7 @@ export class RedisXClient {
 	 * @param pairs - Object containing score/member pairs to set.
 	 * @param options -
 	 * @returns The number of fields that were added.
+	 * @see {@link https://redis.io/commands/zadd}
 	 */
 	ZADD(
 		key: string,
@@ -227,6 +273,7 @@ export class RedisXClient {
 	 * @param key Key holds a sorted set.
 	 * @param members Members to remove.
 	 * @returns The number of members removed from the sorted set, not including non-existing members.
+	 * @see {@link https://redis.io/commands/zrem}
 	 */
 	ZREM(
 		key: string,
@@ -239,6 +286,7 @@ export class RedisXClient {
 	 * @param key Key holds a sorted set.
 	 * @param members Members to remove.
 	 * @returns The number of members removed from the sorted set, not including non-existing members.
+	 * @see {@link https://redis.io/commands/zrem}
 	 */
 	ZREM(
 		key: string,
@@ -262,6 +310,7 @@ export class RedisXClient {
 	 * @param stop - Stop index by default, minimum score if BY is `SCORE` or minimum lexicographical string if BY is `LEX`.
 	 * @param options -
 	 * @returns List of members in the specified range.
+	 * @see {@link https://redis.io/commands/zrange}
 	 */
 	ZRANGE(
 		key: string,
@@ -278,6 +327,7 @@ export class RedisXClient {
 	 * @param stop - Stop index by default, minimum score if BY is `SCORE` or minimum lexicographical string if BY is `LEX`.
 	 * @param options -
 	 * @returns List of members in the specified range with their scores.
+	 * @see {@link https://redis.io/commands/zrange}
 	 */
 	ZRANGE(
 		key: string,
@@ -306,6 +356,7 @@ export class RedisXClient {
 	 * @param keys List of keys that holds sorted sets.
 	 * @param options -
 	 * @returns The number of members in the resulting sorted set at the destination.
+	 * @see {@link https://redis.io/commands/zinterstore}
 	 */
 	ZINTERSTORE(
 		destination: string,
@@ -320,6 +371,7 @@ export class RedisXClient {
 	 * @param keys_with_weights Record where keys are the keys that holds sorted sets and values are the weights to apply to the sorted sets.
 	 * @param options -
 	 * @returns The number of members in the resulting sorted set at the destination.
+	 * @see {@link https://redis.io/commands/zinterstore}
 	 */
 	ZINTERSTORE(
 		destination: string,
@@ -344,6 +396,7 @@ export class RedisXClient {
 	 * @param field Field to set.
 	 * @param value Value to set.
 	 * @returns The number of fields that were added.
+	 * @see {@link https://redis.io/commands/hset}
 	 */
 	HSET(
 		key: string,
@@ -358,6 +411,7 @@ export class RedisXClient {
 	 * @param key Key that contains the hash.
 	 * @param pairs Object containing field/value pairs to set.
 	 * @returns The number of fields that were added.
+	 * @see {@link https://redis.io/commands/hset}
 	 */
 	HSET(
 		key: string,
@@ -386,6 +440,7 @@ export class RedisXClient {
 	 * - Time complexity: O(N) where N is the size of the hash.
 	 * @param key -
 	 * @returns A record of fields and their values stored in the hash.
+	 * @see {@link https://redis.io/commands/hgetall}
 	 */
 	HGETALL(key: string): Promise<Record<string, string>> {
 		return this.useCommand(input_hgetall(key));
@@ -399,6 +454,7 @@ export class RedisXClient {
 	 * @param keys Keys accessed by the script.
 	 * @param args Arguments passed to the script.
 	 * @returns Value returned by the script.
+	 * @see {@link https://redis.io/commands/eval}
 	 */
 	EVAL(
 		script: string,
@@ -427,6 +483,13 @@ import {
 import {
 	input as input_keys,
 } from './commands/generic/keys.js';
+import {
+	type CopyOptions,
+	input as input_copy,
+} from './commands/generic/copy.js';
+import {
+	input as input_expiretime,
+} from './commands/generic/expiretime.js';
 import {
 	input as input_del,
 } from './commands/generic/del.js';

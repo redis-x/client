@@ -31,6 +31,7 @@ export type ZrangeOptions = {
  * @param stop - Stop index by default, minimum score if BY is `SCORE` or minimum lexicographical string if BY is `LEX`.
  * @param options -
  * @returns List of members in the specified range.
+ * @see {@link https://redis.io/commands/zrange}
  */
 declare function _command(
 	key: string,
@@ -48,6 +49,7 @@ declare function _command(
  * @param stop - Stop index by default, minimum score if BY is `SCORE` or minimum lexicographical string if BY is `LEX`.
  * @param options -
  * @returns List of members in the specified range with their scores.
+ * @see {@link https://redis.io/commands/zrange}
  */
 declare function _command(
 	key: string,

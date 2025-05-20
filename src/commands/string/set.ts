@@ -61,6 +61,7 @@ export type SetOptionsGet = {
  * @param key Key to set.
  * @param value Value to set.
  * @returns Returns string `"OK"` if the key was set, or `null` if operation was aborted (conflict with one of the XX/NX options).
+ * @see {@link https://redis.io/commands/set}
  */
 declare function _command(key: string, value: string | number): 'OK' | null;
 
@@ -72,6 +73,7 @@ declare function _command(key: string, value: string | number): 'OK' | null;
  * @param value Value to set.
  * @param options Comand options.
  * @returns Returns string `"OK"` if the key was set, or `null` if operation was aborted (conflict with one of the XX/NX options).
+ * @see {@link https://redis.io/commands/set}
  */
 declare function _command(key: string, value: string | number, options: SetOptions): 'OK' | null;
 
@@ -83,6 +85,7 @@ declare function _command(key: string, value: string | number, options: SetOptio
  * @param value Value to set.
  * @param options Comand options.
  * @returns Returns string with the previous value of the key, or `null` if the key didn't exist before the SET.
+ * @see {@link https://redis.io/commands/set}
  */
 declare function _command(key: string, value: string | number, options: SetOptions & SetOptionsGet): string | null;
 
