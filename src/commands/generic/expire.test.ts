@@ -7,30 +7,38 @@ import {
 } from 'vitest';
 import { input } from './expire.js';
 
-test('EXPIRE', () => {
-	const command = input('key', 10);
+describe('command', () => {
+	test('no options', () => {
+		const command = input('key', 10);
 
-	expect(command.args).toStrictEqual(
-		[ 'EXPIRE', 'key', '10' ],
-	);
+		expect(command.args).toStrictEqual(
+			[ 'EXPIRE', 'key', '10' ],
+		);
 
-	expect(command.replyTransform).toBeUndefined();
-});
+		expect(
+			command.replyTransform?.(0),
+		).toStrictEqual(false);
 
-for (const option of [ 'NX', 'XX', 'GT', 'LT' ]) {
-	describe(`EXPIRE ${option}`, () => {
-		for (const value of [ true, false ]) {
-			test(String(value), () => {
-				const command = input('key', 10, {
-					[option]: value,
-				});
-
-				expect(command.args).toStrictEqual(
-					value
-						? [ 'EXPIRE', 'key', '10', option ]
-						: [ 'EXPIRE', 'key', '10' ],
-				);
-			});
-		}
+		expect(
+			command.replyTransform?.(1),
+		).toStrictEqual(true);
 	});
-}
+
+	for (const option of [ 'NX', 'XX', 'GT', 'LT' ]) {
+		describe(`option ${option}`, () => {
+			for (const value of [ true, false ]) {
+				test(String(value), () => {
+					const command = input('key', 10, {
+						[option]: value,
+					});
+
+					expect(command.args).toStrictEqual(
+						value
+							? [ 'EXPIRE', 'key', '10', option ]
+							: [ 'EXPIRE', 'key', '10' ],
+					);
+				});
+			}
+		});
+	}
+});

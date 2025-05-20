@@ -53,7 +53,7 @@ function unwrapRedisTransactionCommand(target, result) {
 * @param key Key to get.
 * @returns The value of key, or `null` when key does not exist.
 */
-function input$14(key) {
+function input$15(key) {
 	return {
 		kind: "#schema",
 		args: ["GET", key]
@@ -62,7 +62,7 @@ function input$14(key) {
 
 //#endregion
 //#region src/commands/string/set.ts
-function input$13(key, value, options) {
+function input$14(key, value, options) {
 	const args_options = [];
 	if (options) {
 		if (options.NX) args_options.push("NX");
@@ -96,9 +96,9 @@ function input$13(key, value, options) {
 * @param key Key to get.
 * @param seconds Time to live in seconds.
 * @param options Command options.
-* @returns Returns `1` if the timeout was set. Returns `0` if the timeout was not set; for example, the key doesn't exist, or the operation was skipped because of the provided arguments.
+* @returns Returns `true` if the timeout was set. Returns `false` if the timeout was not set; for example, the key doesn't exist, or the operation was skipped because of the provided arguments.
 */
-function input$12(key, seconds, options) {
+function input$13(key, seconds, options) {
 	const args_options = [];
 	if (options) {
 		if (options.NX) args_options.push("NX");
@@ -113,8 +113,12 @@ function input$12(key, seconds, options) {
 			key,
 			String(seconds),
 			...args_options
-		]
+		],
+		replyTransform: replyTransform$1
 	};
+}
+function replyTransform$1(result) {
+	return result === 1;
 }
 
 //#endregion
@@ -126,7 +130,7 @@ function input$12(key, seconds, options) {
 * @param pattern Pattern to match.
 * @returns A set of keys matching pattern.
 */
-function input$11(pattern) {
+function input$12(pattern) {
 	return {
 		kind: "#schema",
 		args: ["KEYS", pattern],
@@ -148,10 +152,28 @@ function replyTransform(result) {
 * @param keys Keys to delete.
 * @returns The number of keys that were removed.
 */
-function input$10(...keys) {
+function input$11(...keys) {
 	return {
 		kind: "#schema",
 		args: ["DEL", ...keys]
+	};
+}
+
+//#endregion
+//#region src/commands/generic/exists.ts
+/**
+* Returns the number of keys that exist from those specified as arguments.
+*
+* The user should be aware that if the same existing key is mentioned in the arguments multiple times, it will be counted multiple times. So if somekey exists, EXISTS somekey somekey will return 2.
+* - Available since: 1.0.0.
+* - Time complexity: O(N) where N is the number of keys to check.
+* @param keys Keys to check.
+* @returns The number of keys existing among the ones specified as arguments.
+*/
+function input$10(...keys) {
+	return {
+		kind: "#schema",
+		args: ["EXISTS", ...keys]
 	};
 }
 
@@ -403,10 +425,10 @@ var RedisXTransactionUse = class {
 	* @returns The value of key, or `null` when key does not exist.
 	*/
 	GET(key) {
-		return this.useCommand(input$14(key));
+		return this.useCommand(input$15(key));
 	}
 	SET(key, value, options) {
-		return this.useCommand(input$13(key, value, options));
+		return this.useCommand(input$14(key, value, options));
 	}
 	/**
 	* Set a timeout on key.
@@ -417,10 +439,10 @@ var RedisXTransactionUse = class {
 	* @param key Key to get.
 	* @param seconds Time to live in seconds.
 	* @param options Command options.
-	* @returns Returns `1` if the timeout was set. Returns `0` if the timeout was not set; for example, the key doesn't exist, or the operation was skipped because of the provided arguments.
+	* @returns Returns `true` if the timeout was set. Returns `false` if the timeout was not set; for example, the key doesn't exist, or the operation was skipped because of the provided arguments.
 	*/
 	EXPIRE(key, seconds, options) {
-		return this.useCommand(input$12(key, seconds, options));
+		return this.useCommand(input$13(key, seconds, options));
 	}
 	/**
 	* Returns all keys matching pattern.
@@ -430,7 +452,7 @@ var RedisXTransactionUse = class {
 	* @returns A set of keys matching pattern.
 	*/
 	KEYS(pattern) {
-		return this.useCommand(input$11(pattern));
+		return this.useCommand(input$12(pattern));
 	}
 	/**
 	* Removes the specified keys.
@@ -442,6 +464,18 @@ var RedisXTransactionUse = class {
 	* @returns The number of keys that were removed.
 	*/
 	DEL(...keys) {
+		return this.useCommand(input$11(...keys));
+	}
+	/**
+	* Returns the number of keys that exist from those specified as arguments.
+	*
+	* The user should be aware that if the same existing key is mentioned in the arguments multiple times, it will be counted multiple times. So if somekey exists, EXISTS somekey somekey will return 2.
+	* - Available since: 1.0.0.
+	* - Time complexity: O(N) where N is the number of keys to check.
+	* @param keys Keys to check.
+	* @returns The number of keys existing among the ones specified as arguments.
+	*/
+	EXISTS(...keys) {
 		return this.useCommand(input$10(...keys));
 	}
 	/**
@@ -590,10 +624,10 @@ var RedisXTransaction = class {
 	* @returns The value of key, or `null` when key does not exist.
 	*/
 	GET(key) {
-		return this.useCommand(input$14(key));
+		return this.useCommand(input$15(key));
 	}
 	SET(key, value, options) {
-		return this.useCommand(input$13(key, value, options));
+		return this.useCommand(input$14(key, value, options));
 	}
 	/**
 	* Set a timeout on key.
@@ -604,10 +638,10 @@ var RedisXTransaction = class {
 	* @param key Key to get.
 	* @param seconds Time to live in seconds.
 	* @param options Command options.
-	* @returns Returns `1` if the timeout was set. Returns `0` if the timeout was not set; for example, the key doesn't exist, or the operation was skipped because of the provided arguments.
+	* @returns Returns `true` if the timeout was set. Returns `false` if the timeout was not set; for example, the key doesn't exist, or the operation was skipped because of the provided arguments.
 	*/
 	EXPIRE(key, seconds, options) {
-		return this.useCommand(input$12(key, seconds, options));
+		return this.useCommand(input$13(key, seconds, options));
 	}
 	/**
 	* Returns all keys matching pattern.
@@ -617,7 +651,7 @@ var RedisXTransaction = class {
 	* @returns A set of keys matching pattern.
 	*/
 	KEYS(pattern) {
-		return this.useCommand(input$11(pattern));
+		return this.useCommand(input$12(pattern));
 	}
 	/**
 	* Removes the specified keys.
@@ -629,6 +663,18 @@ var RedisXTransaction = class {
 	* @returns The number of keys that were removed.
 	*/
 	DEL(...keys) {
+		return this.useCommand(input$11(...keys));
+	}
+	/**
+	* Returns the number of keys that exist from those specified as arguments.
+	*
+	* The user should be aware that if the same existing key is mentioned in the arguments multiple times, it will be counted multiple times. So if somekey exists, EXISTS somekey somekey will return 2.
+	* - Available since: 1.0.0.
+	* - Time complexity: O(N) where N is the number of keys to check.
+	* @param keys Keys to check.
+	* @returns The number of keys existing among the ones specified as arguments.
+	*/
+	EXISTS(...keys) {
 		return this.useCommand(input$10(...keys));
 	}
 	/**
@@ -734,10 +780,10 @@ var RedisXClient = class {
 	* @returns The value of key, or `null` when key does not exist.
 	*/
 	GET(key) {
-		return this.useCommand(input$14(key));
+		return this.useCommand(input$15(key));
 	}
 	SET(key, value, options) {
-		return this.useCommand(input$13(key, value, options));
+		return this.useCommand(input$14(key, value, options));
 	}
 	/**
 	* Set a timeout on key.
@@ -748,10 +794,10 @@ var RedisXClient = class {
 	* @param key Key to get.
 	* @param seconds Time to live in seconds.
 	* @param options Command options.
-	* @returns Returns `1` if the timeout was set. Returns `0` if the timeout was not set; for example, the key doesn't exist, or the operation was skipped because of the provided arguments.
+	* @returns Returns `true` if the timeout was set. Returns `false` if the timeout was not set; for example, the key doesn't exist, or the operation was skipped because of the provided arguments.
 	*/
 	EXPIRE(key, seconds, options) {
-		return this.useCommand(input$12(key, seconds, options));
+		return this.useCommand(input$13(key, seconds, options));
 	}
 	/**
 	* Returns all keys matching pattern.
@@ -761,7 +807,7 @@ var RedisXClient = class {
 	* @returns A set of keys matching pattern.
 	*/
 	KEYS(pattern) {
-		return this.useCommand(input$11(pattern));
+		return this.useCommand(input$12(pattern));
 	}
 	/**
 	* Removes the specified keys.
@@ -773,6 +819,18 @@ var RedisXClient = class {
 	* @returns The number of keys that were removed.
 	*/
 	DEL(...keys) {
+		return this.useCommand(input$11(...keys));
+	}
+	/**
+	* Returns the number of keys that exist from those specified as arguments.
+	*
+	* The user should be aware that if the same existing key is mentioned in the arguments multiple times, it will be counted multiple times. So if somekey exists, EXISTS somekey somekey will return 2.
+	* - Available since: 1.0.0.
+	* - Time complexity: O(N) where N is the number of keys to check.
+	* @param keys Keys to check.
+	* @returns The number of keys existing among the ones specified as arguments.
+	*/
+	EXISTS(...keys) {
 		return this.useCommand(input$10(...keys));
 	}
 	/**

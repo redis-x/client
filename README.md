@@ -254,7 +254,7 @@ The `redis-x` client is more a proof of concept than a complete implementation. 
 | Section               | Commands available | Command names |
 | --------------------- | - | - |
 | Connection management | 🟥🟥🟥🟥🟥🟥🟥 <br> **0** / 32 | — |
-| Generic               | 🟨🟥🟥🟥🟥🟥🟥 <br> **3** / 32 | `DEL` `EXPIRE` `KEYS` |
+| Generic               | 🟧🟥🟥🟥🟥🟥🟥 <br> **4** / 32 | `DEL` `EXISTS` `EXPIRE` `KEYS` |
 | Hash                  | 🟨🟥🟥🟥🟥🟥🟥 <br> **2** / 28 | `HGETALL` `HSET` |
 | List                  | 🟥🟥🟥🟥🟥🟥🟥 <br> **1** / 22 | `LPUSH` |
 | Scripting             | 🟨🟥🟥🟥🟥🟥🟥 <br> **1** / 19 | `EVAL` |

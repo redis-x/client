@@ -6,7 +6,7 @@ import {
 } from 'vitest';
 import { input } from './del.js';
 
-test('DEL', () => {
+test('command', () => {
 	const command = input('key1', 'key2');
 	expect(
 		command.args,

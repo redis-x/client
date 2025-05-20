@@ -96,9 +96,9 @@ export class RedisXTransactionUse {
 	 * @param key Key to get.
 	 * @param seconds Time to live in seconds.
 	 * @param options Command options.
-	 * @returns Returns `1` if the timeout was set. Returns `0` if the timeout was not set; for example, the key doesn't exist, or the operation was skipped because of the provided arguments.
+	 * @returns Returns `true` if the timeout was set. Returns `false` if the timeout was not set; for example, the key doesn't exist, or the operation was skipped because of the provided arguments.
 	 */
-	EXPIRE(key: string, seconds: number, options?: ExpireOptions): RedisXTransactionCommand<0 | 1> {
+	EXPIRE(key: string, seconds: number, options?: ExpireOptions): RedisXTransactionCommand<boolean> {
 		return this.useCommand(input_expire(key, seconds, options));
 	}
 
@@ -124,6 +124,19 @@ export class RedisXTransactionUse {
 	 */
 	DEL(...keys: string[]): RedisXTransactionCommand<number> {
 		return this.useCommand(input_del(...keys));
+	}
+
+	/**
+	 * Returns the number of keys that exist from those specified as arguments.
+	 *
+	 * The user should be aware that if the same existing key is mentioned in the arguments multiple times, it will be counted multiple times. So if somekey exists, EXISTS somekey somekey will return 2.
+	 * - Available since: 1.0.0.
+	 * - Time complexity: O(N) where N is the number of keys to check.
+	 * @param keys Keys to check.
+	 * @returns The number of keys existing among the ones specified as arguments.
+	 */
+	EXISTS(...keys: string[]): RedisXTransactionCommand<number> {
+		return this.useCommand(input_exists(...keys));
 	}
 
 	/**
@@ -421,6 +434,9 @@ import {
 import {
 	input as input_del,
 } from '../commands/generic/del.js';
+import {
+	input as input_exists,
+} from '../commands/generic/exists.js';
 import {
 	input as input_lpush,
 } from '../commands/list/lpush.js';

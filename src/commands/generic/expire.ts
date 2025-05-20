@@ -40,9 +40,9 @@ export type ExpireOptions = {
  * @param key Key to get.
  * @param seconds Time to live in seconds.
  * @param options Command options.
- * @returns Returns `1` if the timeout was set. Returns `0` if the timeout was not set; for example, the key doesn't exist, or the operation was skipped because of the provided arguments.
+ * @returns Returns `true` if the timeout was set. Returns `false` if the timeout was not set; for example, the key doesn't exist, or the operation was skipped because of the provided arguments.
  */
-export function input(key: string, seconds: number, options?: ExpireOptions): Command<0 | 1> {
+export function input(key: string, seconds: number, options?: ExpireOptions): Command<boolean> {
 	const args_options = [];
 
 	if (options) {
@@ -71,5 +71,11 @@ export function input(key: string, seconds: number, options?: ExpireOptions): Co
 			String(seconds),
 			...args_options,
 		],
+		replyTransform,
 	};
+}
+
+// eslint-disable-next-line jsdoc/require-jsdoc
+function replyTransform(result: 0 | 1): boolean {
+	return result === 1;
 }

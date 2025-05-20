@@ -122,7 +122,7 @@ type ExpireOptions = {
 * @param key Key to get.
 * @param seconds Time to live in seconds.
 * @param options Command options.
-* @returns Returns `1` if the timeout was set. Returns `0` if the timeout was not set; for example, the key doesn't exist, or the operation was skipped because of the provided arguments.
+* @returns Returns `true` if the timeout was set. Returns `false` if the timeout was not set; for example, the key doesn't exist, or the operation was skipped because of the provided arguments.
 */
 type ZaddOptions = {
   /**
@@ -259,9 +259,9 @@ declare class RedisXTransactionUse {
   * @param key Key to get.
   * @param seconds Time to live in seconds.
   * @param options Command options.
-  * @returns Returns `1` if the timeout was set. Returns `0` if the timeout was not set; for example, the key doesn't exist, or the operation was skipped because of the provided arguments.
+  * @returns Returns `true` if the timeout was set. Returns `false` if the timeout was not set; for example, the key doesn't exist, or the operation was skipped because of the provided arguments.
   */
-  EXPIRE(key: string, seconds: number, options?: ExpireOptions): RedisXTransactionCommand<0 | 1>;
+  EXPIRE(key: string, seconds: number, options?: ExpireOptions): RedisXTransactionCommand<boolean>;
   /**
   * Returns all keys matching pattern.
   * - Available since: 1.0.0.
@@ -280,6 +280,16 @@ declare class RedisXTransactionUse {
   * @returns The number of keys that were removed.
   */
   DEL(...keys: string[]): RedisXTransactionCommand<number>;
+  /**
+  * Returns the number of keys that exist from those specified as arguments.
+  *
+  * The user should be aware that if the same existing key is mentioned in the arguments multiple times, it will be counted multiple times. So if somekey exists, EXISTS somekey somekey will return 2.
+  * - Available since: 1.0.0.
+  * - Time complexity: O(N) where N is the number of keys to check.
+  * @param keys Keys to check.
+  * @returns The number of keys existing among the ones specified as arguments.
+  */
+  EXISTS(...keys: string[]): RedisXTransactionCommand<number>;
   /**
   * Insert all the specified elements at the head of the list stored at key.
   *
@@ -506,9 +516,9 @@ declare class RedisXTransaction<L = [], C extends boolean = false, D = unknown> 
   * @param key Key to get.
   * @param seconds Time to live in seconds.
   * @param options Command options.
-  * @returns Returns `1` if the timeout was set. Returns `0` if the timeout was not set; for example, the key doesn't exist, or the operation was skipped because of the provided arguments.
+  * @returns Returns `true` if the timeout was set. Returns `false` if the timeout was not set; for example, the key doesn't exist, or the operation was skipped because of the provided arguments.
   */
-  EXPIRE(key: string, seconds: number, options?: ExpireOptions): RedisXTransaction<AddToList<L, 0 | 1>, C, D>;
+  EXPIRE(key: string, seconds: number, options?: ExpireOptions): RedisXTransaction<AddToList<L, boolean>, C, D>;
   /**
   * Returns all keys matching pattern.
   * - Available since: 1.0.0.
@@ -527,6 +537,16 @@ declare class RedisXTransaction<L = [], C extends boolean = false, D = unknown> 
   * @returns The number of keys that were removed.
   */
   DEL(...keys: string[]): RedisXTransaction<AddToList<L, number>, C, D>;
+  /**
+  * Returns the number of keys that exist from those specified as arguments.
+  *
+  * The user should be aware that if the same existing key is mentioned in the arguments multiple times, it will be counted multiple times. So if somekey exists, EXISTS somekey somekey will return 2.
+  * - Available since: 1.0.0.
+  * - Time complexity: O(N) where N is the number of keys to check.
+  * @param keys Keys to check.
+  * @returns The number of keys existing among the ones specified as arguments.
+  */
+  EXISTS(...keys: string[]): RedisXTransaction<AddToList<L, number>, C, D>;
   /**
   * Insert all the specified elements at the head of the list stored at key.
   *
@@ -741,9 +761,9 @@ declare class RedisXClient {
   * @param key Key to get.
   * @param seconds Time to live in seconds.
   * @param options Command options.
-  * @returns Returns `1` if the timeout was set. Returns `0` if the timeout was not set; for example, the key doesn't exist, or the operation was skipped because of the provided arguments.
+  * @returns Returns `true` if the timeout was set. Returns `false` if the timeout was not set; for example, the key doesn't exist, or the operation was skipped because of the provided arguments.
   */
-  EXPIRE(key: string, seconds: number, options?: ExpireOptions): Promise<0 | 1>;
+  EXPIRE(key: string, seconds: number, options?: ExpireOptions): Promise<boolean>;
   /**
   * Returns all keys matching pattern.
   * - Available since: 1.0.0.
@@ -762,6 +782,16 @@ declare class RedisXClient {
   * @returns The number of keys that were removed.
   */
   DEL(...keys: string[]): Promise<number>;
+  /**
+  * Returns the number of keys that exist from those specified as arguments.
+  *
+  * The user should be aware that if the same existing key is mentioned in the arguments multiple times, it will be counted multiple times. So if somekey exists, EXISTS somekey somekey will return 2.
+  * - Available since: 1.0.0.
+  * - Time complexity: O(N) where N is the number of keys to check.
+  * @param keys Keys to check.
+  * @returns The number of keys existing among the ones specified as arguments.
+  */
+  EXISTS(...keys: string[]): Promise<number>;
   /**
   * Insert all the specified elements at the head of the list stored at key.
   *

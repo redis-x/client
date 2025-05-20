@@ -4,7 +4,7 @@ import {
 } from 'vitest';
 import { input } from './eval.js';
 
-test('EVAL', () => {
+test('command', () => {
 	const script = 'return {KEYS[1],ARGV[1]}';
 	const command = input(
 		script,
