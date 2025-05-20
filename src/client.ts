@@ -605,6 +605,19 @@ export class RedisXClient {
 	}
 
 	/**
+	 * Returns the value associated with field in the hash stored at key.
+	 * - Available since: 2.0.0.
+	 * - Time complexity: O(1)
+	 * @param key -
+	 * @param field -
+	 * @returns The value associated with field in the hash stored at key.
+	 * @see {@link https://redis.io/commands/hget}
+	 */
+	HGET(key: string, field: string): Promise<string> {
+		return this.useCommand(input_hget(key, field));
+	}
+
+	/**
 	 * Invoke the execution of a server-side Lua script.
 	 * - Available since: 2.6.0.
 	 * - Time complexity: Depends on the script that is executed.
@@ -717,6 +730,9 @@ import {
 import {
 	input as input_hgetall,
 } from './commands/hash/hgetall.js';
+import {
+	input as input_hget,
+} from './commands/hash/hget.js';
 import {
 	input as input_eval,
 } from './commands/scripting/eval.js';
