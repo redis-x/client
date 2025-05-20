@@ -1,3 +1,5 @@
+/* eslint-disable max-lines */
+
 import type { RedisXTransaction } from '../transaction.js';
 import type { Command } from '../types.js';
 import { RedisXTransactionCommand } from './command.js';
@@ -107,6 +109,46 @@ export class RedisXTransactionUse {
 	}
 
 	/**
+	 * Returns the remaining time to live of a key that has a timeout, in milliseconds.
+	 *
+	 * Like TTL this command returns the remaining time to live of a key that has an
+	 * expire set, with the sole difference that TTL returns the amount of remaining
+	 * time in seconds while PTTL returns it in milliseconds.
+	 *
+	 * - Available since: 2.6.0.
+	 * - Time complexity: O(1).
+	 * @param key The key to check.
+	 * @returns One of the following:
+	 * - A positive integer: TTL in milliseconds.
+	 * - `-1`: if the key exists but has no associated expiration.
+	 * - `-2`: if the key does not exist.
+	 * @see {@link https://redis.io/commands/pttl}
+	 * @see {@link https://redis.io/commands/ttl}
+	 */
+	PTTL(key: string): RedisXTransactionCommand<number> {
+		return this.useCommand(input_pttl(key));
+	}
+
+	/**
+	 * Returns the remaining time to live of a key that has a timeout.
+	 *
+	 * This introspection capability allows a Redis client to check how many seconds
+	 * a given key will continue to be part of the dataset.
+	 *
+	 * - Available since: 1.0.0.
+	 * - Time complexity: O(1).
+	 * @param key The key to check.
+	 * @returns One of the following:
+	 * - A positive integer: TTL in seconds.
+	 * - `-1`: if the key exists but has no associated expiration.
+	 * - `-2`: if the key does not exist.
+	 * @see {@link https://redis.io/commands/ttl}
+	 */
+	TTL(key: string): RedisXTransactionCommand<number> {
+		return this.useCommand(input_ttl(key));
+	}
+
+	/**
 	 * Set a timeout on key.
 	 *
 	 * After the timeout has expired, the key will automatically be deleted.
@@ -120,6 +162,18 @@ export class RedisXTransactionUse {
 	 */
 	EXPIRE(key: string, seconds: number, options?: ExpireOptions): RedisXTransactionCommand<boolean> {
 		return this.useCommand(input_expire(key, seconds, options));
+	}
+
+	/**
+	 * Returns the string representation of the type of the value stored at `key`.
+	 * - Available since: 1.0.0.
+	 * - Time complexity: O(1).
+	 * @param key The key to check.
+	 * @returns "OK".
+	 * @see {@link https://redis.io/commands/rename}
+	 */
+	TYPE(key: string): RedisXTransactionCommand<'string' | 'list' | 'set' | 'zset' | 'hash' | 'stream' | 'vectorset'> {
+		return this.useCommand(input_type(key));
 	}
 
 	/**
@@ -185,6 +239,19 @@ export class RedisXTransactionUse {
 	}
 
 	/**
+	 * Remove the existing timeout on key, turning the key from volatile (a key with an expire set) to persistent (a key that will never expire as no timeout is associated).
+	 *
+	 * - Available since: 2.2.0.
+	 * - Time complexity: O(1).
+	 * @param key The key to persist.
+	 * @returns Returns `true` if the timeout was removed. Returns `false` if the key does not exist or does not have an associated timeout.
+	 * @see {@link https://redis.io/commands/persist}
+	 */
+	PERSIST(key: string): RedisXTransactionCommand<boolean> {
+		return this.useCommand(input_persist(key));
+	}
+
+	/**
 	 * Returns the absolute Unix timestamp (since January 1, 1970) in seconds at which the given key will expire.
 	 * - Available since: 7.0.0.
 	 * - Time complexity: O(1).
@@ -197,6 +264,34 @@ export class RedisXTransactionUse {
 	 */
 	EXPIRETIME(key: string): RedisXTransactionCommand<number> {
 		return this.useCommand(input_expiretime(key));
+	}
+
+	/**
+	 * Renames `key` to `newkey`. It returns an error when `key` does not exist. If `newkey` already exists it is overwritten.
+	 *
+	 * - Available since: 1.0.0.
+	 * - Time complexity: O(1).
+	 * @param key The key to rename.
+	 * @param newkey The new key name.
+	 * @returns "OK".
+	 * @see {@link https://redis.io/commands/rename}
+	 */
+	RENAME(key: string, newkey: string): RedisXTransactionCommand<'OK'> {
+		return this.useCommand(input_rename(key, newkey));
+	}
+
+	/**
+	 * Renames `key` to `newkey` if `newkey` does not yet exist. It returns an error when `key` does not exist.
+	 *
+	 * - Available since: 1.0.0.
+	 * - Time complexity: O(1).
+	 * @param key The key to rename.
+	 * @param newkey The new key name.
+	 * @returns "OK".
+	 * @see {@link https://redis.io/commands/renamenx}
+	 */
+	RENAMENX(key: string, newkey: string): RedisXTransactionCommand<'OK'> {
+		return this.useCommand(input_renamenx(key, newkey));
 	}
 
 	/**
@@ -548,9 +643,18 @@ import {
 	input as input_pexpire,
 } from '../commands/generic/pexpire.js';
 import {
+	input as input_pttl,
+} from '../commands/generic/pttl.js';
+import {
+	input as input_ttl,
+} from '../commands/generic/ttl.js';
+import {
 	type ExpireOptions,
 	input as input_expire,
 } from '../commands/generic/expire.js';
+import {
+	input as input_type,
+} from '../commands/generic/type.js';
 import {
 	input as input_keys,
 } from '../commands/generic/keys.js';
@@ -567,8 +671,17 @@ import {
 	input as input_pexpireat,
 } from '../commands/generic/pexpireat.js';
 import {
+	input as input_persist,
+} from '../commands/generic/persist.js';
+import {
 	input as input_expiretime,
 } from '../commands/generic/expiretime.js';
+import {
+	input as input_rename,
+} from '../commands/generic/rename.js';
+import {
+	input as input_renamenx,
+} from '../commands/generic/renamenx.js';
 import {
 	input as input_pexpiretime,
 } from '../commands/generic/pexpiretime.js';

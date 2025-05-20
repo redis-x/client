@@ -427,6 +427,40 @@ declare class RedisXTransactionUse {
   */
   PEXPIRE(key: string, seconds: number, options?: PexpireOptions): RedisXTransactionCommand<boolean>;
   /**
+  * Returns the remaining time to live of a key that has a timeout, in milliseconds.
+  *
+  * Like TTL this command returns the remaining time to live of a key that has an
+  * expire set, with the sole difference that TTL returns the amount of remaining
+  * time in seconds while PTTL returns it in milliseconds.
+  *
+  * - Available since: 2.6.0.
+  * - Time complexity: O(1).
+  * @param key The key to check.
+  * @returns One of the following:
+  * - A positive integer: TTL in milliseconds.
+  * - `-1`: if the key exists but has no associated expiration.
+  * - `-2`: if the key does not exist.
+  * @see {@link https://redis.io/commands/pttl}
+  * @see {@link https://redis.io/commands/ttl}
+  */
+  PTTL(key: string): RedisXTransactionCommand<number>;
+  /**
+  * Returns the remaining time to live of a key that has a timeout.
+  *
+  * This introspection capability allows a Redis client to check how many seconds
+  * a given key will continue to be part of the dataset.
+  *
+  * - Available since: 1.0.0.
+  * - Time complexity: O(1).
+  * @param key The key to check.
+  * @returns One of the following:
+  * - A positive integer: TTL in seconds.
+  * - `-1`: if the key exists but has no associated expiration.
+  * - `-2`: if the key does not exist.
+  * @see {@link https://redis.io/commands/ttl}
+  */
+  TTL(key: string): RedisXTransactionCommand<number>;
+  /**
   * Set a timeout on key.
   *
   * After the timeout has expired, the key will automatically be deleted.
@@ -439,6 +473,15 @@ declare class RedisXTransactionUse {
   * @see {@link https://redis.io/commands/expire}
   */
   EXPIRE(key: string, seconds: number, options?: ExpireOptions): RedisXTransactionCommand<boolean>;
+  /**
+  * Returns the string representation of the type of the value stored at `key`.
+  * - Available since: 1.0.0.
+  * - Time complexity: O(1).
+  * @param key The key to check.
+  * @returns "OK".
+  * @see {@link https://redis.io/commands/rename}
+  */
+  TYPE(key: string): RedisXTransactionCommand<"string" | "list" | "set" | "zset" | "hash" | "stream" | "vectorset">;
   /**
   * Returns all keys matching pattern.
   * - Available since: 1.0.0.
@@ -486,6 +529,16 @@ declare class RedisXTransactionUse {
   */
   PEXPIREAT(key: string, timestamp: number, options?: PexpireatOptions): RedisXTransactionCommand<boolean>;
   /**
+  * Remove the existing timeout on key, turning the key from volatile (a key with an expire set) to persistent (a key that will never expire as no timeout is associated).
+  *
+  * - Available since: 2.2.0.
+  * - Time complexity: O(1).
+  * @param key The key to persist.
+  * @returns Returns `true` if the timeout was removed. Returns `false` if the key does not exist or does not have an associated timeout.
+  * @see {@link https://redis.io/commands/persist}
+  */
+  PERSIST(key: string): RedisXTransactionCommand<boolean>;
+  /**
   * Returns the absolute Unix timestamp (since January 1, 1970) in seconds at which the given key will expire.
   * - Available since: 7.0.0.
   * - Time complexity: O(1).
@@ -497,6 +550,28 @@ declare class RedisXTransactionUse {
   * @see {@link https://redis.io/commands/expiretime}
   */
   EXPIRETIME(key: string): RedisXTransactionCommand<number>;
+  /**
+  * Renames `key` to `newkey`. It returns an error when `key` does not exist. If `newkey` already exists it is overwritten.
+  *
+  * - Available since: 1.0.0.
+  * - Time complexity: O(1).
+  * @param key The key to rename.
+  * @param newkey The new key name.
+  * @returns "OK".
+  * @see {@link https://redis.io/commands/rename}
+  */
+  RENAME(key: string, newkey: string): RedisXTransactionCommand<"OK">;
+  /**
+  * Renames `key` to `newkey` if `newkey` does not yet exist. It returns an error when `key` does not exist.
+  *
+  * - Available since: 1.0.0.
+  * - Time complexity: O(1).
+  * @param key The key to rename.
+  * @param newkey The new key name.
+  * @returns "OK".
+  * @see {@link https://redis.io/commands/renamenx}
+  */
+  RENAMENX(key: string, newkey: string): RedisXTransactionCommand<"OK">;
   /**
   * PEXPIRETIME has the same semantic as EXPIRETIME, but returns the absolute Unix expiration timestamp in milliseconds instead of seconds.
   * - Available since: 7.0.0.
@@ -781,6 +856,40 @@ declare class RedisXTransaction<L = [], C extends boolean = false, D = unknown> 
   */
   PEXPIRE(key: string, seconds: number, options?: PexpireOptions): RedisXTransaction<AddToList<L, boolean>, C, D>;
   /**
+  * Returns the remaining time to live of a key that has a timeout, in milliseconds.
+  *
+  * Like TTL this command returns the remaining time to live of a key that has an
+  * expire set, with the sole difference that TTL returns the amount of remaining
+  * time in seconds while PTTL returns it in milliseconds.
+  *
+  * - Available since: 2.6.0.
+  * - Time complexity: O(1).
+  * @param key The key to check.
+  * @returns One of the following:
+  * - A positive integer: TTL in milliseconds.
+  * - `-1`: if the key exists but has no associated expiration.
+  * - `-2`: if the key does not exist.
+  * @see {@link https://redis.io/commands/pttl}
+  * @see {@link https://redis.io/commands/ttl}
+  */
+  PTTL(key: string): RedisXTransaction<AddToList<L, number>, C, D>;
+  /**
+  * Returns the remaining time to live of a key that has a timeout.
+  *
+  * This introspection capability allows a Redis client to check how many seconds
+  * a given key will continue to be part of the dataset.
+  *
+  * - Available since: 1.0.0.
+  * - Time complexity: O(1).
+  * @param key The key to check.
+  * @returns One of the following:
+  * - A positive integer: TTL in seconds.
+  * - `-1`: if the key exists but has no associated expiration.
+  * - `-2`: if the key does not exist.
+  * @see {@link https://redis.io/commands/ttl}
+  */
+  TTL(key: string): RedisXTransaction<AddToList<L, number>, C, D>;
+  /**
   * Set a timeout on key.
   *
   * After the timeout has expired, the key will automatically be deleted.
@@ -793,6 +902,15 @@ declare class RedisXTransaction<L = [], C extends boolean = false, D = unknown> 
   * @see {@link https://redis.io/commands/expire}
   */
   EXPIRE(key: string, seconds: number, options?: ExpireOptions): RedisXTransaction<AddToList<L, boolean>, C, D>;
+  /**
+  * Returns the string representation of the type of the value stored at `key`.
+  * - Available since: 1.0.0.
+  * - Time complexity: O(1).
+  * @param key The key to check.
+  * @returns "OK".
+  * @see {@link https://redis.io/commands/rename}
+  */
+  TYPE(key: string): RedisXTransaction<AddToList<L, "string" | "list" | "set" | "zset" | "hash" | "stream" | "vectorset">, C, D>;
   /**
   * Returns all keys matching pattern.
   * - Available since: 1.0.0.
@@ -840,6 +958,16 @@ declare class RedisXTransaction<L = [], C extends boolean = false, D = unknown> 
   */
   PEXPIREAT(key: string, timestamp: number, options?: PexpireatOptions): RedisXTransaction<AddToList<L, boolean>, C, D>;
   /**
+  * Remove the existing timeout on key, turning the key from volatile (a key with an expire set) to persistent (a key that will never expire as no timeout is associated).
+  *
+  * - Available since: 2.2.0.
+  * - Time complexity: O(1).
+  * @param key The key to persist.
+  * @returns Returns `true` if the timeout was removed. Returns `false` if the key does not exist or does not have an associated timeout.
+  * @see {@link https://redis.io/commands/persist}
+  */
+  PERSIST(key: string): RedisXTransaction<AddToList<L, boolean>, C, D>;
+  /**
   * Returns the absolute Unix timestamp (since January 1, 1970) in seconds at which the given key will expire.
   * - Available since: 7.0.0.
   * - Time complexity: O(1).
@@ -851,6 +979,28 @@ declare class RedisXTransaction<L = [], C extends boolean = false, D = unknown> 
   * @see {@link https://redis.io/commands/expiretime}
   */
   EXPIRETIME(key: string): RedisXTransaction<AddToList<L, number>, C, D>;
+  /**
+  * Renames `key` to `newkey`. It returns an error when `key` does not exist. If `newkey` already exists it is overwritten.
+  *
+  * - Available since: 1.0.0.
+  * - Time complexity: O(1).
+  * @param key The key to rename.
+  * @param newkey The new key name.
+  * @returns "OK".
+  * @see {@link https://redis.io/commands/rename}
+  */
+  RENAME(key: string, newkey: string): RedisXTransaction<AddToList<L, "OK">, C, D>;
+  /**
+  * Renames `key` to `newkey` if `newkey` does not yet exist. It returns an error when `key` does not exist.
+  *
+  * - Available since: 1.0.0.
+  * - Time complexity: O(1).
+  * @param key The key to rename.
+  * @param newkey The new key name.
+  * @returns "OK".
+  * @see {@link https://redis.io/commands/renamenx}
+  */
+  RENAMENX(key: string, newkey: string): RedisXTransaction<AddToList<L, "OK">, C, D>;
   /**
   * PEXPIRETIME has the same semantic as EXPIRETIME, but returns the absolute Unix expiration timestamp in milliseconds instead of seconds.
   * - Available since: 7.0.0.
@@ -1121,6 +1271,40 @@ declare class RedisXClient {
   */
   PEXPIRE(key: string, seconds: number, options?: PexpireOptions): Promise<boolean>;
   /**
+  * Returns the remaining time to live of a key that has a timeout, in milliseconds.
+  *
+  * Like TTL this command returns the remaining time to live of a key that has an
+  * expire set, with the sole difference that TTL returns the amount of remaining
+  * time in seconds while PTTL returns it in milliseconds.
+  *
+  * - Available since: 2.6.0.
+  * - Time complexity: O(1).
+  * @param key The key to check.
+  * @returns One of the following:
+  * - A positive integer: TTL in milliseconds.
+  * - `-1`: if the key exists but has no associated expiration.
+  * - `-2`: if the key does not exist.
+  * @see {@link https://redis.io/commands/pttl}
+  * @see {@link https://redis.io/commands/ttl}
+  */
+  PTTL(key: string): Promise<number>;
+  /**
+  * Returns the remaining time to live of a key that has a timeout.
+  *
+  * This introspection capability allows a Redis client to check how many seconds
+  * a given key will continue to be part of the dataset.
+  *
+  * - Available since: 1.0.0.
+  * - Time complexity: O(1).
+  * @param key The key to check.
+  * @returns One of the following:
+  * - A positive integer: TTL in seconds.
+  * - `-1`: if the key exists but has no associated expiration.
+  * - `-2`: if the key does not exist.
+  * @see {@link https://redis.io/commands/ttl}
+  */
+  TTL(key: string): Promise<number>;
+  /**
   * Set a timeout on key.
   *
   * After the timeout has expired, the key will automatically be deleted.
@@ -1133,6 +1317,15 @@ declare class RedisXClient {
   * @see {@link https://redis.io/commands/expire}
   */
   EXPIRE(key: string, seconds: number, options?: ExpireOptions): Promise<boolean>;
+  /**
+  * Returns the string representation of the type of the value stored at `key`.
+  * - Available since: 1.0.0.
+  * - Time complexity: O(1).
+  * @param key The key to check.
+  * @returns "OK".
+  * @see {@link https://redis.io/commands/rename}
+  */
+  TYPE(key: string): Promise<"string" | "list" | "set" | "zset" | "hash" | "stream" | "vectorset">;
   /**
   * Returns all keys matching pattern.
   * - Available since: 1.0.0.
@@ -1180,6 +1373,16 @@ declare class RedisXClient {
   */
   PEXPIREAT(key: string, timestamp: number, options?: PexpireatOptions): Promise<boolean>;
   /**
+  * Remove the existing timeout on key, turning the key from volatile (a key with an expire set) to persistent (a key that will never expire as no timeout is associated).
+  *
+  * - Available since: 2.2.0.
+  * - Time complexity: O(1).
+  * @param key The key to persist.
+  * @returns Returns `true` if the timeout was removed. Returns `false` if the key does not exist or does not have an associated timeout.
+  * @see {@link https://redis.io/commands/persist}
+  */
+  PERSIST(key: string): Promise<boolean>;
+  /**
   * Returns the absolute Unix timestamp (since January 1, 1970) in seconds at which the given key will expire.
   * - Available since: 7.0.0.
   * - Time complexity: O(1).
@@ -1191,6 +1394,28 @@ declare class RedisXClient {
   * @see {@link https://redis.io/commands/expiretime}
   */
   EXPIRETIME(key: string): Promise<number>;
+  /**
+  * Renames `key` to `newkey`. It returns an error when `key` does not exist. If `newkey` already exists it is overwritten.
+  *
+  * - Available since: 1.0.0.
+  * - Time complexity: O(1).
+  * @param key The key to rename.
+  * @param newkey The new key name.
+  * @returns "OK".
+  * @see {@link https://redis.io/commands/rename}
+  */
+  RENAME(key: string, newkey: string): Promise<"OK">;
+  /**
+  * Renames `key` to `newkey` if `newkey` does not yet exist. It returns an error when `key` does not exist.
+  *
+  * - Available since: 1.0.0.
+  * - Time complexity: O(1).
+  * @param key The key to rename.
+  * @param newkey The new key name.
+  * @returns "OK".
+  * @see {@link https://redis.io/commands/renamenx}
+  */
+  RENAMENX(key: string, newkey: string): Promise<"OK">;
   /**
   * PEXPIRETIME has the same semantic as EXPIRETIME, but returns the absolute Unix expiration timestamp in milliseconds instead of seconds.
   * - Available since: 7.0.0.

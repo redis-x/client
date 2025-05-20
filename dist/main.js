@@ -52,7 +52,7 @@ function unwrapRedisTransactionCommand(target, result) {
 * @returns The value of key, or `null` when key does not exist.
 * @see {@link https://redis.io/commands/get}
 */
-function input$21(key) {
+function input$27(key) {
 	return {
 		kind: "#schema",
 		args: ["GET", key]
@@ -61,7 +61,7 @@ function input$21(key) {
 
 //#endregion
 //#region src/commands/string/set.ts
-function input$20(key, value, options) {
+function input$26(key, value, options) {
 	const args_options = [];
 	if (options) {
 		if (options.NX) args_options.push("NX");
@@ -97,7 +97,7 @@ function input$20(key, value, options) {
 * @see {@link https://redis.io/commands/pexpire}
 * @see {@link https://redis.io/commands/expire}
 */
-function input$19(key, seconds, options) {
+function input$25(key, seconds, options) {
 	const args_options = [];
 	if (options) {
 		if (options.NX) args_options.push("NX");
@@ -113,11 +113,61 @@ function input$19(key, seconds, options) {
 			String(seconds),
 			...args_options
 		],
-		replyTransform: replyTransform$5
+		replyTransform: replyTransform$6
 	};
 }
-function replyTransform$5(reply) {
+function replyTransform$6(reply) {
 	return reply === 1;
+}
+
+//#endregion
+//#region src/commands/generic/pttl.ts
+/**
+* Returns the remaining time to live of a key that has a timeout, in milliseconds.
+*
+* Like TTL this command returns the remaining time to live of a key that has an
+* expire set, with the sole difference that TTL returns the amount of remaining
+* time in seconds while PTTL returns it in milliseconds.
+*
+* - Available since: 2.6.0.
+* - Time complexity: O(1).
+* @param key The key to check.
+* @returns One of the following:
+* - A positive integer: TTL in milliseconds.
+* - `-1`: if the key exists but has no associated expiration.
+* - `-2`: if the key does not exist.
+* @see {@link https://redis.io/commands/pttl}
+* @see {@link https://redis.io/commands/ttl}
+*/
+function input$24(key) {
+	return {
+		kind: "#schema",
+		args: ["PTTL", key]
+	};
+}
+
+//#endregion
+//#region src/commands/generic/ttl.ts
+/**
+* Returns the remaining time to live of a key that has a timeout.
+*
+* This introspection capability allows a Redis client to check how many seconds
+* a given key will continue to be part of the dataset.
+*
+* - Available since: 1.0.0.
+* - Time complexity: O(1).
+* @param key The key to check.
+* @returns One of the following:
+* - A positive integer: TTL in seconds.
+* - `-1`: if the key exists but has no associated expiration.
+* - `-2`: if the key does not exist.
+* @see {@link https://redis.io/commands/ttl}
+*/
+function input$23(key) {
+	return {
+		kind: "#schema",
+		args: ["TTL", key]
+	};
 }
 
 //#endregion
@@ -134,7 +184,7 @@ function replyTransform$5(reply) {
 * @returns Returns `true` if the timeout was set. Returns `false` if the timeout was not set; for example, the key doesn't exist, or the operation was skipped because of the provided arguments.
 * @see {@link https://redis.io/commands/expire}
 */
-function input$18(key, seconds, options) {
+function input$22(key, seconds, options) {
 	const args_options = [];
 	if (options) {
 		if (options.NX) args_options.push("NX");
@@ -150,11 +200,28 @@ function input$18(key, seconds, options) {
 			String(seconds),
 			...args_options
 		],
-		replyTransform: replyTransform$4
+		replyTransform: replyTransform$5
 	};
 }
-function replyTransform$4(reply) {
+function replyTransform$5(reply) {
 	return reply === 1;
+}
+
+//#endregion
+//#region src/commands/generic/type.ts
+/**
+* Returns the string representation of the type of the value stored at `key`.
+* - Available since: 1.0.0.
+* - Time complexity: O(1).
+* @param key The key to check.
+* @returns "OK".
+* @see {@link https://redis.io/commands/rename}
+*/
+function input$21(key) {
+	return {
+		kind: "#schema",
+		args: ["TYPE", key]
+	};
 }
 
 //#endregion
@@ -167,14 +234,14 @@ function replyTransform$4(reply) {
 * @returns A set of keys matching pattern.
 * @see {@link https://redis.io/commands/keys}
 */
-function input$17(pattern) {
+function input$20(pattern) {
 	return {
 		kind: "#schema",
 		args: ["KEYS", pattern],
-		replyTransform: replyTransform$3
+		replyTransform: replyTransform$4
 	};
 }
-function replyTransform$3(reply) {
+function replyTransform$4(reply) {
 	return new Set(reply);
 }
 
@@ -190,7 +257,7 @@ function replyTransform$3(reply) {
 * @returns Whether the copy was successful.
 * @see {@link https://redis.io/commands/copy}
 */
-function input$16(source, destination, options) {
+function input$19(source, destination, options) {
 	const args = [
 		"COPY",
 		source,
@@ -201,10 +268,10 @@ function input$16(source, destination, options) {
 	return {
 		kind: "#schema",
 		args,
-		replyTransform: replyTransform$2
+		replyTransform: replyTransform$3
 	};
 }
-function replyTransform$2(reply) {
+function replyTransform$3(reply) {
 	return reply === 1;
 }
 
@@ -223,7 +290,7 @@ function replyTransform$2(reply) {
 * @see {@link https://redis.io/commands/expireat}
 * @see {@link https://redis.io/commands/expire}
 */
-function input$15(key, timestamp, options) {
+function input$18(key, timestamp, options) {
 	const args_options = [];
 	if (options) {
 		if (options.NX) args_options.push("NX");
@@ -239,10 +306,10 @@ function input$15(key, timestamp, options) {
 			String(timestamp),
 			...args_options
 		],
-		replyTransform: replyTransform$1
+		replyTransform: replyTransform$2
 	};
 }
-function replyTransform$1(reply) {
+function replyTransform$2(reply) {
 	return reply === 1;
 }
 
@@ -259,7 +326,7 @@ function replyTransform$1(reply) {
 * @see {@link https://redis.io/commands/pexpireat}
 * @see {@link https://redis.io/commands/expireat}
 */
-function input$14(key, timestamp, options) {
+function input$17(key, timestamp, options) {
 	const args_options = [];
 	if (options) {
 		if (options.NX) args_options.push("NX");
@@ -275,6 +342,28 @@ function input$14(key, timestamp, options) {
 			String(timestamp),
 			...args_options
 		],
+		replyTransform: replyTransform$1
+	};
+}
+function replyTransform$1(reply) {
+	return reply === 1;
+}
+
+//#endregion
+//#region src/commands/generic/persist.ts
+/**
+* Remove the existing timeout on key, turning the key from volatile (a key with an expire set) to persistent (a key that will never expire as no timeout is associated).
+*
+* - Available since: 2.2.0.
+* - Time complexity: O(1).
+* @param key The key to persist.
+* @returns Returns `true` if the timeout was removed. Returns `false` if the key does not exist or does not have an associated timeout.
+* @see {@link https://redis.io/commands/persist}
+*/
+function input$16(key) {
+	return {
+		kind: "#schema",
+		args: ["PERSIST", key],
 		replyTransform
 	};
 }
@@ -295,10 +384,56 @@ function replyTransform(reply) {
 * - `-2` if the key does not exist.
 * @see {@link https://redis.io/commands/expiretime}
 */
-function input$13(key) {
+function input$15(key) {
 	return {
 		kind: "#schema",
 		args: ["EXPIRETIME", key]
+	};
+}
+
+//#endregion
+//#region src/commands/generic/rename.ts
+/**
+* Renames `key` to `newkey`. It returns an error when `key` does not exist. If `newkey` already exists it is overwritten.
+*
+* - Available since: 1.0.0.
+* - Time complexity: O(1).
+* @param key The key to rename.
+* @param newkey The new key name.
+* @returns "OK".
+* @see {@link https://redis.io/commands/rename}
+*/
+function input$14(key, newkey) {
+	return {
+		kind: "#schema",
+		args: [
+			"RENAME",
+			key,
+			newkey
+		]
+	};
+}
+
+//#endregion
+//#region src/commands/generic/renamenx.ts
+/**
+* Renames `key` to `newkey` if `newkey` does not yet exist. It returns an error when `key` does not exist.
+*
+* - Available since: 1.0.0.
+* - Time complexity: O(1).
+* @param key The key to rename.
+* @param newkey The new key name.
+* @returns "OK".
+* @see {@link https://redis.io/commands/renamenx}
+*/
+function input$13(key, newkey) {
+	return {
+		kind: "#schema",
+		args: [
+			"RENAMENX",
+			key,
+			newkey
+		]
 	};
 }
 
@@ -615,10 +750,10 @@ var RedisXTransactionUse = class {
 	* @see {@link https://redis.io/commands/get}
 	*/
 	GET(key) {
-		return this.useCommand(input$21(key));
+		return this.useCommand(input$27(key));
 	}
 	SET(key, value, options) {
-		return this.useCommand(input$20(key, value, options));
+		return this.useCommand(input$26(key, value, options));
 	}
 	/**
 	* This command works exactly like EXPIRE but the time to live of the key is specified in milliseconds instead of seconds.
@@ -632,7 +767,45 @@ var RedisXTransactionUse = class {
 	* @see {@link https://redis.io/commands/expire}
 	*/
 	PEXPIRE(key, seconds, options) {
-		return this.useCommand(input$19(key, seconds, options));
+		return this.useCommand(input$25(key, seconds, options));
+	}
+	/**
+	* Returns the remaining time to live of a key that has a timeout, in milliseconds.
+	*
+	* Like TTL this command returns the remaining time to live of a key that has an
+	* expire set, with the sole difference that TTL returns the amount of remaining
+	* time in seconds while PTTL returns it in milliseconds.
+	*
+	* - Available since: 2.6.0.
+	* - Time complexity: O(1).
+	* @param key The key to check.
+	* @returns One of the following:
+	* - A positive integer: TTL in milliseconds.
+	* - `-1`: if the key exists but has no associated expiration.
+	* - `-2`: if the key does not exist.
+	* @see {@link https://redis.io/commands/pttl}
+	* @see {@link https://redis.io/commands/ttl}
+	*/
+	PTTL(key) {
+		return this.useCommand(input$24(key));
+	}
+	/**
+	* Returns the remaining time to live of a key that has a timeout.
+	*
+	* This introspection capability allows a Redis client to check how many seconds
+	* a given key will continue to be part of the dataset.
+	*
+	* - Available since: 1.0.0.
+	* - Time complexity: O(1).
+	* @param key The key to check.
+	* @returns One of the following:
+	* - A positive integer: TTL in seconds.
+	* - `-1`: if the key exists but has no associated expiration.
+	* - `-2`: if the key does not exist.
+	* @see {@link https://redis.io/commands/ttl}
+	*/
+	TTL(key) {
+		return this.useCommand(input$23(key));
 	}
 	/**
 	* Set a timeout on key.
@@ -647,7 +820,18 @@ var RedisXTransactionUse = class {
 	* @see {@link https://redis.io/commands/expire}
 	*/
 	EXPIRE(key, seconds, options) {
-		return this.useCommand(input$18(key, seconds, options));
+		return this.useCommand(input$22(key, seconds, options));
+	}
+	/**
+	* Returns the string representation of the type of the value stored at `key`.
+	* - Available since: 1.0.0.
+	* - Time complexity: O(1).
+	* @param key The key to check.
+	* @returns "OK".
+	* @see {@link https://redis.io/commands/rename}
+	*/
+	TYPE(key) {
+		return this.useCommand(input$21(key));
 	}
 	/**
 	* Returns all keys matching pattern.
@@ -658,7 +842,7 @@ var RedisXTransactionUse = class {
 	* @see {@link https://redis.io/commands/keys}
 	*/
 	KEYS(pattern) {
-		return this.useCommand(input$17(pattern));
+		return this.useCommand(input$20(pattern));
 	}
 	/**
 	* Copy the value stored at the source key to the destination key.
@@ -671,7 +855,7 @@ var RedisXTransactionUse = class {
 	* @see {@link https://redis.io/commands/copy}
 	*/
 	COPY(source, destination, options) {
-		return this.useCommand(input$16(source, destination, options));
+		return this.useCommand(input$19(source, destination, options));
 	}
 	/**
 	* This command has the same effect and semantic as EXPIRE, but instead of specifying the number of seconds representing the TTL (time to live), it takes an absolute Unix timestamp (seconds since January 1, 1970).
@@ -687,7 +871,7 @@ var RedisXTransactionUse = class {
 	* @see {@link https://redis.io/commands/expire}
 	*/
 	EXPIREAT(key, timestamp, options) {
-		return this.useCommand(input$15(key, timestamp, options));
+		return this.useCommand(input$18(key, timestamp, options));
 	}
 	/**
 	* This command has the same effect and semantic as EXPIREAT, but the Unix time at which the key will expire is specified in milliseconds instead of seconds.
@@ -701,7 +885,19 @@ var RedisXTransactionUse = class {
 	* @see {@link https://redis.io/commands/expireat}
 	*/
 	PEXPIREAT(key, timestamp, options) {
-		return this.useCommand(input$14(key, timestamp, options));
+		return this.useCommand(input$17(key, timestamp, options));
+	}
+	/**
+	* Remove the existing timeout on key, turning the key from volatile (a key with an expire set) to persistent (a key that will never expire as no timeout is associated).
+	*
+	* - Available since: 2.2.0.
+	* - Time complexity: O(1).
+	* @param key The key to persist.
+	* @returns Returns `true` if the timeout was removed. Returns `false` if the key does not exist or does not have an associated timeout.
+	* @see {@link https://redis.io/commands/persist}
+	*/
+	PERSIST(key) {
+		return this.useCommand(input$16(key));
 	}
 	/**
 	* Returns the absolute Unix timestamp (since January 1, 1970) in seconds at which the given key will expire.
@@ -715,7 +911,33 @@ var RedisXTransactionUse = class {
 	* @see {@link https://redis.io/commands/expiretime}
 	*/
 	EXPIRETIME(key) {
-		return this.useCommand(input$13(key));
+		return this.useCommand(input$15(key));
+	}
+	/**
+	* Renames `key` to `newkey`. It returns an error when `key` does not exist. If `newkey` already exists it is overwritten.
+	*
+	* - Available since: 1.0.0.
+	* - Time complexity: O(1).
+	* @param key The key to rename.
+	* @param newkey The new key name.
+	* @returns "OK".
+	* @see {@link https://redis.io/commands/rename}
+	*/
+	RENAME(key, newkey) {
+		return this.useCommand(input$14(key, newkey));
+	}
+	/**
+	* Renames `key` to `newkey` if `newkey` does not yet exist. It returns an error when `key` does not exist.
+	*
+	* - Available since: 1.0.0.
+	* - Time complexity: O(1).
+	* @param key The key to rename.
+	* @param newkey The new key name.
+	* @returns "OK".
+	* @see {@link https://redis.io/commands/renamenx}
+	*/
+	RENAMENX(key, newkey) {
+		return this.useCommand(input$13(key, newkey));
 	}
 	/**
 	* PEXPIRETIME has the same semantic as EXPIRETIME, but returns the absolute Unix expiration timestamp in milliseconds instead of seconds.
@@ -910,10 +1132,10 @@ var RedisXTransaction = class {
 	* @see {@link https://redis.io/commands/get}
 	*/
 	GET(key) {
-		return this.useCommand(input$21(key));
+		return this.useCommand(input$27(key));
 	}
 	SET(key, value, options) {
-		return this.useCommand(input$20(key, value, options));
+		return this.useCommand(input$26(key, value, options));
 	}
 	/**
 	* This command works exactly like EXPIRE but the time to live of the key is specified in milliseconds instead of seconds.
@@ -927,7 +1149,45 @@ var RedisXTransaction = class {
 	* @see {@link https://redis.io/commands/expire}
 	*/
 	PEXPIRE(key, seconds, options) {
-		return this.useCommand(input$19(key, seconds, options));
+		return this.useCommand(input$25(key, seconds, options));
+	}
+	/**
+	* Returns the remaining time to live of a key that has a timeout, in milliseconds.
+	*
+	* Like TTL this command returns the remaining time to live of a key that has an
+	* expire set, with the sole difference that TTL returns the amount of remaining
+	* time in seconds while PTTL returns it in milliseconds.
+	*
+	* - Available since: 2.6.0.
+	* - Time complexity: O(1).
+	* @param key The key to check.
+	* @returns One of the following:
+	* - A positive integer: TTL in milliseconds.
+	* - `-1`: if the key exists but has no associated expiration.
+	* - `-2`: if the key does not exist.
+	* @see {@link https://redis.io/commands/pttl}
+	* @see {@link https://redis.io/commands/ttl}
+	*/
+	PTTL(key) {
+		return this.useCommand(input$24(key));
+	}
+	/**
+	* Returns the remaining time to live of a key that has a timeout.
+	*
+	* This introspection capability allows a Redis client to check how many seconds
+	* a given key will continue to be part of the dataset.
+	*
+	* - Available since: 1.0.0.
+	* - Time complexity: O(1).
+	* @param key The key to check.
+	* @returns One of the following:
+	* - A positive integer: TTL in seconds.
+	* - `-1`: if the key exists but has no associated expiration.
+	* - `-2`: if the key does not exist.
+	* @see {@link https://redis.io/commands/ttl}
+	*/
+	TTL(key) {
+		return this.useCommand(input$23(key));
 	}
 	/**
 	* Set a timeout on key.
@@ -942,7 +1202,18 @@ var RedisXTransaction = class {
 	* @see {@link https://redis.io/commands/expire}
 	*/
 	EXPIRE(key, seconds, options) {
-		return this.useCommand(input$18(key, seconds, options));
+		return this.useCommand(input$22(key, seconds, options));
+	}
+	/**
+	* Returns the string representation of the type of the value stored at `key`.
+	* - Available since: 1.0.0.
+	* - Time complexity: O(1).
+	* @param key The key to check.
+	* @returns "OK".
+	* @see {@link https://redis.io/commands/rename}
+	*/
+	TYPE(key) {
+		return this.useCommand(input$21(key));
 	}
 	/**
 	* Returns all keys matching pattern.
@@ -953,7 +1224,7 @@ var RedisXTransaction = class {
 	* @see {@link https://redis.io/commands/keys}
 	*/
 	KEYS(pattern) {
-		return this.useCommand(input$17(pattern));
+		return this.useCommand(input$20(pattern));
 	}
 	/**
 	* Copy the value stored at the source key to the destination key.
@@ -966,7 +1237,7 @@ var RedisXTransaction = class {
 	* @see {@link https://redis.io/commands/copy}
 	*/
 	COPY(source, destination, options) {
-		return this.useCommand(input$16(source, destination, options));
+		return this.useCommand(input$19(source, destination, options));
 	}
 	/**
 	* This command has the same effect and semantic as EXPIRE, but instead of specifying the number of seconds representing the TTL (time to live), it takes an absolute Unix timestamp (seconds since January 1, 1970).
@@ -982,7 +1253,7 @@ var RedisXTransaction = class {
 	* @see {@link https://redis.io/commands/expire}
 	*/
 	EXPIREAT(key, timestamp, options) {
-		return this.useCommand(input$15(key, timestamp, options));
+		return this.useCommand(input$18(key, timestamp, options));
 	}
 	/**
 	* This command has the same effect and semantic as EXPIREAT, but the Unix time at which the key will expire is specified in milliseconds instead of seconds.
@@ -996,7 +1267,19 @@ var RedisXTransaction = class {
 	* @see {@link https://redis.io/commands/expireat}
 	*/
 	PEXPIREAT(key, timestamp, options) {
-		return this.useCommand(input$14(key, timestamp, options));
+		return this.useCommand(input$17(key, timestamp, options));
+	}
+	/**
+	* Remove the existing timeout on key, turning the key from volatile (a key with an expire set) to persistent (a key that will never expire as no timeout is associated).
+	*
+	* - Available since: 2.2.0.
+	* - Time complexity: O(1).
+	* @param key The key to persist.
+	* @returns Returns `true` if the timeout was removed. Returns `false` if the key does not exist or does not have an associated timeout.
+	* @see {@link https://redis.io/commands/persist}
+	*/
+	PERSIST(key) {
+		return this.useCommand(input$16(key));
 	}
 	/**
 	* Returns the absolute Unix timestamp (since January 1, 1970) in seconds at which the given key will expire.
@@ -1010,7 +1293,33 @@ var RedisXTransaction = class {
 	* @see {@link https://redis.io/commands/expiretime}
 	*/
 	EXPIRETIME(key) {
-		return this.useCommand(input$13(key));
+		return this.useCommand(input$15(key));
+	}
+	/**
+	* Renames `key` to `newkey`. It returns an error when `key` does not exist. If `newkey` already exists it is overwritten.
+	*
+	* - Available since: 1.0.0.
+	* - Time complexity: O(1).
+	* @param key The key to rename.
+	* @param newkey The new key name.
+	* @returns "OK".
+	* @see {@link https://redis.io/commands/rename}
+	*/
+	RENAME(key, newkey) {
+		return this.useCommand(input$14(key, newkey));
+	}
+	/**
+	* Renames `key` to `newkey` if `newkey` does not yet exist. It returns an error when `key` does not exist.
+	*
+	* - Available since: 1.0.0.
+	* - Time complexity: O(1).
+	* @param key The key to rename.
+	* @param newkey The new key name.
+	* @returns "OK".
+	* @see {@link https://redis.io/commands/renamenx}
+	*/
+	RENAMENX(key, newkey) {
+		return this.useCommand(input$13(key, newkey));
 	}
 	/**
 	* PEXPIRETIME has the same semantic as EXPIRETIME, but returns the absolute Unix expiration timestamp in milliseconds instead of seconds.
@@ -1162,10 +1471,10 @@ var RedisXClient = class {
 	* @see {@link https://redis.io/commands/get}
 	*/
 	GET(key) {
-		return this.useCommand(input$21(key));
+		return this.useCommand(input$27(key));
 	}
 	SET(key, value, options) {
-		return this.useCommand(input$20(key, value, options));
+		return this.useCommand(input$26(key, value, options));
 	}
 	/**
 	* This command works exactly like EXPIRE but the time to live of the key is specified in milliseconds instead of seconds.
@@ -1179,7 +1488,45 @@ var RedisXClient = class {
 	* @see {@link https://redis.io/commands/expire}
 	*/
 	PEXPIRE(key, seconds, options) {
-		return this.useCommand(input$19(key, seconds, options));
+		return this.useCommand(input$25(key, seconds, options));
+	}
+	/**
+	* Returns the remaining time to live of a key that has a timeout, in milliseconds.
+	*
+	* Like TTL this command returns the remaining time to live of a key that has an
+	* expire set, with the sole difference that TTL returns the amount of remaining
+	* time in seconds while PTTL returns it in milliseconds.
+	*
+	* - Available since: 2.6.0.
+	* - Time complexity: O(1).
+	* @param key The key to check.
+	* @returns One of the following:
+	* - A positive integer: TTL in milliseconds.
+	* - `-1`: if the key exists but has no associated expiration.
+	* - `-2`: if the key does not exist.
+	* @see {@link https://redis.io/commands/pttl}
+	* @see {@link https://redis.io/commands/ttl}
+	*/
+	PTTL(key) {
+		return this.useCommand(input$24(key));
+	}
+	/**
+	* Returns the remaining time to live of a key that has a timeout.
+	*
+	* This introspection capability allows a Redis client to check how many seconds
+	* a given key will continue to be part of the dataset.
+	*
+	* - Available since: 1.0.0.
+	* - Time complexity: O(1).
+	* @param key The key to check.
+	* @returns One of the following:
+	* - A positive integer: TTL in seconds.
+	* - `-1`: if the key exists but has no associated expiration.
+	* - `-2`: if the key does not exist.
+	* @see {@link https://redis.io/commands/ttl}
+	*/
+	TTL(key) {
+		return this.useCommand(input$23(key));
 	}
 	/**
 	* Set a timeout on key.
@@ -1194,7 +1541,18 @@ var RedisXClient = class {
 	* @see {@link https://redis.io/commands/expire}
 	*/
 	EXPIRE(key, seconds, options) {
-		return this.useCommand(input$18(key, seconds, options));
+		return this.useCommand(input$22(key, seconds, options));
+	}
+	/**
+	* Returns the string representation of the type of the value stored at `key`.
+	* - Available since: 1.0.0.
+	* - Time complexity: O(1).
+	* @param key The key to check.
+	* @returns "OK".
+	* @see {@link https://redis.io/commands/rename}
+	*/
+	TYPE(key) {
+		return this.useCommand(input$21(key));
 	}
 	/**
 	* Returns all keys matching pattern.
@@ -1205,7 +1563,7 @@ var RedisXClient = class {
 	* @see {@link https://redis.io/commands/keys}
 	*/
 	KEYS(pattern) {
-		return this.useCommand(input$17(pattern));
+		return this.useCommand(input$20(pattern));
 	}
 	/**
 	* Copy the value stored at the source key to the destination key.
@@ -1218,7 +1576,7 @@ var RedisXClient = class {
 	* @see {@link https://redis.io/commands/copy}
 	*/
 	COPY(source, destination, options) {
-		return this.useCommand(input$16(source, destination, options));
+		return this.useCommand(input$19(source, destination, options));
 	}
 	/**
 	* This command has the same effect and semantic as EXPIRE, but instead of specifying the number of seconds representing the TTL (time to live), it takes an absolute Unix timestamp (seconds since January 1, 1970).
@@ -1234,7 +1592,7 @@ var RedisXClient = class {
 	* @see {@link https://redis.io/commands/expire}
 	*/
 	EXPIREAT(key, timestamp, options) {
-		return this.useCommand(input$15(key, timestamp, options));
+		return this.useCommand(input$18(key, timestamp, options));
 	}
 	/**
 	* This command has the same effect and semantic as EXPIREAT, but the Unix time at which the key will expire is specified in milliseconds instead of seconds.
@@ -1248,7 +1606,19 @@ var RedisXClient = class {
 	* @see {@link https://redis.io/commands/expireat}
 	*/
 	PEXPIREAT(key, timestamp, options) {
-		return this.useCommand(input$14(key, timestamp, options));
+		return this.useCommand(input$17(key, timestamp, options));
+	}
+	/**
+	* Remove the existing timeout on key, turning the key from volatile (a key with an expire set) to persistent (a key that will never expire as no timeout is associated).
+	*
+	* - Available since: 2.2.0.
+	* - Time complexity: O(1).
+	* @param key The key to persist.
+	* @returns Returns `true` if the timeout was removed. Returns `false` if the key does not exist or does not have an associated timeout.
+	* @see {@link https://redis.io/commands/persist}
+	*/
+	PERSIST(key) {
+		return this.useCommand(input$16(key));
 	}
 	/**
 	* Returns the absolute Unix timestamp (since January 1, 1970) in seconds at which the given key will expire.
@@ -1262,7 +1632,33 @@ var RedisXClient = class {
 	* @see {@link https://redis.io/commands/expiretime}
 	*/
 	EXPIRETIME(key) {
-		return this.useCommand(input$13(key));
+		return this.useCommand(input$15(key));
+	}
+	/**
+	* Renames `key` to `newkey`. It returns an error when `key` does not exist. If `newkey` already exists it is overwritten.
+	*
+	* - Available since: 1.0.0.
+	* - Time complexity: O(1).
+	* @param key The key to rename.
+	* @param newkey The new key name.
+	* @returns "OK".
+	* @see {@link https://redis.io/commands/rename}
+	*/
+	RENAME(key, newkey) {
+		return this.useCommand(input$14(key, newkey));
+	}
+	/**
+	* Renames `key` to `newkey` if `newkey` does not yet exist. It returns an error when `key` does not exist.
+	*
+	* - Available since: 1.0.0.
+	* - Time complexity: O(1).
+	* @param key The key to rename.
+	* @param newkey The new key name.
+	* @returns "OK".
+	* @see {@link https://redis.io/commands/renamenx}
+	*/
+	RENAMENX(key, newkey) {
+		return this.useCommand(input$13(key, newkey));
 	}
 	/**
 	* PEXPIRETIME has the same semantic as EXPIRETIME, but returns the absolute Unix expiration timestamp in milliseconds instead of seconds.
