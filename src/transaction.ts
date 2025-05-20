@@ -725,10 +725,10 @@ export class RedisXTransaction<
 	 * - Time complexity: O(1)
 	 * @param key -
 	 * @param field -
-	 * @returns The value associated with field in the hash stored at key.
+	 * @returns The value associated with field in the hash stored at key or null.
 	 * @see {@link https://redis.io/commands/hget}
 	 */
-	HGET(key: string, field: string): RedisXTransaction<AddToList<L, string>, C, D> {
+	HGET(key: string, field: string): RedisXTransaction<AddToList<L, string | null>, C, D> {
 		return this.useCommand(input_hget(key, field));
 	}
 

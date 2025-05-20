@@ -766,6 +766,16 @@ declare class RedisXTransactionUse {
   */
   HGETALL(key: string): RedisXTransactionCommand<Record<string, string>>;
   /**
+  * Returns the value associated with field in the hash stored at key.
+  * - Available since: 2.0.0.
+  * - Time complexity: O(1)
+  * @param key -
+  * @param field -
+  * @returns The value associated with field in the hash stored at key or null.
+  * @see {@link https://redis.io/commands/hget}
+  */
+  HGET(key: string, field: string): RedisXTransactionCommand<string | null>;
+  /**
   * Invoke the execution of a server-side Lua script.
   * - Available since: 2.6.0.
   * - Time complexity: Depends on the script that is executed.
@@ -1195,6 +1205,16 @@ declare class RedisXTransaction<L = [], C extends boolean = false, D = unknown> 
   */
   HGETALL(key: string): RedisXTransaction<AddToList<L, Record<string, string>>, C, D>;
   /**
+  * Returns the value associated with field in the hash stored at key.
+  * - Available since: 2.0.0.
+  * - Time complexity: O(1)
+  * @param key -
+  * @param field -
+  * @returns The value associated with field in the hash stored at key or null.
+  * @see {@link https://redis.io/commands/hget}
+  */
+  HGET(key: string, field: string): RedisXTransaction<AddToList<L, string | null>, C, D>;
+  /**
   * Invoke the execution of a server-side Lua script.
   * - Available since: 2.6.0.
   * - Time complexity: Depends on the script that is executed.
@@ -1609,6 +1629,16 @@ declare class RedisXClient {
   * @see {@link https://redis.io/commands/hgetall}
   */
   HGETALL(key: string): Promise<Record<string, string>>;
+  /**
+  * Returns the value associated with field in the hash stored at key.
+  * - Available since: 2.0.0.
+  * - Time complexity: O(1)
+  * @param key -
+  * @param field -
+  * @returns The value associated with field in the hash stored at key or null.
+  * @see {@link https://redis.io/commands/hget}
+  */
+  HGET(key: string, field: string): Promise<string | null>;
   /**
   * Invoke the execution of a server-side Lua script.
   * - Available since: 2.6.0.
