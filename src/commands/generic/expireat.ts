@@ -1,6 +1,6 @@
 import type { Command } from '../../types.js';
 
-export type ExpireOptions = {
+export type ExpireatOptions = {
 	/**
 	 * Set expiry only when the key has no expiry.
 	 * - Incompatible with options `XX`, `GT` and `LT`.
@@ -32,18 +32,19 @@ export type ExpireOptions = {
 };
 
 /**
- * Set a timeout on key.
+ * This command has the same effect and semantic as EXPIRE, but instead of specifying the number of seconds representing the TTL (time to live), it takes an absolute Unix timestamp (seconds since January 1, 1970).
  *
- * After the timeout has expired, the key will automatically be deleted.
- * - Available since: 1.0.0.
+ * A timestamp in the past will delete the key immediately.
+ * - Available since: 1.2.0.
  * - Time complexity: O(1).
  * @param key Key to set the timeout on.
- * @param seconds Time to live in seconds.
+ * @param timestamp Unix timestamp in seconds.
  * @param options Command options.
  * @returns Returns `true` if the timeout was set. Returns `false` if the timeout was not set; for example, the key doesn't exist, or the operation was skipped because of the provided arguments.
+ * @see {@link https://redis.io/commands/expireat}
  * @see {@link https://redis.io/commands/expire}
  */
-export function input(key: string, seconds: number, options?: ExpireOptions): Command<boolean> {
+export function input(key: string, timestamp: number, options?: ExpireatOptions): Command<boolean> {
 	const args_options = [];
 
 	if (options) {
@@ -67,9 +68,9 @@ export function input(key: string, seconds: number, options?: ExpireOptions): Co
 	return {
 		kind: '#schema',
 		args: [
-			'EXPIRE',
+			'EXPIREAT',
 			key,
-			String(seconds),
+			String(timestamp),
 			...args_options,
 		],
 		replyTransform,

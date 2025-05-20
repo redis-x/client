@@ -1,6 +1,6 @@
 import type { Command } from '../../types.js';
 
-export type ExpireOptions = {
+export type PexpireOptions = {
 	/**
 	 * Set expiry only when the key has no expiry.
 	 * - Incompatible with options `XX`, `GT` and `LT`.
@@ -32,18 +32,17 @@ export type ExpireOptions = {
 };
 
 /**
- * Set a timeout on key.
- *
- * After the timeout has expired, the key will automatically be deleted.
- * - Available since: 1.0.0.
+ * This command works exactly like EXPIRE but the time to live of the key is specified in milliseconds instead of seconds.
+ * - Available since: 2.6.0.
  * - Time complexity: O(1).
  * @param key Key to set the timeout on.
- * @param seconds Time to live in seconds.
+ * @param seconds Time to live in milliseconds.
  * @param options Command options.
  * @returns Returns `true` if the timeout was set. Returns `false` if the timeout was not set; for example, the key doesn't exist, or the operation was skipped because of the provided arguments.
+ * @see {@link https://redis.io/commands/pexpire}
  * @see {@link https://redis.io/commands/expire}
  */
-export function input(key: string, seconds: number, options?: ExpireOptions): Command<boolean> {
+export function input(key: string, seconds: number, options?: PexpireOptions): Command<boolean> {
 	const args_options = [];
 
 	if (options) {
@@ -67,7 +66,7 @@ export function input(key: string, seconds: number, options?: ExpireOptions): Co
 	return {
 		kind: '#schema',
 		args: [
-			'EXPIRE',
+			'PEXPIRE',
 			key,
 			String(seconds),
 			...args_options,

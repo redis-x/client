@@ -253,11 +253,11 @@ The `redis-x` client is more a proof of concept than a complete implementation. 
 
 | Section               | Commands available | Command names |
 | --------------------- | - | - |
-| Connection management | 🟥🟥🟥🟥🟥🟥🟥 <br> **0** / 32 | — |
-| Generic               | 🟩🟥🟥🟥🟥🟥🟥 <br> **6** / 32 | `COPY` `DEL` `EXISTS` `EXPIRE` `EXPIRETIME` `KEYS` |
-| Hash                  | 🟨🟥🟥🟥🟥🟥🟥 <br> **2** / 28 | `HGETALL` `HSET` |
-| List                  | 🟥🟥🟥🟥🟥🟥🟥 <br> **1** / 22 | `LPUSH` |
-| Scripting             | 🟨🟥🟥🟥🟥🟥🟥 <br> **1** / 19 | `EVAL` |
-| Set                   | 🟥🟥🟥🟥🟥🟥🟥 <br> **0** / 17 | — |
-| Sorted Set            | 🟩🟨🟥🟥🟥🟥🟥 <br> **6** / 35 | `ZADD` `ZCARD` `ZINTERSTORE` `ZRANGE` `ZREM` `ZSCORE` |
-| String                | 🟨🟥🟥🟥🟥🟥🟥 <br> **2** / 22 | `GET` `SET` |
+| Connection management | 🟥🟥🟥🟥🟥🟥🟥 <br>  **0** / 32 | — |
+| Generic               | 🟩🟩🟩🟩🟥🟥🟥 <br> **10** / 32 | `COPY` `DEL` `EXISTS` `EXPIRE` `EXPIREAT` `EXPIRETIME` `KEYS` `PEXPIRE` `PEXPIREAT` `PEXPIRETIME` |
+| Hash                  | 🟨🟥🟥🟥🟥🟥🟥 <br>  **2** / 28 | `HGETALL` `HSET` |
+| List                  | 🟥🟥🟥🟥🟥🟥🟥 <br>  **1** / 22 | `LPUSH` |
+| Scripting             | 🟨🟥🟥🟥🟥🟥🟥 <br>  **1** / 19 | `EVAL` |
+| Set                   | 🟥🟥🟥🟥🟥🟥🟥 <br>  **0** / 17 | — |
+| Sorted Set            | 🟩🟨🟥🟥🟥🟥🟥 <br>  **6** / 35 | `ZADD` `ZCARD` `ZINTERSTORE` `ZRANGE` `ZREM` `ZSCORE` |
+| String                | 🟨🟥🟥🟥🟥🟥🟥 <br>  **2** / 22 | `GET` `SET` |

@@ -205,12 +205,27 @@ export class RedisXTransaction<
 	}
 
 	/**
+	 * This command works exactly like EXPIRE but the time to live of the key is specified in milliseconds instead of seconds.
+	 * - Available since: 2.6.0.
+	 * - Time complexity: O(1).
+	 * @param key Key to set the timeout on.
+	 * @param seconds Time to live in milliseconds.
+	 * @param options Command options.
+	 * @returns Returns `true` if the timeout was set. Returns `false` if the timeout was not set; for example, the key doesn't exist, or the operation was skipped because of the provided arguments.
+	 * @see {@link https://redis.io/commands/pexpire}
+	 * @see {@link https://redis.io/commands/expire}
+	 */
+	PEXPIRE(key: string, seconds: number, options?: PexpireOptions): RedisXTransaction<AddToList<L, boolean>, C, D> {
+		return this.useCommand(input_pexpire(key, seconds, options));
+	}
+
+	/**
 	 * Set a timeout on key.
 	 *
 	 * After the timeout has expired, the key will automatically be deleted.
 	 * - Available since: 1.0.0.
 	 * - Time complexity: O(1).
-	 * @param key Key to get.
+	 * @param key Key to set the timeout on.
 	 * @param seconds Time to live in seconds.
 	 * @param options Command options.
 	 * @returns Returns `true` if the timeout was set. Returns `false` if the timeout was not set; for example, the key doesn't exist, or the operation was skipped because of the provided arguments.
@@ -251,6 +266,38 @@ export class RedisXTransaction<
 	}
 
 	/**
+	 * This command has the same effect and semantic as EXPIRE, but instead of specifying the number of seconds representing the TTL (time to live), it takes an absolute Unix timestamp (seconds since January 1, 1970).
+	 *
+	 * A timestamp in the past will delete the key immediately.
+	 * - Available since: 1.2.0.
+	 * - Time complexity: O(1).
+	 * @param key Key to set the timeout on.
+	 * @param timestamp Unix timestamp in seconds.
+	 * @param options Command options.
+	 * @returns Returns `true` if the timeout was set. Returns `false` if the timeout was not set; for example, the key doesn't exist, or the operation was skipped because of the provided arguments.
+	 * @see {@link https://redis.io/commands/expireat}
+	 * @see {@link https://redis.io/commands/expire}
+	 */
+	EXPIREAT(key: string, timestamp: number, options?: ExpireatOptions): RedisXTransaction<AddToList<L, boolean>, C, D> {
+		return this.useCommand(input_expireat(key, timestamp, options));
+	}
+
+	/**
+	 * This command has the same effect and semantic as EXPIREAT, but the Unix time at which the key will expire is specified in milliseconds instead of seconds.
+	 * - Available since: 2.6.0.
+	 * - Time complexity: O(1).
+	 * @param key Key to set the timeout on.
+	 * @param timestamp Unix timestamp in milliseconds.
+	 * @param options Command options.
+	 * @returns Returns `true` if the timeout was set. Returns `false` if the timeout was not set; for example, the key doesn't exist, or the operation was skipped because of the provided arguments.
+	 * @see {@link https://redis.io/commands/pexpireat}
+	 * @see {@link https://redis.io/commands/expireat}
+	 */
+	PEXPIREAT(key: string, timestamp: number, options?: PexpireatOptions): RedisXTransaction<AddToList<L, boolean>, C, D> {
+		return this.useCommand(input_pexpireat(key, timestamp, options));
+	}
+
+	/**
 	 * Returns the absolute Unix timestamp (since January 1, 1970) in seconds at which the given key will expire.
 	 * - Available since: 7.0.0.
 	 * - Time complexity: O(1).
@@ -263,6 +310,22 @@ export class RedisXTransaction<
 	 */
 	EXPIRETIME(key: string): RedisXTransaction<AddToList<L, number>, C, D> {
 		return this.useCommand(input_expiretime(key));
+	}
+
+	/**
+	 * PEXPIRETIME has the same semantic as EXPIRETIME, but returns the absolute Unix expiration timestamp in milliseconds instead of seconds.
+	 * - Available since: 7.0.0.
+	 * - Time complexity: O(1).
+	 * @param key Key to get expiration time for.
+	 * @returns One of the following:
+	 * - A number representing the expiration Unix timestamp in milliseconds.
+	 * - `-1` if the key exists but has no associated expiration time.
+	 * - `-2` if the key does not exist.
+	 * @see {@link https://redis.io/commands/pexpiretime}
+	 * @see {@link https://redis.io/commands/expiretime}
+	 */
+	PEXPIRETIME(key: string): RedisXTransaction<AddToList<L, number>, C, D> {
+		return this.useCommand(input_pexpiretime(key));
 	}
 
 	/**
@@ -594,6 +657,10 @@ import {
 	input as input_set,
 } from './commands/string/set.js';
 import {
+	type PexpireOptions,
+	input as input_pexpire,
+} from './commands/generic/pexpire.js';
+import {
 	type ExpireOptions,
 	input as input_expire,
 } from './commands/generic/expire.js';
@@ -605,8 +672,19 @@ import {
 	input as input_copy,
 } from './commands/generic/copy.js';
 import {
+	type ExpireatOptions,
+	input as input_expireat,
+} from './commands/generic/expireat.js';
+import {
+	type PexpireatOptions,
+	input as input_pexpireat,
+} from './commands/generic/pexpireat.js';
+import {
 	input as input_expiretime,
 } from './commands/generic/expiretime.js';
+import {
+	input as input_pexpiretime,
+} from './commands/generic/pexpiretime.js';
 import {
 	input as input_del,
 } from './commands/generic/del.js';

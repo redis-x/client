@@ -1,0 +1,46 @@
+/* eslint-disable @stylistic/array-element-newline */
+
+import {
+	describe,
+	expect,
+	test,
+} from 'vitest';
+import { input } from './pexpireat.js';
+
+describe('command', () => {
+	const timestamp = Date.now() + 3_600_000;
+
+	test('no options', () => {
+		const command = input('key', timestamp);
+
+		expect(command.args).toStrictEqual(
+			[ 'PEXPIREAT', 'key', String(timestamp) ],
+		);
+
+		expect(
+			command.replyTransform?.(0),
+		).toStrictEqual(false);
+
+		expect(
+			command.replyTransform?.(1),
+		).toStrictEqual(true);
+	});
+
+	for (const option of [ 'NX', 'XX', 'GT', 'LT' ]) {
+		describe(`option ${option}`, () => {
+			for (const value of [ true, false ]) {
+				test(String(value), () => {
+					const command = input('key', timestamp, {
+						[option]: value,
+					});
+
+					expect(command.args).toStrictEqual(
+						value
+							? [ 'PEXPIREAT', 'key', String(timestamp), option ]
+							: [ 'PEXPIREAT', 'key', String(timestamp) ],
+					);
+				});
+			}
+		});
+	}
+});
