@@ -11,7 +11,11 @@ test('command', () => {
 	const command = input('key', 'field');
 
 	expect(command.args).toStrictEqual(
-		[ 'HGET', 'key', 'field' ],
+		[
+			'HGET',
+			'key',
+			'field',
+		],
 	);
 });
 
