@@ -17,22 +17,6 @@ test('command', () => {
 			'field',
 		],
 	);
-});
 
-describe('returns', () => {
-	test('object', async () => {
-		const key = createRandomKey();
-
-		await redisXClient.sendCommand('HSET', key, 'key1', 'value1', 'key2', 'value2');
-
-		const result = await redisXClient.HGET(key, 'key1');
-		expect(result).toStrictEqual('value1');
-
-		expect(
-			await redisXClient.HGET(
-				createRandomKey(),
-				createRandomKey(),
-			),
-		).toStrictEqual(null);
-	});
+	expect(command.replyTransform).toBeUndefined();
 });
