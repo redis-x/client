@@ -1139,6 +1139,15 @@ declare class RedisXTransactionUse {
   */
   ZINTERSTORE(destination: string, keys_with_weights: Record<string, number>, options?: ZinterstoreOptions): RedisXTransactionCommand<number>;
   /**
+  * Returns all values in the hash stored at key.
+  * - Available since: 2.0.0.
+  * - Time complexity: O(N) where N is the size of the hash.
+  * @param key The key of the hash.
+  * @returns A set of values in the hash, or an empty set when the key does not exist.
+  * @see {@link https://redis.io/commands/hvals}
+  */
+  HVALS(key: string): RedisXTransactionCommand<Set<string>>;
+  /**
   * Sets the specified fields to their respective values in the hash stored at key.
   * - Available since: 2.0.0.
   * - Multiple field/value pairs are available since Redis 4.0.0.
@@ -1162,6 +1171,20 @@ declare class RedisXTransactionUse {
   */
   HSET(key: string, pairs: Record<string, string | number>): RedisXTransactionCommand<number>;
   /**
+  * Increment the specified field of a hash stored at key, and representing a floating point number, by the specified increment.
+  * If the increment value is negative, the result is to have the hash field value decremented instead of incremented.
+  * If the field does not exist, it is set to 0 before performing the operation.
+  *
+  * - Available since: 2.6.0.
+  * - Time complexity: O(1).
+  * @param key Key of the hash.
+  * @param field Field in the hash to increment.
+  * @param increment The increment value (can be negative for decrementing).
+  * @returns The value of the field after the increment operation as a string representing the floating point value.
+  * @see {@link https://redis.io/commands/hincrbyfloat}
+  */
+  HINCRBYFLOAT(key: string, field: string | number, increment: number): RedisXTransactionCommand<string>;
+  /**
   * Returns all fields and values of the hash stored at key.
   * - Available since: 2.0.0.
   * - Time complexity: O(N) where N is the size of the hash.
@@ -1180,6 +1203,160 @@ declare class RedisXTransactionUse {
   * @see {@link https://redis.io/commands/hget}
   */
   HGET(key: string, field: string): RedisXTransactionCommand<string | null>;
+  /**
+  * Sets the specified fields to their respective values in the hash stored at key.
+  * This command overwrites any specified fields already existing in the hash.
+  * If key does not exist, a new key holding a hash is created.
+  *
+  * - Available since: 2.0.0.
+  * - Time complexity: O(N) where N is the number of fields being set.
+  * @deprecated As of Redis version 4.0.0, this command is regarded as deprecated. It can be replaced by HSET with multiple field-value pairs when migrating or writing new code.
+  * @param key Key that contains the hash.
+  * @param field Field to set.
+  * @param value Value to set.
+  * @returns Simple string reply: "OK".
+  * @see {@link https://redis.io/commands/hmset}
+  */
+  HMSET(key: string, field: string, value: string | number): RedisXTransactionCommand<"OK">;
+  /**
+  * Sets the specified fields to their respective values in the hash stored at key.
+  * This command overwrites any specified fields already existing in the hash.
+  * If key does not exist, a new key holding a hash is created.
+  *
+  * - Available since: 2.0.0.
+  * - Time complexity: O(N) where N is the number of fields being set.
+  * @deprecated As of Redis version 4.0.0, this command is regarded as deprecated. It can be replaced by HSET with multiple field-value pairs when migrating or writing new code.
+  * @param key Key that contains the hash.
+  * @param pairs Object containing field/value pairs to set.
+  * @returns Simple string reply: "OK".
+  * @see {@link https://redis.io/commands/hmset}
+  */
+  HMSET(key: string, pairs: Record<string, string | number>): RedisXTransactionCommand<"OK">;
+  /**
+  * Returns the values associated with the specified fields in the hash stored at key.
+  *
+  * For every field that does not exist in the hash, a nil value is returned.
+  * Because non-existing keys are treated as empty hashes, running HMGET against a non-existing key will return a list of nil values.
+  *
+  * - Available since: 2.0.0.
+  * - Time complexity: O(N) where N is the number of fields being requested.
+  * @param key Key holding the hash.
+  * @param fields Fields to get.
+  * @returns Array of values associated with the given fields, in the same order as they are requested.
+  * @see {@link https://redis.io/commands/hmget}
+  */
+  HMGET(key: string, fields: string[]): RedisXTransactionCommand<(string | null)[]>;
+  /**
+  * Returns the values associated with the specified fields in the hash stored at key.
+  *
+  * For every field that does not exist in the hash, a nil value is returned.
+  * Because non-existing keys are treated as empty hashes, running HMGET against a non-existing key will return a list of nil values.
+  *
+  * - Available since: 2.0.0.
+  * - Time complexity: O(N) where N is the number of fields being requested.
+  * @param key Key holding the hash.
+  * @param fields Fields to get.
+  * @returns Array of values associated with the given fields, in the same order as they are requested.
+  * @see {@link https://redis.io/commands/hmget}
+  */
+  HMGET(key: string, ...fields: string[]): RedisXTransactionCommand<(string | null)[]>;
+  /**
+  * Returns the number of fields contained in the hash stored at key.
+  *
+  * - Available since: 2.0.0.
+  * - Time complexity: O(1).
+  * @param key Key to get hash length.
+  * @returns The number of fields in the hash, or 0 when the key does not exist.
+  * @see {@link https://redis.io/commands/hlen}
+  */
+  HLEN(key: string): RedisXTransactionCommand<number>;
+  /**
+  * Returns all field names in the hash stored at key.
+  *
+  * - Available since: 2.0.0.
+  * - Time complexity: O(N) where N is the size of the hash.
+  * @param key The key of the hash.
+  * @returns A set of fields in the hash, or an empty set when the key does not exist.
+  * @see {@link https://redis.io/commands/hkeys}
+  */
+  HKEYS(key: string): RedisXTransactionCommand<Set<string>>;
+  /**
+  * Increments the number stored at field in the hash stored at key by increment.
+  * If key does not exist, a new key holding a hash is created. If field does not
+  * exist the value is set to 0 before the operation is performed.
+  *
+  * The range of values supported by HINCRBY is limited to 64 bit signed integers.
+  *
+  * - Available since: 2.0.0.
+  * - Time complexity: O(1).
+  * @param key Key of the hash.
+  * @param field Field in the hash to increment.
+  * @param increment The increment value (can be negative for decrementing).
+  * @returns The value of the field after the increment operation.
+  * @see {@link https://redis.io/commands/hincrby}
+  */
+  HINCRBY(key: string, field: string | number, increment: number): RedisXTransactionCommand<number>;
+  /**
+  * Removes the specified fields from the hash stored at key. Specified fields that do not exist within this hash are ignored.
+  * Deletes the hash if no fields remain. If key does not exist, it is treated as an empty hash and this command returns 0.
+  *
+  * - Available since: 2.0.0. Multiple field arguments support added in 2.4.0.
+  * - Time complexity: O(N) where N is the number of fields to be removed.
+  * @param key Key of the hash.
+  * @param fields Field to remove from the hash.
+  * @returns The number of fields that were removed from the hash, excluding specified but non-existing fields.
+  * @see {@link https://redis.io/commands/hdel}
+  */
+  HDEL(key: string, fields: (string | number)[]): RedisXTransactionCommand<number>;
+  /**
+  * Removes the specified fields from the hash stored at key. Specified fields that do not exist within this hash are ignored.
+  * Deletes the hash if no fields remain. If key does not exist, it is treated as an empty hash and this command returns 0.
+  *
+  * - Available since: 2.0.0. Multiple field arguments support added in 2.4.0.
+  * - Time complexity: O(N) where N is the number of fields to be removed.
+  * @param key Key of the hash.
+  * @param fields Fields to remove from the hash.
+  * @returns The number of fields that were removed from the hash, excluding specified but non-existing fields.
+  * @see {@link https://redis.io/commands/hdel}
+  */
+  HDEL(key: string, ...fields: (string | number)[]): RedisXTransactionCommand<number>;
+  /**
+  * Returns the string length of the value associated with field in the hash stored at key.
+  * If the key or the field do not exist, 0 is returned.
+  *
+  * - Available since: 3.2.0.
+  * - Time complexity: O(1).
+  * @param key The key of the hash.
+  * @param field The field in the hash.
+  * @returns The string length of the value associated with the field, or zero when the field isn't present in the hash or the key doesn't exist at all.
+  * @see {@link https://redis.io/commands/hstrlen}
+  */
+  HSTRLEN(key: string, field: string): RedisXTransactionCommand<number>;
+  /**
+  * Returns if field is an existing field in the hash stored at key.
+  *
+  * - Available since: 2.0.0.
+  * - Time complexity: O(1).
+  * @param key Key of the hash.
+  * @param field Field to check in the hash.
+  * @returns Returns `true` if the hash contains the field. Returns `false` if the hash does not contain the field, or the key does not exist.
+  * @see {@link https://redis.io/commands/hexists}
+  */
+  HEXISTS(key: string, field: string | number): RedisXTransactionCommand<boolean>;
+  /**
+  * Sets field in the hash stored at key to value, only if field does not yet exist.
+  * If key does not exist, a new key holding a hash is created.
+  * If field already exists, this operation has no effect.
+  *
+  * - Available since: 2.0.0.
+  * - Time complexity: O(1).
+  * @param key The key of the hash.
+  * @param field The field to set.
+  * @param value The value to set.
+  * @returns Returns `true` if the field is new and the value was set. Returns `false` if the field already exists and no operation was performed.
+  * @see {@link https://redis.io/commands/hsetnx}
+  */
+  HSETNX(key: string, field: string, value: string | number): RedisXTransactionCommand<boolean>;
   /**
   * Invoke the execution of a server-side Lua script.
   * - Available since: 2.6.0.
@@ -1936,6 +2113,15 @@ declare class RedisXTransaction<L = [], C extends boolean = false, D = unknown> 
   */
   ZINTERSTORE(destination: string, keys_with_weights: Record<string, number>, options?: ZinterstoreOptions): RedisXTransaction<AddToList<L, number>, C, D>;
   /**
+  * Returns all values in the hash stored at key.
+  * - Available since: 2.0.0.
+  * - Time complexity: O(N) where N is the size of the hash.
+  * @param key The key of the hash.
+  * @returns A set of values in the hash, or an empty set when the key does not exist.
+  * @see {@link https://redis.io/commands/hvals}
+  */
+  HVALS(key: string): RedisXTransaction<AddToList<L, Set<string>>, C, D>;
+  /**
   * Sets the specified fields to their respective values in the hash stored at key.
   * - Available since: 2.0.0.
   * - Multiple field/value pairs are available since Redis 4.0.0.
@@ -1959,6 +2145,20 @@ declare class RedisXTransaction<L = [], C extends boolean = false, D = unknown> 
   */
   HSET(key: string, pairs: Record<string, string | number>): RedisXTransaction<AddToList<L, number>, C, D>;
   /**
+  * Increment the specified field of a hash stored at key, and representing a floating point number, by the specified increment.
+  * If the increment value is negative, the result is to have the hash field value decremented instead of incremented.
+  * If the field does not exist, it is set to 0 before performing the operation.
+  *
+  * - Available since: 2.6.0.
+  * - Time complexity: O(1).
+  * @param key Key of the hash.
+  * @param field Field in the hash to increment.
+  * @param increment The increment value (can be negative for decrementing).
+  * @returns The value of the field after the increment operation as a string representing the floating point value.
+  * @see {@link https://redis.io/commands/hincrbyfloat}
+  */
+  HINCRBYFLOAT(key: string, field: string | number, increment: number): RedisXTransaction<AddToList<L, string>, C, D>;
+  /**
   * Returns all fields and values of the hash stored at key.
   * - Available since: 2.0.0.
   * - Time complexity: O(N) where N is the size of the hash.
@@ -1977,6 +2177,160 @@ declare class RedisXTransaction<L = [], C extends boolean = false, D = unknown> 
   * @see {@link https://redis.io/commands/hget}
   */
   HGET(key: string, field: string): RedisXTransaction<AddToList<L, string | null>, C, D>;
+  /**
+  * Sets the specified fields to their respective values in the hash stored at key.
+  * This command overwrites any specified fields already existing in the hash.
+  * If key does not exist, a new key holding a hash is created.
+  *
+  * - Available since: 2.0.0.
+  * - Time complexity: O(N) where N is the number of fields being set.
+  * @deprecated As of Redis version 4.0.0, this command is regarded as deprecated. It can be replaced by HSET with multiple field-value pairs when migrating or writing new code.
+  * @param key Key that contains the hash.
+  * @param field Field to set.
+  * @param value Value to set.
+  * @returns Simple string reply: "OK".
+  * @see {@link https://redis.io/commands/hmset}
+  */
+  HMSET(key: string, field: string, value: string | number): RedisXTransaction<AddToList<L, "OK">, C, D>;
+  /**
+  * Sets the specified fields to their respective values in the hash stored at key.
+  * This command overwrites any specified fields already existing in the hash.
+  * If key does not exist, a new key holding a hash is created.
+  *
+  * - Available since: 2.0.0.
+  * - Time complexity: O(N) where N is the number of fields being set.
+  * @deprecated As of Redis version 4.0.0, this command is regarded as deprecated. It can be replaced by HSET with multiple field-value pairs when migrating or writing new code.
+  * @param key Key that contains the hash.
+  * @param pairs Object containing field/value pairs to set.
+  * @returns Simple string reply: "OK".
+  * @see {@link https://redis.io/commands/hmset}
+  */
+  HMSET(key: string, pairs: Record<string, string | number>): RedisXTransaction<AddToList<L, "OK">, C, D>;
+  /**
+  * Returns the values associated with the specified fields in the hash stored at key.
+  *
+  * For every field that does not exist in the hash, a nil value is returned.
+  * Because non-existing keys are treated as empty hashes, running HMGET against a non-existing key will return a list of nil values.
+  *
+  * - Available since: 2.0.0.
+  * - Time complexity: O(N) where N is the number of fields being requested.
+  * @param key Key holding the hash.
+  * @param fields Fields to get.
+  * @returns Array of values associated with the given fields, in the same order as they are requested.
+  * @see {@link https://redis.io/commands/hmget}
+  */
+  HMGET(key: string, fields: string[]): RedisXTransaction<AddToList<L, (string | null)[]>, C, D>;
+  /**
+  * Returns the values associated with the specified fields in the hash stored at key.
+  *
+  * For every field that does not exist in the hash, a nil value is returned.
+  * Because non-existing keys are treated as empty hashes, running HMGET against a non-existing key will return a list of nil values.
+  *
+  * - Available since: 2.0.0.
+  * - Time complexity: O(N) where N is the number of fields being requested.
+  * @param key Key holding the hash.
+  * @param fields Fields to get.
+  * @returns Array of values associated with the given fields, in the same order as they are requested.
+  * @see {@link https://redis.io/commands/hmget}
+  */
+  HMGET(key: string, ...fields: string[]): RedisXTransaction<AddToList<L, (string | null)[]>, C, D>;
+  /**
+  * Returns the number of fields contained in the hash stored at key.
+  *
+  * - Available since: 2.0.0.
+  * - Time complexity: O(1).
+  * @param key Key to get hash length.
+  * @returns The number of fields in the hash, or 0 when the key does not exist.
+  * @see {@link https://redis.io/commands/hlen}
+  */
+  HLEN(key: string): RedisXTransaction<AddToList<L, number>, C, D>;
+  /**
+  * Returns all field names in the hash stored at key.
+  *
+  * - Available since: 2.0.0.
+  * - Time complexity: O(N) where N is the size of the hash.
+  * @param key The key of the hash.
+  * @returns A set of fields in the hash, or an empty set when the key does not exist.
+  * @see {@link https://redis.io/commands/hkeys}
+  */
+  HKEYS(key: string): RedisXTransaction<AddToList<L, Set<string>>, C, D>;
+  /**
+  * Increments the number stored at field in the hash stored at key by increment.
+  * If key does not exist, a new key holding a hash is created. If field does not
+  * exist the value is set to 0 before the operation is performed.
+  *
+  * The range of values supported by HINCRBY is limited to 64 bit signed integers.
+  *
+  * - Available since: 2.0.0.
+  * - Time complexity: O(1).
+  * @param key Key of the hash.
+  * @param field Field in the hash to increment.
+  * @param increment The increment value (can be negative for decrementing).
+  * @returns The value of the field after the increment operation.
+  * @see {@link https://redis.io/commands/hincrby}
+  */
+  HINCRBY(key: string, field: string | number, increment: number): RedisXTransaction<AddToList<L, number>, C, D>;
+  /**
+  * Removes the specified fields from the hash stored at key. Specified fields that do not exist within this hash are ignored.
+  * Deletes the hash if no fields remain. If key does not exist, it is treated as an empty hash and this command returns 0.
+  *
+  * - Available since: 2.0.0. Multiple field arguments support added in 2.4.0.
+  * - Time complexity: O(N) where N is the number of fields to be removed.
+  * @param key Key of the hash.
+  * @param fields Field to remove from the hash.
+  * @returns The number of fields that were removed from the hash, excluding specified but non-existing fields.
+  * @see {@link https://redis.io/commands/hdel}
+  */
+  HDEL(key: string, fields: (string | number)[]): RedisXTransaction<AddToList<L, number>, C, D>;
+  /**
+  * Removes the specified fields from the hash stored at key. Specified fields that do not exist within this hash are ignored.
+  * Deletes the hash if no fields remain. If key does not exist, it is treated as an empty hash and this command returns 0.
+  *
+  * - Available since: 2.0.0. Multiple field arguments support added in 2.4.0.
+  * - Time complexity: O(N) where N is the number of fields to be removed.
+  * @param key Key of the hash.
+  * @param fields Fields to remove from the hash.
+  * @returns The number of fields that were removed from the hash, excluding specified but non-existing fields.
+  * @see {@link https://redis.io/commands/hdel}
+  */
+  HDEL(key: string, ...fields: (string | number)[]): RedisXTransaction<AddToList<L, number>, C, D>;
+  /**
+  * Returns the string length of the value associated with field in the hash stored at key.
+  * If the key or the field do not exist, 0 is returned.
+  *
+  * - Available since: 3.2.0.
+  * - Time complexity: O(1).
+  * @param key The key of the hash.
+  * @param field The field in the hash.
+  * @returns The string length of the value associated with the field, or zero when the field isn't present in the hash or the key doesn't exist at all.
+  * @see {@link https://redis.io/commands/hstrlen}
+  */
+  HSTRLEN(key: string, field: string): RedisXTransaction<AddToList<L, number>, C, D>;
+  /**
+  * Returns if field is an existing field in the hash stored at key.
+  *
+  * - Available since: 2.0.0.
+  * - Time complexity: O(1).
+  * @param key Key of the hash.
+  * @param field Field to check in the hash.
+  * @returns Returns `true` if the hash contains the field. Returns `false` if the hash does not contain the field, or the key does not exist.
+  * @see {@link https://redis.io/commands/hexists}
+  */
+  HEXISTS(key: string, field: string | number): RedisXTransaction<AddToList<L, boolean>, C, D>;
+  /**
+  * Sets field in the hash stored at key to value, only if field does not yet exist.
+  * If key does not exist, a new key holding a hash is created.
+  * If field already exists, this operation has no effect.
+  *
+  * - Available since: 2.0.0.
+  * - Time complexity: O(1).
+  * @param key The key of the hash.
+  * @param field The field to set.
+  * @param value The value to set.
+  * @returns Returns `true` if the field is new and the value was set. Returns `false` if the field already exists and no operation was performed.
+  * @see {@link https://redis.io/commands/hsetnx}
+  */
+  HSETNX(key: string, field: string, value: string | number): RedisXTransaction<AddToList<L, boolean>, C, D>;
   /**
   * Invoke the execution of a server-side Lua script.
   * - Available since: 2.6.0.
@@ -2719,6 +3073,15 @@ declare class RedisXClient {
   */
   ZINTERSTORE(destination: string, keys_with_weights: Record<string, number>, options?: ZinterstoreOptions): Promise<number>;
   /**
+  * Returns all values in the hash stored at key.
+  * - Available since: 2.0.0.
+  * - Time complexity: O(N) where N is the size of the hash.
+  * @param key The key of the hash.
+  * @returns A set of values in the hash, or an empty set when the key does not exist.
+  * @see {@link https://redis.io/commands/hvals}
+  */
+  HVALS(key: string): Promise<Set<string>>;
+  /**
   * Sets the specified fields to their respective values in the hash stored at key.
   * - Available since: 2.0.0.
   * - Multiple field/value pairs are available since Redis 4.0.0.
@@ -2742,6 +3105,20 @@ declare class RedisXClient {
   */
   HSET(key: string, pairs: Record<string, string | number>): Promise<number>;
   /**
+  * Increment the specified field of a hash stored at key, and representing a floating point number, by the specified increment.
+  * If the increment value is negative, the result is to have the hash field value decremented instead of incremented.
+  * If the field does not exist, it is set to 0 before performing the operation.
+  *
+  * - Available since: 2.6.0.
+  * - Time complexity: O(1).
+  * @param key Key of the hash.
+  * @param field Field in the hash to increment.
+  * @param increment The increment value (can be negative for decrementing).
+  * @returns The value of the field after the increment operation as a string representing the floating point value.
+  * @see {@link https://redis.io/commands/hincrbyfloat}
+  */
+  HINCRBYFLOAT(key: string, field: string | number, increment: number): Promise<string>;
+  /**
   * Returns all fields and values of the hash stored at key.
   * - Available since: 2.0.0.
   * - Time complexity: O(N) where N is the size of the hash.
@@ -2760,6 +3137,160 @@ declare class RedisXClient {
   * @see {@link https://redis.io/commands/hget}
   */
   HGET(key: string, field: string): Promise<string | null>;
+  /**
+  * Sets the specified fields to their respective values in the hash stored at key.
+  * This command overwrites any specified fields already existing in the hash.
+  * If key does not exist, a new key holding a hash is created.
+  *
+  * - Available since: 2.0.0.
+  * - Time complexity: O(N) where N is the number of fields being set.
+  * @deprecated As of Redis version 4.0.0, this command is regarded as deprecated. It can be replaced by HSET with multiple field-value pairs when migrating or writing new code.
+  * @param key Key that contains the hash.
+  * @param field Field to set.
+  * @param value Value to set.
+  * @returns Simple string reply: "OK".
+  * @see {@link https://redis.io/commands/hmset}
+  */
+  HMSET(key: string, field: string, value: string | number): Promise<"OK">;
+  /**
+  * Sets the specified fields to their respective values in the hash stored at key.
+  * This command overwrites any specified fields already existing in the hash.
+  * If key does not exist, a new key holding a hash is created.
+  *
+  * - Available since: 2.0.0.
+  * - Time complexity: O(N) where N is the number of fields being set.
+  * @deprecated As of Redis version 4.0.0, this command is regarded as deprecated. It can be replaced by HSET with multiple field-value pairs when migrating or writing new code.
+  * @param key Key that contains the hash.
+  * @param pairs Object containing field/value pairs to set.
+  * @returns Simple string reply: "OK".
+  * @see {@link https://redis.io/commands/hmset}
+  */
+  HMSET(key: string, pairs: Record<string, string | number>): Promise<"OK">;
+  /**
+  * Returns the values associated with the specified fields in the hash stored at key.
+  *
+  * For every field that does not exist in the hash, a nil value is returned.
+  * Because non-existing keys are treated as empty hashes, running HMGET against a non-existing key will return a list of nil values.
+  *
+  * - Available since: 2.0.0.
+  * - Time complexity: O(N) where N is the number of fields being requested.
+  * @param key Key holding the hash.
+  * @param fields Fields to get.
+  * @returns Array of values associated with the given fields, in the same order as they are requested.
+  * @see {@link https://redis.io/commands/hmget}
+  */
+  HMGET(key: string, fields: string[]): Promise<(string | null)[]>;
+  /**
+  * Returns the values associated with the specified fields in the hash stored at key.
+  *
+  * For every field that does not exist in the hash, a nil value is returned.
+  * Because non-existing keys are treated as empty hashes, running HMGET against a non-existing key will return a list of nil values.
+  *
+  * - Available since: 2.0.0.
+  * - Time complexity: O(N) where N is the number of fields being requested.
+  * @param key Key holding the hash.
+  * @param fields Fields to get.
+  * @returns Array of values associated with the given fields, in the same order as they are requested.
+  * @see {@link https://redis.io/commands/hmget}
+  */
+  HMGET(key: string, ...fields: string[]): Promise<(string | null)[]>;
+  /**
+  * Returns the number of fields contained in the hash stored at key.
+  *
+  * - Available since: 2.0.0.
+  * - Time complexity: O(1).
+  * @param key Key to get hash length.
+  * @returns The number of fields in the hash, or 0 when the key does not exist.
+  * @see {@link https://redis.io/commands/hlen}
+  */
+  HLEN(key: string): Promise<number>;
+  /**
+  * Returns all field names in the hash stored at key.
+  *
+  * - Available since: 2.0.0.
+  * - Time complexity: O(N) where N is the size of the hash.
+  * @param key The key of the hash.
+  * @returns A set of fields in the hash, or an empty set when the key does not exist.
+  * @see {@link https://redis.io/commands/hkeys}
+  */
+  HKEYS(key: string): Promise<Set<string>>;
+  /**
+  * Increments the number stored at field in the hash stored at key by increment.
+  * If key does not exist, a new key holding a hash is created. If field does not
+  * exist the value is set to 0 before the operation is performed.
+  *
+  * The range of values supported by HINCRBY is limited to 64 bit signed integers.
+  *
+  * - Available since: 2.0.0.
+  * - Time complexity: O(1).
+  * @param key Key of the hash.
+  * @param field Field in the hash to increment.
+  * @param increment The increment value (can be negative for decrementing).
+  * @returns The value of the field after the increment operation.
+  * @see {@link https://redis.io/commands/hincrby}
+  */
+  HINCRBY(key: string, field: string | number, increment: number): Promise<number>;
+  /**
+  * Removes the specified fields from the hash stored at key. Specified fields that do not exist within this hash are ignored.
+  * Deletes the hash if no fields remain. If key does not exist, it is treated as an empty hash and this command returns 0.
+  *
+  * - Available since: 2.0.0. Multiple field arguments support added in 2.4.0.
+  * - Time complexity: O(N) where N is the number of fields to be removed.
+  * @param key Key of the hash.
+  * @param fields Field to remove from the hash.
+  * @returns The number of fields that were removed from the hash, excluding specified but non-existing fields.
+  * @see {@link https://redis.io/commands/hdel}
+  */
+  HDEL(key: string, fields: (string | number)[]): Promise<number>;
+  /**
+  * Removes the specified fields from the hash stored at key. Specified fields that do not exist within this hash are ignored.
+  * Deletes the hash if no fields remain. If key does not exist, it is treated as an empty hash and this command returns 0.
+  *
+  * - Available since: 2.0.0. Multiple field arguments support added in 2.4.0.
+  * - Time complexity: O(N) where N is the number of fields to be removed.
+  * @param key Key of the hash.
+  * @param fields Fields to remove from the hash.
+  * @returns The number of fields that were removed from the hash, excluding specified but non-existing fields.
+  * @see {@link https://redis.io/commands/hdel}
+  */
+  HDEL(key: string, ...fields: (string | number)[]): Promise<number>;
+  /**
+  * Returns the string length of the value associated with field in the hash stored at key.
+  * If the key or the field do not exist, 0 is returned.
+  *
+  * - Available since: 3.2.0.
+  * - Time complexity: O(1).
+  * @param key The key of the hash.
+  * @param field The field in the hash.
+  * @returns The string length of the value associated with the field, or zero when the field isn't present in the hash or the key doesn't exist at all.
+  * @see {@link https://redis.io/commands/hstrlen}
+  */
+  HSTRLEN(key: string, field: string): Promise<number>;
+  /**
+  * Returns if field is an existing field in the hash stored at key.
+  *
+  * - Available since: 2.0.0.
+  * - Time complexity: O(1).
+  * @param key Key of the hash.
+  * @param field Field to check in the hash.
+  * @returns Returns `true` if the hash contains the field. Returns `false` if the hash does not contain the field, or the key does not exist.
+  * @see {@link https://redis.io/commands/hexists}
+  */
+  HEXISTS(key: string, field: string | number): Promise<boolean>;
+  /**
+  * Sets field in the hash stored at key to value, only if field does not yet exist.
+  * If key does not exist, a new key holding a hash is created.
+  * If field already exists, this operation has no effect.
+  *
+  * - Available since: 2.0.0.
+  * - Time complexity: O(1).
+  * @param key The key of the hash.
+  * @param field The field to set.
+  * @param value The value to set.
+  * @returns Returns `true` if the field is new and the value was set. Returns `false` if the field already exists and no operation was performed.
+  * @see {@link https://redis.io/commands/hsetnx}
+  */
+  HSETNX(key: string, field: string, value: string | number): Promise<boolean>;
   /**
   * Invoke the execution of a server-side Lua script.
   * - Available since: 2.6.0.

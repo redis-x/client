@@ -253,7 +253,7 @@ X / Y / (1/7)
 | Section                                           | Commands available    |
 | ------------------------------------------------- | - |
 | [Generic](src/commands/generic)                   | 🟩🟩🟩🟨🟥🟥🟥 <br> **16** / 32 |
-| [Hash](src/commands/hash)                         | 🟨🟥🟥🟥🟥🟥🟥 <br>  **3** / 28 |
+| [Hash](src/commands/hash)                         | 🟩🟩🟩🟨🟥🟥🟥 <br> **14** / 28 |
 | [List](src/commands/list)                         | 🟥🟥🟥🟥🟥🟥🟥 <br>  **1** / 22 |
 | [Scripting and Functions](src/commands/scripting) | 🟥🟥🟥🟥🟥🟥🟥 <br>  **1** / 19 |
 | [Set](src/commands/set)                           | 🟩🟩🟥🟥🟥🟥🟥 <br>  **6** / 17 |

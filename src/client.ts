@@ -985,6 +985,18 @@ export class RedisXClient {
 	}
 
 	/**
+	 * Returns all values in the hash stored at key.
+	 * - Available since: 2.0.0.
+	 * - Time complexity: O(N) where N is the size of the hash.
+	 * @param key The key of the hash.
+	 * @returns A set of values in the hash, or an empty set when the key does not exist.
+	 * @see {@link https://redis.io/commands/hvals}
+	 */
+	HVALS(key: string): Promise<Set<string>> {
+		return this.useCommand(input_hvals(key));
+	}
+
+	/**
 	 * Sets the specified fields to their respective values in the hash stored at key.
 	 * - Available since: 2.0.0.
 	 * - Multiple field/value pairs are available since Redis 4.0.0.
@@ -1032,6 +1044,23 @@ export class RedisXClient {
 	}
 
 	/**
+	 * Increment the specified field of a hash stored at key, and representing a floating point number, by the specified increment.
+	 * If the increment value is negative, the result is to have the hash field value decremented instead of incremented.
+	 * If the field does not exist, it is set to 0 before performing the operation.
+	 *
+	 * - Available since: 2.6.0.
+	 * - Time complexity: O(1).
+	 * @param key Key of the hash.
+	 * @param field Field in the hash to increment.
+	 * @param increment The increment value (can be negative for decrementing).
+	 * @returns The value of the field after the increment operation as a string representing the floating point value.
+	 * @see {@link https://redis.io/commands/hincrbyfloat}
+	 */
+	HINCRBYFLOAT(key: string, field: string | number, increment: number): Promise<string> {
+		return this.useCommand(input_hincrbyfloat(key, field, increment));
+	}
+
+	/**
 	 * Returns all fields and values of the hash stored at key.
 	 * - Available since: 2.0.0.
 	 * - Time complexity: O(N) where N is the size of the hash.
@@ -1054,6 +1083,212 @@ export class RedisXClient {
 	 */
 	HGET(key: string, field: string): Promise<string | null> {
 		return this.useCommand(input_hget(key, field));
+	}
+
+	/**
+	 * Sets the specified fields to their respective values in the hash stored at key.
+	 * This command overwrites any specified fields already existing in the hash.
+	 * If key does not exist, a new key holding a hash is created.
+	 *
+	 * - Available since: 2.0.0.
+	 * - Time complexity: O(N) where N is the number of fields being set.
+	 * @deprecated As of Redis version 4.0.0, this command is regarded as deprecated. It can be replaced by HSET with multiple field-value pairs when migrating or writing new code.
+	 * @param key Key that contains the hash.
+	 * @param field Field to set.
+	 * @param value Value to set.
+	 * @returns Simple string reply: "OK".
+	 * @see {@link https://redis.io/commands/hmset}
+	 */
+	HMSET(
+		key: string,
+		field: string,
+		value: string | number,
+	): Promise<'OK'>;
+	/**
+	 * Sets the specified fields to their respective values in the hash stored at key.
+	 * This command overwrites any specified fields already existing in the hash.
+	 * If key does not exist, a new key holding a hash is created.
+	 *
+	 * - Available since: 2.0.0.
+	 * - Time complexity: O(N) where N is the number of fields being set.
+	 * @deprecated As of Redis version 4.0.0, this command is regarded as deprecated. It can be replaced by HSET with multiple field-value pairs when migrating or writing new code.
+	 * @param key Key that contains the hash.
+	 * @param pairs Object containing field/value pairs to set.
+	 * @returns Simple string reply: "OK".
+	 * @see {@link https://redis.io/commands/hmset}
+	 */
+	HMSET(
+		key: string,
+		pairs: Record<
+			string,
+			string | number
+		>,
+	): Promise<'OK'>;
+
+	HMSET(
+		key: string,
+		arg1:
+			| string
+			| Record<
+				string,
+				string | number
+			>,
+		arg2?: string | number,
+	): Promise<'OK'> {
+		return this.useCommand(input_hmset(key, arg1, arg2));
+	}
+
+	/**
+	 * Returns the values associated with the specified fields in the hash stored at key.
+	 *
+	 * For every field that does not exist in the hash, a nil value is returned.
+	 * Because non-existing keys are treated as empty hashes, running HMGET against a non-existing key will return a list of nil values.
+	 *
+	 * - Available since: 2.0.0.
+	 * - Time complexity: O(N) where N is the number of fields being requested.
+	 * @param key Key holding the hash.
+	 * @param fields Fields to get.
+	 * @returns Array of values associated with the given fields, in the same order as they are requested.
+	 * @see {@link https://redis.io/commands/hmget}
+	 */
+	HMGET(key: string, fields: string[]): Promise<(string | null)[]>;
+	/**
+	 * Returns the values associated with the specified fields in the hash stored at key.
+	 *
+	 * For every field that does not exist in the hash, a nil value is returned.
+	 * Because non-existing keys are treated as empty hashes, running HMGET against a non-existing key will return a list of nil values.
+	 *
+	 * - Available since: 2.0.0.
+	 * - Time complexity: O(N) where N is the number of fields being requested.
+	 * @param key Key holding the hash.
+	 * @param fields Fields to get.
+	 * @returns Array of values associated with the given fields, in the same order as they are requested.
+	 * @see {@link https://redis.io/commands/hmget}
+	 */
+	HMGET(key: string, ...fields: string[]): Promise<(string | null)[]>;
+
+	HMGET(key: string, ...fields: (string | string[])[]): Promise<(string | null)[]> {
+		return this.useCommand(input_hmget(key, ...fields));
+	}
+
+	/**
+	 * Returns the number of fields contained in the hash stored at key.
+	 *
+	 * - Available since: 2.0.0.
+	 * - Time complexity: O(1).
+	 * @param key Key to get hash length.
+	 * @returns The number of fields in the hash, or 0 when the key does not exist.
+	 * @see {@link https://redis.io/commands/hlen}
+	 */
+	HLEN(key: string): Promise<number> {
+		return this.useCommand(input_hlen(key));
+	}
+
+	/**
+	 * Returns all field names in the hash stored at key.
+	 *
+	 * - Available since: 2.0.0.
+	 * - Time complexity: O(N) where N is the size of the hash.
+	 * @param key The key of the hash.
+	 * @returns A set of fields in the hash, or an empty set when the key does not exist.
+	 * @see {@link https://redis.io/commands/hkeys}
+	 */
+	HKEYS(key: string): Promise<Set<string>> {
+		return this.useCommand(input_hkeys(key));
+	}
+
+	/**
+	 * Increments the number stored at field in the hash stored at key by increment.
+	 * If key does not exist, a new key holding a hash is created. If field does not
+	 * exist the value is set to 0 before the operation is performed.
+	 *
+	 * The range of values supported by HINCRBY is limited to 64 bit signed integers.
+	 *
+	 * - Available since: 2.0.0.
+	 * - Time complexity: O(1).
+	 * @param key Key of the hash.
+	 * @param field Field in the hash to increment.
+	 * @param increment The increment value (can be negative for decrementing).
+	 * @returns The value of the field after the increment operation.
+	 * @see {@link https://redis.io/commands/hincrby}
+	 */
+	HINCRBY(key: string, field: string | number, increment: number): Promise<number> {
+		return this.useCommand(input_hincrby(key, field, increment));
+	}
+
+	/**
+	 * Removes the specified fields from the hash stored at key. Specified fields that do not exist within this hash are ignored.
+	 * Deletes the hash if no fields remain. If key does not exist, it is treated as an empty hash and this command returns 0.
+	 *
+	 * - Available since: 2.0.0. Multiple field arguments support added in 2.4.0.
+	 * - Time complexity: O(N) where N is the number of fields to be removed.
+	 * @param key Key of the hash.
+	 * @param fields Field to remove from the hash.
+	 * @returns The number of fields that were removed from the hash, excluding specified but non-existing fields.
+	 * @see {@link https://redis.io/commands/hdel}
+	 */
+	HDEL(key: string, fields: (string | number)[]): Promise<number>;
+	/**
+	 * Removes the specified fields from the hash stored at key. Specified fields that do not exist within this hash are ignored.
+	 * Deletes the hash if no fields remain. If key does not exist, it is treated as an empty hash and this command returns 0.
+	 *
+	 * - Available since: 2.0.0. Multiple field arguments support added in 2.4.0.
+	 * - Time complexity: O(N) where N is the number of fields to be removed.
+	 * @param key Key of the hash.
+	 * @param fields Fields to remove from the hash.
+	 * @returns The number of fields that were removed from the hash, excluding specified but non-existing fields.
+	 * @see {@link https://redis.io/commands/hdel}
+	 */
+	HDEL(key: string, ...fields: (string | number)[]): Promise<number>;
+
+	HDEL(key: string, ...fields: (string | number | (string | number)[])[]): Promise<number> {
+		return this.useCommand(input_hdel(key, ...fields));
+	}
+
+	/**
+	 * Returns the string length of the value associated with field in the hash stored at key.
+	 * If the key or the field do not exist, 0 is returned.
+	 *
+	 * - Available since: 3.2.0.
+	 * - Time complexity: O(1).
+	 * @param key The key of the hash.
+	 * @param field The field in the hash.
+	 * @returns The string length of the value associated with the field, or zero when the field isn't present in the hash or the key doesn't exist at all.
+	 * @see {@link https://redis.io/commands/hstrlen}
+	 */
+	HSTRLEN(key: string, field: string): Promise<number> {
+		return this.useCommand(input_hstrlen(key, field));
+	}
+
+	/**
+	 * Returns if field is an existing field in the hash stored at key.
+	 *
+	 * - Available since: 2.0.0.
+	 * - Time complexity: O(1).
+	 * @param key Key of the hash.
+	 * @param field Field to check in the hash.
+	 * @returns Returns `true` if the hash contains the field. Returns `false` if the hash does not contain the field, or the key does not exist.
+	 * @see {@link https://redis.io/commands/hexists}
+	 */
+	HEXISTS(key: string, field: string | number): Promise<boolean> {
+		return this.useCommand(input_hexists(key, field));
+	}
+
+	/**
+	 * Sets field in the hash stored at key to value, only if field does not yet exist.
+	 * If key does not exist, a new key holding a hash is created.
+	 * If field already exists, this operation has no effect.
+	 *
+	 * - Available since: 2.0.0.
+	 * - Time complexity: O(1).
+	 * @param key The key of the hash.
+	 * @param field The field to set.
+	 * @param value The value to set.
+	 * @returns Returns `true` if the field is new and the value was set. Returns `false` if the field already exists and no operation was performed.
+	 * @see {@link https://redis.io/commands/hsetnx}
+	 */
+	HSETNX(key: string, field: string, value: string | number): Promise<boolean> {
+		return this.useCommand(input_hsetnx(key, field, value));
 	}
 
 	/**
@@ -1240,14 +1475,47 @@ import {
 	input as input_zinterstore,
 } from './commands/sorted-set/zinterstore.js';
 import {
+	input as input_hvals,
+} from './commands/hash/hvals.js';
+import {
 	input as input_hset,
 } from './commands/hash/hset.js';
+import {
+	input as input_hincrbyfloat,
+} from './commands/hash/hincrbyfloat.js';
 import {
 	input as input_hgetall,
 } from './commands/hash/hgetall.js';
 import {
 	input as input_hget,
 } from './commands/hash/hget.js';
+import {
+	input as input_hmset,
+} from './commands/hash/hmset.js';
+import {
+	input as input_hmget,
+} from './commands/hash/hmget.js';
+import {
+	input as input_hlen,
+} from './commands/hash/hlen.js';
+import {
+	input as input_hkeys,
+} from './commands/hash/hkeys.js';
+import {
+	input as input_hincrby,
+} from './commands/hash/hincrby.js';
+import {
+	input as input_hdel,
+} from './commands/hash/hdel.js';
+import {
+	input as input_hstrlen,
+} from './commands/hash/hstrlen.js';
+import {
+	input as input_hexists,
+} from './commands/hash/hexists.js';
+import {
+	input as input_hsetnx,
+} from './commands/hash/hsetnx.js';
 import {
 	input as input_eval,
 } from './commands/scripting/eval.js';
