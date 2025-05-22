@@ -2,15 +2,14 @@ import {
 	expect,
 	test,
 } from 'vitest';
-import { input } from './get.js';
+import { input } from './scard.js';
 
 test('command', () => {
-	const command = input('key');
-
+	const command = input('myset');
 	expect(
 		command.args,
 	).toStrictEqual(
-		[ 'GET', 'key' ],
+		[ 'SCARD', 'myset' ],
 	);
 
 	expect(command.replyTransform).toBeUndefined();

@@ -15,8 +15,7 @@ describe('command', () => {
 			[ 'COPY', 'key:before', 'key:after' ],
 		);
 
-		expect(command.replyTransform?.(0)).toBe(false);
-		expect(command.replyTransform?.(1)).toBe(true);
+		expect(command.replyTransform).toBeTypeOf('function');
 	});
 
 	test('option DB', () => {

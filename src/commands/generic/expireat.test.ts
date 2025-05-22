@@ -15,13 +15,7 @@ describe('command', () => {
 			[ 'EXPIREAT', 'key', '1735689600' ],
 		);
 
-		expect(
-			command.replyTransform?.(0),
-		).toStrictEqual(false);
-
-		expect(
-			command.replyTransform?.(1),
-		).toStrictEqual(true);
+		expect(command.replyTransform).toBeTypeOf('function');
 	});
 
 	for (const option of [ 'NX', 'XX', 'GT', 'LT' ]) {

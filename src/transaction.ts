@@ -152,6 +152,129 @@ export class RedisXTransaction<
 
 	// MARK: commands
 	/**
+	 * Remove the specified members from the set stored at key.
+	 * Specified members that are not a member of this set are ignored.
+	 * If key does not exist, it is treated as an empty set and this command returns 0.
+	 *
+	 * - Available since: 1.0.0. Multiple members support added in 2.4.0.
+	 * - Time complexity: O(N) where N is the number of members to be removed.
+	 * @param key Key of the set.
+	 * @param member Member to remove from the set.
+	 * @returns The number of members that were removed from the set, not including non existing members.
+	 * @see {@link https://redis.io/commands/srem}
+	 */
+	SREM(key: string, member: (string | number)[]): RedisXTransaction<AddToList<L, number>, C, D>;
+	/**
+	 * Remove the specified members from the set stored at key.
+	 * Specified members that are not a member of this set are ignored.
+	 * If key does not exist, it is treated as an empty set and this command returns 0.
+	 *
+	 * - Available since: 1.0.0. Multiple members support added in 2.4.0.
+	 * - Time complexity: O(N) where N is the number of members to be removed.
+	 * @param key Key of the set.
+	 * @param members Members to remove from the set.
+	 * @returns The number of members that were removed from the set, not including non existing members.
+	 * @see {@link https://redis.io/commands/srem}
+	 */
+	SREM(key: string, ...members: (string | number)[]): RedisXTransaction<AddToList<L, number>, C, D>;
+
+	SREM(key: string, ...members: (string | number | (string | number)[])[]): RedisXTransaction<AddToList<L, number>, C, D> {
+		return this.useCommand(input_srem(key, ...members));
+	}
+
+	/**
+	 * Returns whether each member is a member of the set stored at key.
+	 *
+	 * For every member, `true` is returned if the value is a member of the set,
+	 * or `false` if the element is not a member of the set or if key does not exist.
+	 *
+	 * - Available since: 6.2.0.
+	 * - Time complexity: O(N) where N is the number of elements being checked for membership.
+	 * @param key The key of the set.
+	 * @param members The members to check.
+	 * @returns An array of booleans, representing the membership of the given elements in the same order as they are requested.
+	 * @see {@link https://redis.io/commands/smismember}
+	 */
+	SMISMEMBER(key: string, ...members: string[]): RedisXTransaction<AddToList<L, boolean[]>, C, D> {
+		return this.useCommand(input_smismember(key, ...members));
+	}
+
+	/**
+	 * Returns all the members of the set value stored at key.
+	 *
+	 * - Available since: 1.0.0.
+	 * - Time complexity: O(N) where N is the set cardinality.
+	 * @param key The key of the set.
+	 * @returns A set with all the members of the set.
+	 * @see {@link https://redis.io/commands/smembers}
+	 */
+	SMEMBERS(key: string): RedisXTransaction<AddToList<L, Set<string>>, C, D> {
+		return this.useCommand(input_smembers(key));
+	}
+
+	/**
+	 * Returns if member is a member of the set stored at key.
+	 *
+	 * - Available since: 1.0.0.
+	 * - Time complexity: O(1).
+	 * @param key The key of the set.
+	 * @param member The member to check.
+	 * @returns `true` if the member is a member of the set stored at key, `false` otherwise.
+	 * @see {@link https://redis.io/commands/sismember}
+	 */
+	SISMEMBER(key: string, member: string): RedisXTransaction<AddToList<L, boolean>, C, D> {
+		return this.useCommand(input_sismember(key, member));
+	}
+
+	/**
+	 * Returns the set cardinality (number of elements) of the set stored at key.
+	 *
+	 * - Available since: 1.0.0.
+	 * - Time complexity: O(1).
+	 * @param key The key of the set.
+	 * @returns The cardinality (number of elements) of the set, or `0` if the key does not exist.
+	 * @see {@link https://redis.io/commands/scard}
+	 */
+	SCARD(key: string): RedisXTransaction<AddToList<L, number>, C, D> {
+		return this.useCommand(input_scard(key));
+	}
+
+	/**
+	 * Add the specified members to the set stored at key.
+	 * Specified members that are already a member of this set are ignored.
+	 * If key does not exist, a new set is created before adding the specified members.
+	 *
+	 * An error is returned when the value stored at key is not a set.
+	 *
+	 * - Available since: 1.0.0. Multiple members support added in 2.4.0.
+	 * - Time complexity: O(1) for each element added.
+	 * @param key Key of the set.
+	 * @param member Member to add to the set.
+	 * @returns The number of elements that were added to the set, not including all the elements already present in the set.
+	 * @see {@link https://redis.io/commands/sadd}
+	 */
+	SADD(key: string, member: (string | number)[]): RedisXTransaction<AddToList<L, number>, C, D>;
+	/**
+	 * Add the specified members to the set stored at key.
+	 * Specified members that are already a member of this set are ignored.
+	 * If key does not exist, a new set is created before adding the specified members.
+	 *
+	 * An error is returned when the value stored at key is not a set.
+	 *
+	 * - Available since: 1.0.0. Multiple members support added in 2.4.0.
+	 * - Time complexity: O(1) for each element added.
+	 * @param key Key of the set.
+	 * @param members Members to add to the set.
+	 * @returns The number of elements that were added to the set, not including all the elements already present in the set.
+	 * @see {@link https://redis.io/commands/sadd}
+	 */
+	SADD(key: string, ...members: (string | number)[]): RedisXTransaction<AddToList<L, number>, C, D>;
+
+	SADD(key: string, ...members: (string | number | (string | number)[])[]): RedisXTransaction<AddToList<L, number>, C, D> {
+		return this.useCommand(input_sadd(key, ...members));
+	}
+
+	/**
 	 * Sets the given keys to their respective values. MSETNX will not perform
 	 * any operation at all even if just a single key already exists.
 	 *
@@ -1070,6 +1193,24 @@ export class RedisXTransaction<
 }
 
 // MARK: imports
+import {
+	input as input_srem,
+} from './commands/set/srem.js';
+import {
+	input as input_smismember,
+} from './commands/set/smismember.js';
+import {
+	input as input_smembers,
+} from './commands/set/smembers.js';
+import {
+	input as input_sismember,
+} from './commands/set/sismember.js';
+import {
+	input as input_scard,
+} from './commands/set/scard.js';
+import {
+	input as input_sadd,
+} from './commands/set/sadd.js';
 import {
 	input as input_msetnx,
 } from './commands/string/msetnx.js';

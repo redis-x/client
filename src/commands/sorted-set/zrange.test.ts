@@ -4,8 +4,6 @@ import {
 	expect,
 	test,
 } from 'vitest';
-import { redisXClient } from '../../../test/client.js';
-import { createRandomKey } from '../../../test/utils.js';
 import { input } from './zrange.js';
 
 describe('command', () => {
@@ -21,7 +19,7 @@ describe('command', () => {
 			'2',
 		]);
 
-		expect(command.replyTransform!([ '1', '2' ])).toStrictEqual([ '1', '2' ]);
+		expect(command.replyTransform!([ 'foo', 'bar' ])).toStrictEqual([ 'foo', 'bar' ]);
 	});
 
 	describe('option BY', () => {
@@ -85,40 +83,14 @@ describe('command', () => {
 			[ 'ZRANGE', 'key', '1', '2', 'WITHSCORES' ],
 		);
 
-		expect(command.replyTransform!([ 'foo', '2' ])).toStrictEqual([{
-			member: 'foo',
-			score: 2,
-		}]);
-	});
-});
-
-describe('returns', () => {
-	test('string[]', async () => {
-		const key = createRandomKey();
-
-		await redisXClient.sendCommand('ZADD', key, 1, 'foo', 2, 'bar');
-
-		const result = await redisXClient.ZRANGE(key, 0, -1);
-		expect(result).toStrictEqual([ 'foo', 'bar' ]);
-
-		const result_rev = await redisXClient.ZRANGE(key, 0, -1, { REV: true });
-		expect(result_rev).toStrictEqual([ 'bar', 'foo' ]);
-	});
-
-	test('object[]', async () => {
-		const key = createRandomKey();
-
-		await redisXClient.sendCommand('ZADD', key, 1, 'foo', 2, 'bar');
-
-		const result = await redisXClient.ZRANGE(key, 0, -1, { WITHSCORES: true });
-		expect(result).toStrictEqual([
+		expect(command.replyTransform!([ 'foo', '2', 'bar', '-1' ])).toStrictEqual([
 			{
 				member: 'foo',
-				score: 1,
+				score: 2,
 			},
 			{
 				member: 'bar',
-				score: 2,
+				score: -1,
 			},
 		]);
 	});

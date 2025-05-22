@@ -39,6 +39,150 @@ function unwrapRedisTransactionCommand(target, result) {
 }
 
 //#endregion
+//#region src/commands/set/srem.ts
+function input$53(key, ...members) {
+	return {
+		kind: "#schema",
+		args: [
+			"SREM",
+			key,
+			...members.flat().map(String)
+		]
+	};
+}
+
+//#endregion
+//#region src/commands/set/smismember.ts
+/**
+* Returns whether each member is a member of the set stored at key.
+*
+* For every member, `true` is returned if the value is a member of the set,
+* or `false` if the element is not a member of the set or if key does not exist.
+*
+* - Available since: 6.2.0.
+* - Time complexity: O(N) where N is the number of elements being checked for membership.
+* @param key The key of the set.
+* @param members The members to check.
+* @returns An array of booleans, representing the membership of the given elements in the same order as they are requested.
+* @see {@link https://redis.io/commands/smismember}
+*/
+function input$52(key, ...members) {
+	return {
+		kind: "#schema",
+		args: [
+			"SMISMEMBER",
+			key,
+			...members
+		],
+		replyTransform: replyTransform$2
+	};
+}
+/**
+* Converts an array of numbers (0 or 1) to an array of booleans.
+* @param reply The array of numbers to convert.
+* @returns An array of booleans where 1 becomes true and 0 becomes false.
+*/
+function replyTransform$2(reply) {
+	return reply.map((value) => value === 1);
+}
+
+//#endregion
+//#region src/reply-transformers/array-to-set.ts
+/**
+* Converts an array of strings to a Set of strings.
+* @param reply The array of strings to convert.
+* @returns A Set containing the unique strings from the array.
+*/
+function replyTransform$1(reply) {
+	return new Set(reply);
+}
+
+//#endregion
+//#region src/commands/set/smembers.ts
+/**
+* Returns all the members of the set value stored at key.
+*
+* - Available since: 1.0.0.
+* - Time complexity: O(N) where N is the set cardinality.
+* @param key The key of the set.
+* @returns A set with all the members of the set.
+* @see {@link https://redis.io/commands/smembers}
+*/
+function input$51(key) {
+	return {
+		kind: "#schema",
+		args: ["SMEMBERS", key],
+		replyTransform: replyTransform$1
+	};
+}
+
+//#endregion
+//#region src/reply-transformers/number-to-boolean.ts
+/**
+* Converts a number to a boolean.
+* @param reply The number to convert (0 or 1).
+* @returns Returns true if the number is 1, false if it is 0.
+*/
+function replyTransform(reply) {
+	return reply === 1;
+}
+
+//#endregion
+//#region src/commands/set/sismember.ts
+/**
+* Returns if member is a member of the set stored at key.
+*
+* - Available since: 1.0.0.
+* - Time complexity: O(1).
+* @param key The key of the set.
+* @param member The member to check.
+* @returns `true` if the member is a member of the set stored at key, `false` otherwise.
+* @see {@link https://redis.io/commands/sismember}
+*/
+function input$50(key, member) {
+	return {
+		kind: "#schema",
+		args: [
+			"SISMEMBER",
+			key,
+			member
+		],
+		replyTransform
+	};
+}
+
+//#endregion
+//#region src/commands/set/scard.ts
+/**
+* Returns the set cardinality (number of elements) of the set stored at key.
+*
+* - Available since: 1.0.0.
+* - Time complexity: O(1).
+* @param key The key of the set.
+* @returns The cardinality (number of elements) of the set, or `0` if the key does not exist.
+* @see {@link https://redis.io/commands/scard}
+*/
+function input$49(key) {
+	return {
+		kind: "#schema",
+		args: ["SCARD", key]
+	};
+}
+
+//#endregion
+//#region src/commands/set/sadd.ts
+function input$48(key, ...members) {
+	return {
+		kind: "#schema",
+		args: [
+			"SADD",
+			key,
+			...members.flat().map(String)
+		]
+	};
+}
+
+//#endregion
 //#region src/commands/string/msetnx.ts
 /**
 * Sets the given keys to their respective values. MSETNX will not perform
@@ -56,11 +200,8 @@ function input$47(pairs) {
 	return {
 		kind: "#schema",
 		args,
-		replyTransform: replyTransform$8
+		replyTransform
 	};
-}
-function replyTransform$8(reply) {
-	return reply === 1;
 }
 
 //#endregion
@@ -85,11 +226,8 @@ function input$46(key, value) {
 			key,
 			String(value)
 		],
-		replyTransform: replyTransform$7
+		replyTransform
 	};
-}
-function replyTransform$7(reply) {
-	return reply === 1;
 }
 
 //#endregion
@@ -572,11 +710,8 @@ function input$26(key, seconds, options) {
 			String(seconds),
 			...args_options
 		],
-		replyTransform: replyTransform$6
+		replyTransform
 	};
-}
-function replyTransform$6(reply) {
-	return reply === 1;
 }
 
 //#endregion
@@ -659,11 +794,8 @@ function input$23(key, seconds, options) {
 			String(seconds),
 			...args_options
 		],
-		replyTransform: replyTransform$5
+		replyTransform
 	};
-}
-function replyTransform$5(reply) {
-	return reply === 1;
 }
 
 //#endregion
@@ -697,11 +829,8 @@ function input$21(pattern) {
 	return {
 		kind: "#schema",
 		args: ["KEYS", pattern],
-		replyTransform: replyTransform$4
+		replyTransform: replyTransform$1
 	};
-}
-function replyTransform$4(reply) {
-	return new Set(reply);
 }
 
 //#endregion
@@ -727,11 +856,8 @@ function input$20(source, destination, options) {
 	return {
 		kind: "#schema",
 		args,
-		replyTransform: replyTransform$3
+		replyTransform
 	};
-}
-function replyTransform$3(reply) {
-	return reply === 1;
 }
 
 //#endregion
@@ -765,11 +891,8 @@ function input$19(key, timestamp, options) {
 			String(timestamp),
 			...args_options
 		],
-		replyTransform: replyTransform$2
+		replyTransform
 	};
-}
-function replyTransform$2(reply) {
-	return reply === 1;
 }
 
 //#endregion
@@ -801,11 +924,8 @@ function input$18(key, timestamp, options) {
 			String(timestamp),
 			...args_options
 		],
-		replyTransform: replyTransform$1
+		replyTransform
 	};
-}
-function replyTransform$1(reply) {
-	return reply === 1;
 }
 
 //#endregion
@@ -825,9 +945,6 @@ function input$17(key) {
 		args: ["PERSIST", key],
 		replyTransform
 	};
-}
-function replyTransform(reply) {
-	return reply === 1;
 }
 
 //#endregion
@@ -1217,6 +1334,65 @@ var RedisXTransactionUse = class {
 			redis_transaction_command
 		});
 		return redis_transaction_command;
+	}
+	SREM(key, ...members) {
+		return this.useCommand(input$53(key, ...members));
+	}
+	/**
+	* Returns whether each member is a member of the set stored at key.
+	*
+	* For every member, `true` is returned if the value is a member of the set,
+	* or `false` if the element is not a member of the set or if key does not exist.
+	*
+	* - Available since: 6.2.0.
+	* - Time complexity: O(N) where N is the number of elements being checked for membership.
+	* @param key The key of the set.
+	* @param members The members to check.
+	* @returns An array of booleans, representing the membership of the given elements in the same order as they are requested.
+	* @see {@link https://redis.io/commands/smismember}
+	*/
+	SMISMEMBER(key, ...members) {
+		return this.useCommand(input$52(key, ...members));
+	}
+	/**
+	* Returns all the members of the set value stored at key.
+	*
+	* - Available since: 1.0.0.
+	* - Time complexity: O(N) where N is the set cardinality.
+	* @param key The key of the set.
+	* @returns A set with all the members of the set.
+	* @see {@link https://redis.io/commands/smembers}
+	*/
+	SMEMBERS(key) {
+		return this.useCommand(input$51(key));
+	}
+	/**
+	* Returns if member is a member of the set stored at key.
+	*
+	* - Available since: 1.0.0.
+	* - Time complexity: O(1).
+	* @param key The key of the set.
+	* @param member The member to check.
+	* @returns `true` if the member is a member of the set stored at key, `false` otherwise.
+	* @see {@link https://redis.io/commands/sismember}
+	*/
+	SISMEMBER(key, member) {
+		return this.useCommand(input$50(key, member));
+	}
+	/**
+	* Returns the set cardinality (number of elements) of the set stored at key.
+	*
+	* - Available since: 1.0.0.
+	* - Time complexity: O(1).
+	* @param key The key of the set.
+	* @returns The cardinality (number of elements) of the set, or `0` if the key does not exist.
+	* @see {@link https://redis.io/commands/scard}
+	*/
+	SCARD(key) {
+		return this.useCommand(input$49(key));
+	}
+	SADD(key, ...members) {
+		return this.useCommand(input$48(key, ...members));
 	}
 	/**
 	* Sets the given keys to their respective values. MSETNX will not perform
@@ -1884,6 +2060,65 @@ var RedisXTransaction = class {
 		if (this.return_no_array) return result_named;
 		return Object.assign(result, result_named);
 	}
+	SREM(key, ...members) {
+		return this.useCommand(input$53(key, ...members));
+	}
+	/**
+	* Returns whether each member is a member of the set stored at key.
+	*
+	* For every member, `true` is returned if the value is a member of the set,
+	* or `false` if the element is not a member of the set or if key does not exist.
+	*
+	* - Available since: 6.2.0.
+	* - Time complexity: O(N) where N is the number of elements being checked for membership.
+	* @param key The key of the set.
+	* @param members The members to check.
+	* @returns An array of booleans, representing the membership of the given elements in the same order as they are requested.
+	* @see {@link https://redis.io/commands/smismember}
+	*/
+	SMISMEMBER(key, ...members) {
+		return this.useCommand(input$52(key, ...members));
+	}
+	/**
+	* Returns all the members of the set value stored at key.
+	*
+	* - Available since: 1.0.0.
+	* - Time complexity: O(N) where N is the set cardinality.
+	* @param key The key of the set.
+	* @returns A set with all the members of the set.
+	* @see {@link https://redis.io/commands/smembers}
+	*/
+	SMEMBERS(key) {
+		return this.useCommand(input$51(key));
+	}
+	/**
+	* Returns if member is a member of the set stored at key.
+	*
+	* - Available since: 1.0.0.
+	* - Time complexity: O(1).
+	* @param key The key of the set.
+	* @param member The member to check.
+	* @returns `true` if the member is a member of the set stored at key, `false` otherwise.
+	* @see {@link https://redis.io/commands/sismember}
+	*/
+	SISMEMBER(key, member) {
+		return this.useCommand(input$50(key, member));
+	}
+	/**
+	* Returns the set cardinality (number of elements) of the set stored at key.
+	*
+	* - Available since: 1.0.0.
+	* - Time complexity: O(1).
+	* @param key The key of the set.
+	* @returns The cardinality (number of elements) of the set, or `0` if the key does not exist.
+	* @see {@link https://redis.io/commands/scard}
+	*/
+	SCARD(key) {
+		return this.useCommand(input$49(key));
+	}
+	SADD(key, ...members) {
+		return this.useCommand(input$48(key, ...members));
+	}
 	/**
 	* Sets the given keys to their respective values. MSETNX will not perform
 	* any operation at all even if just a single key already exists.
@@ -2506,6 +2741,65 @@ var RedisXClient = class {
 	}
 	createTransaction() {
 		return new RedisXTransaction(this.redisClient);
+	}
+	SREM(key, ...members) {
+		return this.useCommand(input$53(key, ...members));
+	}
+	/**
+	* Returns whether each member is a member of the set stored at key.
+	*
+	* For every member, `true` is returned if the value is a member of the set,
+	* or `false` if the element is not a member of the set or if key does not exist.
+	*
+	* - Available since: 6.2.0.
+	* - Time complexity: O(N) where N is the number of elements being checked for membership.
+	* @param key The key of the set.
+	* @param members The members to check.
+	* @returns An array of booleans, representing the membership of the given elements in the same order as they are requested.
+	* @see {@link https://redis.io/commands/smismember}
+	*/
+	SMISMEMBER(key, ...members) {
+		return this.useCommand(input$52(key, ...members));
+	}
+	/**
+	* Returns all the members of the set value stored at key.
+	*
+	* - Available since: 1.0.0.
+	* - Time complexity: O(N) where N is the set cardinality.
+	* @param key The key of the set.
+	* @returns A set with all the members of the set.
+	* @see {@link https://redis.io/commands/smembers}
+	*/
+	SMEMBERS(key) {
+		return this.useCommand(input$51(key));
+	}
+	/**
+	* Returns if member is a member of the set stored at key.
+	*
+	* - Available since: 1.0.0.
+	* - Time complexity: O(1).
+	* @param key The key of the set.
+	* @param member The member to check.
+	* @returns `true` if the member is a member of the set stored at key, `false` otherwise.
+	* @see {@link https://redis.io/commands/sismember}
+	*/
+	SISMEMBER(key, member) {
+		return this.useCommand(input$50(key, member));
+	}
+	/**
+	* Returns the set cardinality (number of elements) of the set stored at key.
+	*
+	* - Available since: 1.0.0.
+	* - Time complexity: O(1).
+	* @param key The key of the set.
+	* @returns The cardinality (number of elements) of the set, or `0` if the key does not exist.
+	* @see {@link https://redis.io/commands/scard}
+	*/
+	SCARD(key) {
+		return this.useCommand(input$49(key));
+	}
+	SADD(key, ...members) {
+		return this.useCommand(input$48(key, ...members));
 	}
 	/**
 	* Sets the given keys to their respective values. MSETNX will not perform

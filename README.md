@@ -245,19 +245,27 @@ The `redis-x` client is more a proof of concept than a complete implementation. 
 <!--
 7 blocks:
 - red means no support
-- orange means at lease 33% support
-- yellow at least 67%
+- yellow at least 50%
 - green at least 100%
-(X/Y) / (1/7)
+X / Y / (1/7)
 -->
 
-| Section               | Commands available    | Command names |
-| --------------------- | - | - |
-| Connection management | 🟥🟥🟥🟥🟥🟥🟥 <br>  **0** / 32 | — |
-| Generic               | 🟩🟩🟩🟧🟥🟥🟥 <br> **16** / 32 | `COPY` `DEL` `EXISTS` `EXPIRE` `EXPIREAT` `EXPIRETIME` `KEYS` `PERSIST` `PEXPIRE` `PEXPIREAT` `PEXPIRETIME` `PTTL` `RENAME` `RENAMENX` `TTL` `TYPE` |
-| Hash                  | 🟨🟥🟥🟥🟥🟥🟥 <br>  **2** / 28 | `HGETALL` `HSET` |
-| List                  | 🟥🟥🟥🟥🟥🟥🟥 <br>  **1** / 22 | `LPUSH` |
-| Scripting             | 🟨🟥🟥🟥🟥🟥🟥 <br>  **1** / 19 | `EVAL` |
-| Set                   | 🟥🟥🟥🟥🟥🟥🟥 <br>  **0** / 17 | — |
-| Sorted Set            | 🟩🟨🟥🟥🟥🟥🟥 <br>  **6** / 35 | `ZADD` `ZCARD` `ZINTERSTORE` `ZRANGE` `ZREM` `ZSCORE` |
-| String                | 🟩🟩🟩🟩🟩🟩🟨 <br> **21** / 22 | `APPEND` `DECR` `DECRBY` `GET` `GETDEL` `GETEX` `GETRANGE` `GETSET` `INCR` `INCRBY` `INCRBYFLOAT` `MGET` `MSET` `MSETNX` `PSETEX` `SET` `SETEX` `SETNX` `SETRANGE` `STRLEN` `SUBSTR` |
+| Section                                           | Commands available    |
+| ------------------------------------------------- | - |
+| [Generic](src/commands/generic)                   | 🟩🟩🟩🟨🟥🟥🟥 <br> **16** / 32 |
+| [Hash](src/commands/hash)                         | 🟨🟥🟥🟥🟥🟥🟥 <br>  **3** / 28 |
+| [List](src/commands/list)                         | 🟥🟥🟥🟥🟥🟥🟥 <br>  **1** / 22 |
+| [Scripting and Functions](src/commands/scripting) | 🟥🟥🟥🟥🟥🟥🟥 <br>  **1** / 19 |
+| [Set](src/commands/set)                           | 🟩🟩🟥🟥🟥🟥🟥 <br>  **6** / 17 |
+| [Sorted Set](src/commands/sorted-set)             | 🟩🟥🟥🟥🟥🟥🟥 <br>  **6** / 35 |
+| [String](src/commands/string)                     | 🟩🟩🟩🟩🟩🟩🟨 <br> **21** / 22 |
+
+<!--
+More sections to come:
+| [Cluster management](src/commands/cluster) | 🟥🟥🟥🟥🟥🟥🟥 <br>  **0** / 30 |
+| [Connection management](src/commands/connection) | 🟥🟥🟥🟥🟥🟥🟥 <br>  **0** / 32 |
+| [Geospatial indices](src/commands/geospatial) | 🟥🟥🟥🟥🟥🟥🟥 <br>  **0** / 10 |
+| [Pub/Sub](src/commands/pub-sub) | 🟥🟥🟥🟥🟥🟥🟥 <br>  **0** / 13 |
+| [Server management](src/commands/server) | 🟥🟥🟥🟥🟥🟥🟥 <br>  **0** / 62 |
+| [Stream](src/commands/stream) | 🟥🟥🟥🟥🟥🟥🟥 <br>  **0** / 21 |
+-->

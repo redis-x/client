@@ -3,8 +3,6 @@ import {
 	expect,
 	test,
 } from 'vitest';
-import { redisXClient } from '../../../test/client.js';
-import { createRandomKey } from '../../../test/utils.js';
 import { input } from './hset.js';
 
 describe('command', () => {
@@ -40,12 +38,5 @@ describe('command', () => {
 		]);
 
 		expect(command.replyTransform).toBeUndefined();
-	});
-});
-
-describe('returns', () => {
-	test('number', async () => {
-		const result = await redisXClient.HSET(createRandomKey(), 'foo', '1');
-		expect(result).toBe(1);
 	});
 });

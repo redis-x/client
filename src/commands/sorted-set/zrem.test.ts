@@ -3,8 +3,6 @@ import {
 	expect,
 	test,
 } from 'vitest';
-import { redisXClient } from '../../../test/client.js';
-import { createRandomKey } from '../../../test/utils.js';
 import { input } from './zrem.js';
 
 describe('command', () => {
@@ -34,6 +32,8 @@ describe('command', () => {
 			'member2',
 			'member3',
 		]);
+
+		expect(command.replyTransform).toBeUndefined();
 	});
 
 	test('set members', () => {
@@ -47,16 +47,7 @@ describe('command', () => {
 			'member1',
 			'member2',
 		]);
-	});
-});
 
-describe('returns', () => {
-	test('number', async () => {
-		const key = createRandomKey();
-
-		await redisXClient.sendCommand('ZADD', key, 1, 'foo');
-
-		const result = await redisXClient.ZREM(key, 'foo', 'bar');
-		expect(result).toBe(1);
+		expect(command.replyTransform).toBeUndefined();
 	});
 });

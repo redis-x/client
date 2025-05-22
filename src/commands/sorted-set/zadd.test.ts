@@ -4,8 +4,6 @@ import {
 	expect,
 	test,
 } from 'vitest';
-import { redisXClient } from '../../../test/client.js';
-import { createRandomKey } from '../../../test/utils.js';
 import { input } from './zadd.js';
 
 describe('command', () => {
@@ -21,8 +19,9 @@ describe('command', () => {
 			'member',
 		]);
 
-		expect(command.replyTransform!('1.23')).toStrictEqual(1.23);
-		expect(command.replyTransform!(2)).toStrictEqual(2);
+		expect(command.replyTransform!('1')).toStrictEqual(1);
+		expect(command.replyTransform!('-1')).toStrictEqual(-1);
+		expect(command.replyTransform!('10.345')).toStrictEqual(10.345);
 		expect(command.replyTransform!(null)).toBeNull();
 	});
 
@@ -69,20 +68,4 @@ describe('command', () => {
 			}
 		});
 	}
-});
-
-describe('returns', () => {
-	test('number', async () => {
-		const key = createRandomKey();
-
-		const result = await redisXClient.ZADD(key, 1, 'foo');
-		expect(result).toBe(1);
-	});
-
-	test('string', async () => {
-		const key = createRandomKey();
-
-		const result = await redisXClient.ZADD(key, 1.23, 'foo', { INCR: true });
-		expect(result).toBe(1.23);
-	});
 });

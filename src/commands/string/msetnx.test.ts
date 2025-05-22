@@ -14,11 +14,5 @@ test('command', () => {
 
 	expect(command.args).toStrictEqual([ 'MSETNX', 'key1', 'value1', 'key2', 'value2' ]);
 
-	expect(
-		command.replyTransform?.(1),
-	).toStrictEqual(true);
-
-	expect(
-		command.replyTransform?.(0),
-	).toStrictEqual(false);
+	expect(command.replyTransform).toBeTypeOf('function');
 });

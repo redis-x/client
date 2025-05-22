@@ -417,6 +417,107 @@ declare class RedisXTransactionUse {
   addCommand(command: string, ...args: (string | number)[]): RedisXTransactionCommand<unknown>;
   private useCommand;
   /**
+  * Remove the specified members from the set stored at key.
+  * Specified members that are not a member of this set are ignored.
+  * If key does not exist, it is treated as an empty set and this command returns 0.
+  *
+  * - Available since: 1.0.0. Multiple members support added in 2.4.0.
+  * - Time complexity: O(N) where N is the number of members to be removed.
+  * @param key Key of the set.
+  * @param member Member to remove from the set.
+  * @returns The number of members that were removed from the set, not including non existing members.
+  * @see {@link https://redis.io/commands/srem}
+  */
+  SREM(key: string, member: (string | number)[]): RedisXTransactionCommand<number>;
+  /**
+  * Remove the specified members from the set stored at key.
+  * Specified members that are not a member of this set are ignored.
+  * If key does not exist, it is treated as an empty set and this command returns 0.
+  *
+  * - Available since: 1.0.0. Multiple members support added in 2.4.0.
+  * - Time complexity: O(N) where N is the number of members to be removed.
+  * @param key Key of the set.
+  * @param members Members to remove from the set.
+  * @returns The number of members that were removed from the set, not including non existing members.
+  * @see {@link https://redis.io/commands/srem}
+  */
+  SREM(key: string, ...members: (string | number)[]): RedisXTransactionCommand<number>;
+  /**
+  * Returns whether each member is a member of the set stored at key.
+  *
+  * For every member, `true` is returned if the value is a member of the set,
+  * or `false` if the element is not a member of the set or if key does not exist.
+  *
+  * - Available since: 6.2.0.
+  * - Time complexity: O(N) where N is the number of elements being checked for membership.
+  * @param key The key of the set.
+  * @param members The members to check.
+  * @returns An array of booleans, representing the membership of the given elements in the same order as they are requested.
+  * @see {@link https://redis.io/commands/smismember}
+  */
+  SMISMEMBER(key: string, ...members: string[]): RedisXTransactionCommand<boolean[]>;
+  /**
+  * Returns all the members of the set value stored at key.
+  *
+  * - Available since: 1.0.0.
+  * - Time complexity: O(N) where N is the set cardinality.
+  * @param key The key of the set.
+  * @returns A set with all the members of the set.
+  * @see {@link https://redis.io/commands/smembers}
+  */
+  SMEMBERS(key: string): RedisXTransactionCommand<Set<string>>;
+  /**
+  * Returns if member is a member of the set stored at key.
+  *
+  * - Available since: 1.0.0.
+  * - Time complexity: O(1).
+  * @param key The key of the set.
+  * @param member The member to check.
+  * @returns `true` if the member is a member of the set stored at key, `false` otherwise.
+  * @see {@link https://redis.io/commands/sismember}
+  */
+  SISMEMBER(key: string, member: string): RedisXTransactionCommand<boolean>;
+  /**
+  * Returns the set cardinality (number of elements) of the set stored at key.
+  *
+  * - Available since: 1.0.0.
+  * - Time complexity: O(1).
+  * @param key The key of the set.
+  * @returns The cardinality (number of elements) of the set, or `0` if the key does not exist.
+  * @see {@link https://redis.io/commands/scard}
+  */
+  SCARD(key: string): RedisXTransactionCommand<number>;
+  /**
+  * Add the specified members to the set stored at key.
+  * Specified members that are already a member of this set are ignored.
+  * If key does not exist, a new set is created before adding the specified members.
+  *
+  * An error is returned when the value stored at key is not a set.
+  *
+  * - Available since: 1.0.0. Multiple members support added in 2.4.0.
+  * - Time complexity: O(1) for each element added.
+  * @param key Key of the set.
+  * @param member Member to add to the set.
+  * @returns The number of elements that were added to the set, not including all the elements already present in the set.
+  * @see {@link https://redis.io/commands/sadd}
+  */
+  SADD(key: string, member: (string | number)[]): RedisXTransactionCommand<number>;
+  /**
+  * Add the specified members to the set stored at key.
+  * Specified members that are already a member of this set are ignored.
+  * If key does not exist, a new set is created before adding the specified members.
+  *
+  * An error is returned when the value stored at key is not a set.
+  *
+  * - Available since: 1.0.0. Multiple members support added in 2.4.0.
+  * - Time complexity: O(1) for each element added.
+  * @param key Key of the set.
+  * @param members Members to add to the set.
+  * @returns The number of elements that were added to the set, not including all the elements already present in the set.
+  * @see {@link https://redis.io/commands/sadd}
+  */
+  SADD(key: string, ...members: (string | number)[]): RedisXTransactionCommand<number>;
+  /**
   * Sets the given keys to their respective values. MSETNX will not perform
   * any operation at all even if just a single key already exists.
   *
@@ -1113,6 +1214,107 @@ declare class RedisXTransaction<L = [], C extends boolean = false, D = unknown> 
   use<const CB extends (transaction: RedisXTransactionUse) => Promisable<Record<string, any> | void>>(callback: CB): RedisXTransaction<[], true, Awaited<ReturnType<CB>> extends Record<string, any> ? UnwrapRedisXTransactionCommand<Awaited<ReturnType<CB>>> & D : D>;
   execute<RL = (C extends true ? unknown : (L extends [] ? unknown : L)), R = (unknown extends D ? unknown extends RL ? Record<string, never> : RL : RL & { [K in keyof D]: D[K] })>(): Promise<R>;
   /**
+  * Remove the specified members from the set stored at key.
+  * Specified members that are not a member of this set are ignored.
+  * If key does not exist, it is treated as an empty set and this command returns 0.
+  *
+  * - Available since: 1.0.0. Multiple members support added in 2.4.0.
+  * - Time complexity: O(N) where N is the number of members to be removed.
+  * @param key Key of the set.
+  * @param member Member to remove from the set.
+  * @returns The number of members that were removed from the set, not including non existing members.
+  * @see {@link https://redis.io/commands/srem}
+  */
+  SREM(key: string, member: (string | number)[]): RedisXTransaction<AddToList<L, number>, C, D>;
+  /**
+  * Remove the specified members from the set stored at key.
+  * Specified members that are not a member of this set are ignored.
+  * If key does not exist, it is treated as an empty set and this command returns 0.
+  *
+  * - Available since: 1.0.0. Multiple members support added in 2.4.0.
+  * - Time complexity: O(N) where N is the number of members to be removed.
+  * @param key Key of the set.
+  * @param members Members to remove from the set.
+  * @returns The number of members that were removed from the set, not including non existing members.
+  * @see {@link https://redis.io/commands/srem}
+  */
+  SREM(key: string, ...members: (string | number)[]): RedisXTransaction<AddToList<L, number>, C, D>;
+  /**
+  * Returns whether each member is a member of the set stored at key.
+  *
+  * For every member, `true` is returned if the value is a member of the set,
+  * or `false` if the element is not a member of the set or if key does not exist.
+  *
+  * - Available since: 6.2.0.
+  * - Time complexity: O(N) where N is the number of elements being checked for membership.
+  * @param key The key of the set.
+  * @param members The members to check.
+  * @returns An array of booleans, representing the membership of the given elements in the same order as they are requested.
+  * @see {@link https://redis.io/commands/smismember}
+  */
+  SMISMEMBER(key: string, ...members: string[]): RedisXTransaction<AddToList<L, boolean[]>, C, D>;
+  /**
+  * Returns all the members of the set value stored at key.
+  *
+  * - Available since: 1.0.0.
+  * - Time complexity: O(N) where N is the set cardinality.
+  * @param key The key of the set.
+  * @returns A set with all the members of the set.
+  * @see {@link https://redis.io/commands/smembers}
+  */
+  SMEMBERS(key: string): RedisXTransaction<AddToList<L, Set<string>>, C, D>;
+  /**
+  * Returns if member is a member of the set stored at key.
+  *
+  * - Available since: 1.0.0.
+  * - Time complexity: O(1).
+  * @param key The key of the set.
+  * @param member The member to check.
+  * @returns `true` if the member is a member of the set stored at key, `false` otherwise.
+  * @see {@link https://redis.io/commands/sismember}
+  */
+  SISMEMBER(key: string, member: string): RedisXTransaction<AddToList<L, boolean>, C, D>;
+  /**
+  * Returns the set cardinality (number of elements) of the set stored at key.
+  *
+  * - Available since: 1.0.0.
+  * - Time complexity: O(1).
+  * @param key The key of the set.
+  * @returns The cardinality (number of elements) of the set, or `0` if the key does not exist.
+  * @see {@link https://redis.io/commands/scard}
+  */
+  SCARD(key: string): RedisXTransaction<AddToList<L, number>, C, D>;
+  /**
+  * Add the specified members to the set stored at key.
+  * Specified members that are already a member of this set are ignored.
+  * If key does not exist, a new set is created before adding the specified members.
+  *
+  * An error is returned when the value stored at key is not a set.
+  *
+  * - Available since: 1.0.0. Multiple members support added in 2.4.0.
+  * - Time complexity: O(1) for each element added.
+  * @param key Key of the set.
+  * @param member Member to add to the set.
+  * @returns The number of elements that were added to the set, not including all the elements already present in the set.
+  * @see {@link https://redis.io/commands/sadd}
+  */
+  SADD(key: string, member: (string | number)[]): RedisXTransaction<AddToList<L, number>, C, D>;
+  /**
+  * Add the specified members to the set stored at key.
+  * Specified members that are already a member of this set are ignored.
+  * If key does not exist, a new set is created before adding the specified members.
+  *
+  * An error is returned when the value stored at key is not a set.
+  *
+  * - Available since: 1.0.0. Multiple members support added in 2.4.0.
+  * - Time complexity: O(1) for each element added.
+  * @param key Key of the set.
+  * @param members Members to add to the set.
+  * @returns The number of elements that were added to the set, not including all the elements already present in the set.
+  * @see {@link https://redis.io/commands/sadd}
+  */
+  SADD(key: string, ...members: (string | number)[]): RedisXTransaction<AddToList<L, number>, C, D>;
+  /**
   * Sets the given keys to their respective values. MSETNX will not perform
   * any operation at all even if just a single key already exists.
   *
@@ -1794,6 +1996,107 @@ declare class RedisXClient {
   sendCommand<T extends string>(command: T, ...args: (string | number)[]): Promise<unknown>;
   private useCommand;
   createTransaction(): RedisXTransaction<[], false, unknown>;
+  /**
+  * Remove the specified members from the set stored at key.
+  * Specified members that are not a member of this set are ignored.
+  * If key does not exist, it is treated as an empty set and this command returns 0.
+  *
+  * - Available since: 1.0.0. Multiple members support added in 2.4.0.
+  * - Time complexity: O(N) where N is the number of members to be removed.
+  * @param key Key of the set.
+  * @param member Member to remove from the set.
+  * @returns The number of members that were removed from the set, not including non existing members.
+  * @see {@link https://redis.io/commands/srem}
+  */
+  SREM(key: string, member: (string | number)[]): Promise<number>;
+  /**
+  * Remove the specified members from the set stored at key.
+  * Specified members that are not a member of this set are ignored.
+  * If key does not exist, it is treated as an empty set and this command returns 0.
+  *
+  * - Available since: 1.0.0. Multiple members support added in 2.4.0.
+  * - Time complexity: O(N) where N is the number of members to be removed.
+  * @param key Key of the set.
+  * @param members Members to remove from the set.
+  * @returns The number of members that were removed from the set, not including non existing members.
+  * @see {@link https://redis.io/commands/srem}
+  */
+  SREM(key: string, ...members: (string | number)[]): Promise<number>;
+  /**
+  * Returns whether each member is a member of the set stored at key.
+  *
+  * For every member, `true` is returned if the value is a member of the set,
+  * or `false` if the element is not a member of the set or if key does not exist.
+  *
+  * - Available since: 6.2.0.
+  * - Time complexity: O(N) where N is the number of elements being checked for membership.
+  * @param key The key of the set.
+  * @param members The members to check.
+  * @returns An array of booleans, representing the membership of the given elements in the same order as they are requested.
+  * @see {@link https://redis.io/commands/smismember}
+  */
+  SMISMEMBER(key: string, ...members: string[]): Promise<boolean[]>;
+  /**
+  * Returns all the members of the set value stored at key.
+  *
+  * - Available since: 1.0.0.
+  * - Time complexity: O(N) where N is the set cardinality.
+  * @param key The key of the set.
+  * @returns A set with all the members of the set.
+  * @see {@link https://redis.io/commands/smembers}
+  */
+  SMEMBERS(key: string): Promise<Set<string>>;
+  /**
+  * Returns if member is a member of the set stored at key.
+  *
+  * - Available since: 1.0.0.
+  * - Time complexity: O(1).
+  * @param key The key of the set.
+  * @param member The member to check.
+  * @returns `true` if the member is a member of the set stored at key, `false` otherwise.
+  * @see {@link https://redis.io/commands/sismember}
+  */
+  SISMEMBER(key: string, member: string): Promise<boolean>;
+  /**
+  * Returns the set cardinality (number of elements) of the set stored at key.
+  *
+  * - Available since: 1.0.0.
+  * - Time complexity: O(1).
+  * @param key The key of the set.
+  * @returns The cardinality (number of elements) of the set, or `0` if the key does not exist.
+  * @see {@link https://redis.io/commands/scard}
+  */
+  SCARD(key: string): Promise<number>;
+  /**
+  * Add the specified members to the set stored at key.
+  * Specified members that are already a member of this set are ignored.
+  * If key does not exist, a new set is created before adding the specified members.
+  *
+  * An error is returned when the value stored at key is not a set.
+  *
+  * - Available since: 1.0.0. Multiple members support added in 2.4.0.
+  * - Time complexity: O(1) for each element added.
+  * @param key Key of the set.
+  * @param member Member to add to the set.
+  * @returns The number of elements that were added to the set, not including all the elements already present in the set.
+  * @see {@link https://redis.io/commands/sadd}
+  */
+  SADD(key: string, member: (string | number)[]): Promise<number>;
+  /**
+  * Add the specified members to the set stored at key.
+  * Specified members that are already a member of this set are ignored.
+  * If key does not exist, a new set is created before adding the specified members.
+  *
+  * An error is returned when the value stored at key is not a set.
+  *
+  * - Available since: 1.0.0. Multiple members support added in 2.4.0.
+  * - Time complexity: O(1) for each element added.
+  * @param key Key of the set.
+  * @param members Members to add to the set.
+  * @returns The number of elements that were added to the set, not including all the elements already present in the set.
+  * @see {@link https://redis.io/commands/sadd}
+  */
+  SADD(key: string, ...members: (string | number)[]): Promise<number>;
   /**
   * Sets the given keys to their respective values. MSETNX will not perform
   * any operation at all even if just a single key already exists.

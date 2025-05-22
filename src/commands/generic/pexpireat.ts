@@ -1,3 +1,4 @@
+import { replyTransform } from '../../reply-transformers/number-to-boolean.js';
 import type { Command } from '../../types.js';
 
 export type PexpireatOptions = {
@@ -73,9 +74,4 @@ export function input(key: string, timestamp: number, options?: PexpireatOptions
 		],
 		replyTransform,
 	};
-}
-
-// eslint-disable-next-line jsdoc/require-jsdoc
-function replyTransform(reply: 0 | 1): boolean {
-	return reply === 1;
 }

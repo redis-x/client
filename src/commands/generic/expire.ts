@@ -1,3 +1,4 @@
+import { replyTransform } from '../../reply-transformers/number-to-boolean.js';
 import type { Command } from '../../types.js';
 
 export type ExpireOptions = {
@@ -74,9 +75,4 @@ export function input(key: string, seconds: number, options?: ExpireOptions): Co
 		],
 		replyTransform,
 	};
-}
-
-// eslint-disable-next-line jsdoc/require-jsdoc
-function replyTransform(reply: 0 | 1): boolean {
-	return reply === 1;
 }

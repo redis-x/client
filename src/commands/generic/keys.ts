@@ -1,3 +1,4 @@
+import { replyTransform } from '../../reply-transformers/array-to-set.js';
 import type { Command } from '../../types.js';
 
 /**
@@ -17,9 +18,4 @@ export function input(pattern: string): Command<Set<string>> {
 		],
 		replyTransform,
 	};
-}
-
-// eslint-disable-next-line jsdoc/require-jsdoc
-function replyTransform(reply: string[]): Set<string> {
-	return new Set(reply);
 }

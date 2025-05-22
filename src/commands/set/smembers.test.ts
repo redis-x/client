@@ -2,14 +2,14 @@ import {
 	expect,
 	test,
 } from 'vitest';
-import { input } from './persist.js';
+import { input } from './smembers.js';
 
 test('command', () => {
-	const command = input('key1');
+	const command = input('myset');
 	expect(
 		command.args,
 	).toStrictEqual(
-		[ 'PERSIST', 'key1' ],
+		[ 'SMEMBERS', 'myset' ],
 	);
 
 	expect(command.replyTransform).toBeTypeOf('function');

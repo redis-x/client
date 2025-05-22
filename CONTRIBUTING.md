@@ -84,8 +84,8 @@ However, we **do not** test the Redis server itself. Instead, we test **transfor
 - Command call should be transformed to the correct Redis command with options.
   - Test every option given to command.
   - [Example](src/commands/string/set.test.ts)
-- The reply should be transformed to the correct type **only if** there is `replyTransform` defined.
-  - [Example](src/commands/generic/keys.test.ts#L25)
+- The reply should be transformed to the correct type **only if** there is `replyTransform` defined as a local function. Do not re-test it if it is imported.
+  - [Example](src/commands/set/smismember.test.ts#L17)
 
 #### Step 4. Generate the client code
 

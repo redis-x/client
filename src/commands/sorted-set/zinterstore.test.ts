@@ -3,8 +3,6 @@ import {
 	expect,
 	test,
 } from 'vitest';
-import { redisXClient } from '../../../test/client.js';
-import { createRandomKey } from '../../../test/utils.js';
 import { input } from './zinterstore.js';
 
 describe('command', () => {
@@ -71,19 +69,5 @@ describe('command', () => {
 		]);
 
 		expect(command.replyTransform).toBeUndefined();
-	});
-});
-
-describe('returns', () => {
-	test('number', async () => {
-		const key = createRandomKey();
-
-		await Promise.all([
-			redisXClient.sendCommand('ZADD', `${key}-1`, 1, 'foo', 2, 'bar'),
-			redisXClient.sendCommand('ZADD', `${key}-2`, 2, 'foo', 3, 'baz'),
-		]);
-
-		const result = await redisXClient.ZINTERSTORE('dest', [ `${key}-1`, `${key}-2` ]);
-		expect(result).toBe(1);
 	});
 });
