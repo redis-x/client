@@ -1142,6 +1142,63 @@ export class RedisXClient {
 	}
 
 	/**
+	 * Returns all the elements in the sorted set at key with a score between min and max (including elements with score equal to min or max).
+	 * The elements are considered to be ordered from low to high scores.
+	 *
+	 * The elements having the same score are returned in lexicographical order.
+	 *
+	 * - Available since: 1.0.5.
+	 * - Time complexity: O(log(N)+M) with N being the number of elements in the sorted set and M the number of elements being returned. If M is constant (e.g. always asking for the first 10 elements with LIMIT), you can consider it O(log(N)).
+	 * @deprecated As of Redis version 6.2.0, this command is regarded as deprecated. It can be replaced by ZRANGE with the BYSCORE argument when migrating or writing new code.
+	 * @param key The key of the sorted set.
+	 * @param min The minimum score to consider.
+	 * @param max The maximum score to consider.
+	 * @param options Additional options for the command.
+	 * @returns Array of elements in the specified score range.
+	 * @see {@link https://redis.io/commands/zrangebyscore}
+	 */
+	ZRANGEBYSCORE(
+		key: string,
+		min: number | `(${number}` | '-inf',
+		max: number | `(${number}` | '+inf',
+		options?: ZrangebyscoreOptions,
+	): Promise<string[]>;
+	/**
+	 * Returns all the elements in the sorted set at key with a score between min and max (including elements with score equal to min or max).
+	 * The elements are considered to be ordered from low to high scores.
+	 *
+	 * The elements having the same score are returned in lexicographical order.
+	 *
+	 * - Available since: 1.0.5.
+	 * - Time complexity: O(log(N)+M) with N being the number of elements in the sorted set and M the number of elements being returned. If M is constant (e.g. always asking for the first 10 elements with LIMIT), you can consider it O(log(N)).
+	 * @deprecated As of Redis version 6.2.0, this command is regarded as deprecated. It can be replaced by ZRANGE with the BYSCORE argument when migrating or writing new code.
+	 * @param key The key of the sorted set.
+	 * @param min The minimum score to consider.
+	 * @param max The maximum score to consider.
+	 * @param options Additional options for the command with WITHSCORES set to true.
+	 * @returns Array of elements with their scores in the specified score range.
+	 * @see {@link https://redis.io/commands/zrangebyscore}
+	 */
+	ZRANGEBYSCORE(
+		key: string,
+		min: number | `(${number}` | '-inf',
+		max: number | `(${number}` | '+inf',
+		options: ZrangebyscoreOptions & ZrangebyscoreOptionsWithscores,
+	): Promise<{
+		member: string,
+		score: number,
+	}[]>;
+
+	ZRANGEBYSCORE(
+		key: string,
+		min: number | `(${number}` | '-inf',
+		max: number | `(${number}` | '+inf',
+		options?: ZrangebyscoreOptions & Partial<ZrangebyscoreOptionsWithscores>,
+	) {
+		return this.useCommand(input_zrangebyscore(key, min, max, options));
+	}
+
+	/**
 	 * Returns the score of member in the sorted set at key.
 	 * - Available since: 1.0.0.
 	 * - Time complexity: O(1).
@@ -1152,6 +1209,29 @@ export class RedisXClient {
 	 */
 	ZSCORE(key: string, member: string | number): Promise<number | null> {
 		return this.useCommand(input_zscore(key, member));
+	}
+
+	/**
+	 * Returns the number of elements in the sorted set at key with a score between min and max.
+	 *
+	 * The min and max arguments have the same semantic as described for ZRANGEBYSCORE.
+	 *
+	 * Note: the command has a complexity of just O(log(N)) because it uses elements ranks (see ZRANK) to get an idea of the range.
+	 * Because of this there is no need to do a work proportional to the size of the range.
+	 * - Available since: 2.0.0.
+	 * - Time complexity: O(log(N)) with N being the number of elements in the sorted set.
+	 * @param key The key of the sorted set.
+	 * @param min The minimum score to include in the count. Can be "-inf" for negative infinity, or a number prefixed with "(" to exclude that value.
+	 * @param max The maximum score to include in the count. Can be "+inf" for positive infinity, or a number prefixed with "(" to exclude that value.
+	 * @returns The number of elements in the specified score range.
+	 * @see {@link https://redis.io/commands/zcount}
+	 */
+	ZCOUNT(
+		key: string,
+		min: number | `(${number}` | '-inf',
+		max: number | `(${number}` | '+inf',
+	): Promise<number> {
+		return this.useCommand(input_zcount(key, min, max));
 	}
 
 	/**
@@ -1198,6 +1278,47 @@ export class RedisXClient {
 		arg3?: ZaddOptions,
 	) {
 		return this.useCommand(input_zadd(key, arg1, arg2, arg3));
+	}
+
+	/**
+	 * Returns the rank of member in the sorted set stored at key, with the scores ordered from low to high.
+	 * The rank (or index) is 0-based, which means that the member with the lowest score has rank 0.
+	 *
+	 * - Available since: 2.0.0.
+	 * - Time complexity: O(log(N)).
+	 * @param key Key of the sorted set.
+	 * @param member Member to get the rank for.
+	 * @returns The rank of member if member exists in the sorted set, or null if member does not exist in the sorted set or key does not exist.
+	 * @see {@link https://redis.io/commands/zrank}
+	 */
+	ZRANK(key: string, member: string | number): Promise<number | null>;
+	/**
+	 * Returns the rank of member in the sorted set stored at key, with the scores ordered from low to high.
+	 * The rank (or index) is 0-based, which means that the member with the lowest score has rank 0.
+	 *
+	 * - Available since: 2.0.0.
+	 * - Time complexity: O(log(N)).
+	 * @param key Key of the sorted set.
+	 * @param member Member to get the rank for.
+	 * @param options Command options.
+	 * @returns The rank and score of member if member exists in the sorted set, or null if member does not exist in the sorted set or key does not exist.
+	 * @see {@link https://redis.io/commands/zrank}
+	 */
+	ZRANK(
+		key: string,
+		member: string | number,
+		options: ZrankOptionsWithscore,
+	): Promise<{
+		rank: number,
+		score: number,
+	} | null>;
+
+	ZRANK(
+		key: string,
+		member: string | number,
+		options?: Partial<ZrankOptionsWithscore>,
+	) {
+		return this.useCommand(input_zrank(key, member, options));
 	}
 
 	/**
@@ -1319,6 +1440,34 @@ export class RedisXClient {
 		options?: ZinterstoreOptions,
 	): Promise<number> {
 		return this.useCommand(input_zinterstore(destination, arg1, options));
+	}
+
+	/**
+	 * Returns all the elements in the sorted set at `key` with a value between `min` and `max`.
+	 *
+	 * The elements are considered to be ordered from lower to higher strings as compared byte-by-byte using the `memcmp()` C function.
+	 * Longer strings are considered greater than shorter strings if the common part is identical.
+	 *
+	 * Valid `min` and `max` must start with `(` or `[`, in order to specify if the range item is respectively exclusive or inclusive.
+	 * The special values of `+` or `-` for `min` and `max` have the special meaning or positively infinite and negatively infinite strings.
+	 *
+	 * - Available since: 2.8.9.
+	 * - Time complexity: O(log(N)+M) with N being the number of elements in the sorted set and M the number of elements being returned. If M is constant (e.g. always asking for the first 10 elements with LIMIT), you can consider it O(log(N)).
+	 * @deprecated As of Redis version 6.2.0, this command is regarded as deprecated. It can be replaced by ZRANGE with the BYLEX argument when migrating or writing new code.
+	 * @param key The key of the sorted set.
+	 * @param min Minimum value of the range.
+	 * @param max Maximum value of the range.
+	 * @param options Command options.
+	 * @returns List of elements in the specified range.
+	 * @see {@link https://redis.io/commands/zrangebylex}
+	 */
+	ZRANGEBYLEX(
+		key: string,
+		min: `(${string}` | `[${string}` | '-',
+		max: `(${string}` | `[${string}` | '+',
+		options?: ZrangebylexOptions,
+	): Promise<string[]> {
+		return this.useCommand(input_zrangebylex(key, min, max, options));
 	}
 
 	/**
@@ -1833,12 +1982,24 @@ import {
 	input as input_zcard,
 } from './commands/sorted-set/zcard.js';
 import {
+	type ZrangebyscoreOptions,
+	type ZrangebyscoreOptionsWithscores,
+	input as input_zrangebyscore,
+} from './commands/sorted-set/zrangebyscore.js';
+import {
 	input as input_zscore,
 } from './commands/sorted-set/zscore.js';
+import {
+	input as input_zcount,
+} from './commands/sorted-set/zcount.js';
 import {
 	type ZaddOptions,
 	input as input_zadd,
 } from './commands/sorted-set/zadd.js';
+import {
+	type ZrankOptionsWithscore,
+	input as input_zrank,
+} from './commands/sorted-set/zrank.js';
 import {
 	input as input_zrem,
 } from './commands/sorted-set/zrem.js';
@@ -1850,6 +2011,10 @@ import {
 	type ZinterstoreOptions,
 	input as input_zinterstore,
 } from './commands/sorted-set/zinterstore.js';
+import {
+	type ZrangebylexOptions,
+	input as input_zrangebylex,
+} from './commands/sorted-set/zrangebylex.js';
 import {
 	input as input_hvals,
 } from './commands/hash/hvals.js';
