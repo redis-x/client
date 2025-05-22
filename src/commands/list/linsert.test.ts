@@ -5,26 +5,26 @@ import {
 	expect,
 	test,
 } from 'vitest';
-import { input } from './lpush.js';
+import { input } from './linsert.js';
 
 describe('command', () => {
-	test('array arguments', () => {
-		const command = input('mylist', [ 'apple', 'banana', 1 ]);
+	test('option BEFORE', () => {
+		const command = input('mylist', 'foo', { BEFORE: 'bar' });
 		expect(
 			command.args,
 		).toStrictEqual(
-			[ 'LPUSH', 'mylist', 'apple', 'banana', '1' ],
+			[ 'LINSERT', 'mylist', 'BEFORE', 'bar', 'foo' ],
 		);
 
 		expect(command.replyTransform).toBeUndefined();
 	});
 
-	test('rest arguments', () => {
-		const command = input('mylist', 'apple', 'banana', 1);
+	test('option AFTER', () => {
+		const command = input('mylist', 'foo', { AFTER: 'bar' });
 		expect(
 			command.args,
 		).toStrictEqual(
-			[ 'LPUSH', 'mylist', 'apple', 'banana', '1' ],
+			[ 'LINSERT', 'mylist', 'AFTER', 'bar', 'foo' ],
 		);
 
 		expect(command.replyTransform).toBeUndefined();

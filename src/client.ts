@@ -774,22 +774,359 @@ export class RedisXClient {
 	}
 
 	/**
+	 * Insert all the specified values at the tail of the list stored at key.
+	 *
+	 * If key does not exist, it is created as empty list before performing the push operation.
+	 * When key holds a value that is not a list, an error is returned.
+	 * - Available since: 1.0.0.
+	 * - Multiple elements are available since Redis 2.4.0.
+	 * - Time complexity: O(1) for each element added, so O(N) to add N elements when the command is called with multiple arguments.
+	 * @param key Key to push values to.
+	 * @param elements An array of elements to add to the list.
+	 * @returns The length of the list after the push operation.
+	 * @see {@link https://redis.io/commands/rpush}
+	 */
+	RPUSH(key: string, elements: (string | number)[]): Promise<number>;
+	/**
+	 * Insert all the specified values at the tail of the list stored at key.
+	 *
+	 * If key does not exist, it is created as empty list before performing the push operation.
+	 * When key holds a value that is not a list, an error is returned.
+	 * - Available since: 1.0.0.
+	 * - Multiple elements are available since Redis 2.4.0.
+	 * - Time complexity: O(1) for each element added, so O(N) to add N elements when the command is called with multiple arguments.
+	 * @param key Key to push values to.
+	 * @param elements Elements to add to the list.
+	 * @returns The length of the list after the push operation.
+	 * @see {@link https://redis.io/commands/rpush}
+	 */
+	RPUSH(key: string, ...elements: (string | number)[]): Promise<number>;
+
+	RPUSH(key: string, ...elements: (string | number | (string | number)[])[]): Promise<number> {
+		return this.useCommand(input_rpush(key, ...elements));
+	}
+
+	/**
+	 * Removes and returns the first elements of the list stored at key.
+	 *
+	 * By default, the command pops a single element from the beginning of the list. When provided
+	 * with the optional count argument, the reply will consist of up to count elements, depending
+	 * on the list's length.
+	 *
+	 * - Available since: 1.0.0.
+	 * - Time complexity: O(N) where N is the number of elements returned.
+	 * @param key The key of the list.
+	 * @returns The value of the first element, or `null` when key does not exist.
+	 * @see {@link https://redis.io/commands/lpop}
+	 */
+	LPOP(key: string): Promise<string | null>;
+	/**
+	 * Removes and returns the first elements of the list stored at key.
+	 *
+	 * By default, the command pops a single element from the beginning of the list. When provided
+	 * with the optional count argument, the reply will consist of up to count elements, depending
+	 * on the list's length.
+	 *
+	 * - Available since: 6.2.0 (for the count argument).
+	 * - Time complexity: O(N) where N is the number of elements returned.
+	 * @param key The key of the list.
+	 * @param count The number of elements to pop.
+	 * @returns An array of popped elements, or `null` when key does not exist.
+	 * @see {@link https://redis.io/commands/lpop}
+	 */
+	LPOP(key: string, count: number): Promise<string[] | null>;
+
+	LPOP(key: string, count?: number): Promise<string | string[] | null> {
+		return this.useCommand(input_lpop(key, count));
+	}
+
+	/**
+	 * Atomically returns and removes the last element (tail) of the list stored at source,
+	 * and pushes the element at the first element (head) of the list stored at destination.
+	 *
+	 * For example: consider source holding the list a,b,c, and destination holding the list x,y,z.
+	 * Executing RPOPLPUSH results in source holding a,b and destination holding c,x,y,z.
+	 *
+	 * If source does not exist, the value nil is returned and no operation is performed.
+	 * If source and destination are the same, the operation is equivalent to removing the
+	 * last element from the list and pushing it as first element of the list, so it can be
+	 * considered as a list rotation command.
+	 *
+	 * - Available since: 1.2.0.
+	 * - Time complexity: O(1).
+	 * @deprecated As of Redis version 6.2.0, this command is regarded as deprecated. It can be replaced by LMOVE with the RIGHT and LEFT arguments when migrating or writing new code.
+	 * @param source Source list key.
+	 * @param destination Destination list key.
+	 * @returns The element being popped and pushed, or `null` if the source list is empty.
+	 * @see {@link https://redis.io/commands/rpoplpush}
+	 */
+	RPOPLPUSH(source: string, destination: string): Promise<string | null> {
+		return this.useCommand(input_rpoplpush(source, destination));
+	}
+
+	/**
+	 * Insert all the specified values at the tail of the list stored at key, only if key already exists and holds a list.
+	 * In contrary to RPUSH, no operation will be performed when key does not yet exist.
+	 *
+	 * - Available since: 2.2.0.
+	 * - Multiple elements are available since Redis 4.0.0.
+	 * - Time complexity: O(1) for each element added, so O(N) to add N elements when the command is called with multiple arguments.
+	 * @param key Key to push values to.
+	 * @param elements An array of elements to add to the list.
+	 * @returns The length of the list after the push operation.
+	 * @see {@link https://redis.io/commands/rpushx}
+	 */
+	RPUSHX(key: string, elements: (string | number)[]): Promise<number>;
+	/**
+	 * Insert all the specified values at the tail of the list stored at key, only if key already exists and holds a list.
+	 * In contrary to RPUSH, no operation will be performed when key does not yet exist.
+	 *
+	 * - Available since: 2.2.0.
+	 * - Multiple elements are available since Redis 4.0.0.
+	 * - Time complexity: O(1) for each element added, so O(N) to add N elements when the command is called with multiple arguments.
+	 * @param key Key to push values to.
+	 * @param elements Elements to add to the list.
+	 * @returns The length of the list after the push operation.
+	 * @see {@link https://redis.io/commands/rpushx}
+	 */
+	RPUSHX(key: string, ...elements: (string | number)[]): Promise<number>;
+
+	RPUSHX(key: string, ...elements: (string | number | (string | number)[])[]): Promise<number> {
+		return this.useCommand(input_rpushx(key, ...elements));
+	}
+
+	/**
+	 * Sets the list element at index to element. For more information on the index argument, see LINDEX.
+	 *
+	 * An error is returned for out of range indexes.
+	 *
+	 * - Available since: 1.0.0.
+	 * - Time complexity: O(N) where N is the length of the list. Setting either the first or the last element of the list is O(1).
+	 * @param key The key of the list.
+	 * @param index The index of the element to set. Can be negative to count from the end of the list.
+	 * @param element The new value to set.
+	 * @returns "OK" if successful.
+	 * @see {@link https://redis.io/commands/lset}
+	 */
+	LSET(key: string, index: number, element: string | number): Promise<'OK'> {
+		return this.useCommand(input_lset(key, index, element));
+	}
+
+	/**
+	 * Removes the first count occurrences of elements equal to element from the list stored at key.
+	 * The count argument influences the operation in the following ways:
+	 * - count > 0: Remove elements equal to element moving from head to tail.
+	 * - count < 0: Remove elements equal to element moving from tail to head.
+	 * - count = 0: Remove all elements equal to element.
+	 *
+	 * - Available since: 1.0.0.
+	 * - Time complexity: O(N+M) where N is the length of the list and M is the number of elements removed.
+	 * @param key The key of the list.
+	 * @param count The number of occurrences to remove. Use negative values to start from the tail.
+	 * @param element The element to remove from the list.
+	 * @returns The number of removed elements.
+	 * @see {@link https://redis.io/commands/lrem}
+	 */
+	LREM(key: string, count: number, element: string | number): Promise<number> {
+		return this.useCommand(input_lrem(key, count, element));
+	}
+
+	/**
 	 * Insert all the specified elements at the head of the list stored at key.
 	 *
 	 * If key does not exist, it is created as empty list before performing the push operations.
 	 * - Available since: 1.0.0.
 	 * - Multiple field/value pairs are available since Redis 2.4.0.
 	 * - Time complexity: O(1) for each element added.
-	 * @param key -
-	 * @param elements -
+	 * @param key Key of the list.
+	 * @param elements An array of elements to add to the list.
 	 * @returns The length of the list after the push operation.
 	 * @see {@link https://redis.io/commands/lpush}
 	 */
-	LPUSH(
-		key: string,
-		...elements: (string | number)[]
-	): Promise<number> {
+	LPUSH(key: string, elements: (string | number)[]): Promise<number>;
+	/**
+	 * Insert all the specified elements at the head of the list stored at key.
+	 *
+	 * If key does not exist, it is created as empty list before performing the push operations.
+	 * - Available since: 1.0.0.
+	 * - Multiple field/value pairs are available since Redis 2.4.0.
+	 * - Time complexity: O(1) for each element added.
+	 * @param key Key of the list.
+	 * @param elements Elements to add to the list.
+	 * @returns The length of the list after the push operation.
+	 * @see {@link https://redis.io/commands/lpush}
+	 */
+	LPUSH(key: string, ...elements: (string | number)[]): Promise<number>;
+
+	LPUSH(key: string, ...elements: (string | number | (string | number)[])[]): Promise<number> {
 		return this.useCommand(input_lpush(key, ...elements));
+	}
+
+	/**
+	 * Inserts specified values at the head of the list stored at key, only if key already exists and holds a list.
+	 * In contrary to LPUSH, no operation will be performed when key does not yet exist.
+	 *
+	 * - Available since: 2.2.0.
+	 * - Time complexity: O(1) for each element added, so O(N) to add N elements when the command is called with multiple arguments.
+	 * @param key Key of the list.
+	 * @param elements Element or array of elements to push to the list.
+	 * @returns The length of the list after the push operation.
+	 * @see {@link https://redis.io/commands/lpushx}
+	 */
+	LPUSHX(key: string, elements: (string | number)[]): Promise<number>;
+	/**
+	 * Inserts specified values at the head of the list stored at key, only if key already exists and holds a list.
+	 * In contrary to LPUSH, no operation will be performed when key does not yet exist.
+	 *
+	 * - Available since: 2.2.0.
+	 * - Time complexity: O(1) for each element added, so O(N) to add N elements when the command is called with multiple arguments.
+	 * @param key Key of the list.
+	 * @param elements One or more elements to push to the list.
+	 * @returns The length of the list after the push operation.
+	 * @see {@link https://redis.io/commands/lpushx}
+	 */
+	LPUSHX(key: string, ...elements: (string | number)[]): Promise<number>;
+
+	LPUSHX(key: string, ...elements: (string | number | (string | number)[])[]): Promise<number> {
+		return this.useCommand(input_lpushx(key, ...elements));
+	}
+
+	/**
+	 * Removes and returns the last elements of the list stored at key.
+	 *
+	 * By default, the command pops a single element from the end of the list.
+	 * When provided with the optional count argument, the reply will consist
+	 * of up to count elements, depending on the list's length.
+	 *
+	 * - Available since: 1.0.0.
+	 * - Time complexity: O(N) where N is the number of elements returned.
+	 * @param key The key of the list.
+	 * @returns The value of the last element, or `null` when key does not exist.
+	 * @see {@link https://redis.io/commands/rpop}
+	 */
+	RPOP(key: string): Promise<string | null>;
+	/**
+	 * Removes and returns the last elements of the list stored at key.
+	 *
+	 * By default, the command pops a single element from the end of the list.
+	 * When provided with the optional count argument, the reply will consist
+	 * of up to count elements, depending on the list's length.
+	 *
+	 * - Available since: 6.2.0 (for the count argument).
+	 * - Time complexity: O(N) where N is the number of elements returned.
+	 * @param key The key of the list.
+	 * @param count The number of elements to pop.
+	 * @returns Array of popped elements, or `null` when key does not exist.
+	 * @see {@link https://redis.io/commands/rpop}
+	 */
+	RPOP(key: string, count: number): Promise<string[] | null>;
+
+	RPOP(key: string, count?: number): Promise<string | string[] | null> {
+		return this.useCommand(input_rpop(key, count));
+	}
+
+	/**
+	 * Returns the specified elements of the list stored at key. The offsets start and stop
+	 * are zero-based indexes, with 0 being the first element of the list (the head of the list),
+	 * 1 being the next element and so on.
+	 *
+	 * These offsets can also be negative numbers indicating offsets starting at the end of the list.
+	 * For example, -1 is the last element of the list, -2 the penultimate, and so on.
+	 *
+	 * Out of range indexes will not produce an error. If start is larger than the end of the list,
+	 * an empty list is returned. If stop is larger than the actual end of the list, Redis will
+	 * treat it like the last element of the list.
+	 *
+	 * - Available since: 1.0.0.
+	 * - Time complexity: O(S+N) where S is the distance of start offset from HEAD for small lists,
+	 *   from nearest end (HEAD or TAIL) for large lists; and N is the number of elements in the specified range.
+	 * @param key The key of the list.
+	 * @param start The starting position (inclusive, 0-based index).
+	 * @param stop The ending position (inclusive, 0-based index).
+	 * @returns Array of elements in the specified range, or an empty array if the key doesn't exist.
+	 * @see {@link https://redis.io/commands/lrange}
+	 */
+	LRANGE(key: string, start: number, stop: number): Promise<string[]> {
+		return this.useCommand(input_lrange(key, start, stop));
+	}
+
+	/**
+	 * Returns the length of the list stored at key. If key does not exist, it is interpreted as an empty list and 0 is returned.
+	 * An error is returned when the value stored at key is not a list.
+	 *
+	 * - Available since: 1.0.0.
+	 * - Time complexity: O(1).
+	 * @param key Key to get the length of the list for.
+	 * @returns The length of the list at key.
+	 * @see {@link https://redis.io/commands/llen}
+	 */
+	LLEN(key: string): Promise<number> {
+		return this.useCommand(input_llen(key));
+	}
+
+	/**
+	 * Inserts element in the list stored at key either before or after the reference value.
+	 *
+	 * - Available since: 2.2.0.
+	 * - Time complexity: O(N) where N is the number of elements to traverse before seeing the value pivot.
+	 *   This means that inserting somewhere on the left end on the list (head) can be considered O(1)
+	 *   and inserting somewhere on the right end (tail) is O(N).
+	 * @param key Key of the list.
+	 * @param element Element to insert.
+	 * @param options Command options.
+	 * @returns The length of the list after the insert operation, or 0 when the key doesn't exist, or -1 when the pivot wasn't found.
+	 * @see {@link https://redis.io/commands/linsert}
+	 */
+	LINSERT(
+		key: string,
+		element: string | number,
+		options: {
+			BEFORE: string | number,
+		} | {
+			AFTER: string | number,
+		},
+	): Promise<number> {
+		return this.useCommand(input_linsert(key, element, options));
+	}
+
+	/**
+	 * Trim an existing list so that it will contain only the specified range of elements specified.
+	 * Both `start` and `stop` are zero-based indexes, where 0 is the first element of the list (the head),
+	 * 1 the next element and so on.
+	 *
+	 * `start` and `stop` can also be negative numbers indicating offsets from the end of the list,
+	 * where -1 is the last element of the list, -2 the penultimate element and so on.
+	 *
+	 * Out of range indexes will not produce an error: if `start` is larger than the end of the list,
+	 * or `start` > `stop`, the result will be an empty list (which causes key to be removed).
+	 * If `stop` is larger than the end of the list, Redis will treat it like the last element of the list.
+	 *
+	 * - Available since: 1.0.0.
+	 * - Time complexity: O(N) where N is the number of elements to be removed by the operation.
+	 * @param key The key of the list to trim.
+	 * @param start Zero-based index of the first element to keep.
+	 * @param stop Zero-based index of the last element to keep.
+	 * @returns "OK"
+	 * @see {@link https://redis.io/commands/ltrim}
+	 */
+	LTRIM(key: string, start: number, stop: number): Promise<'OK'> {
+		return this.useCommand(input_ltrim(key, start, stop));
+	}
+
+	/**
+	 * Returns the element at index in the list stored at key.
+	 * The index is zero-based, so 0 means the first element, 1 the second element and so on.
+	 * Negative indices can be used to designate elements starting at the tail of the list.
+	 *
+	 * - Available since: 1.0.0.
+	 * - Time complexity: O(N) where N is the number of elements to traverse to get to the element at index. This makes asking for the first or the last element of the list O(1).
+	 * @param key Key of the list.
+	 * @param index Zero-based index of the element to return.
+	 * @returns The requested element, or `null` when index is out of range.
+	 * @see {@link https://redis.io/commands/lindex}
+	 */
+	LINDEX(key: string, index: number): Promise<string | null> {
+		return this.useCommand(input_lindex(key, index));
 	}
 
 	/**
@@ -1451,8 +1788,47 @@ import {
 	input as input_exists,
 } from './commands/generic/exists.js';
 import {
+	input as input_rpush,
+} from './commands/list/rpush.js';
+import {
+	input as input_lpop,
+} from './commands/list/lpop.js';
+import {
+	input as input_rpoplpush,
+} from './commands/list/rpoplpush.js';
+import {
+	input as input_rpushx,
+} from './commands/list/rpushx.js';
+import {
+	input as input_lset,
+} from './commands/list/lset.js';
+import {
+	input as input_lrem,
+} from './commands/list/lrem.js';
+import {
 	input as input_lpush,
 } from './commands/list/lpush.js';
+import {
+	input as input_lpushx,
+} from './commands/list/lpushx.js';
+import {
+	input as input_rpop,
+} from './commands/list/rpop.js';
+import {
+	input as input_lrange,
+} from './commands/list/lrange.js';
+import {
+	input as input_llen,
+} from './commands/list/llen.js';
+import {
+	input as input_linsert,
+} from './commands/list/linsert.js';
+import {
+	input as input_ltrim,
+} from './commands/list/ltrim.js';
+import {
+	input as input_lindex,
+} from './commands/list/lindex.js';
 import {
 	input as input_zcard,
 } from './commands/sorted-set/zcard.js';

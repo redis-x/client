@@ -1,5 +1,3 @@
-/* eslint-disable @stylistic/array-element-newline */
-
 import {
 	test,
 	expect,

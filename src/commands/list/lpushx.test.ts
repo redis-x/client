@@ -5,26 +5,26 @@ import {
 	expect,
 	test,
 } from 'vitest';
-import { input } from './lpush.js';
+import { input } from './lpushx.js';
 
 describe('command', () => {
 	test('array arguments', () => {
-		const command = input('mylist', [ 'apple', 'banana', 1 ]);
+		const command = input('mylist', [ 'Hello', 'World', 123 ]);
 		expect(
 			command.args,
 		).toStrictEqual(
-			[ 'LPUSH', 'mylist', 'apple', 'banana', '1' ],
+			[ 'LPUSHX', 'mylist', 'Hello', 'World', '123' ],
 		);
 
 		expect(command.replyTransform).toBeUndefined();
 	});
 
 	test('rest arguments', () => {
-		const command = input('mylist', 'apple', 'banana', 1);
+		const command = input('mylist', 'Hello', 'World', 123);
 		expect(
 			command.args,
 		).toStrictEqual(
-			[ 'LPUSH', 'mylist', 'apple', 'banana', '1' ],
+			[ 'LPUSHX', 'mylist', 'Hello', 'World', '123' ],
 		);
 
 		expect(command.replyTransform).toBeUndefined();

@@ -1,30 +1,30 @@
 /* eslint-disable @stylistic/array-element-newline */
 
 import {
-	describe,
 	expect,
 	test,
+	describe,
 } from 'vitest';
-import { input } from './lpush.js';
+import { input } from './ltrim.js';
 
 describe('command', () => {
-	test('array arguments', () => {
-		const command = input('mylist', [ 'apple', 'banana', 1 ]);
+	test('positive indexes', () => {
+		const command = input('mylist', 0, 2);
 		expect(
 			command.args,
 		).toStrictEqual(
-			[ 'LPUSH', 'mylist', 'apple', 'banana', '1' ],
+			[ 'LTRIM', 'mylist', '0', '2' ],
 		);
 
 		expect(command.replyTransform).toBeUndefined();
 	});
 
-	test('rest arguments', () => {
-		const command = input('mylist', 'apple', 'banana', 1);
+	test('negative indexes', () => {
+		const command = input('mylist', -3, -1);
 		expect(
 			command.args,
 		).toStrictEqual(
-			[ 'LPUSH', 'mylist', 'apple', 'banana', '1' ],
+			[ 'LTRIM', 'mylist', '-3', '-1' ],
 		);
 
 		expect(command.replyTransform).toBeUndefined();

@@ -1,30 +1,30 @@
 /* eslint-disable @stylistic/array-element-newline */
 
 import {
-	describe,
 	expect,
 	test,
+	describe,
 } from 'vitest';
-import { input } from './lpush.js';
+import { input } from './rpop.js';
 
 describe('command', () => {
-	test('array arguments', () => {
-		const command = input('mylist', [ 'apple', 'banana', 1 ]);
+	test('without count', () => {
+		const command = input('mylist');
 		expect(
 			command.args,
 		).toStrictEqual(
-			[ 'LPUSH', 'mylist', 'apple', 'banana', '1' ],
+			[ 'RPOP', 'mylist' ],
 		);
 
 		expect(command.replyTransform).toBeUndefined();
 	});
 
-	test('rest arguments', () => {
-		const command = input('mylist', 'apple', 'banana', 1);
+	test('with count', () => {
+		const command = input('mylist', 2);
 		expect(
 			command.args,
 		).toStrictEqual(
-			[ 'LPUSH', 'mylist', 'apple', 'banana', '1' ],
+			[ 'RPOP', 'mylist', '2' ],
 		);
 
 		expect(command.replyTransform).toBeUndefined();

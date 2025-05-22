@@ -254,7 +254,7 @@ X / Y / (1/7)
 | ------------------------------------------------- | - |
 | [Generic](src/commands/generic)                   | 🟩🟩🟩🟨🟥🟥🟥 <br> **16** / 32 |
 | [Hash](src/commands/hash)                         | 🟩🟩🟩🟨🟥🟥🟥 <br> **14** / 28 |
-| [List](src/commands/list)                         | 🟥🟥🟥🟥🟥🟥🟥 <br>  **1** / 22 |
+| [List](src/commands/list)                         | 🟩🟩🟩🟩🟥🟥🟥 <br> **14** / 22 |
 | [Scripting and Functions](src/commands/scripting) | 🟥🟥🟥🟥🟥🟥🟥 <br>  **1** / 19 |
 | [Set](src/commands/set)                           | 🟩🟩🟥🟥🟥🟥🟥 <br>  **6** / 17 |
 | [Sorted Set](src/commands/sorted-set)             | 🟩🟥🟥🟥🟥🟥🟥 <br>  **6** / 35 |
