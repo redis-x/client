@@ -258,6 +258,7 @@ X / Y / (1/7)
 | [Scripting and Functions](src/commands/scripting) | 🟥🟥🟥🟥🟥🟥🟥 <br>  **1** / 19 |
 | [Set](src/commands/set)                           | 🟩🟩🟥🟥🟥🟥🟥 <br>  **6** / 17 |
 | [Sorted Set](src/commands/sorted-set)             | 🟩🟩🟥🟥🟥🟥🟥 <br> **10** / 35 |
+| [Stream](src/commands/stream)                     | 🟩🟨🟥🟥🟥🟥🟥 <br>  **5** / 21 |
 | [String](src/commands/string)                     | 🟩🟩🟩🟩🟩🟩🟨 <br> **21** / 22 |
 
 <!--
@@ -267,5 +268,4 @@ More sections to come:
 | [Geospatial indices](src/commands/geospatial) | 🟥🟥🟥🟥🟥🟥🟥 <br>  **0** / 10 |
 | [Pub/Sub](src/commands/pub-sub) | 🟥🟥🟥🟥🟥🟥🟥 <br>  **0** / 13 |
 | [Server management](src/commands/server) | 🟥🟥🟥🟥🟥🟥🟥 <br>  **0** / 62 |
-| [Stream](src/commands/stream) | 🟥🟥🟥🟥🟥🟥🟥 <br>  **0** / 21 |
 -->

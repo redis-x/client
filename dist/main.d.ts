@@ -319,7 +319,7 @@ type PexpireatOptions = {
 };
 
 //#endregion
-//#region src/commands/sorted-set/zrangebyscore.d.ts
+//#region src/commands/stream/xread.d.ts
 /**
 * This command has the same effect and semantic as EXPIREAT, but the Unix time at which the key will expire is specified in milliseconds instead of seconds.
 * - Available since: 2.6.0.
@@ -331,6 +331,87 @@ type PexpireatOptions = {
 * @see {@link https://redis.io/commands/pexpireat}
 * @see {@link https://redis.io/commands/expireat}
 */
+type XreadId = `${number}-${number}` | `${number}` | "$" | "+";
+type XReadOptions = {
+  /**
+  * Maximum number of entries to return per stream.
+  * - Available since: 5.0.0.
+  */
+  COUNT?: number;
+  /**
+  * Block for the specified amount of time in milliseconds if no entries are available.
+  * If not specified, the command will return immediately.
+  * - Available since: 5.0.0.
+  */
+  BLOCK?: number;
+};
+type XStreamEntry = {
+  id: string;
+  data: Record<string, string>;
+};
+
+//#endregion
+//#region src/commands/stream/xadd.d.ts
+type XaddOptions = {
+  trim?: {
+    /**
+    * When specified, limits the stream to the specified threshold.
+    * With MAXLEN, the stream is limited by the number of entries.
+    * With MINID, the stream is limited by the minimum ID.
+    * - Available since: 5.0.0 for MAXLEN, 6.2.0 for MINID.
+    */
+    strategy: "MAXLEN" | "MINID";
+    /**
+    * Exact trimming or almost exact trimming.
+    * When `~` is specified, the trimming will be performed in a more efficient way, but may
+    * leave a few more items than the specified threshold.
+    * When `=` is specified (or when not specified at all), the trimming will be exact.
+    * - Available since: 5.0.0.
+    */
+    operator?: "~" | "=";
+    /**
+    * The threshold used for trimming. With MAXLEN, it represents the maximum number of
+    * entries. With MINID, it represents the minimum ID.
+    * - Available since: 5.0.0.
+    */
+    threshold: string | number;
+    /**
+    * The maximum number of entries to trim. By default, all entries that exceed the threshold
+    * are removed. With LIMIT, only the specified number of entries are removed.
+    * - Available since: 6.2.0.
+    */
+    LIMIT?: number;
+  };
+};
+type XaddOptionsNomkstream = {
+  /**
+  * Do not create the key if it does not exist. By default, the key is created automatically
+  * if it doesn't exist.
+  * - Available since: 6.2.0.
+  */
+  NOMKSTREAM: boolean;
+};
+
+//#endregion
+//#region src/commands/stream/xtrim.d.ts
+type XtrimOptions = {
+  /**
+  * When specified, Redis will stop trimming early when performance can be gained.
+  * The stream may have few tens of additional entries over the threshold.
+  * - Available since: 5.0.0.
+  */
+  trimOperator?: "~" | "=";
+  /**
+  * Specifies the maximal count of entries that will be evicted.
+  * When not specified, the default value of 100 * the number of entries in a macro node will be implicitly used.
+  * Specifying the value 0 disables the limiting mechanism entirely.
+  * - Available since: 6.2.0.
+  */
+  LIMIT?: number;
+};
+
+//#endregion
+//#region src/commands/sorted-set/zrangebyscore.d.ts
 type ZrangebyscoreOptions = {
   /**
   * Returns only a specified range of elements. Start and count are zero-based indexes, inclusive.
@@ -1366,6 +1447,142 @@ declare class RedisXTransactionUse {
   * @see {@link https://redis.io/commands/lindex}
   */
   LINDEX(key: string, index: number): RedisXTransactionCommand<string | null>;
+  /**
+  * Returns the number of entries inside a stream. If the specified key does not exist
+  * the command returns zero, as if the stream was empty. However note that unlike other
+  * Redis types, zero-length streams are possible, so you should call TYPE or EXISTS in
+  * order to check if a key exists or not.
+  *
+  * Streams are not auto-deleted once they have no entries inside (for instance after an
+  * XDEL call), because the stream may have consumer groups associated with it.
+  *
+  * - Available since: 5.0.0.
+  * - Time complexity: O(1).
+  * @param key The key of the stream.
+  * @returns The number of entries of the stream at key.
+  * @see {@link https://redis.io/commands/xlen}
+  */
+  XLEN(key: string): RedisXTransactionCommand<number>;
+  /**
+  * Removes the specified entries from a stream, and returns the number of entries deleted.
+  * This number may be less than the number of IDs passed to the command in the case where
+  * some of the specified IDs do not exist in the stream.
+  *
+  * - Available since: 5.0.0.
+  * - Time complexity: O(1) for each single item to delete in the stream, regardless of the stream size.
+  * @param key The key of the stream.
+  * @param ids The IDs of the entries to remove.
+  * @returns The number of entries actually deleted.
+  * @see {@link https://redis.io/commands/xdel}
+  */
+  XDEL(key: string, ids: `${number}-${number}`[]): RedisXTransactionCommand<number>;
+  /**
+  * Removes the specified entries from a stream, and returns the number of entries deleted.
+  * This number may be less than the number of IDs passed to the command in the case where
+  * some of the specified IDs do not exist in the stream.
+  *
+  * - Available since: 5.0.0.
+  * - Time complexity: O(1) for each single item to delete in the stream, regardless of the stream size.
+  * @param key The key of the stream.
+  * @param ids The IDs of the entries to remove.
+  * @returns The number of entries actually deleted.
+  * @see {@link https://redis.io/commands/xdel}
+  */
+  XDEL(key: string, ...ids: `${number}-${number}`[]): RedisXTransactionCommand<number>;
+  /**
+  * Read data from one or multiple streams, only returning entries with an ID greater than the last received ID reported by the caller.
+  *
+  * - Available since: 5.0.0.
+  * - Time complexity: O(N) where N is the number of entries returned.
+  * @param key The name of the stream to read from.
+  * @param id The last ID received from the stream.
+  * @param options Command options.
+  * @returns An array of stream entries or `null` if no entries are available.
+  * @see {@link https://redis.io/commands/xread}
+  */
+  XREAD(key: string, id: XreadId, options?: XReadOptions): RedisXTransactionCommand<XStreamEntry[]>;
+  /**
+  * Read data from one or multiple streams, only returning entries with an ID greater than the last received ID reported by the caller.
+  *
+  * - Available since: 5.0.0.
+  * - Time complexity: O(N) where N is the number of entries returned.
+  * @param streams Object where keys are stream names and values are the last IDs received from those streams.
+  * @param options Command options.
+  * @returns An object where keys are stream names and values are arrays of stream entries or `null` if no entries are available.
+  * @see {@link https://redis.io/commands/xread}
+  */
+  XREAD<const S extends Record<string, XreadId>>(streams: S, options?: XReadOptions): RedisXTransactionCommand<{ [K in keyof S]: XStreamEntry[] }>;
+  /**
+  * Appends the specified stream entry to the stream at the specified key.
+  * If the key does not exist, as a side effect of running this command the key is created
+  * with a stream value. The creation of stream's key can be disabled with the NOMKSTREAM option.
+  * - Available since: 5.0.0.
+  * - Time complexity: O(1) when adding a new entry, O(N) when trimming where N being the number of entries evicted.
+  * @param key The key of the stream.
+  * @param id The ID of the entry to add. Use * to auto-generate an ID. You can also specify a custom ID.
+  * @param pairs A key-value pairs to add to the stream. Must be an even number of arguments.
+  * @returns The ID of the added entry.
+  * @see {@link https://redis.io/commands/xadd}
+  */
+  XADD(key: string, id: `${number}-${number | "*"}` | "*", pairs: Record<string, string | number>): RedisXTransactionCommand<string>;
+  /**
+  * Appends the specified stream entry to the stream at the specified key.
+  * If the key does not exist, as a side effect of running this command the key is created
+  * with a stream value. The creation of stream's key can be disabled with the NOMKSTREAM option.
+  * - Available since: 5.0.0.
+  * - Time complexity: O(1) when adding a new entry, O(N) when trimming where N being the number of entries evicted.
+  * @param key The key of the stream.
+  * @param id The ID of the entry to add. Use * to auto-generate an ID. You can also specify a custom ID.
+  * @param pairs A key-value pairs to add to the stream. Must be an even number of arguments.
+  * @param options Command options.
+  * @returns The ID of the added entry.
+  * @see {@link https://redis.io/commands/xadd}
+  */
+  XADD(key: string, id: `${number}-${number | "*"}` | "*", pairs: Record<string, string | number>, options: XaddOptions): RedisXTransactionCommand<string>;
+  /**
+  * Appends the specified stream entry to the stream at the specified key.
+  * If the key does not exist, as a side effect of running this command the key is created
+  * with a stream value. The creation of stream's key can be disabled with the NOMKSTREAM option.
+  * - Available since: 5.0.0.
+  * - Time complexity: O(1) when adding a new entry, O(N) when trimming where N being the number of entries evicted.
+  * @param key The key of the stream.
+  * @param id The ID of the entry to add. Use * to auto-generate an ID. You can also specify a custom ID.
+  * @param pairs A key-value pairs to add to the stream. Must be an even number of arguments.
+  * @param options Command options.
+  * @returns The ID of the added entry, or `null` the key doesn't exist.
+  * @see {@link https://redis.io/commands/xadd}
+  */
+  XADD(key: string, id: `${number}-${number | "*"}` | "*", pairs: Record<string, string | number>, options: XaddOptions & XaddOptionsNomkstream): RedisXTransactionCommand<string | null>;
+  /**
+  * Trims the stream by evicting older entries (entries with lower IDs) if needed.
+  *
+  * Using MAXLEN strategy which evicts entries as long as the stream's length exceeds the specified threshold.
+  *
+  * - Available since: 5.0.0.
+  * - Time complexity: O(N), with N being the number of evicted entries.
+  * @param key The key of the stream.
+  * @param strategy The MAXLEN trimming strategy.
+  * @param threshold A positive integer representing the max length.
+  * @param options Additional options.
+  * @returns The number of entries deleted from the stream.
+  * @see {@link https://redis.io/commands/xtrim}
+  */
+  XTRIM(key: string, strategy: "MAXLEN", threshold: number, options?: XtrimOptions): RedisXTransactionCommand<number>;
+  /**
+  * Trims the stream by evicting older entries (entries with lower IDs) if needed.
+  *
+  * Using MINID strategy which evicts entries with IDs lower than threshold.
+  *
+  * - Available since: 6.2.0.
+  * - Time complexity: O(N), with N being the number of evicted entries.
+  * @param key The key of the stream.
+  * @param strategy The MINID trimming strategy.
+  * @param threshold A stream ID threshold in the format of "timestamp-sequence" or "timestamp".
+  * @param options Additional options.
+  * @returns The number of entries deleted from the stream.
+  * @see {@link https://redis.io/commands/xtrim}
+  */
+  XTRIM(key: string, strategy: "MINID", threshold: string, options?: XtrimOptions): RedisXTransactionCommand<number>;
   /**
   * Returns the sorted set cardinality (number of elements) of the sorted set stored at key.
   * - Available since: 1.2.0.
@@ -2727,6 +2944,142 @@ declare class RedisXTransaction<L = [], C extends boolean = false, D = unknown> 
   */
   LINDEX(key: string, index: number): RedisXTransaction<AddToList<L, string | null>, C, D>;
   /**
+  * Returns the number of entries inside a stream. If the specified key does not exist
+  * the command returns zero, as if the stream was empty. However note that unlike other
+  * Redis types, zero-length streams are possible, so you should call TYPE or EXISTS in
+  * order to check if a key exists or not.
+  *
+  * Streams are not auto-deleted once they have no entries inside (for instance after an
+  * XDEL call), because the stream may have consumer groups associated with it.
+  *
+  * - Available since: 5.0.0.
+  * - Time complexity: O(1).
+  * @param key The key of the stream.
+  * @returns The number of entries of the stream at key.
+  * @see {@link https://redis.io/commands/xlen}
+  */
+  XLEN(key: string): RedisXTransaction<AddToList<L, number>, C, D>;
+  /**
+  * Removes the specified entries from a stream, and returns the number of entries deleted.
+  * This number may be less than the number of IDs passed to the command in the case where
+  * some of the specified IDs do not exist in the stream.
+  *
+  * - Available since: 5.0.0.
+  * - Time complexity: O(1) for each single item to delete in the stream, regardless of the stream size.
+  * @param key The key of the stream.
+  * @param ids The IDs of the entries to remove.
+  * @returns The number of entries actually deleted.
+  * @see {@link https://redis.io/commands/xdel}
+  */
+  XDEL(key: string, ids: `${number}-${number}`[]): RedisXTransaction<AddToList<L, number>, C, D>;
+  /**
+  * Removes the specified entries from a stream, and returns the number of entries deleted.
+  * This number may be less than the number of IDs passed to the command in the case where
+  * some of the specified IDs do not exist in the stream.
+  *
+  * - Available since: 5.0.0.
+  * - Time complexity: O(1) for each single item to delete in the stream, regardless of the stream size.
+  * @param key The key of the stream.
+  * @param ids The IDs of the entries to remove.
+  * @returns The number of entries actually deleted.
+  * @see {@link https://redis.io/commands/xdel}
+  */
+  XDEL(key: string, ...ids: `${number}-${number}`[]): RedisXTransaction<AddToList<L, number>, C, D>;
+  /**
+  * Read data from one or multiple streams, only returning entries with an ID greater than the last received ID reported by the caller.
+  *
+  * - Available since: 5.0.0.
+  * - Time complexity: O(N) where N is the number of entries returned.
+  * @param key The name of the stream to read from.
+  * @param id The last ID received from the stream.
+  * @param options Command options.
+  * @returns An array of stream entries or `null` if no entries are available.
+  * @see {@link https://redis.io/commands/xread}
+  */
+  XREAD(key: string, id: XreadId, options?: XReadOptions): RedisXTransaction<AddToList<L, XStreamEntry[]>, C, D>;
+  /**
+  * Read data from one or multiple streams, only returning entries with an ID greater than the last received ID reported by the caller.
+  *
+  * - Available since: 5.0.0.
+  * - Time complexity: O(N) where N is the number of entries returned.
+  * @param streams Object where keys are stream names and values are the last IDs received from those streams.
+  * @param options Command options.
+  * @returns An object where keys are stream names and values are arrays of stream entries or `null` if no entries are available.
+  * @see {@link https://redis.io/commands/xread}
+  */
+  XREAD<const S extends Record<string, XreadId>>(streams: S, options?: XReadOptions): RedisXTransaction<AddToList<L, { [K in keyof S]: XStreamEntry[] }>, C, D>;
+  /**
+  * Appends the specified stream entry to the stream at the specified key.
+  * If the key does not exist, as a side effect of running this command the key is created
+  * with a stream value. The creation of stream's key can be disabled with the NOMKSTREAM option.
+  * - Available since: 5.0.0.
+  * - Time complexity: O(1) when adding a new entry, O(N) when trimming where N being the number of entries evicted.
+  * @param key The key of the stream.
+  * @param id The ID of the entry to add. Use * to auto-generate an ID. You can also specify a custom ID.
+  * @param pairs A key-value pairs to add to the stream. Must be an even number of arguments.
+  * @returns The ID of the added entry.
+  * @see {@link https://redis.io/commands/xadd}
+  */
+  XADD(key: string, id: `${number}-${number | "*"}` | "*", pairs: Record<string, string | number>): RedisXTransaction<AddToList<L, string>, C, D>;
+  /**
+  * Appends the specified stream entry to the stream at the specified key.
+  * If the key does not exist, as a side effect of running this command the key is created
+  * with a stream value. The creation of stream's key can be disabled with the NOMKSTREAM option.
+  * - Available since: 5.0.0.
+  * - Time complexity: O(1) when adding a new entry, O(N) when trimming where N being the number of entries evicted.
+  * @param key The key of the stream.
+  * @param id The ID of the entry to add. Use * to auto-generate an ID. You can also specify a custom ID.
+  * @param pairs A key-value pairs to add to the stream. Must be an even number of arguments.
+  * @param options Command options.
+  * @returns The ID of the added entry.
+  * @see {@link https://redis.io/commands/xadd}
+  */
+  XADD(key: string, id: `${number}-${number | "*"}` | "*", pairs: Record<string, string | number>, options: XaddOptions): RedisXTransaction<AddToList<L, string>, C, D>;
+  /**
+  * Appends the specified stream entry to the stream at the specified key.
+  * If the key does not exist, as a side effect of running this command the key is created
+  * with a stream value. The creation of stream's key can be disabled with the NOMKSTREAM option.
+  * - Available since: 5.0.0.
+  * - Time complexity: O(1) when adding a new entry, O(N) when trimming where N being the number of entries evicted.
+  * @param key The key of the stream.
+  * @param id The ID of the entry to add. Use * to auto-generate an ID. You can also specify a custom ID.
+  * @param pairs A key-value pairs to add to the stream. Must be an even number of arguments.
+  * @param options Command options.
+  * @returns The ID of the added entry, or `null` the key doesn't exist.
+  * @see {@link https://redis.io/commands/xadd}
+  */
+  XADD(key: string, id: `${number}-${number | "*"}` | "*", pairs: Record<string, string | number>, options: XaddOptions & XaddOptionsNomkstream): RedisXTransaction<AddToList<L, string | null>, C, D>;
+  /**
+  * Trims the stream by evicting older entries (entries with lower IDs) if needed.
+  *
+  * Using MAXLEN strategy which evicts entries as long as the stream's length exceeds the specified threshold.
+  *
+  * - Available since: 5.0.0.
+  * - Time complexity: O(N), with N being the number of evicted entries.
+  * @param key The key of the stream.
+  * @param strategy The MAXLEN trimming strategy.
+  * @param threshold A positive integer representing the max length.
+  * @param options Additional options.
+  * @returns The number of entries deleted from the stream.
+  * @see {@link https://redis.io/commands/xtrim}
+  */
+  XTRIM(key: string, strategy: "MAXLEN", threshold: number, options?: XtrimOptions): RedisXTransaction<AddToList<L, number>, C, D>;
+  /**
+  * Trims the stream by evicting older entries (entries with lower IDs) if needed.
+  *
+  * Using MINID strategy which evicts entries with IDs lower than threshold.
+  *
+  * - Available since: 6.2.0.
+  * - Time complexity: O(N), with N being the number of evicted entries.
+  * @param key The key of the stream.
+  * @param strategy The MINID trimming strategy.
+  * @param threshold A stream ID threshold in the format of "timestamp-sequence" or "timestamp".
+  * @param options Additional options.
+  * @returns The number of entries deleted from the stream.
+  * @see {@link https://redis.io/commands/xtrim}
+  */
+  XTRIM(key: string, strategy: "MINID", threshold: string, options?: XtrimOptions): RedisXTransaction<AddToList<L, number>, C, D>;
+  /**
   * Returns the sorted set cardinality (number of elements) of the sorted set stored at key.
   * - Available since: 1.2.0.
   * - Time complexity: O(1).
@@ -4072,6 +4425,142 @@ declare class RedisXClient {
   * @see {@link https://redis.io/commands/lindex}
   */
   LINDEX(key: string, index: number): Promise<string | null>;
+  /**
+  * Returns the number of entries inside a stream. If the specified key does not exist
+  * the command returns zero, as if the stream was empty. However note that unlike other
+  * Redis types, zero-length streams are possible, so you should call TYPE or EXISTS in
+  * order to check if a key exists or not.
+  *
+  * Streams are not auto-deleted once they have no entries inside (for instance after an
+  * XDEL call), because the stream may have consumer groups associated with it.
+  *
+  * - Available since: 5.0.0.
+  * - Time complexity: O(1).
+  * @param key The key of the stream.
+  * @returns The number of entries of the stream at key.
+  * @see {@link https://redis.io/commands/xlen}
+  */
+  XLEN(key: string): Promise<number>;
+  /**
+  * Removes the specified entries from a stream, and returns the number of entries deleted.
+  * This number may be less than the number of IDs passed to the command in the case where
+  * some of the specified IDs do not exist in the stream.
+  *
+  * - Available since: 5.0.0.
+  * - Time complexity: O(1) for each single item to delete in the stream, regardless of the stream size.
+  * @param key The key of the stream.
+  * @param ids The IDs of the entries to remove.
+  * @returns The number of entries actually deleted.
+  * @see {@link https://redis.io/commands/xdel}
+  */
+  XDEL(key: string, ids: `${number}-${number}`[]): Promise<number>;
+  /**
+  * Removes the specified entries from a stream, and returns the number of entries deleted.
+  * This number may be less than the number of IDs passed to the command in the case where
+  * some of the specified IDs do not exist in the stream.
+  *
+  * - Available since: 5.0.0.
+  * - Time complexity: O(1) for each single item to delete in the stream, regardless of the stream size.
+  * @param key The key of the stream.
+  * @param ids The IDs of the entries to remove.
+  * @returns The number of entries actually deleted.
+  * @see {@link https://redis.io/commands/xdel}
+  */
+  XDEL(key: string, ...ids: `${number}-${number}`[]): Promise<number>;
+  /**
+  * Read data from one or multiple streams, only returning entries with an ID greater than the last received ID reported by the caller.
+  *
+  * - Available since: 5.0.0.
+  * - Time complexity: O(N) where N is the number of entries returned.
+  * @param key The name of the stream to read from.
+  * @param id The last ID received from the stream.
+  * @param options Command options.
+  * @returns An array of stream entries or `null` if no entries are available.
+  * @see {@link https://redis.io/commands/xread}
+  */
+  XREAD(key: string, id: XreadId, options?: XReadOptions): Promise<XStreamEntry[]>;
+  /**
+  * Read data from one or multiple streams, only returning entries with an ID greater than the last received ID reported by the caller.
+  *
+  * - Available since: 5.0.0.
+  * - Time complexity: O(N) where N is the number of entries returned.
+  * @param streams Object where keys are stream names and values are the last IDs received from those streams.
+  * @param options Command options.
+  * @returns An object where keys are stream names and values are arrays of stream entries or `null` if no entries are available.
+  * @see {@link https://redis.io/commands/xread}
+  */
+  XREAD<const S extends Record<string, XreadId>>(streams: S, options?: XReadOptions): Promise<{ [K in keyof S]: XStreamEntry[] }>;
+  /**
+  * Appends the specified stream entry to the stream at the specified key.
+  * If the key does not exist, as a side effect of running this command the key is created
+  * with a stream value. The creation of stream's key can be disabled with the NOMKSTREAM option.
+  * - Available since: 5.0.0.
+  * - Time complexity: O(1) when adding a new entry, O(N) when trimming where N being the number of entries evicted.
+  * @param key The key of the stream.
+  * @param id The ID of the entry to add. Use * to auto-generate an ID. You can also specify a custom ID.
+  * @param pairs A key-value pairs to add to the stream. Must be an even number of arguments.
+  * @returns The ID of the added entry.
+  * @see {@link https://redis.io/commands/xadd}
+  */
+  XADD(key: string, id: `${number}-${number | "*"}` | "*", pairs: Record<string, string | number>): Promise<string>;
+  /**
+  * Appends the specified stream entry to the stream at the specified key.
+  * If the key does not exist, as a side effect of running this command the key is created
+  * with a stream value. The creation of stream's key can be disabled with the NOMKSTREAM option.
+  * - Available since: 5.0.0.
+  * - Time complexity: O(1) when adding a new entry, O(N) when trimming where N being the number of entries evicted.
+  * @param key The key of the stream.
+  * @param id The ID of the entry to add. Use * to auto-generate an ID. You can also specify a custom ID.
+  * @param pairs A key-value pairs to add to the stream. Must be an even number of arguments.
+  * @param options Command options.
+  * @returns The ID of the added entry.
+  * @see {@link https://redis.io/commands/xadd}
+  */
+  XADD(key: string, id: `${number}-${number | "*"}` | "*", pairs: Record<string, string | number>, options: XaddOptions): Promise<string>;
+  /**
+  * Appends the specified stream entry to the stream at the specified key.
+  * If the key does not exist, as a side effect of running this command the key is created
+  * with a stream value. The creation of stream's key can be disabled with the NOMKSTREAM option.
+  * - Available since: 5.0.0.
+  * - Time complexity: O(1) when adding a new entry, O(N) when trimming where N being the number of entries evicted.
+  * @param key The key of the stream.
+  * @param id The ID of the entry to add. Use * to auto-generate an ID. You can also specify a custom ID.
+  * @param pairs A key-value pairs to add to the stream. Must be an even number of arguments.
+  * @param options Command options.
+  * @returns The ID of the added entry, or `null` the key doesn't exist.
+  * @see {@link https://redis.io/commands/xadd}
+  */
+  XADD(key: string, id: `${number}-${number | "*"}` | "*", pairs: Record<string, string | number>, options: XaddOptions & XaddOptionsNomkstream): Promise<string | null>;
+  /**
+  * Trims the stream by evicting older entries (entries with lower IDs) if needed.
+  *
+  * Using MAXLEN strategy which evicts entries as long as the stream's length exceeds the specified threshold.
+  *
+  * - Available since: 5.0.0.
+  * - Time complexity: O(N), with N being the number of evicted entries.
+  * @param key The key of the stream.
+  * @param strategy The MAXLEN trimming strategy.
+  * @param threshold A positive integer representing the max length.
+  * @param options Additional options.
+  * @returns The number of entries deleted from the stream.
+  * @see {@link https://redis.io/commands/xtrim}
+  */
+  XTRIM(key: string, strategy: "MAXLEN", threshold: number, options?: XtrimOptions): Promise<number>;
+  /**
+  * Trims the stream by evicting older entries (entries with lower IDs) if needed.
+  *
+  * Using MINID strategy which evicts entries with IDs lower than threshold.
+  *
+  * - Available since: 6.2.0.
+  * - Time complexity: O(N), with N being the number of evicted entries.
+  * @param key The key of the stream.
+  * @param strategy The MINID trimming strategy.
+  * @param threshold A stream ID threshold in the format of "timestamp-sequence" or "timestamp".
+  * @param options Additional options.
+  * @returns The number of entries deleted from the stream.
+  * @see {@link https://redis.io/commands/xtrim}
+  */
+  XTRIM(key: string, strategy: "MINID", threshold: string, options?: XtrimOptions): Promise<number>;
   /**
   * Returns the sorted set cardinality (number of elements) of the sorted set stored at key.
   * - Available since: 1.2.0.
