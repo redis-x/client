@@ -1,5 +1,8 @@
 # redis-x
 
+[![npm version](https://img.shields.io/npm/v/@redis-x/client.svg)](https://www.npmjs.com/package/@redis-x/client)
+[![license](https://img.shields.io/npm/l/@redis-x/client.svg?color=blue)](https://github.com/redis-x/client/blob/main/LICENSE)
+
 A strongly-typed Redis client built on top of the standard "redis" package, providing improved TypeScript support, intuitive transaction handling, and automatic data transformations.
 
 ## Features
@@ -13,11 +16,10 @@ A strongly-typed Redis client built on top of the standard "redis" package, prov
 ## Installation
 
 ```bash
-# Using bun
-bun add @redis-x/client redis
-# Using pnpm
+bun i @redis-x/client redis
+# or with pnpm
 pnpm add @redis-x/client redis
-# Using npm
+# or with npm
 npm install @redis-x/client redis
 ```
 
