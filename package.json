@@ -6,11 +6,11 @@
 		"access": "public"
 	},
 	"type": "module",
-	"main": "dist/esm/main.js",
-	"types": "dist/esm/main.d.ts",
+	"main": "dist/main.js",
+	"types": "dist/main.d.ts",
 	"exports": {
 		".": {
-			"import": "./dist/esm/main.js",
+			"import": "./dist/main.js",
 			"require": "./dist/main.cjs"
 		}
 	},
