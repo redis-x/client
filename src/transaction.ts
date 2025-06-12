@@ -1344,7 +1344,7 @@ export class RedisXTransaction<
 	XADD(
 		key: string,
 		id: `${number}-${number | '*'}` | '*',
-		pairs: Record<string, string | number>,
+		pairs: XaddPairs,
 	): RedisXTransaction<AddToList<L, string>, C, D>;
 	/**
 	 * Appends the specified stream entry to the stream at the specified key.
@@ -1362,7 +1362,7 @@ export class RedisXTransaction<
 	XADD(
 		key: string,
 		id: `${number}-${number | '*'}` | '*',
-		pairs: Record<string, string | number>,
+		pairs: XaddPairs,
 		options: XaddOptions,
 	): RedisXTransaction<AddToList<L, string>, C, D>;
 	/**
@@ -1381,14 +1381,14 @@ export class RedisXTransaction<
 	XADD(
 		key: string,
 		id: `${number}-${number | '*'}` | '*',
-		pairs: Record<string, string | number>,
+		pairs: XaddPairs,
 		options: XaddOptions & XaddOptionsNomkstream,
 	): RedisXTransaction<AddToList<L, string | null>, C, D>;
 
 	XADD(
 		key: string,
 		id: `${number}-${number | '*'}` | '*',
-		pairs: Record<string, string | number | undefined>,
+		pairs: XaddPairs,
 		options?: XaddOptions & Partial<XaddOptionsNomkstream>,
 	): RedisXTransaction<AddToList<L, string | null>, C, D> {
 		return this.useCommand(input_xadd(key, id, pairs, options));
@@ -2306,6 +2306,7 @@ import {
 	input as input_xread,
 } from './commands/stream/xread.js';
 import {
+	type XaddPairs,
 	type XaddOptions,
 	type XaddOptionsNomkstream,
 	input as input_xadd,

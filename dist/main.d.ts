@@ -352,6 +352,7 @@ type XStreamEntry = {
 
 //#endregion
 //#region src/commands/stream/xadd.d.ts
+type XaddPairs = Record<string, string | number | undefined>;
 type XaddOptions = {
   trim?: {
     /**
@@ -1524,7 +1525,7 @@ declare class RedisXTransactionUse {
   * @returns The ID of the added entry.
   * @see {@link https://redis.io/commands/xadd}
   */
-  XADD(key: string, id: `${number}-${number | "*"}` | "*", pairs: Record<string, string | number>): RedisXTransactionCommand<string>;
+  XADD(key: string, id: `${number}-${number | "*"}` | "*", pairs: XaddPairs): RedisXTransactionCommand<string>;
   /**
   * Appends the specified stream entry to the stream at the specified key.
   * If the key does not exist, as a side effect of running this command the key is created
@@ -1538,7 +1539,7 @@ declare class RedisXTransactionUse {
   * @returns The ID of the added entry.
   * @see {@link https://redis.io/commands/xadd}
   */
-  XADD(key: string, id: `${number}-${number | "*"}` | "*", pairs: Record<string, string | number>, options: XaddOptions): RedisXTransactionCommand<string>;
+  XADD(key: string, id: `${number}-${number | "*"}` | "*", pairs: XaddPairs, options: XaddOptions): RedisXTransactionCommand<string>;
   /**
   * Appends the specified stream entry to the stream at the specified key.
   * If the key does not exist, as a side effect of running this command the key is created
@@ -1552,7 +1553,7 @@ declare class RedisXTransactionUse {
   * @returns The ID of the added entry, or `null` the key doesn't exist.
   * @see {@link https://redis.io/commands/xadd}
   */
-  XADD(key: string, id: `${number}-${number | "*"}` | "*", pairs: Record<string, string | number>, options: XaddOptions & XaddOptionsNomkstream): RedisXTransactionCommand<string | null>;
+  XADD(key: string, id: `${number}-${number | "*"}` | "*", pairs: XaddPairs, options: XaddOptions & XaddOptionsNomkstream): RedisXTransactionCommand<string | null>;
   /**
   * Trims the stream by evicting older entries (entries with lower IDs) if needed.
   *
@@ -3020,7 +3021,7 @@ declare class RedisXTransaction<L = [], C extends boolean = false, D = unknown> 
   * @returns The ID of the added entry.
   * @see {@link https://redis.io/commands/xadd}
   */
-  XADD(key: string, id: `${number}-${number | "*"}` | "*", pairs: Record<string, string | number>): RedisXTransaction<AddToList<L, string>, C, D>;
+  XADD(key: string, id: `${number}-${number | "*"}` | "*", pairs: XaddPairs): RedisXTransaction<AddToList<L, string>, C, D>;
   /**
   * Appends the specified stream entry to the stream at the specified key.
   * If the key does not exist, as a side effect of running this command the key is created
@@ -3034,7 +3035,7 @@ declare class RedisXTransaction<L = [], C extends boolean = false, D = unknown> 
   * @returns The ID of the added entry.
   * @see {@link https://redis.io/commands/xadd}
   */
-  XADD(key: string, id: `${number}-${number | "*"}` | "*", pairs: Record<string, string | number>, options: XaddOptions): RedisXTransaction<AddToList<L, string>, C, D>;
+  XADD(key: string, id: `${number}-${number | "*"}` | "*", pairs: XaddPairs, options: XaddOptions): RedisXTransaction<AddToList<L, string>, C, D>;
   /**
   * Appends the specified stream entry to the stream at the specified key.
   * If the key does not exist, as a side effect of running this command the key is created
@@ -3048,7 +3049,7 @@ declare class RedisXTransaction<L = [], C extends boolean = false, D = unknown> 
   * @returns The ID of the added entry, or `null` the key doesn't exist.
   * @see {@link https://redis.io/commands/xadd}
   */
-  XADD(key: string, id: `${number}-${number | "*"}` | "*", pairs: Record<string, string | number>, options: XaddOptions & XaddOptionsNomkstream): RedisXTransaction<AddToList<L, string | null>, C, D>;
+  XADD(key: string, id: `${number}-${number | "*"}` | "*", pairs: XaddPairs, options: XaddOptions & XaddOptionsNomkstream): RedisXTransaction<AddToList<L, string | null>, C, D>;
   /**
   * Trims the stream by evicting older entries (entries with lower IDs) if needed.
   *
@@ -4502,7 +4503,7 @@ declare class RedisXClient {
   * @returns The ID of the added entry.
   * @see {@link https://redis.io/commands/xadd}
   */
-  XADD(key: string, id: `${number}-${number | "*"}` | "*", pairs: Record<string, string | number>): Promise<string>;
+  XADD(key: string, id: `${number}-${number | "*"}` | "*", pairs: XaddPairs): Promise<string>;
   /**
   * Appends the specified stream entry to the stream at the specified key.
   * If the key does not exist, as a side effect of running this command the key is created
@@ -4516,7 +4517,7 @@ declare class RedisXClient {
   * @returns The ID of the added entry.
   * @see {@link https://redis.io/commands/xadd}
   */
-  XADD(key: string, id: `${number}-${number | "*"}` | "*", pairs: Record<string, string | number>, options: XaddOptions): Promise<string>;
+  XADD(key: string, id: `${number}-${number | "*"}` | "*", pairs: XaddPairs, options: XaddOptions): Promise<string>;
   /**
   * Appends the specified stream entry to the stream at the specified key.
   * If the key does not exist, as a side effect of running this command the key is created
@@ -4530,7 +4531,7 @@ declare class RedisXClient {
   * @returns The ID of the added entry, or `null` the key doesn't exist.
   * @see {@link https://redis.io/commands/xadd}
   */
-  XADD(key: string, id: `${number}-${number | "*"}` | "*", pairs: Record<string, string | number>, options: XaddOptions & XaddOptionsNomkstream): Promise<string | null>;
+  XADD(key: string, id: `${number}-${number | "*"}` | "*", pairs: XaddPairs, options: XaddOptions & XaddOptionsNomkstream): Promise<string | null>;
   /**
   * Trims the stream by evicting older entries (entries with lower IDs) if needed.
   *

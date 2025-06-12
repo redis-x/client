@@ -1,5 +1,7 @@
 import type { Command } from '../../types.js';
 
+export type XaddPairs = Record<string, string | number | undefined>;
+
 export type XaddOptions = {
 	trim?: {
 		/**
@@ -56,7 +58,7 @@ export type XaddOptionsNomkstream = {
 declare function _command(
 	key: string,
 	id: `${number}-${number | '*'}` | '*',
-	pairs: Record<string, string | number>,
+	pairs: XaddPairs,
 ): string;
 
 /**
@@ -75,7 +77,7 @@ declare function _command(
 declare function _command(
 	key: string,
 	id: `${number}-${number | '*'}` | '*',
-	pairs: Record<string, string | number>,
+	pairs: XaddPairs,
 	options: XaddOptions,
 ): string;
 
@@ -95,7 +97,7 @@ declare function _command(
 declare function _command(
 	key: string,
 	id: `${number}-${number | '*'}` | '*',
-	pairs: Record<string, string | number>,
+	pairs: XaddPairs,
 	options: XaddOptions & XaddOptionsNomkstream,
 ): string | null;
 
@@ -103,7 +105,7 @@ declare function _command(
 export function input(
 	key: string,
 	id: `${number}-${number | '*'}` | '*',
-	pairs: Record<string, string | number | undefined>,
+	pairs: XaddPairs,
 	options?: XaddOptions & Partial<XaddOptionsNomkstream>,
 ): Command<string | null> {
 	// Build command arguments
