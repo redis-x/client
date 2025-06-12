@@ -1480,7 +1480,10 @@ function input$26(key, id, pairs, options) {
 		}
 	}
 	cmdArgs.push(String(id));
-	for (const [field, value] of Object.entries(pairs)) cmdArgs.push(field, String(value));
+	for (const [field, value] of Object.entries(pairs)) {
+		if (value === void 0) continue;
+		cmdArgs.push(field, String(value));
+	}
 	return {
 		kind: "#schema",
 		args: cmdArgs

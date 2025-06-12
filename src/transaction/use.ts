@@ -1277,7 +1277,7 @@ export class RedisXTransactionUse {
 	XADD(
 		key: string,
 		id: `${number}-${number | '*'}` | '*',
-		pairs: Record<string, string | number>,
+		pairs: Record<string, string | number | undefined>,
 		options?: XaddOptions & Partial<XaddOptionsNomkstream>,
 	): RedisXTransactionCommand<string | null> {
 		return this.useCommand(input_xadd(key, id, pairs, options));

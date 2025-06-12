@@ -21,6 +21,17 @@ describe('command', () => {
 		expect(command.replyTransform).toBeUndefined();
 	});
 
+	test('undefined in pairs', () => {
+		const command = input('mystream', '*', { foo: 'bar', baz: undefined });
+		expect(
+			command.args,
+		).toStrictEqual(
+			[ 'XADD', 'mystream', '*', 'foo', 'bar' ],
+		);
+
+		expect(command.replyTransform).toBeUndefined();
+	});
+
 	test('option NOMKSTREAM', () => {
 		const command = input('mystream', '*', { foo: 'bar' }, { NOMKSTREAM: true });
 		expect(

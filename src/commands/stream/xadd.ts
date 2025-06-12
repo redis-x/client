@@ -103,7 +103,7 @@ declare function _command(
 export function input(
 	key: string,
 	id: `${number}-${number | '*'}` | '*',
-	pairs: Record<string, string | number>,
+	pairs: Record<string, string | number | undefined>,
 	options?: XaddOptions & Partial<XaddOptionsNomkstream>,
 ): Command<string | null> {
 	// Build command arguments
@@ -137,6 +137,10 @@ export function input(
 
 	// Add fields and values
 	for (const [ field, value ] of Object.entries(pairs)) {
+		if (value === undefined) {
+			continue;
+		}
+
 		cmdArgs.push(field, String(value));
 	}
 
