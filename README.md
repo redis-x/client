@@ -240,6 +240,68 @@ Note that after calling `use()`, the transaction result is no longer a tuple, so
 
 The `use()` method transforms complex Redis operations into clean, maintainable code that directly expresses your intent. All commands are still executed as a single atomic transaction, but the results come back organized exactly as you specified.
 
+### Redis Scripts
+
+Redis Lua scripting is one of Redis's most powerful features, allowing you to execute custom logic directly on the Redis server. Scripts run atomically and can access and modify data with complex logic without network round-trips.
+
+With `redis-x`, you can create and execute Redis scripts type-safely and without worries:
+
+- scripts are cached on Redis using `SCRIPT LOAD` for better performance;
+- if a script is flushed from cache, it's automatically reloaded, never throwing errors;
+- you can define both input and output transformations to achieve type safety.
+
+#### Output validation and transformation
+
+Redis scripts often return data structures that need transformation. With `redis-x`, you can define output transformations by providing a transformation function. We will use Valibot in our examples.
+
+```typescript
+import * as v from 'valibot';
+
+// Create a script that returns leaderboard data with automatic transformation
+const script = client.createScript(
+  'return redis.call("KEYS", ARGV[1])',
+  // Transform the flat array into a set
+  v.parser(v.pipe(
+    v.array(v.string()),
+    v.transform((value) => new Set(value)),
+  )),
+);
+
+const keys = await script.execute('key:*'); // Set<string>
+```
+
+#### Input validation
+
+Scripts also benefit from input validation, which ensures the parameters you pass to `execute()` are correct. Let's upgrade previous example to use input validation:
+
+```typescript
+import * as v from 'valibot';
+
+// function that infers the input to the parameters, as Valibot does not have one
+function vStrictParser<S extends v.BaseSchema<any, any, any>>(schema: S) {
+	return v.parser(schema) as (input: v.InferInput<S>) => v.InferOutput<S>;
+}
+
+const script = client.createScript({
+  code: 'return redis.call("KEYS", ARGV[1])',
+  // Validate that inputs match expected format
+  inputValidator: vStrictParser(v.pipe(
+    // function accepts a single string argument
+    v.tuple([v.string()]),
+  )),
+  outputValidator: v.parser(v.pipe(
+    v.array(v.string()),
+    v.transform((value) => new Set(value)),
+  )),
+});
+
+// TypeScript now knows execute() expects a single string argument
+const keys = await script.execute('user:*');
+await script.execute([ 123 ]); // Type error
+```
+
+With input validation, you can transform function arguments from any complex object into strings array that Redis server expects. This makes it more convenient to call Redis scripts from TypeScript code.
+
 ### Available commands
 
 The `redis-x` client is more a proof of concept than a complete implementation. It currently supports a subset of Redis commands, but the full support for all commands is planned.
