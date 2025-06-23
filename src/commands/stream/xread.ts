@@ -1,7 +1,7 @@
 import type { Command } from '../../types.js';
 import { stringBulkToObject } from '../../utils.js';
 
-export type XreadId = `${number}-${number}` | `${number}` | '$' | '+';
+export type XreadId = '$' | '+' | (string & {});
 
 export type XReadOptions = {
 	/**

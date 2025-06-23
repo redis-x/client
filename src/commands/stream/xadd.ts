@@ -1,5 +1,6 @@
 import type { Command } from '../../types.js';
 
+export type XaddId = '*' | (string & {});
 export type XaddPairs = Record<string, string | number | undefined>;
 
 export type XaddOptions = {
@@ -57,7 +58,7 @@ export type XaddOptionsNomkstream = {
  */
 declare function _command(
 	key: string,
-	id: `${number}-${number | '*'}` | '*',
+	id: XaddId,
 	pairs: XaddPairs,
 ): string;
 
@@ -76,7 +77,7 @@ declare function _command(
  */
 declare function _command(
 	key: string,
-	id: `${number}-${number | '*'}` | '*',
+	id: XaddId,
 	pairs: XaddPairs,
 	options: XaddOptions,
 ): string;
@@ -96,7 +97,7 @@ declare function _command(
  */
 declare function _command(
 	key: string,
-	id: `${number}-${number | '*'}` | '*',
+	id: XaddId,
 	pairs: XaddPairs,
 	options: XaddOptions & XaddOptionsNomkstream,
 ): string | null;
@@ -104,7 +105,7 @@ declare function _command(
 // eslint-disable-next-line jsdoc/require-jsdoc
 export function input(
 	key: string,
-	id: `${number}-${number | '*'}` | '*',
+	id: XaddId,
 	pairs: XaddPairs,
 	options?: XaddOptions & Partial<XaddOptionsNomkstream>,
 ): Command<string | null> {

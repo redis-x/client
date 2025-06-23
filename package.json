@@ -1,6 +1,6 @@
 {
 	"name": "@redis-x/client",
-	"version": "0.3.0-dev",
+	"version": "0.3.1-dev",
 	"description": "Enhanced redis client built on top of \"redis\" package.",
 	"publishConfig": {
 		"access": "public"
@@ -10,6 +10,10 @@
 	"types": "dist/main.d.ts",
 	"exports": {
 		".": {
+			"types": {
+				"import": "./dist/main.d.ts",
+				"require": "./dist/main.d.cts"
+			},
 			"import": "./dist/main.js",
 			"require": "./dist/main.cjs"
 		}
@@ -30,11 +34,12 @@
 		"type-fest": "^4.41.0",
 		"typescript": "5.8.3",
 		"unplugin-unused": "^0.5.0",
+		"valibot": "^1.1.0",
 		"vitest": "3.1.3"
 	},
 	"scripts": {
 		"build:lib": "bun run build/main.ts",
-		"build:ts": "tsdown src/main.ts --unused --dts --format esm --format cjs && rm dist/main.d.cts",
+		"build:ts": "tsdown src/main.ts --unused --dts --format esm --format cjs",
 		"check": "bun run build:lib && bun run lint && bun run build:ts && bun run test",
 		"lint": "eslint . && tsc",
 		"redis:down": "docker stop test-redis",

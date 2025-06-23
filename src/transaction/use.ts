@@ -1164,7 +1164,7 @@ export class RedisXTransactionUse {
 	 * @returns The number of entries actually deleted.
 	 * @see {@link https://redis.io/commands/xdel}
 	 */
-	XDEL(key: string, ids: `${number}-${number}`[]): RedisXTransactionCommand<number>;
+	XDEL(key: string, ids: string[]): RedisXTransactionCommand<number>;
 	/**
 	 * Removes the specified entries from a stream, and returns the number of entries deleted.
 	 * This number may be less than the number of IDs passed to the command in the case where
@@ -1177,11 +1177,11 @@ export class RedisXTransactionUse {
 	 * @returns The number of entries actually deleted.
 	 * @see {@link https://redis.io/commands/xdel}
 	 */
-	XDEL(key: string, ...ids: `${number}-${number}`[]): RedisXTransactionCommand<number>;
+	XDEL(key: string, ...ids: string[]): RedisXTransactionCommand<number>;
 
 	XDEL(
 		key: string,
-		...ids: (`${number}-${number}` | `${number}-${number}`[])[]
+		...ids: (string | string[])[]
 	): RedisXTransactionCommand<number> {
 		return this.useCommand(input_xdel(key, ...ids));
 	}
@@ -1232,7 +1232,7 @@ export class RedisXTransactionUse {
 	 */
 	XADD(
 		key: string,
-		id: `${number}-${number | '*'}` | '*',
+		id: XaddId,
 		pairs: XaddPairs,
 	): RedisXTransactionCommand<string>;
 	/**
@@ -1250,7 +1250,7 @@ export class RedisXTransactionUse {
 	 */
 	XADD(
 		key: string,
-		id: `${number}-${number | '*'}` | '*',
+		id: XaddId,
 		pairs: XaddPairs,
 		options: XaddOptions,
 	): RedisXTransactionCommand<string>;
@@ -1269,14 +1269,14 @@ export class RedisXTransactionUse {
 	 */
 	XADD(
 		key: string,
-		id: `${number}-${number | '*'}` | '*',
+		id: XaddId,
 		pairs: XaddPairs,
 		options: XaddOptions & XaddOptionsNomkstream,
 	): RedisXTransactionCommand<string | null>;
 
 	XADD(
 		key: string,
-		id: `${number}-${number | '*'}` | '*',
+		id: XaddId,
 		pairs: XaddPairs,
 		options?: XaddOptions & Partial<XaddOptionsNomkstream>,
 	): RedisXTransactionCommand<string | null> {
@@ -2195,6 +2195,7 @@ import {
 	input as input_xread,
 } from '../commands/stream/xread.js';
 import {
+	type XaddId,
 	type XaddPairs,
 	type XaddOptions,
 	type XaddOptionsNomkstream,

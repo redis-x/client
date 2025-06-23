@@ -12,7 +12,7 @@ import type { Command } from '../../types.js';
  * @returns The number of entries actually deleted.
  * @see {@link https://redis.io/commands/xdel}
  */
-declare function _command(key: string, ids: `${number}-${number}`[]): number;
+declare function _command(key: string, ids: string[]): number;
 
 /**
  * Removes the specified entries from a stream, and returns the number of entries deleted.
@@ -26,12 +26,12 @@ declare function _command(key: string, ids: `${number}-${number}`[]): number;
  * @returns The number of entries actually deleted.
  * @see {@link https://redis.io/commands/xdel}
  */
-declare function _command(key: string, ...ids: `${number}-${number}`[]): number;
+declare function _command(key: string, ...ids: string[]): number;
 
 // eslint-disable-next-line jsdoc/require-jsdoc
 export function input(
 	key: string,
-	...ids: (`${number}-${number}` | `${number}-${number}`[])[]
+	...ids: (string | string[])[]
 ): Command<number> {
 	return {
 		kind: '#schema',

@@ -1275,7 +1275,7 @@ export class RedisXTransaction<
 	 * @returns The number of entries actually deleted.
 	 * @see {@link https://redis.io/commands/xdel}
 	 */
-	XDEL(key: string, ids: `${number}-${number}`[]): RedisXTransaction<AddToList<L, number>, C, D>;
+	XDEL(key: string, ids: string[]): RedisXTransaction<AddToList<L, number>, C, D>;
 	/**
 	 * Removes the specified entries from a stream, and returns the number of entries deleted.
 	 * This number may be less than the number of IDs passed to the command in the case where
@@ -1288,11 +1288,11 @@ export class RedisXTransaction<
 	 * @returns The number of entries actually deleted.
 	 * @see {@link https://redis.io/commands/xdel}
 	 */
-	XDEL(key: string, ...ids: `${number}-${number}`[]): RedisXTransaction<AddToList<L, number>, C, D>;
+	XDEL(key: string, ...ids: string[]): RedisXTransaction<AddToList<L, number>, C, D>;
 
 	XDEL(
 		key: string,
-		...ids: (`${number}-${number}` | `${number}-${number}`[])[]
+		...ids: (string | string[])[]
 	): RedisXTransaction<AddToList<L, number>, C, D> {
 		return this.useCommand(input_xdel(key, ...ids));
 	}
@@ -1343,7 +1343,7 @@ export class RedisXTransaction<
 	 */
 	XADD(
 		key: string,
-		id: `${number}-${number | '*'}` | '*',
+		id: XaddId,
 		pairs: XaddPairs,
 	): RedisXTransaction<AddToList<L, string>, C, D>;
 	/**
@@ -1361,7 +1361,7 @@ export class RedisXTransaction<
 	 */
 	XADD(
 		key: string,
-		id: `${number}-${number | '*'}` | '*',
+		id: XaddId,
 		pairs: XaddPairs,
 		options: XaddOptions,
 	): RedisXTransaction<AddToList<L, string>, C, D>;
@@ -1380,14 +1380,14 @@ export class RedisXTransaction<
 	 */
 	XADD(
 		key: string,
-		id: `${number}-${number | '*'}` | '*',
+		id: XaddId,
 		pairs: XaddPairs,
 		options: XaddOptions & XaddOptionsNomkstream,
 	): RedisXTransaction<AddToList<L, string | null>, C, D>;
 
 	XADD(
 		key: string,
-		id: `${number}-${number | '*'}` | '*',
+		id: XaddId,
 		pairs: XaddPairs,
 		options?: XaddOptions & Partial<XaddOptionsNomkstream>,
 	): RedisXTransaction<AddToList<L, string | null>, C, D> {
@@ -2306,6 +2306,7 @@ import {
 	input as input_xread,
 } from './commands/stream/xread.js';
 import {
+	type XaddId,
 	type XaddPairs,
 	type XaddOptions,
 	type XaddOptionsNomkstream,

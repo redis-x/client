@@ -1,8 +1,8 @@
 import {
 	beforeAll,
 	describe,
-	test,
 	expect,
+	test,
 } from 'vitest';
 import { redisClient } from '../test/client.js';
 import { createRandomKey } from '../test/utils.js';

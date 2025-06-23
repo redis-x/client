@@ -5,6 +5,10 @@ import type {
 	Command,
 	RedisClient,
 } from './types.js';
+import {
+	RedisXScript,
+	type RedisXScriptOptions,
+} from './script.js';
 
 export class RedisXClient {
 	// eslint-disable-next-line no-useless-constructor, no-empty-function
@@ -33,6 +37,58 @@ export class RedisXClient {
 
 	createTransaction(): RedisXTransaction<[], false, unknown> {
 		return new RedisXTransaction(this.redisClient);
+	}
+
+	createScript(code: string): RedisXScript<string[], unknown>;
+	createScript(code: string, keys: string[]): RedisXScript<string[], unknown>;
+	createScript<O = unknown>(
+		code: string,
+		outputValidator: (value: unknown) => O,
+	): RedisXScript<string[], O>;
+	createScript<O = unknown>(
+		code: string,
+		keys: string[],
+		outputValidator: (value: unknown) => O,
+	): RedisXScript<string[], O>;
+	createScript<
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		I extends any[] = string[],
+		O = unknown,
+	>(options: RedisXScriptOptions<I, O>): RedisXScript<I, O>;
+	createScript<
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		I extends any[] = string[],
+		O = unknown,
+	>(
+		arg_0: string | RedisXScriptOptions<I, O>,
+		arg_1?: string[] | ((value: unknown) => O),
+		arg_2?: (value: unknown) => O,
+	): RedisXScript<I, O> {
+		let options: RedisXScriptOptions<I, O>;
+		if (typeof arg_0 === 'string') {
+			options = {
+				code: arg_0,
+			};
+
+			if (Array.isArray(arg_1)) {
+				options.keys = arg_1;
+
+				if (typeof arg_2 === 'function') {
+					options.outputValidator = arg_2;
+				}
+			}
+			else if (typeof arg_1 === 'function') {
+				options.outputValidator = arg_1;
+			}
+		}
+		else {
+			options = arg_0;
+		}
+
+		return new RedisXScript(
+			this.redisClient,
+			options,
+		);
 	}
 
 	// MARK: commands
@@ -1160,7 +1216,7 @@ export class RedisXClient {
 	 * @returns The number of entries actually deleted.
 	 * @see {@link https://redis.io/commands/xdel}
 	 */
-	XDEL(key: string, ids: `${number}-${number}`[]): Promise<number>;
+	XDEL(key: string, ids: string[]): Promise<number>;
 	/**
 	 * Removes the specified entries from a stream, and returns the number of entries deleted.
 	 * This number may be less than the number of IDs passed to the command in the case where
@@ -1173,11 +1229,11 @@ export class RedisXClient {
 	 * @returns The number of entries actually deleted.
 	 * @see {@link https://redis.io/commands/xdel}
 	 */
-	XDEL(key: string, ...ids: `${number}-${number}`[]): Promise<number>;
+	XDEL(key: string, ...ids: string[]): Promise<number>;
 
 	XDEL(
 		key: string,
-		...ids: (`${number}-${number}` | `${number}-${number}`[])[]
+		...ids: (string | string[])[]
 	): Promise<number> {
 		return this.useCommand(input_xdel(key, ...ids));
 	}
@@ -1228,7 +1284,7 @@ export class RedisXClient {
 	 */
 	XADD(
 		key: string,
-		id: `${number}-${number | '*'}` | '*',
+		id: XaddId,
 		pairs: XaddPairs,
 	): Promise<string>;
 	/**
@@ -1246,7 +1302,7 @@ export class RedisXClient {
 	 */
 	XADD(
 		key: string,
-		id: `${number}-${number | '*'}` | '*',
+		id: XaddId,
 		pairs: XaddPairs,
 		options: XaddOptions,
 	): Promise<string>;
@@ -1265,14 +1321,14 @@ export class RedisXClient {
 	 */
 	XADD(
 		key: string,
-		id: `${number}-${number | '*'}` | '*',
+		id: XaddId,
 		pairs: XaddPairs,
 		options: XaddOptions & XaddOptionsNomkstream,
 	): Promise<string | null>;
 
 	XADD(
 		key: string,
-		id: `${number}-${number | '*'}` | '*',
+		id: XaddId,
 		pairs: XaddPairs,
 		options?: XaddOptions & Partial<XaddOptionsNomkstream>,
 	): Promise<string | null> {
@@ -2191,6 +2247,7 @@ import {
 	input as input_xread,
 } from './commands/stream/xread.js';
 import {
+	type XaddId,
 	type XaddPairs,
 	type XaddOptions,
 	type XaddOptionsNomkstream,
