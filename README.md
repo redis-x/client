@@ -270,7 +270,7 @@ const script = client.createScript(
 const keys = await script.execute('key:*'); // Set<string>
 ```
 
-#### Input validation
+#### Input transformation and type inference
 
 Scripts also benefit from input validation, which ensures the parameters you pass to `execute()` are correct. Let's upgrade previous example to use input validation:
 
