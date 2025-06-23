@@ -313,16 +313,16 @@ The `redis-x` client is more a proof of concept than a complete implementation. 
 X / Y / (1/7)
 -->
 
-| Section                                           | Commands available    |
-| ------------------------------------------------- | - |
-| [Generic](src/commands/generic)                   | 🟩🟩🟩🟨🟥🟥🟥 <br> **16** / 32 |
-| [Hash](src/commands/hash)                         | 🟩🟩🟩🟨🟥🟥🟥 <br> **14** / 28 |
-| [List](src/commands/list)                         | 🟩🟩🟩🟩🟥🟥🟥 <br> **14** / 22 |
-| [Scripting and Functions](src/commands/scripting) | 🟥🟥🟥🟥🟥🟥🟥 <br>  **1** / 19 |
-| [Set](src/commands/set)                           | 🟩🟩🟥🟥🟥🟥🟥 <br>  **6** / 17 |
-| [Sorted Set](src/commands/sorted-set)             | 🟩🟩🟥🟥🟥🟥🟥 <br> **10** / 35 |
-| [Stream](src/commands/stream)                     | 🟩🟨🟥🟥🟥🟥🟥 <br>  **5** / 21 |
-| [String](src/commands/string)                     | 🟩🟩🟩🟩🟩🟩🟨 <br> **21** / 22 |
+| Section                                           | Commands available | |
+| ------------------------------------------------- | - | -: |
+| [Generic](src/commands/generic)                   | 🟩🟩🟩🟨🟥🟥🟥 | **16** / 32 |
+| [Hash](src/commands/hash)                         | 🟩🟩🟩🟨🟥🟥🟥 | **14** / 28 |
+| [List](src/commands/list)                         | 🟩🟩🟩🟩🟥🟥🟥 | **14** / 22 |
+| [Scripting and Functions](src/commands/scripting) | 🟥🟥🟥🟥🟥🟥🟥 |  **1** / 19 |
+| [Set](src/commands/set)                           | 🟩🟩🟥🟥🟥🟥🟥 |  **6** / 17 |
+| [Sorted Set](src/commands/sorted-set)             | 🟩🟩🟥🟥🟥🟥🟥 | **10** / 35 |
+| [Stream](src/commands/stream)                     | 🟩🟨🟥🟥🟥🟥🟥 |  **5** / 21 |
+| [String](src/commands/string)                     | 🟩🟩🟩🟩🟩🟩🟨 | **21** / 22 |
 
 <!--
 More sections to come:
