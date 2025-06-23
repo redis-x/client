@@ -257,7 +257,6 @@ Redis scripts often return data structures that need transformation. With `redis
 ```typescript
 import * as v from 'valibot';
 
-// Create a script that returns leaderboard data with automatic transformation
 const script = client.createScript(
   'return redis.call("KEYS", ARGV[1])',
   // Transform the flat array into a set
