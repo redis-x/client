@@ -1,4 +1,4 @@
-import { parseSync } from 'oxc-parser';
+import { parseSync, type ParamPattern } from 'oxc-parser';
 
 type CommandOverload = {
 	getJsDoc: (returns_text?: string) => string,
@@ -34,6 +34,19 @@ function processRawArguments(value: string) {
 	value = value.replaceAll(/\n/g, '\n\t');
 
 	return value;
+}
+
+function extractFunctionParameters(contents: string, params: ParamPattern[]): string {
+	const parameter_first = params[0];
+
+	if (parameter_first) {
+		return contents.slice(
+			contents.lastIndexOf('(', parameter_first.start),
+			contents.indexOf(')', params.at(-1)!.end) + 1,
+		);
+	}
+
+	return '()';
 }
 
 export class CommandFile {
@@ -92,7 +105,7 @@ export class CommandFile {
 				}
 				// console.log('comment:', commentGetter());
 
-				const arguments_raw = contents.slice(node.params.start, node.params.end);
+				const arguments_raw = extractFunctionParameters(contents, node.params);
 				// console.log('params:', params);
 
 				if (!node.returnType) {
@@ -133,9 +146,9 @@ export class CommandFile {
 					&& node.declaration.returnType.typeAnnotation.type === 'TSTypeReference'
 					&& node.declaration.returnType.typeAnnotation.typeName.type === 'Identifier'
 					&& node.declaration.returnType.typeAnnotation.typeName.name === 'Command'
-					&& node.declaration.returnType.typeAnnotation.typeParameters
+					&& node.declaration.returnType.typeAnnotation.typeArguments
 				) {
-					const { params } = node.declaration.returnType.typeAnnotation.typeParameters;
+					const { params } = node.declaration.returnType.typeAnnotation.typeArguments;
 					if (params[0]) {
 						return_type = contents.slice(
 							params[0].start,
@@ -154,17 +167,11 @@ export class CommandFile {
 						: '',
 					arguments: {
 						raw: processRawArguments(
-							contents.slice(
-								node.declaration.params.start,
-								node.declaration.params.end,
-							),
+							extractFunctionParameters(contents, node.declaration.params),
 						),
-						list: node.declaration.params.items.map((item) => {
-							if (
-								item.type === 'FormalParameter'
-								&& item.pattern.type === 'Identifier'
-							) {
-								return item.pattern.name;
+						list: node.declaration.params.map((item) => {
+							if (item.type === 'Identifier') {
+								return item.name;
 							}
 
 							if (

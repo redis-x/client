@@ -1,5 +1,5 @@
 import node_path from 'node:path';
-import { parseSync } from 'oxc-parser';
+import { ParseResult, parseSync } from 'oxc-parser';
 import { type CommandFile } from './command-file.js';
 
 type TargetFileOptions = {
@@ -22,10 +22,9 @@ class TargetFile {
 	constructor(
 		private path: string,
 		contents: string,
+		oxc: ParseResult,
 		private options: TargetFileOptions,
 	) {
-		const oxc = parseSync(path, contents);
-
 		let index_commands_start: number | null = null;
 		let index_commands_end: number | null = null;
 		let index_imports_start: number | null = null;
@@ -131,12 +130,34 @@ class TargetFile {
 export async function createTargetFile(
 	path: string,
 	options: TargetFileOptions,
+	try_id = 0,
 ) {
-	const file = Bun.file(path);
+	const contents = await Bun.file(path).text();
+	let oxc = parseSync(path, contents);
+	if (oxc.errors.length > 0) {
+		if (try_id === 0) {
+			const mark_commands_start = '// MARK: commands\n';
+			const commands_start = contents.indexOf(mark_commands_start);
+			const commands_end = contents.indexOf('\n\t// MARK: end commands');
+			const mark_imports_start = '// MARK: imports\n';
+			const imports_start = contents.indexOf(mark_imports_start);
+			const imports_end = contents.indexOf('\n// MARK: end imports');
+
+			await Bun.write(
+				path,
+				contents.slice(0, commands_start + mark_commands_start.length - 1) + contents.slice(commands_end, imports_start + mark_imports_start.length - 1) + contents.slice(imports_end),
+			);
+
+			return createTargetFile(path, options, try_id + 1);
+		}
+
+		throw new Error(`Failed to parse ${path}.`);
+	}
 
 	return new TargetFile(
 		path,
-		await file.text(),
+		contents,
+		oxc,
 		options,
 	);
 }
