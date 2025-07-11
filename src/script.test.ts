@@ -1,5 +1,3 @@
-/* eslint-disable jsdoc/require-jsdoc */
-
 import * as v from 'valibot';
 import {
 	beforeAll,
@@ -12,11 +10,7 @@ import {
 	redisXClient,
 } from '../test/client.js';
 import { createRandomKey } from '../test/utils.js';
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function vxStrictParser<S extends v.BaseSchema<any, any, any>>(schema: S) {
-	return v.parser(schema) as (input: v.InferInput<S>) => v.InferOutput<S>;
-}
+import { strictParser } from '../test/vx.js';
 
 const PREFIX = createRandomKey();
 
@@ -86,7 +80,7 @@ describe('(options)', () => {
 	test('{ code, inputValidator, outputValidator }', async () => {
 		const script = redisXClient.createScript({
 			code: 'local a = redis.call("KEYS", ARGV[1]) return a',
-			inputValidator: vxStrictParser(v.pipe(
+			inputValidator: strictParser(v.pipe(
 				v.tuple([ v.string() ]),
 			)),
 			outputValidator: v.parser(v.pipe(

@@ -5,25 +5,25 @@ import { RedisClientType, RedisFunctions, RedisModules, RedisScripts } from "red
 declare class RedisXTransactionCommand<T> {
   index: number;
   private _type;
+  // eslint-disable-next-line no-useless-constructor, no-empty-function
   constructor(index: number);
 }
 type UnwrapRedisXTransactionCommand<T> = T extends RedisXTransactionCommand<infer A> ? A : T extends (infer U)[] ? UnwrapRedisXTransactionCommand<U>[] : T extends Record<string, any> ? { [K in keyof T]: UnwrapRedisXTransactionCommand<T[K]> } : T;
-
-//#endregion
-//#region src/types.d.ts
 /**
 * Recursively walks through the object and unwraps all RedisTransactionCommand instances.
 * @param target Value to unwrap.
 * @param result Result of the transaction.
 * @returns The unwrapped value.
 */
+//#endregion
+//#region src/types.d.ts
 type RedisClient = RedisClientType<RedisModules, RedisFunctions, RedisScripts>;
 type Command<T = unknown> = {
   kind: "#schema";
   args: string[];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   replyTransform?: (result: any) => T;
 };
-
 //#endregion
 //#region src/commands/string/set.d.ts
 type SetOptions = {
@@ -78,7 +78,9 @@ type SetOptionsGet = {
   * - Available since: 6.2.0.
   */
   GET: true;
-}; //#endregion
+};
+// eslint-disable-next-line jsdoc/require-jsdoc
+//#endregion
 //#region src/commands/string/getex.d.ts
 type GetexOptions = {
   /**
@@ -112,9 +114,6 @@ type GetexOptions = {
   */
   PERSIST?: boolean;
 };
-
-//#endregion
-//#region src/commands/generic/pexpire.d.ts
 /**
 * Get the value of key and optionally set its expiration.
 * GETEX is similar to GET, but is a write command with additional options.
@@ -127,6 +126,8 @@ type GetexOptions = {
 * @returns The value of key, or `null` when key does not exist.
 * @see {@link https://redis.io/commands/getex}
 */
+//#endregion
+//#region src/commands/generic/pexpire.d.ts
 type PexpireOptions = {
   /**
   * Set expiry only when the key has no expiry.
@@ -157,9 +158,6 @@ type PexpireOptions = {
   */
   LT?: boolean;
 };
-
-//#endregion
-//#region src/commands/generic/expire.d.ts
 /**
 * This command works exactly like EXPIRE but the time to live of the key is specified in milliseconds instead of seconds.
 * - Available since: 2.6.0.
@@ -171,6 +169,8 @@ type PexpireOptions = {
 * @see {@link https://redis.io/commands/pexpire}
 * @see {@link https://redis.io/commands/expire}
 */
+//#endregion
+//#region src/commands/generic/expire.d.ts
 type ExpireOptions = {
   /**
   * Set expiry only when the key has no expiry.
@@ -201,9 +201,6 @@ type ExpireOptions = {
   */
   LT?: boolean;
 };
-
-//#endregion
-//#region src/commands/generic/copy.d.ts
 /**
 * Set a timeout on key.
 *
@@ -216,6 +213,8 @@ type ExpireOptions = {
 * @returns Returns `true` if the timeout was set. Returns `false` if the timeout was not set; for example, the key doesn't exist, or the operation was skipped because of the provided arguments.
 * @see {@link https://redis.io/commands/expire}
 */
+//#endregion
+//#region src/commands/generic/copy.d.ts
 type CopyOptions = {
   /**
   * Logical database index for the destination key.
@@ -228,9 +227,6 @@ type CopyOptions = {
   */
   REPLACE?: boolean;
 };
-
-//#endregion
-//#region src/commands/generic/expireat.d.ts
 /**
 * Copy the value stored at the source key to the destination key.
 * - Available since: 6.2.0.
@@ -241,6 +237,8 @@ type CopyOptions = {
 * @returns Whether the copy was successful.
 * @see {@link https://redis.io/commands/copy}
 */
+//#endregion
+//#region src/commands/generic/expireat.d.ts
 type ExpireatOptions = {
   /**
   * Set expiry only when the key has no expiry.
@@ -271,9 +269,6 @@ type ExpireatOptions = {
   */
   LT?: boolean;
 };
-
-//#endregion
-//#region src/commands/generic/pexpireat.d.ts
 /**
 * This command has the same effect and semantic as EXPIRE, but instead of specifying the number of seconds representing the TTL (time to live), it takes an absolute Unix timestamp (seconds since January 1, 1970).
 *
@@ -287,6 +282,8 @@ type ExpireatOptions = {
 * @see {@link https://redis.io/commands/expireat}
 * @see {@link https://redis.io/commands/expire}
 */
+//#endregion
+//#region src/commands/generic/pexpireat.d.ts
 type PexpireatOptions = {
   /**
   * Set expiry only when the key has no expiry.
@@ -317,9 +314,6 @@ type PexpireatOptions = {
   */
   LT?: boolean;
 };
-
-//#endregion
-//#region src/commands/stream/xread.d.ts
 /**
 * This command has the same effect and semantic as EXPIREAT, but the Unix time at which the key will expire is specified in milliseconds instead of seconds.
 * - Available since: 2.6.0.
@@ -331,6 +325,8 @@ type PexpireatOptions = {
 * @see {@link https://redis.io/commands/pexpireat}
 * @see {@link https://redis.io/commands/expireat}
 */
+//#endregion
+//#region src/commands/stream/xread.d.ts
 type XreadId = "$" | "+" | (string & {});
 type XReadOptions = {
   /**
@@ -349,7 +345,7 @@ type XStreamEntry = {
   id: string;
   data: Record<string, string>;
 };
-
+// eslint-disable-next-line jsdoc/require-jsdoc
 //#endregion
 //#region src/commands/stream/xadd.d.ts
 type XaddId = "*" | (string & {});
@@ -393,7 +389,61 @@ type XaddOptionsNomkstream = {
   */
   NOMKSTREAM: boolean;
 };
-
+// eslint-disable-next-line jsdoc/require-jsdoc
+//#endregion
+//#region src/commands/stream/xrange.d.ts
+type XRangeOptions = {
+  /**
+  * Maximum number of entries to return.
+  * - Available since: 5.0.0.
+  */
+  COUNT?: number;
+};
+/**
+* Returns the stream entries matching a given range of IDs.
+*
+* The range is specified by a minimum and maximum ID. All the entries having an ID
+* between the two specified or exactly one of the two IDs specified (closed interval)
+* are returned.
+*
+* Special IDs `-` and `+` mean respectively the minimum ID possible and the maximum
+* ID possible inside a stream.
+*
+* Exclusive ranges can be specified by prefixing the ID with `(`.
+*
+* - Available since: 5.0.0.
+* - Time complexity: O(N) with N being the number of elements being returned. If N is constant (e.g. always asking for the first 10 elements with COUNT), you can consider it O(1).
+* @param key Key that contains the stream.
+* @param start Start ID for the range query. Use `-` for the minimum ID possible or prefix with `(` for exclusive range.
+* @param end End ID for the range query. Use `+` for the maximum ID possible or prefix with `(` for exclusive range.
+* @param options Command options.
+* @returns An array of stream entries matching the range.
+* @see {@link https://redis.io/commands/xrange}
+*/
+//#endregion
+//#region src/commands/stream/xrevrange.d.ts
+type XRevrangeOptions = {
+  /**
+  * Maximum number of entries to return.
+  * - Available since: 5.0.0.
+  */
+  COUNT?: number;
+};
+/**
+* This command is exactly like XRANGE, but with the notable difference of returning the entries in reverse order,
+* and also taking the start-end range in reverse order:
+* in XREVRANGE you need to state the end ID and later the start ID,
+* and the command will produce all the element between (or exactly like) the two IDs, starting from the end side.
+*
+* - Available since: 5.0.0.
+* - Time complexity: O(N) with N being the number of elements being returned. If N is constant (e.g. always asking for the first 10 elements with COUNT), you can consider it O(1).
+* @param key Key that contains the stream.
+* @param end End ID for the range query. Use `+` for the maximum ID possible or prefix with `(` for exclusive range.
+* @param start Start ID for the range query. Use `-` for the minimum ID possible or prefix with `(` for exclusive range.
+* @param options Command options.
+* @returns An array of stream entries matching the range.
+* @see {@link https://redis.io/commands/xrange}
+*/
 //#endregion
 //#region src/commands/stream/xtrim.d.ts
 type XtrimOptions = {
@@ -411,7 +461,7 @@ type XtrimOptions = {
   */
   LIMIT?: number;
 };
-
+// eslint-disable-next-line jsdoc/require-jsdoc
 //#endregion
 //#region src/commands/sorted-set/zrangebyscore.d.ts
 type ZrangebyscoreOptions = {
@@ -428,7 +478,7 @@ type ZrangebyscoreOptionsWithscores = {
   */
   WITHSCORES: true;
 };
-
+// eslint-disable-next-line jsdoc/require-jsdoc
 //#endregion
 //#region src/commands/sorted-set/zadd.d.ts
 type ZaddOptions = {
@@ -467,7 +517,7 @@ type ZaddOptions = {
   */
   INCR?: boolean;
 };
-
+// eslint-disable-next-line jsdoc/require-jsdoc
 //#endregion
 //#region src/commands/sorted-set/zrank.d.ts
 type ZrankOptionsWithscore = {
@@ -477,7 +527,7 @@ type ZrankOptionsWithscore = {
   */
   WITHSCORE: true;
 };
-
+// eslint-disable-next-line jsdoc/require-jsdoc
 //#endregion
 //#region src/commands/sorted-set/zrange.d.ts
 type ZrangeOptions = {
@@ -501,7 +551,7 @@ type ZrangeOptions = {
   */
   WITHSCORES?: true;
 };
-
+// eslint-disable-next-line jsdoc/require-jsdoc
 //#endregion
 //#region src/commands/sorted-set/zinterstore.d.ts
 type ZinterstoreOptions = {
@@ -514,7 +564,7 @@ type ZinterstoreOptions = {
   */
   AGGREGATE?: "SUM" | "MIN" | "MAX";
 };
-
+// eslint-disable-next-line jsdoc/require-jsdoc
 //#endregion
 //#region src/commands/sorted-set/zrangebylex.d.ts
 type ZrangebylexOptions = {
@@ -524,9 +574,6 @@ type ZrangebylexOptions = {
   */
   LIMIT?: [number, number];
 };
-
-//#endregion
-//#region src/transaction/use.d.ts
 /**
 * Returns all the elements in the sorted set at `key` with a value between `min` and `max`.
 *
@@ -546,15 +593,21 @@ type ZrangebylexOptions = {
 * @returns List of elements in the specified range.
 * @see {@link https://redis.io/commands/zrangebylex}
 */
+//#endregion
+//#region src/transaction/use.d.ts
 declare class RedisXTransactionUse {
   private transaction;
   queue: {
     command: Command;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     redis_transaction_command: RedisXTransactionCommand<any>;
   }[];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any, no-empty-function, no-useless-constructor
   constructor(transaction: RedisXTransaction<any, any, any>);
   addCommand(command: string, ...args: (string | number)[]): RedisXTransactionCommand<unknown>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private useCommand;
+  // MARK: commands
   /**
   * Remove the specified members from the set stored at key.
   * Specified members that are not a member of this set are ignored.
@@ -1556,6 +1609,44 @@ declare class RedisXTransactionUse {
   */
   XADD(key: string, id: XaddId, pairs: XaddPairs, options: XaddOptions & XaddOptionsNomkstream): RedisXTransactionCommand<string | null>;
   /**
+  * Returns the stream entries matching a given range of IDs.
+  *
+  * The range is specified by a minimum and maximum ID. All the entries having an ID
+  * between the two specified or exactly one of the two IDs specified (closed interval)
+  * are returned.
+  *
+  * Special IDs `-` and `+` mean respectively the minimum ID possible and the maximum
+  * ID possible inside a stream.
+  *
+  * Exclusive ranges can be specified by prefixing the ID with `(`.
+  *
+  * - Available since: 5.0.0.
+  * - Time complexity: O(N) with N being the number of elements being returned. If N is constant (e.g. always asking for the first 10 elements with COUNT), you can consider it O(1).
+  * @param key Key that contains the stream.
+  * @param start Start ID for the range query. Use `-` for the minimum ID possible or prefix with `(` for exclusive range.
+  * @param end End ID for the range query. Use `+` for the maximum ID possible or prefix with `(` for exclusive range.
+  * @param options Command options.
+  * @returns An array of stream entries matching the range.
+  * @see {@link https://redis.io/commands/xrange}
+  */
+  XRANGE(key: string, start: "-" | (string & {}), end: "+" | (string & {}), options?: XRangeOptions): RedisXTransactionCommand<XStreamEntry[]>;
+  /**
+  * This command is exactly like XRANGE, but with the notable difference of returning the entries in reverse order,
+  * and also taking the start-end range in reverse order:
+  * in XREVRANGE you need to state the end ID and later the start ID,
+  * and the command will produce all the element between (or exactly like) the two IDs, starting from the end side.
+  *
+  * - Available since: 5.0.0.
+  * - Time complexity: O(N) with N being the number of elements being returned. If N is constant (e.g. always asking for the first 10 elements with COUNT), you can consider it O(1).
+  * @param key Key that contains the stream.
+  * @param end End ID for the range query. Use `+` for the maximum ID possible or prefix with `(` for exclusive range.
+  * @param start Start ID for the range query. Use `-` for the minimum ID possible or prefix with `(` for exclusive range.
+  * @param options Command options.
+  * @returns An array of stream entries matching the range.
+  * @see {@link https://redis.io/commands/xrange}
+  */
+  XREVRANGE(key: string, end: "+" | (string & {}), start: "-" | (string & {}), options?: XRevrangeOptions): RedisXTransactionCommand<XStreamEntry[]>;
+  /**
   * Trims the stream by evicting older entries (entries with lower IDs) if needed.
   *
   * Using MAXLEN strategy which evicts entries as long as the stream's length exceeds the specified threshold.
@@ -2029,9 +2120,12 @@ declare class RedisXTransactionUse {
   * @see {@link https://redis.io/commands/eval}
   */
   EVAL(script: string, keys: (string | number)[], args?: (string | number)[]): RedisXTransactionCommand<unknown>;
-} //#endregion
+}
+//#endregion
 //#region src/transaction.d.ts
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 type AddToList<T, U> = T extends any[] ? [...T, U] : [U];
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 type GetLast<L> = L extends [...any[], infer T] ? T : never;
 declare class RedisXTransaction<L = [], C extends boolean = false, D = unknown> {
   private multi;
@@ -2047,10 +2141,13 @@ declare class RedisXTransaction<L = [], C extends boolean = false, D = unknown> 
   * @param command -
   */
   private queueCommand;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private useCommand;
   as<const K extends string>(key: K): RedisXTransaction<L, C, { [P in keyof D | K]: K extends P ? GetLast<L> : P extends keyof D ? D[P] : never }>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   use<const CB extends (transaction: RedisXTransactionUse) => Promisable<Record<string, any> | void>>(callback: CB): RedisXTransaction<[], true, Awaited<ReturnType<CB>> extends Record<string, any> ? UnwrapRedisXTransactionCommand<Awaited<ReturnType<CB>>> & D : D>;
   execute<RL = (C extends true ? unknown : (L extends [] ? unknown : L)), R = (unknown extends D ? unknown extends RL ? Record<string, never> : RL : RL & { [K in keyof D]: D[K] })>(): Promise<R>;
+  // MARK: commands
   /**
   * Remove the specified members from the set stored at key.
   * Specified members that are not a member of this set are ignored.
@@ -3052,6 +3149,44 @@ declare class RedisXTransaction<L = [], C extends boolean = false, D = unknown> 
   */
   XADD(key: string, id: XaddId, pairs: XaddPairs, options: XaddOptions & XaddOptionsNomkstream): RedisXTransaction<AddToList<L, string | null>, C, D>;
   /**
+  * Returns the stream entries matching a given range of IDs.
+  *
+  * The range is specified by a minimum and maximum ID. All the entries having an ID
+  * between the two specified or exactly one of the two IDs specified (closed interval)
+  * are returned.
+  *
+  * Special IDs `-` and `+` mean respectively the minimum ID possible and the maximum
+  * ID possible inside a stream.
+  *
+  * Exclusive ranges can be specified by prefixing the ID with `(`.
+  *
+  * - Available since: 5.0.0.
+  * - Time complexity: O(N) with N being the number of elements being returned. If N is constant (e.g. always asking for the first 10 elements with COUNT), you can consider it O(1).
+  * @param key Key that contains the stream.
+  * @param start Start ID for the range query. Use `-` for the minimum ID possible or prefix with `(` for exclusive range.
+  * @param end End ID for the range query. Use `+` for the maximum ID possible or prefix with `(` for exclusive range.
+  * @param options Command options.
+  * @returns An array of stream entries matching the range.
+  * @see {@link https://redis.io/commands/xrange}
+  */
+  XRANGE(key: string, start: "-" | (string & {}), end: "+" | (string & {}), options?: XRangeOptions): RedisXTransaction<AddToList<L, XStreamEntry[]>, C, D>;
+  /**
+  * This command is exactly like XRANGE, but with the notable difference of returning the entries in reverse order,
+  * and also taking the start-end range in reverse order:
+  * in XREVRANGE you need to state the end ID and later the start ID,
+  * and the command will produce all the element between (or exactly like) the two IDs, starting from the end side.
+  *
+  * - Available since: 5.0.0.
+  * - Time complexity: O(N) with N being the number of elements being returned. If N is constant (e.g. always asking for the first 10 elements with COUNT), you can consider it O(1).
+  * @param key Key that contains the stream.
+  * @param end End ID for the range query. Use `+` for the maximum ID possible or prefix with `(` for exclusive range.
+  * @param start Start ID for the range query. Use `-` for the minimum ID possible or prefix with `(` for exclusive range.
+  * @param options Command options.
+  * @returns An array of stream entries matching the range.
+  * @see {@link https://redis.io/commands/xrange}
+  */
+  XREVRANGE(key: string, end: "+" | (string & {}), start: "-" | (string & {}), options?: XRevrangeOptions): RedisXTransaction<AddToList<L, XStreamEntry[]>, C, D>;
+  /**
   * Trims the stream by evicting older entries (entries with lower IDs) if needed.
   *
   * Using MAXLEN strategy which evicts entries as long as the stream's length exceeds the specified threshold.
@@ -3525,7 +3660,8 @@ declare class RedisXTransaction<L = [], C extends boolean = false, D = unknown> 
   * @see {@link https://redis.io/commands/eval}
   */
   EVAL(script: string, keys: (string | number)[], args?: (string | number)[]): RedisXTransaction<AddToList<L, unknown>, C, D>;
-} //#endregion
+}
+//#endregion
 //#region src/script.d.ts
 type RedisXScriptOptions<I = string[], O = unknown> = {
   code: string;
@@ -3544,13 +3680,14 @@ declare class RedisXScript<I extends any[] = string[], O = unknown> {
   private load;
   execute(...args: I): Promise<O>;
 }
-
 //#endregion
 //#region src/client.d.ts
 declare class RedisXClient {
   private redisClient;
+  // eslint-disable-next-line no-useless-constructor, no-empty-function
   constructor(redisClient: RedisClient);
   sendCommand<T extends string>(command: T, ...args: (string | number)[]): Promise<unknown>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private useCommand;
   createTransaction(): RedisXTransaction<[], false, unknown>;
   createScript(code: string): RedisXScript<string[], unknown>;
@@ -3558,6 +3695,7 @@ declare class RedisXClient {
   createScript<O = unknown>(code: string, outputValidator: (value: unknown) => O): RedisXScript<string[], O>;
   createScript<O = unknown>(code: string, keys: string[], outputValidator: (value: unknown) => O): RedisXScript<string[], O>;
   createScript<I extends any[] = string[], O = unknown>(options: RedisXScriptOptions<I, O>): RedisXScript<I, O>;
+  // MARK: commands
   /**
   * Remove the specified members from the set stored at key.
   * Specified members that are not a member of this set are ignored.
@@ -4559,6 +4697,44 @@ declare class RedisXClient {
   */
   XADD(key: string, id: XaddId, pairs: XaddPairs, options: XaddOptions & XaddOptionsNomkstream): Promise<string | null>;
   /**
+  * Returns the stream entries matching a given range of IDs.
+  *
+  * The range is specified by a minimum and maximum ID. All the entries having an ID
+  * between the two specified or exactly one of the two IDs specified (closed interval)
+  * are returned.
+  *
+  * Special IDs `-` and `+` mean respectively the minimum ID possible and the maximum
+  * ID possible inside a stream.
+  *
+  * Exclusive ranges can be specified by prefixing the ID with `(`.
+  *
+  * - Available since: 5.0.0.
+  * - Time complexity: O(N) with N being the number of elements being returned. If N is constant (e.g. always asking for the first 10 elements with COUNT), you can consider it O(1).
+  * @param key Key that contains the stream.
+  * @param start Start ID for the range query. Use `-` for the minimum ID possible or prefix with `(` for exclusive range.
+  * @param end End ID for the range query. Use `+` for the maximum ID possible or prefix with `(` for exclusive range.
+  * @param options Command options.
+  * @returns An array of stream entries matching the range.
+  * @see {@link https://redis.io/commands/xrange}
+  */
+  XRANGE(key: string, start: "-" | (string & {}), end: "+" | (string & {}), options?: XRangeOptions): Promise<XStreamEntry[]>;
+  /**
+  * This command is exactly like XRANGE, but with the notable difference of returning the entries in reverse order,
+  * and also taking the start-end range in reverse order:
+  * in XREVRANGE you need to state the end ID and later the start ID,
+  * and the command will produce all the element between (or exactly like) the two IDs, starting from the end side.
+  *
+  * - Available since: 5.0.0.
+  * - Time complexity: O(N) with N being the number of elements being returned. If N is constant (e.g. always asking for the first 10 elements with COUNT), you can consider it O(1).
+  * @param key Key that contains the stream.
+  * @param end End ID for the range query. Use `+` for the maximum ID possible or prefix with `(` for exclusive range.
+  * @param start Start ID for the range query. Use `-` for the minimum ID possible or prefix with `(` for exclusive range.
+  * @param options Command options.
+  * @returns An array of stream entries matching the range.
+  * @see {@link https://redis.io/commands/xrange}
+  */
+  XREVRANGE(key: string, end: "+" | (string & {}), start: "-" | (string & {}), options?: XRevrangeOptions): Promise<XStreamEntry[]>;
+  /**
   * Trims the stream by evicting older entries (entries with lower IDs) if needed.
   *
   * Using MAXLEN strategy which evicts entries as long as the stream's length exceeds the specified threshold.
@@ -5032,5 +5208,6 @@ declare class RedisXClient {
   * @see {@link https://redis.io/commands/eval}
   */
   EVAL(script: string, keys: (string | number)[], args?: (string | number)[]): Promise<unknown>;
-} //#endregion
+}
+//#endregion
 export { RedisXClient, RedisXTransaction };

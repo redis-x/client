@@ -26,20 +26,20 @@
 	},
 	"devDependencies": {
 		"@kirick/eslint-config": "^0.1.30",
-		"@types/bun": "^1.2.13",
+		"@types/bun": "^1.2.18",
 		"eslint": "9.8.0",
 		"oxc-parser": "0.48.1",
-		"publint": "^0.3.12",
-		"tsdown": "^0.11.11",
+		"publint": "0.3.12",
+		"tsdown": "0.12.9",
 		"type-fest": "^4.41.0",
 		"typescript": "5.8.3",
-		"unplugin-unused": "^0.5.0",
-		"valibot": "^1.1.0",
-		"vitest": "3.1.3"
+		"unplugin-unused": "0.5.1",
+		"valibot": "1.1.0",
+		"vitest": "3.2.4"
 	},
 	"scripts": {
 		"build:lib": "bun run build/main.ts",
-		"build:ts": "tsdown src/main.ts --unused --dts --format esm --format cjs",
+		"build:ts": "tsdown src/main.ts --publint --unused --dts --format esm --format cjs",
 		"check": "bun run build:lib && bun run lint && bun run build:ts && bun run test",
 		"lint": "eslint . && tsc",
 		"redis:down": "docker stop test-redis",

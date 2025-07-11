@@ -321,7 +321,7 @@ X / Y / (1/7)
 | [Scripting and Functions](src/commands/scripting) | 🟥🟥🟥🟥🟥🟥🟥 |  **1** / 19 |
 | [Set](src/commands/set)                           | 🟩🟩🟥🟥🟥🟥🟥 |  **6** / 17 |
 | [Sorted Set](src/commands/sorted-set)             | 🟩🟩🟥🟥🟥🟥🟥 | **10** / 35 |
-| [Stream](src/commands/stream)                     | 🟩🟨🟥🟥🟥🟥🟥 |  **5** / 21 |
+| [Stream](src/commands/stream)                     | 🟩🟩🟥🟥🟥🟥🟥 |  **7** / 21 |
 | [String](src/commands/string)                     | 🟩🟩🟩🟩🟩🟩🟨 | **21** / 22 |
 
 <!--

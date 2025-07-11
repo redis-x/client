@@ -1395,6 +1395,60 @@ export class RedisXTransaction<
 	}
 
 	/**
+	 * Returns the stream entries matching a given range of IDs.
+	 *
+	 * The range is specified by a minimum and maximum ID. All the entries having an ID
+	 * between the two specified or exactly one of the two IDs specified (closed interval)
+	 * are returned.
+	 *
+	 * Special IDs `-` and `+` mean respectively the minimum ID possible and the maximum
+	 * ID possible inside a stream.
+	 *
+	 * Exclusive ranges can be specified by prefixing the ID with `(`.
+	 *
+	 * - Available since: 5.0.0.
+	 * - Time complexity: O(N) with N being the number of elements being returned. If N is constant (e.g. always asking for the first 10 elements with COUNT), you can consider it O(1).
+	 * @param key Key that contains the stream.
+	 * @param start Start ID for the range query. Use `-` for the minimum ID possible or prefix with `(` for exclusive range.
+	 * @param end End ID for the range query. Use `+` for the maximum ID possible or prefix with `(` for exclusive range.
+	 * @param options Command options.
+	 * @returns An array of stream entries matching the range.
+	 * @see {@link https://redis.io/commands/xrange}
+	 */
+	XRANGE(
+		key: string,
+		start: '-' | (string & {}),
+		end: '+' | (string & {}),
+		options?: XRangeOptions,
+	): RedisXTransaction<AddToList<L, XStreamEntry[]>, C, D> {
+		return this.useCommand(input_xrange(key, start, end, options));
+	}
+
+	/**
+	 * This command is exactly like XRANGE, but with the notable difference of returning the entries in reverse order,
+	 * and also taking the start-end range in reverse order:
+	 * in XREVRANGE you need to state the end ID and later the start ID,
+	 * and the command will produce all the element between (or exactly like) the two IDs, starting from the end side.
+	 *
+	 * - Available since: 5.0.0.
+	 * - Time complexity: O(N) with N being the number of elements being returned. If N is constant (e.g. always asking for the first 10 elements with COUNT), you can consider it O(1).
+	 * @param key Key that contains the stream.
+	 * @param end End ID for the range query. Use `+` for the maximum ID possible or prefix with `(` for exclusive range.
+	 * @param start Start ID for the range query. Use `-` for the minimum ID possible or prefix with `(` for exclusive range.
+	 * @param options Command options.
+	 * @returns An array of stream entries matching the range.
+	 * @see {@link https://redis.io/commands/xrange}
+	 */
+	XREVRANGE(
+		key: string,
+		end: '+' | (string & {}),
+		start: '-' | (string & {}),
+		options?: XRevrangeOptions,
+	): RedisXTransaction<AddToList<L, XStreamEntry[]>, C, D> {
+		return this.useCommand(input_xrevrange(key, end, start, options));
+	}
+
+	/**
 	 * Trims the stream by evicting older entries (entries with lower IDs) if needed.
 	 *
 	 * Using MAXLEN strategy which evicts entries as long as the stream's length exceeds the specified threshold.
@@ -2312,6 +2366,14 @@ import {
 	type XaddOptionsNomkstream,
 	input as input_xadd,
 } from './commands/stream/xadd.js';
+import {
+	type XRangeOptions,
+	input as input_xrange,
+} from './commands/stream/xrange.js';
+import {
+	type XRevrangeOptions,
+	input as input_xrevrange,
+} from './commands/stream/xrevrange.js';
 import {
 	type XtrimOptions,
 	input as input_xtrim,
