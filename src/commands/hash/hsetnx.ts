@@ -14,15 +14,14 @@ import type { Command } from '../../types.js';
  * @returns Returns `true` if the field is new and the value was set. Returns `false` if the field already exists and no operation was performed.
  * @see {@link https://redis.io/commands/hsetnx}
  */
-export function input(key: string, field: string, value: string | number): Command<boolean> {
+export function input(
+	key: string,
+	field: string,
+	value: string | number,
+): Command<boolean> {
 	return {
 		kind: '#schema',
-		args: [
-			'HSETNX',
-			key,
-			field,
-			String(value),
-		],
+		args: ['HSETNX', key, field, String(value)],
 		replyTransform,
 	};
 }

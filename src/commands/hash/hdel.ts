@@ -27,13 +27,12 @@ declare function _command(key: string, fields: (string | number)[]): number;
 declare function _command(key: string, ...fields: (string | number)[]): number;
 
 // eslint-disable-next-line jsdoc/require-jsdoc
-export function input(key: string, ...fields: (string | number | (string | number)[])[]): Command<number> {
+export function input(
+	key: string,
+	...fields: (string | number | (string | number)[])[]
+): Command<number> {
 	return {
 		kind: '#schema',
-		args: [
-			'HDEL',
-			key,
-			...fields.flat().map(String),
-		],
+		args: ['HDEL', key, ...fields.flat().map(String)],
 	};
 }

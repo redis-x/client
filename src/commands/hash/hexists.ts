@@ -14,11 +14,7 @@ import type { Command } from '../../types.js';
 export function input(key: string, field: string | number): Command<boolean> {
 	return {
 		kind: '#schema',
-		args: [
-			'HEXISTS',
-			key,
-			String(field),
-		],
+		args: ['HEXISTS', key, String(field)],
 		replyTransform,
 	};
 }

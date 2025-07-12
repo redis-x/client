@@ -31,13 +31,12 @@ declare function _command(key: string, fields: string[]): (string | null)[];
 declare function _command(key: string, ...fields: string[]): (string | null)[];
 
 // eslint-disable-next-line jsdoc/require-jsdoc
-export function input(key: string, ...fields: (string | string[])[]): Command<(string | null)[]> {
+export function input(
+	key: string,
+	...fields: (string | string[])[]
+): Command<(string | null)[]> {
 	return {
 		kind: '#schema',
-		args: [
-			'HMGET',
-			key,
-			...fields.flat(),
-		],
+		args: ['HMGET', key, ...fields.flat()],
 	};
 }

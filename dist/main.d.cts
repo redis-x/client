@@ -1,11 +1,38 @@
-import { Promisable } from "type-fest";
 import { RedisClientType, RedisFunctions, RedisModules, RedisScripts } from "redis";
+import { Promisable } from "type-fest";
 
+//#region src/types.d.ts
+type RedisClient = RedisClientType<RedisModules, RedisFunctions, RedisScripts>;
+type Command<T = unknown> = {
+  kind: "#schema";
+  args: string[];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  replyTransform?: (result: any) => T;
+};
+//#endregion
+//#region src/script.d.ts
+type RedisXScriptOptions<I = string[], O = unknown> = {
+  code: string;
+  keys?: string[];
+  inputValidator?: (value: I) => string[];
+  outputValidator?: (value: unknown) => O;
+};
+declare class RedisXScript<I extends any[] = string[], O = unknown> {
+  private client;
+  private code;
+  private keys;
+  private sha;
+  private inputValidator?;
+  private outputValidator?;
+  constructor(client: RedisClient, options: RedisXScriptOptions<I, O>);
+  private load;
+  execute(...args: I): Promise<O>;
+}
+//#endregion
 //#region src/transaction/command.d.ts
 declare class RedisXTransactionCommand<T> {
   index: number;
   private _type;
-  // eslint-disable-next-line no-useless-constructor, no-empty-function
   constructor(index: number);
 }
 type UnwrapRedisXTransactionCommand<T> = T extends RedisXTransactionCommand<infer A> ? A : T extends (infer U)[] ? UnwrapRedisXTransactionCommand<U>[] : T extends Record<string, any> ? { [K in keyof T]: UnwrapRedisXTransactionCommand<T[K]> } : T;
@@ -15,15 +42,6 @@ type UnwrapRedisXTransactionCommand<T> = T extends RedisXTransactionCommand<infe
 * @param result Result of the transaction.
 * @returns The unwrapped value.
 */
-//#endregion
-//#region src/types.d.ts
-type RedisClient = RedisClientType<RedisModules, RedisFunctions, RedisScripts>;
-type Command<T = unknown> = {
-  kind: "#schema";
-  args: string[];
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  replyTransform?: (result: any) => T;
-};
 //#endregion
 //#region src/commands/string/set.d.ts
 type SetOptions = {
@@ -133,28 +151,24 @@ type PexpireOptions = {
   * Set expiry only when the key has no expiry.
   * - Incompatible with options `XX`, `GT` and `LT`.
   * - Available since: 7.0.0.
-  * @type {boolean}
   */
   NX?: boolean;
   /**
   * Set expiry only when the key has an existing expiry.
   * - Incompatible with options `NX`, `GT` and `LT`.
   * - Available since: 7.0.0.
-  * @type {boolean}
   */
   XX?: boolean;
   /**
   * Set expiry only when the new expiry is greater than current one. A non-volatile key is treated as an infinite TTL.
   * - Incompatible with options `NX`, `XX` and `LT`.
   * - Available since: 7.0.0.
-  * @type {boolean}
   */
   GT?: boolean;
   /**
   * Set expiry only when the new expiry is less than current one. A non-volatile key is treated as an infinite TTL.
   * - Incompatible with options `NX`, `XX` and `GT`.
   * - Available since: 7.0.0.
-  * @type {boolean}
   */
   LT?: boolean;
 };
@@ -176,28 +190,24 @@ type ExpireOptions = {
   * Set expiry only when the key has no expiry.
   * - Incompatible with options `XX`, `GT` and `LT`.
   * - Available since: 7.0.0.
-  * @type {boolean}
   */
   NX?: boolean;
   /**
   * Set expiry only when the key has an existing expiry.
   * - Incompatible with options `NX`, `GT` and `LT`.
   * - Available since: 7.0.0.
-  * @type {boolean}
   */
   XX?: boolean;
   /**
   * Set expiry only when the new expiry is greater than current one. A non-volatile key is treated as an infinite TTL.
   * - Incompatible with options `NX`, `XX` and `LT`.
   * - Available since: 7.0.0.
-  * @type {boolean}
   */
   GT?: boolean;
   /**
   * Set expiry only when the new expiry is less than current one. A non-volatile key is treated as an infinite TTL.
   * - Incompatible with options `NX`, `XX` and `GT`.
   * - Available since: 7.0.0.
-  * @type {boolean}
   */
   LT?: boolean;
 };
@@ -244,28 +254,24 @@ type ExpireatOptions = {
   * Set expiry only when the key has no expiry.
   * - Incompatible with options `XX`, `GT` and `LT`.
   * - Available since: 7.0.0.
-  * @type {boolean}
   */
   NX?: boolean;
   /**
   * Set expiry only when the key has an existing expiry.
   * - Incompatible with options `NX`, `GT` and `LT`.
   * - Available since: 7.0.0.
-  * @type {boolean}
   */
   XX?: boolean;
   /**
   * Set expiry only when the new expiry is greater than current one. A non-volatile key is treated as an infinite TTL.
   * - Incompatible with options `NX`, `XX` and `LT`.
   * - Available since: 7.0.0.
-  * @type {boolean}
   */
   GT?: boolean;
   /**
   * Set expiry only when the new expiry is less than current one. A non-volatile key is treated as an infinite TTL.
   * - Incompatible with options `NX`, `XX` and `GT`.
   * - Available since: 7.0.0.
-  * @type {boolean}
   */
   LT?: boolean;
 };
@@ -289,28 +295,24 @@ type PexpireatOptions = {
   * Set expiry only when the key has no expiry.
   * - Incompatible with options `XX`, `GT` and `LT`.
   * - Available since: 7.0.0.
-  * @type {boolean}
   */
   NX?: boolean;
   /**
   * Set expiry only when the key has an existing expiry.
   * - Incompatible with options `NX`, `GT` and `LT`.
   * - Available since: 7.0.0.
-  * @type {boolean}
   */
   XX?: boolean;
   /**
   * Set expiry only when the new expiry is greater than current one. A non-volatile key is treated as an infinite TTL.
   * - Incompatible with options `NX`, `XX` and `LT`.
   * - Available since: 7.0.0.
-  * @type {boolean}
   */
   GT?: boolean;
   /**
   * Set expiry only when the new expiry is less than current one. A non-volatile key is treated as an infinite TTL.
   * - Incompatible with options `NX`, `XX` and `GT`.
   * - Available since: 7.0.0.
-  * @type {boolean}
   */
   LT?: boolean;
 };
@@ -602,7 +604,7 @@ declare class RedisXTransactionUse {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     redis_transaction_command: RedisXTransactionCommand<any>;
   }[];
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any, no-empty-function, no-useless-constructor
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   constructor(transaction: RedisXTransaction<any, any, any>);
   addCommand(command: string, ...args: (string | number)[]): RedisXTransactionCommand<unknown>;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -2144,9 +2146,8 @@ declare class RedisXTransaction<L = [], C extends boolean = false, D = unknown> 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private useCommand;
   as<const K extends string>(key: K): RedisXTransaction<L, C, { [P in keyof D | K]: K extends P ? GetLast<L> : P extends keyof D ? D[P] : never }>;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   use<const CB extends (transaction: RedisXTransactionUse) => Promisable<Record<string, any> | void>>(callback: CB): RedisXTransaction<[], true, Awaited<ReturnType<CB>> extends Record<string, any> ? UnwrapRedisXTransactionCommand<Awaited<ReturnType<CB>>> & D : D>;
-  execute<RL = (C extends true ? unknown : (L extends [] ? unknown : L)), R = (unknown extends D ? unknown extends RL ? Record<string, never> : RL : RL & { [K in keyof D]: D[K] })>(): Promise<R>;
+  execute<RL = (C extends true ? unknown : L extends [] ? unknown : L), R = (unknown extends D ? unknown extends RL ? Record<string, never> : RL : RL & { [K in keyof D]: D[K] })>(): Promise<R>;
   // MARK: commands
   /**
   * Remove the specified members from the set stored at key.
@@ -3662,29 +3663,9 @@ declare class RedisXTransaction<L = [], C extends boolean = false, D = unknown> 
   EVAL(script: string, keys: (string | number)[], args?: (string | number)[]): RedisXTransaction<AddToList<L, unknown>, C, D>;
 }
 //#endregion
-//#region src/script.d.ts
-type RedisXScriptOptions<I = string[], O = unknown> = {
-  code: string;
-  keys?: string[];
-  inputValidator?: (value: I) => string[];
-  outputValidator?: (value: unknown) => O;
-};
-declare class RedisXScript<I extends any[] = string[], O = unknown> {
-  private client;
-  private code;
-  private keys;
-  private sha;
-  private inputValidator?;
-  private outputValidator?;
-  constructor(client: RedisClient, options: RedisXScriptOptions<I, O>);
-  private load;
-  execute(...args: I): Promise<O>;
-}
-//#endregion
 //#region src/client.d.ts
 declare class RedisXClient {
   private redisClient;
-  // eslint-disable-next-line no-useless-constructor, no-empty-function
   constructor(redisClient: RedisClient);
   sendCommand<T extends string>(command: T, ...args: (string | number)[]): Promise<unknown>;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

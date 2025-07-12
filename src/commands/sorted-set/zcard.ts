@@ -11,9 +11,6 @@ import type { Command } from '../../types.js';
 export function input(key: string): Command<number> {
 	return {
 		kind: '#schema',
-		args: [
-			'ZCARD',
-			key,
-		],
+		args: ['ZCARD', key],
 	};
 }

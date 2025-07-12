@@ -13,9 +13,6 @@ import type { Command } from '../../types.js';
 export function input(...keys: string[]): Command<number> {
 	return {
 		kind: '#schema',
-		args: [
-			'DEL',
-			...keys,
-		],
+		args: ['DEL', ...keys],
 	};
 }

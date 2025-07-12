@@ -8,18 +8,18 @@ export type XReadOptions = {
 	 * Maximum number of entries to return per stream.
 	 * - Available since: 5.0.0.
 	 */
-	COUNT?: number,
+	COUNT?: number;
 	/**
 	 * Block for the specified amount of time in milliseconds if no entries are available.
 	 * If not specified, the command will return immediately.
 	 * - Available since: 5.0.0.
 	 */
-	BLOCK?: number,
+	BLOCK?: number;
 };
 
 export type XStreamEntry = {
-	id: string,
-	data: Record<string, string>,
+	id: string;
+	data: Record<string, string>;
 };
 
 /**
@@ -33,7 +33,11 @@ export type XStreamEntry = {
  * @returns An array of stream entries or `null` if no entries are available.
  * @see {@link https://redis.io/commands/xread}
  */
-declare function _command(key: string, id: XreadId, options?: XReadOptions): XStreamEntry[];
+declare function _command(
+	key: string,
+	id: XreadId,
+	options?: XReadOptions,
+): XStreamEntry[];
 
 /**
  * Read data from one or multiple streams, only returning entries with an ID greater than the last received ID reported by the caller.
@@ -45,7 +49,10 @@ declare function _command(key: string, id: XreadId, options?: XReadOptions): XSt
  * @returns An object where keys are stream names and values are arrays of stream entries or `null` if no entries are available.
  * @see {@link https://redis.io/commands/xread}
  */
-declare function _command<const S extends Record<string, XreadId>>(streams: S, options?: XReadOptions): { [K in keyof S]: XStreamEntry[] };
+declare function _command<const S extends Record<string, XreadId>>(
+	streams: S,
+	options?: XReadOptions,
+): { [K in keyof S]: XStreamEntry[] };
 
 // eslint-disable-next-line jsdoc/require-jsdoc
 export function input(
@@ -61,9 +68,8 @@ export function input(
 		stream_keys.push(arg0);
 		stream_ids.push(arg1);
 		options = arg2;
-	}
-	else {
-		for (const [ key, id ] of Object.entries(arg0)) {
+	} else {
+		for (const [key, id] of Object.entries(arg0)) {
 			stream_keys.push(key);
 			stream_ids.push(id);
 		}
@@ -73,7 +79,7 @@ export function input(
 		}
 	}
 
-	const args: string[] = [ 'XREAD' ];
+	const args: string[] = ['XREAD'];
 
 	if (options) {
 		if (options.COUNT !== undefined) {
@@ -98,8 +104,8 @@ export function input(
 				result[key] = [];
 			}
 
-			for (const [ key, entries ] of reply) {
-				for (const [ id, data ] of entries) {
+			for (const [key, entries] of reply) {
+				for (const [id, data] of entries) {
 					result[key]!.push({
 						id,
 						data: stringBulkToObject(data),

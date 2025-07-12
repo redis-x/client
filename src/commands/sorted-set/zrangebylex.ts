@@ -5,7 +5,7 @@ export type ZrangebylexOptions = {
 	 * Obtains a sub-range from the matching elements (similar to SELECT LIMIT offset, count in SQL). A negative `<count>` returns all elements from the `<offset>`.
 	 * - Available since: 2.8.9.
 	 */
-	LIMIT?: [number, number],
+	LIMIT?: [number, number];
 };
 
 /**
@@ -33,19 +33,10 @@ export function input(
 	max: `(${string}` | `[${string}` | '+',
 	options?: ZrangebylexOptions,
 ): Command<string[]> {
-	const args = [
-		'ZRANGEBYLEX',
-		key,
-		min,
-		max,
-	];
+	const args = ['ZRANGEBYLEX', key, min, max];
 
 	if (options?.LIMIT) {
-		args.push(
-			'LIMIT',
-			String(options.LIMIT[0]),
-			String(options.LIMIT[1]),
-		);
+		args.push('LIMIT', String(options.LIMIT[0]), String(options.LIMIT[1]));
 	}
 
 	return {

@@ -35,10 +35,6 @@ export function input(
 ): Command<number> {
 	return {
 		kind: '#schema',
-		args: [
-			'XDEL',
-			key,
-			...ids.flat(),
-		],
+		args: ['XDEL', key, ...ids.flat()],
 	};
 }

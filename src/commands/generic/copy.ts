@@ -6,12 +6,12 @@ export type CopyOptions = {
 	 * Logical database index for the destination key.
 	 * - Available since: 6.2.0.
 	 */
-	DB?: number,
+	DB?: number;
 	/**
 	 * If true, will replace the destination key if it already exists.
 	 * - Available since: 6.2.0.
 	 */
-	REPLACE?: boolean,
+	REPLACE?: boolean;
 };
 
 /**
@@ -29,11 +29,7 @@ export function input(
 	destination: string,
 	options?: CopyOptions,
 ): Command<boolean> {
-	const args = [
-		'COPY',
-		source,
-		destination,
-	];
+	const args = ['COPY', source, destination];
 
 	if (options?.DB !== undefined) {
 		args.push('DB', String(options.DB));

@@ -13,10 +13,7 @@ import type { Command } from '../../types.js';
 export function input(key: string): Command<Set<string>> {
 	return {
 		kind: '#schema',
-		args: [
-			'HKEYS',
-			key,
-		],
+		args: ['HKEYS', key],
 		replyTransform,
 	};
 }

@@ -1,7 +1,4 @@
-import {
-	test,
-	expect,
-} from 'vitest';
+import { expect, test } from 'vitest';
 import { replyTransform } from './number-to-boolean.js';
 
 test(() => {

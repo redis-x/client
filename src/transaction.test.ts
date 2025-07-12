@@ -1,9 +1,4 @@
-import {
-	beforeAll,
-	describe,
-	expect,
-	test,
-} from 'vitest';
+import { beforeAll, describe, expect, test } from 'vitest';
 import { redisClient } from '../test/client.js';
 import { createRandomKey } from '../test/utils.js';
 import { RedisXTransaction } from './transaction.js';
@@ -12,11 +7,8 @@ const PREFIX = createRandomKey();
 
 beforeAll(async () => {
 	for (let increment = 0; increment < 10; increment++) {
-		// eslint-disable-next-line no-await-in-loop
-		await redisClient.SET(
-			`${PREFIX}:${increment}`,
-			increment,
-		);
+		// oxlint-disable-next-line no-await-in-loop
+		await redisClient.SET(`${PREFIX}:${increment}`, increment);
 	}
 });
 
@@ -83,7 +75,10 @@ describe('use', () => {
 			})
 			.execute();
 
-		expect(result[0]).toBeUndefined();
+		expect(
+			// @ts-expect-error "result" SHOULD NOT to be an array
+			result[0],
+		).toBeUndefined();
 		expect(result.foo).toBe(1);
 		expect(result.bar).toBe('OK');
 	});
@@ -113,8 +108,8 @@ describe('use', () => {
 	});
 
 	test('multiple with if', async () => {
-		for (const ref of [ true, false ]) {
-			// eslint-disable-next-line no-await-in-loop
+		for (const ref of [true, false]) {
+			// oxlint-disable-next-line no-await-in-loop
 			const result = await new RedisXTransaction(redisClient)
 				.GET(`${PREFIX}:2`)
 				.use((transaction) => {
@@ -136,7 +131,10 @@ describe('use', () => {
 				})
 				.execute();
 
-			expect(result[0]).toBeUndefined();
+			expect(
+				// @ts-expect-error "result" SHOULD NOT to be an array
+				result[0],
+			).toBeUndefined();
 			expect(result.foo).toBe(1);
 			expect(result.bar).toBe('OK');
 			expect(result.baz).toBe(ref ? 2 : '4');
@@ -154,7 +152,10 @@ describe('use', () => {
 			})
 			.execute();
 
-		expect(result[0]).toBeUndefined();
+		expect(
+			// @ts-expect-error "result" SHOULD NOT to be an array
+			result[0],
+		).toBeUndefined();
 		expect(result.foo).toBe('2');
 		expect(result.bar).toBe('OK');
 	});

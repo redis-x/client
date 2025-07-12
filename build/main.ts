@@ -3,24 +3,17 @@ import { createCommandFile } from './command-file.js';
 import { createTargetFile } from './target-file.js';
 
 const targetFiles = await Promise.all([
-	createTargetFile(
-		'src/client.ts',
-		{
-			getReturnType: (return_type: string) => `Promise<${return_type}>`,
-		},
-	),
-	createTargetFile(
-		'src/transaction.ts',
-		{
-			getReturnType: (return_type: string) => `RedisXTransaction<AddToList<L, ${return_type}>, C, D>`,
-		},
-	),
-	createTargetFile(
-		'src/transaction/use.ts',
-		{
-			getReturnType: (return_type: string) => `RedisXTransactionCommand<${return_type}>`,
-		},
-	),
+	createTargetFile('src/client.ts', {
+		getReturnType: (return_type: string) => `Promise<${return_type}>`,
+	}),
+	createTargetFile('src/transaction.ts', {
+		getReturnType: (return_type: string) =>
+			`RedisXTransaction<AddToList<L, ${return_type}>, C, D>`,
+	}),
+	createTargetFile('src/transaction/use.ts', {
+		getReturnType: (return_type: string) =>
+			`RedisXTransactionCommand<${return_type}>`,
+	}),
 ]);
 
 const glob = new Glob('src/commands/*/*.ts');
@@ -36,18 +29,20 @@ for await (const path of glob.scan('.')) {
 }
 
 if (process.argv.includes('--dry-run')) {
-	for (const [ index, targetFile ] of targetFiles.entries()) {
+	for (const [index, targetFile] of targetFiles.entries()) {
 		if (index > 0) {
-			console.log();
-			console.log('------------------------------------------');
-			console.log();
+			console.log(); // oxlint-disable-line no-console
+			console.log('------------------------------------------'); // oxlint-disable-line no-console
+			console.log(); // oxlint-disable-line no-console
 		}
 
 		targetFile.print();
 	}
-}
-else {
+} else {
+	const promises = [];
 	for (const targetFile of targetFiles) {
-		await targetFile.write();
+		promises.push(targetFile.write());
 	}
+
+	await Promise.all(promises);
 }

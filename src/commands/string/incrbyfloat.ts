@@ -15,10 +15,6 @@ import type { Command } from '../../types.js';
 export function input(key: string, increment: number): Command<string> {
 	return {
 		kind: '#schema',
-		args: [
-			'INCRBYFLOAT',
-			key,
-			String(increment),
-		],
+		args: ['INCRBYFLOAT', key, String(increment)],
 	};
 }

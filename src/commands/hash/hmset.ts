@@ -35,46 +35,27 @@ declare function _command(
  */
 declare function _command(
 	key: string,
-	pairs: Record<
-		string,
-		string | number
-	>,
+	pairs: Record<string, string | number>,
 ): 'OK';
 
 // eslint-disable-next-line jsdoc/require-jsdoc
 export function input(
 	key: string,
-	arg1:
-		| string
-		| Record<
-			string,
-			string | number
-		>,
+	arg1: string | Record<string, string | number>,
 	arg2?: string | number,
 ): Command<'OK'> {
 	const pairs: string[] = [];
 
 	if (typeof arg1 === 'string') {
-		pairs.push(
-			arg1,
-			String(arg2),
-		);
-	}
-	else {
-		for (const [ field, value ] of Object.entries(arg1)) {
-			pairs.push(
-				field,
-				String(value),
-			);
+		pairs.push(arg1, String(arg2));
+	} else {
+		for (const [field, value] of Object.entries(arg1)) {
+			pairs.push(field, String(value));
 		}
 	}
 
 	return {
 		kind: '#schema',
-		args: [
-			'HMSET',
-			key,
-			...pairs,
-		],
+		args: ['HMSET', key, ...pairs],
 	};
 }

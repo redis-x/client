@@ -6,30 +6,26 @@ export type PexpireatOptions = {
 	 * Set expiry only when the key has no expiry.
 	 * - Incompatible with options `XX`, `GT` and `LT`.
 	 * - Available since: 7.0.0.
-	 * @type {boolean}
 	 */
-	NX?: boolean,
+	NX?: boolean;
 	/**
 	 * Set expiry only when the key has an existing expiry.
 	 * - Incompatible with options `NX`, `GT` and `LT`.
 	 * - Available since: 7.0.0.
-	 * @type {boolean}
 	 */
-	XX?: boolean,
+	XX?: boolean;
 	/**
 	 * Set expiry only when the new expiry is greater than current one. A non-volatile key is treated as an infinite TTL.
 	 * - Incompatible with options `NX`, `XX` and `LT`.
 	 * - Available since: 7.0.0.
-	 * @type {boolean}
 	 */
-	GT?: boolean,
+	GT?: boolean;
 	/**
 	 * Set expiry only when the new expiry is less than current one. A non-volatile key is treated as an infinite TTL.
 	 * - Incompatible with options `NX`, `XX` and `GT`.
 	 * - Available since: 7.0.0.
-	 * @type {boolean}
 	 */
-	LT?: boolean,
+	LT?: boolean;
 };
 
 /**
@@ -43,7 +39,11 @@ export type PexpireatOptions = {
  * @see {@link https://redis.io/commands/pexpireat}
  * @see {@link https://redis.io/commands/expireat}
  */
-export function input(key: string, timestamp: number, options?: PexpireatOptions): Command<boolean> {
+export function input(
+	key: string,
+	timestamp: number,
+	options?: PexpireatOptions,
+): Command<boolean> {
 	const args_options = [];
 
 	if (options) {
@@ -66,12 +66,7 @@ export function input(key: string, timestamp: number, options?: PexpireatOptions
 
 	return {
 		kind: '#schema',
-		args: [
-			'PEXPIREAT',
-			key,
-			String(timestamp),
-			...args_options,
-		],
+		args: ['PEXPIREAT', key, String(timestamp), ...args_options],
 		replyTransform,
 	};
 }

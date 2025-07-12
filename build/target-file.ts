@@ -1,10 +1,13 @@
+/* eslint-disable jsdoc/require-jsdoc */
+/* eslint-disable n/no-unpublished-import */
+
 import node_path from 'node:path';
 import { ParseResult, parseSync } from 'oxc-parser';
 import { type CommandFile } from './command-file.js';
 
 type TargetFileOptions = {
-	getReturnType: (return_type: string) => string,
-}
+	getReturnType: (return_type: string) => string;
+};
 
 class TargetFile {
 	private contents = {
@@ -16,7 +19,15 @@ class TargetFile {
 	};
 
 	get text() {
-		return this.contents[0] + this.contents.methods + this.contents[1] + this.contents.imports + this.contents[2];
+		return (
+			this.contents[0] +
+			this.contents.methods +
+			this.contents[1] +
+			'\n' +
+			this.contents.imports +
+			'\n' +
+			this.contents[2]
+		);
 	}
 
 	constructor(
@@ -39,7 +50,9 @@ class TargetFile {
 
 					case 'MARK: end commands':
 						if (index_commands_start === null) {
-							throw new Error('"end commands" marker was found before "commands" marker.');
+							throw new Error(
+								'"end commands" marker was found before "commands" marker.',
+							);
 						}
 
 						index_commands_end = comment.start - 1;
@@ -51,11 +64,14 @@ class TargetFile {
 
 					case 'MARK: end imports':
 						if (index_imports_start === null) {
-							throw new Error('"end imports" marker was found before "imports" marker.');
+							throw new Error(
+								'"end imports" marker was found before "imports" marker.',
+							);
 						}
 
 						index_imports_end = comment.start;
 						break;
+					// no default
 				}
 			}
 		}
@@ -94,36 +110,53 @@ class TargetFile {
 
 	addCommand(commandFile: CommandFile) {
 		for (const overload of commandFile.overloads) {
-			this.contents.methods += `\t${overload.getJsDoc().replaceAll(/\n/g, '\n\t')}\n`;
-			this.contents.methods += `\t${commandFile.command}${overload.type_parameters}${overload.arguments.raw}: ${this.options.getReturnType(overload.return_type).replaceAll(/\n/g, '\n\t')};\n`;
+			this.contents.methods +=
+				'\t' +
+				overload.getJsDoc().replaceAll('\n', '\n\t') +
+				'\n\t' +
+				commandFile.command +
+				overload.type_parameters +
+				overload.arguments.raw +
+				': ' +
+				this.options
+					.getReturnType(overload.return_type)
+					.replaceAll('\n', '\n\t') +
+				';\n';
 		}
 
 		if (commandFile.implementation.getJsDoc) {
-			this.contents.methods += `\t${commandFile.implementation.getJsDoc().replaceAll(/\n/g, '\n\t')}`;
+			this.contents.methods += `\t${commandFile.implementation.getJsDoc().replaceAll('\n', '\n\t')}`;
 		}
-		this.contents.methods += `\n\t${commandFile.command}${commandFile.implementation.type_parameters}${commandFile.implementation.arguments.raw}${commandFile.implementation.return_type ? `: ${this.options.getReturnType(commandFile.implementation.return_type).replaceAll(/\n/g, '\n\t')}` : ''} {\n`;
-		this.contents.methods += `\t\treturn this.useCommand(${commandFile.import_input}(${commandFile.implementation.arguments.list}));\n`;
-		this.contents.methods += `\t}\n\n`;
 
-		let import_path = node_path.relative(
-			node_path.dirname(this.path),
-			commandFile.path,
-		).replace(/\.ts$/, '.js');
+		this.contents.methods +=
+			'\n\t' +
+			commandFile.command +
+			commandFile.implementation.type_parameters +
+			commandFile.implementation.arguments.raw +
+			(commandFile.implementation.return_type
+				? `: ${this.options.getReturnType(commandFile.implementation.return_type).replaceAll('\n', '\n\t')}`
+				: '') +
+			' {\n';
+		this.contents.methods += `\t\treturn this.useCommand(${commandFile.import_input}(${commandFile.implementation.arguments.list}));\n`;
+		this.contents.methods += '\t}\n\n';
+
+		let import_path = node_path
+			.relative(node_path.dirname(this.path), commandFile.path)
+			.replace(/\.ts$/, '.js');
 		if (import_path.startsWith('.') !== true) {
 			import_path = `./${import_path}`;
 		}
+
 		this.contents.imports += `import ${commandFile.imports} from '${import_path}';\n`;
 	}
 
 	print() {
+		// oxlint-disable-next-line no-console
 		console.log(this.text);
 	}
 
 	async write() {
-		await Bun.write(
-			this.path,
-			this.text,
-		);
+		await Bun.write(this.path, this.text);
 	}
 }
 
@@ -133,7 +166,7 @@ export async function createTargetFile(
 	try_id = 0,
 ) {
 	const contents = await Bun.file(path).text();
-	let oxc = parseSync(path, contents);
+	const oxc = parseSync(path, contents);
 	if (oxc.errors.length > 0) {
 		if (try_id === 0) {
 			const mark_commands_start = '// MARK: commands\n';
@@ -145,7 +178,12 @@ export async function createTargetFile(
 
 			await Bun.write(
 				path,
-				contents.slice(0, commands_start + mark_commands_start.length - 1) + contents.slice(commands_end, imports_start + mark_imports_start.length - 1) + contents.slice(imports_end),
+				contents.slice(0, commands_start + mark_commands_start.length - 1) +
+					contents.slice(
+						commands_end,
+						imports_start + mark_imports_start.length - 1,
+					) +
+					contents.slice(imports_end),
 			);
 
 			return createTargetFile(path, options, try_id + 1);
@@ -154,10 +192,5 @@ export async function createTargetFile(
 		throw new Error(`Failed to parse ${path}.`);
 	}
 
-	return new TargetFile(
-		path,
-		contents,
-		oxc,
-		options,
-	);
+	return new TargetFile(path, contents, oxc, options);
 }

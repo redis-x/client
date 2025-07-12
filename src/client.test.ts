@@ -1,14 +1,18 @@
-import {
-	expect,
-	test,
-} from 'vitest';
+import { expect, test } from 'vitest';
 import { redisXClient } from '../test/client.js';
 import { createRandomKey } from '../test/utils.js';
 
 const key_hash = createRandomKey();
 
 test('unknown command', async () => {
-	const result = await redisXClient.sendCommand('HSET', key_hash, 'foo', '1', 'baz', '2');
+	const result = await redisXClient.sendCommand(
+		'HSET',
+		key_hash,
+		'foo',
+		'1',
+		'baz',
+		'2',
+	);
 
 	expect(result).toBe(2);
 });

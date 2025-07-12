@@ -16,10 +16,6 @@ import type { Command } from '../../types.js';
 export function input(key: string, decrement: number): Command<number> {
 	return {
 		kind: '#schema',
-		args: [
-			'DECRBY',
-			key,
-			String(decrement),
-		],
+		args: ['DECRBY', key, String(decrement)],
 	};
 }

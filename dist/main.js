@@ -1,3 +1,49 @@
+//#region src/script.ts
+var RedisXScript = class {
+	code;
+	keys = [];
+	sha = null;
+	inputValidator;
+	outputValidator;
+	constructor(client, options) {
+		this.client = client;
+		this.code = options.code;
+		if (options.keys) this.keys = options.keys;
+		this.inputValidator = options.inputValidator;
+		this.outputValidator = options.outputValidator;
+	}
+	async load() {
+		const result = await this.client.sendCommand([
+			"SCRIPT",
+			"LOAD",
+			this.code
+		]);
+		if (typeof result !== "string") throw new TypeError("Invalid response from SCRIPT LOAD");
+		this.sha = result;
+		return result;
+	}
+	async execute(...args) {
+		if (this.sha === null) this.sha = await this.load();
+		try {
+			const result = await this.client.sendCommand([
+				"EVALSHA",
+				this.sha,
+				String(this.keys.length),
+				...this.keys,
+				...this.inputValidator ? this.inputValidator(args) : args
+			]);
+			return this.outputValidator ? this.outputValidator(result) : result;
+		} catch (error) {
+			if (error instanceof Error && error.message.startsWith("NOSCRIPT")) {
+				this.sha = null;
+				return this.execute(...args);
+			}
+			throw error;
+		}
+	}
+};
+
+//#endregion
 //#region src/utils.ts
 /**
 * Checks if a value is a plain object.
@@ -4345,52 +4391,6 @@ var RedisXTransaction = class {
 	*/
 	EVAL(script, keys, args) {
 		return this.useCommand(input(script, keys, args));
-	}
-};
-
-//#endregion
-//#region src/script.ts
-var RedisXScript = class {
-	code;
-	keys = [];
-	sha = null;
-	inputValidator;
-	outputValidator;
-	constructor(client, options) {
-		this.client = client;
-		this.code = options.code;
-		if (options.keys) this.keys = options.keys;
-		this.inputValidator = options.inputValidator;
-		this.outputValidator = options.outputValidator;
-	}
-	async load() {
-		const result = await this.client.sendCommand([
-			"SCRIPT",
-			"LOAD",
-			this.code
-		]);
-		if (typeof result !== "string") throw new TypeError("Invalid response from SCRIPT LOAD");
-		this.sha = result;
-		return result;
-	}
-	async execute(...args) {
-		if (this.sha === null) this.sha = await this.load();
-		try {
-			const result = await this.client.sendCommand([
-				"EVALSHA",
-				this.sha,
-				String(this.keys.length),
-				...this.keys,
-				...this.inputValidator ? this.inputValidator(args) : args
-			]);
-			return this.outputValidator ? this.outputValidator(result) : result;
-		} catch (error) {
-			if (error instanceof Error && error.message.startsWith("NOSCRIPT")) {
-				this.sha = null;
-				return this.execute(...args);
-			}
-			throw error;
-		}
 	}
 };
 

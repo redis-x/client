@@ -16,11 +16,7 @@ import type { Command } from '../../types.js';
 export function input(key: string, ...members: string[]): Command<boolean[]> {
 	return {
 		kind: '#schema',
-		args: [
-			'SMISMEMBER',
-			key,
-			...members,
-		],
+		args: ['SMISMEMBER', key, ...members],
 		replyTransform,
 	};
 }

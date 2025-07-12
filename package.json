@@ -25,10 +25,12 @@
 		"redis": "^4.6"
 	},
 	"devDependencies": {
-		"@kirick/eslint-config": "^0.1.30",
+		"@biomejs/biome": "2.1.1",
+		"@kirick/lint": "0.2.6",
 		"@types/bun": "^1.2.18",
-		"eslint": "9.8.0",
+		"eslint": "9.27.0",
 		"oxc-parser": "0.76.0",
+		"oxlint": "1.3.0",
 		"publint": "0.3.12",
 		"tsdown": "0.12.9",
 		"type-fest": "^4.41.0",
@@ -38,10 +40,10 @@
 		"vitest": "3.2.4"
 	},
 	"scripts": {
-		"build:lib": "bun run build/main.ts",
+		"build:lib": "bun run build/main.ts && bunx biome format src/client.ts src/transaction.ts src/transaction/use.ts --write",
 		"build:ts": "tsdown src/main.ts --publint --unused --dts --format esm --format cjs",
 		"check": "bun run build:lib && bun run lint && bun run build:ts && bun run test",
-		"lint": "eslint . && tsc",
+		"lint": "biome format && oxlint && eslint . && tsc && (cd build && tsc) && (cd test && tsc)",
 		"redis:down": "docker stop test-redis",
 		"redis:up": "docker ps | grep test-redis >/dev/null || docker run --rm -d -p 16379:6379 --name test-redis redis:7-alpine",
 		"test": "bun run redis:up && npm run test:vitest && bun test --coverage",

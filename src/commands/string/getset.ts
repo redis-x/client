@@ -13,13 +13,12 @@ import type { Command } from '../../types.js';
  * @returns The old value stored at key, or `null` if key did not exist.
  * @see {@link https://redis.io/commands/getset}
  */
-export function input(key: string, value: string | number): Command<string | null> {
+export function input(
+	key: string,
+	value: string | number,
+): Command<string | null> {
 	return {
 		kind: '#schema',
-		args: [
-			'GETSET',
-			key,
-			String(value),
-		],
+		args: ['GETSET', key, String(value)],
 	};
 }

@@ -1,13 +1,13 @@
 import type { Command } from '../../types.js';
-import type { XStreamEntry } from './xread.js';
 import { stringBulkToObject } from '../../utils.js';
+import type { XStreamEntry } from './xread.js';
 
 export type XRevrangeOptions = {
 	/**
 	 * Maximum number of entries to return.
 	 * - Available since: 5.0.0.
 	 */
-	COUNT?: number,
+	COUNT?: number;
 };
 
 /**
@@ -31,12 +31,7 @@ export function input(
 	start: '-' | (string & {}),
 	options?: XRevrangeOptions,
 ): Command<XStreamEntry[]> {
-	const args: string[] = [
-		'XREVRANGE',
-		key,
-		end,
-		start,
-	];
+	const args: string[] = ['XREVRANGE', key, end, start];
 
 	if (options?.COUNT !== undefined) {
 		args.push('COUNT', String(options.COUNT));
@@ -46,7 +41,7 @@ export function input(
 		kind: '#schema',
 		args,
 		replyTransform(reply: [string, string[]][]) {
-			return reply.map(([ id, data ]) => {
+			return reply.map(([id, data]) => {
 				return {
 					id,
 					data: stringBulkToObject(data),

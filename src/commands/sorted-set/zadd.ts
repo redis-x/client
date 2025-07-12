@@ -6,35 +6,35 @@ export type ZaddOptions = {
 	 * - Incompatible with option `XX`, `GT` and `LT`.
 	 * - Available since: 3.0.2.
 	 */
-	NX?: boolean,
+	NX?: boolean;
 	/**
 	 * Only update elements that already exist. Don't add new elements.
 	 * - Incompatible with option `NX`, `GT` and `LT`.
 	 * - Available since: 3.0.2.
 	 */
-	XX?: boolean,
+	XX?: boolean;
 	/**
 	 * Only update existing elements if the new score is greater than the current score. This flag doesn't prevent adding new elements.
 	 * - Incompatible with options `NX`, `XX` and `LT`.
 	 * - Available since: 6.2.0.
 	 */
-	GT?: boolean,
+	GT?: boolean;
 	/**
 	 * Only update existing elements if the new score is less than the current score. This flag doesn't prevent adding new elements.
 	 * - Incompatible with option `NX`, `XX` and `GT`.
 	 * - Available since: 6.2.0.
 	 */
-	LT?: boolean,
+	LT?: boolean;
 	/**
 	 * Modify the return value from the number of new elements added, to the total number of elements changed.
 	 * - Available since: 3.0.2.
 	 */
-	CH?: boolean,
+	CH?: boolean;
 	/**
 	 * When this option is specified ZADD acts like ZINCRBY. Only one score-element pair can be specified in this mode.
 	 * - Available since: 3.0.2.
 	 */
-	INCR?: boolean,
+	INCR?: boolean;
 };
 
 /**
@@ -76,35 +76,24 @@ declare function _command(
 // eslint-disable-next-line jsdoc/require-jsdoc
 export function input(
 	key: string,
-	arg1:
-		| number
-		| Record<string, number>,
+	arg1: number | Record<string, number>,
 	arg2?: string | number | ZaddOptions,
 	arg3?: ZaddOptions,
 ): Command {
-	const args = [
-		'ZADD',
-		key,
-	];
+	const args = ['ZADD', key];
 
 	const pairs: string[] = [];
 
 	if (typeof arg1 === 'number') {
-		pairs.push(
-			String(arg1),
-			arg2 as string,
-		);
-	}
-	else {
-		for (const [ member, score ] of Object.entries(arg1)) {
-			pairs.push(
-				String(score),
-				member,
-			);
+		pairs.push(String(arg1), arg2 as string);
+	} else {
+		for (const [member, score] of Object.entries(arg1)) {
+			pairs.push(String(score), member);
 		}
 	}
 
-	const options = (typeof arg2 === 'string' || typeof arg2 === 'number') ? arg3 : arg2;
+	const options =
+		typeof arg2 === 'string' || typeof arg2 === 'number' ? arg3 : arg2;
 
 	if (options) {
 		if (options.NX) {

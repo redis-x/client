@@ -23,11 +23,6 @@ import type { Command } from '../../types.js';
 export function input(key: string, start: number, stop: number): Command<'OK'> {
 	return {
 		kind: '#schema',
-		args: [
-			'LTRIM',
-			key,
-			String(start),
-			String(stop),
-		],
+		args: ['LTRIM', key, String(start), String(stop)],
 	};
 }

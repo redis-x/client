@@ -1,27 +1,17 @@
 /* eslint-disable max-lines */
 
+import { RedisXScript, type RedisXScriptOptions } from './script.js';
 import { RedisXTransaction } from './transaction.js';
-import type {
-	Command,
-	RedisClient,
-} from './types.js';
-import {
-	RedisXScript,
-	type RedisXScriptOptions,
-} from './script.js';
+import type { Command, RedisClient } from './types.js';
 
 export class RedisXClient {
-	// eslint-disable-next-line no-useless-constructor, no-empty-function
 	constructor(private redisClient: RedisClient) {}
 
 	async sendCommand<T extends string>(
 		command: T,
 		...args: (string | number)[]
 	): Promise<unknown> {
-		return await this.redisClient.sendCommand([
-			command,
-			...args.map(String),
-		]);
+		return await this.redisClient.sendCommand([command, ...args.map(String)]);
 	}
 
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -76,19 +66,14 @@ export class RedisXClient {
 				if (typeof arg_2 === 'function') {
 					options.outputValidator = arg_2;
 				}
-			}
-			else if (typeof arg_1 === 'function') {
+			} else if (typeof arg_1 === 'function') {
 				options.outputValidator = arg_1;
 			}
-		}
-		else {
+		} else {
 			options = arg_0;
 		}
 
-		return new RedisXScript(
-			this.redisClient,
-			options,
-		);
+		return new RedisXScript(this.redisClient, options);
 	}
 
 	// MARK: commands
@@ -119,7 +104,10 @@ export class RedisXClient {
 	 */
 	SREM(key: string, ...members: (string | number)[]): Promise<number>;
 
-	SREM(key: string, ...members: (string | number | (string | number)[])[]): Promise<number> {
+	SREM(
+		key: string,
+		...members: (string | number | (string | number)[])[]
+	): Promise<number> {
 		return this.useCommand(input_srem(key, ...members));
 	}
 
@@ -211,7 +199,10 @@ export class RedisXClient {
 	 */
 	SADD(key: string, ...members: (string | number)[]): Promise<number>;
 
-	SADD(key: string, ...members: (string | number | (string | number)[])[]): Promise<number> {
+	SADD(
+		key: string,
+		...members: (string | number | (string | number)[])[]
+	): Promise<number> {
 		return this.useCommand(input_sadd(key, ...members));
 	}
 
@@ -281,7 +272,11 @@ export class RedisXClient {
 	 * @returns Returns string `"OK"` if the key was set, or `null` if operation was aborted (conflict with one of the XX/NX options).
 	 * @see {@link https://redis.io/commands/set}
 	 */
-	SET(key: string, value: string | number, options: SetOptions): Promise<'OK' | null>;
+	SET(
+		key: string,
+		value: string | number,
+		options: SetOptions,
+	): Promise<'OK' | null>;
 	/**
 	 * Set the string value of a key.
 	 * - Available since: 1.0.0.
@@ -292,9 +287,17 @@ export class RedisXClient {
 	 * @returns Returns string with the previous value of the key, or `null` if the key didn't exist before the SET.
 	 * @see {@link https://redis.io/commands/set}
 	 */
-	SET(key: string, value: string | number, options: SetOptions & SetOptionsGet): Promise<string | null>;
+	SET(
+		key: string,
+		value: string | number,
+		options: SetOptions & SetOptionsGet,
+	): Promise<string | null>;
 
-	SET(key: string, value: string | number, options?: SetOptions & Partial<SetOptionsGet>) {
+	SET(
+		key: string,
+		value: string | number,
+		options?: SetOptions & Partial<SetOptionsGet>,
+	) {
 		return this.useCommand(input_set(key, value, options));
 	}
 
@@ -356,7 +359,9 @@ export class RedisXClient {
 	 * @returns Array reply: a list of values at the specified keys.
 	 * @see {@link https://redis.io/commands/mget}
 	 */
-	MGET<const K extends string[]>(keys: K): Promise<{ [I in keyof K]: string | null }>;
+	MGET<const K extends string[]>(
+		keys: K,
+	): Promise<{ [I in keyof K]: string | null }>;
 	/**
 	 * Returns the values of all specified keys. For every key that does not hold a
 	 * string value or does not exist, the special value `null` is returned.
@@ -368,7 +373,9 @@ export class RedisXClient {
 	 * @returns Array reply: a list of values at the specified keys.
 	 * @see {@link https://redis.io/commands/mget}
 	 */
-	MGET<const K extends string[]>(...keys: K): Promise<{ [I in keyof K]: string | null }>;
+	MGET<const K extends string[]>(
+		...keys: K
+	): Promise<{ [I in keyof K]: string | null }>;
 
 	MGET(...args: (string | string[])[]): Promise<(string | null)[]> {
 		return this.useCommand(input_mget(...args));
@@ -580,7 +587,11 @@ export class RedisXClient {
 	 * @returns "OK" if the command was executed successfully.
 	 * @see {@link https://redis.io/commands/psetex}
 	 */
-	PSETEX(key: string, milliseconds: number, value: string | number): Promise<'OK'> {
+	PSETEX(
+		key: string,
+		milliseconds: number,
+		value: string | number,
+	): Promise<'OK'> {
 		return this.useCommand(input_psetex(key, milliseconds, value));
 	}
 
@@ -595,7 +606,11 @@ export class RedisXClient {
 	 * @see {@link https://redis.io/commands/pexpire}
 	 * @see {@link https://redis.io/commands/expire}
 	 */
-	PEXPIRE(key: string, seconds: number, options?: PexpireOptions): Promise<boolean> {
+	PEXPIRE(
+		key: string,
+		seconds: number,
+		options?: PexpireOptions,
+	): Promise<boolean> {
 		return this.useCommand(input_pexpire(key, seconds, options));
 	}
 
@@ -651,7 +666,11 @@ export class RedisXClient {
 	 * @returns Returns `true` if the timeout was set. Returns `false` if the timeout was not set; for example, the key doesn't exist, or the operation was skipped because of the provided arguments.
 	 * @see {@link https://redis.io/commands/expire}
 	 */
-	EXPIRE(key: string, seconds: number, options?: ExpireOptions): Promise<boolean> {
+	EXPIRE(
+		key: string,
+		seconds: number,
+		options?: ExpireOptions,
+	): Promise<boolean> {
 		return this.useCommand(input_expire(key, seconds, options));
 	}
 
@@ -663,7 +682,11 @@ export class RedisXClient {
 	 * @returns "OK".
 	 * @see {@link https://redis.io/commands/rename}
 	 */
-	TYPE(key: string): Promise<'string' | 'list' | 'set' | 'zset' | 'hash' | 'stream' | 'vectorset'> {
+	TYPE(
+		key: string,
+	): Promise<
+		'string' | 'list' | 'set' | 'zset' | 'hash' | 'stream' | 'vectorset'
+	> {
 		return this.useCommand(input_type(key));
 	}
 
@@ -710,7 +733,11 @@ export class RedisXClient {
 	 * @see {@link https://redis.io/commands/expireat}
 	 * @see {@link https://redis.io/commands/expire}
 	 */
-	EXPIREAT(key: string, timestamp: number, options?: ExpireatOptions): Promise<boolean> {
+	EXPIREAT(
+		key: string,
+		timestamp: number,
+		options?: ExpireatOptions,
+	): Promise<boolean> {
 		return this.useCommand(input_expireat(key, timestamp, options));
 	}
 
@@ -725,7 +752,11 @@ export class RedisXClient {
 	 * @see {@link https://redis.io/commands/pexpireat}
 	 * @see {@link https://redis.io/commands/expireat}
 	 */
-	PEXPIREAT(key: string, timestamp: number, options?: PexpireatOptions): Promise<boolean> {
+	PEXPIREAT(
+		key: string,
+		timestamp: number,
+		options?: PexpireatOptions,
+	): Promise<boolean> {
 		return this.useCommand(input_pexpireat(key, timestamp, options));
 	}
 
@@ -858,7 +889,10 @@ export class RedisXClient {
 	 */
 	RPUSH(key: string, ...elements: (string | number)[]): Promise<number>;
 
-	RPUSH(key: string, ...elements: (string | number | (string | number)[])[]): Promise<number> {
+	RPUSH(
+		key: string,
+		...elements: (string | number | (string | number)[])[]
+	): Promise<number> {
 		return this.useCommand(input_rpush(key, ...elements));
 	}
 
@@ -947,7 +981,10 @@ export class RedisXClient {
 	 */
 	RPUSHX(key: string, ...elements: (string | number)[]): Promise<number>;
 
-	RPUSHX(key: string, ...elements: (string | number | (string | number)[])[]): Promise<number> {
+	RPUSHX(
+		key: string,
+		...elements: (string | number | (string | number)[])[]
+	): Promise<number> {
 		return this.useCommand(input_rpushx(key, ...elements));
 	}
 
@@ -1014,7 +1051,10 @@ export class RedisXClient {
 	 */
 	LPUSH(key: string, ...elements: (string | number)[]): Promise<number>;
 
-	LPUSH(key: string, ...elements: (string | number | (string | number)[])[]): Promise<number> {
+	LPUSH(
+		key: string,
+		...elements: (string | number | (string | number)[])[]
+	): Promise<number> {
 		return this.useCommand(input_lpush(key, ...elements));
 	}
 
@@ -1043,7 +1083,10 @@ export class RedisXClient {
 	 */
 	LPUSHX(key: string, ...elements: (string | number)[]): Promise<number>;
 
-	LPUSHX(key: string, ...elements: (string | number | (string | number)[])[]): Promise<number> {
+	LPUSHX(
+		key: string,
+		...elements: (string | number | (string | number)[])[]
+	): Promise<number> {
 		return this.useCommand(input_lpushx(key, ...elements));
 	}
 
@@ -1136,11 +1179,13 @@ export class RedisXClient {
 	LINSERT(
 		key: string,
 		element: string | number,
-		options: {
-			BEFORE: string | number,
-		} | {
-			AFTER: string | number,
-		},
+		options:
+			| {
+					BEFORE: string | number;
+			  }
+			| {
+					AFTER: string | number;
+			  },
 	): Promise<number> {
 		return this.useCommand(input_linsert(key, element, options));
 	}
@@ -1231,10 +1276,7 @@ export class RedisXClient {
 	 */
 	XDEL(key: string, ...ids: string[]): Promise<number>;
 
-	XDEL(
-		key: string,
-		...ids: (string | string[])[]
-	): Promise<number> {
+	XDEL(key: string, ...ids: (string | string[])[]): Promise<number> {
 		return this.useCommand(input_xdel(key, ...ids));
 	}
 
@@ -1249,7 +1291,11 @@ export class RedisXClient {
 	 * @returns An array of stream entries or `null` if no entries are available.
 	 * @see {@link https://redis.io/commands/xread}
 	 */
-	XREAD(key: string, id: XreadId, options?: XReadOptions): Promise<XStreamEntry[]>;
+	XREAD(
+		key: string,
+		id: XreadId,
+		options?: XReadOptions,
+	): Promise<XStreamEntry[]>;
 	/**
 	 * Read data from one or multiple streams, only returning entries with an ID greater than the last received ID reported by the caller.
 	 *
@@ -1260,7 +1306,10 @@ export class RedisXClient {
 	 * @returns An object where keys are stream names and values are arrays of stream entries or `null` if no entries are available.
 	 * @see {@link https://redis.io/commands/xread}
 	 */
-	XREAD<const S extends Record<string, XreadId>>(streams: S, options?: XReadOptions): Promise<{ [K in keyof S]: XStreamEntry[] }>;
+	XREAD<const S extends Record<string, XreadId>>(
+		streams: S,
+		options?: XReadOptions,
+	): Promise<{ [K in keyof S]: XStreamEntry[] }>;
 
 	XREAD(
 		arg0: string | Record<string, XreadId>,
@@ -1282,11 +1331,7 @@ export class RedisXClient {
 	 * @returns The ID of the added entry.
 	 * @see {@link https://redis.io/commands/xadd}
 	 */
-	XADD(
-		key: string,
-		id: XaddId,
-		pairs: XaddPairs,
-	): Promise<string>;
+	XADD(key: string, id: XaddId, pairs: XaddPairs): Promise<string>;
 	/**
 	 * Appends the specified stream entry to the stream at the specified key.
 	 * If the key does not exist, as a side effect of running this command the key is created
@@ -1494,10 +1539,12 @@ export class RedisXClient {
 		min: number | `(${number}` | '-inf',
 		max: number | `(${number}` | '+inf',
 		options: ZrangebyscoreOptions & ZrangebyscoreOptionsWithscores,
-	): Promise<{
-		member: string,
-		score: number,
-	}[]>;
+	): Promise<
+		{
+			member: string;
+			score: number;
+		}[]
+	>;
 
 	ZRANGEBYSCORE(
 		key: string,
@@ -1581,9 +1628,7 @@ export class RedisXClient {
 
 	ZADD(
 		key: string,
-		arg1:
-			| number
-			| Record<string, number>,
+		arg1: number | Record<string, number>,
 		arg2?: string | number | ZaddOptions,
 		arg3?: ZaddOptions,
 	) {
@@ -1619,8 +1664,8 @@ export class RedisXClient {
 		member: string | number,
 		options: ZrankOptionsWithscore,
 	): Promise<{
-		rank: number,
-		score: number,
+		rank: number;
+		score: number;
 	} | null>;
 
 	ZRANK(
@@ -1640,10 +1685,7 @@ export class RedisXClient {
 	 * @returns The number of members removed from the sorted set, not including non-existing members.
 	 * @see {@link https://redis.io/commands/zrem}
 	 */
-	ZREM(
-		key: string,
-		...members: (string | number)[]
-	): Promise<number>;
+	ZREM(key: string, ...members: (string | number)[]): Promise<number>;
 	/**
 	 * Removes the specified members from the sorted set stored at key. Non existing members are ignored.
 	 * - Available since: 1.2.0
@@ -1660,7 +1702,12 @@ export class RedisXClient {
 
 	ZREM(
 		key: string,
-		arg1: string | number | (string | number)[] | Set<string> | IterableIterator<string>,
+		arg1:
+			| string
+			| number
+			| (string | number)[]
+			| Set<string>
+			| IterableIterator<string>,
 		...args_rest: (string | number)[]
 	): Promise<number> {
 		return this.useCommand(input_zrem(key, arg1, ...args_rest));
@@ -1699,10 +1746,12 @@ export class RedisXClient {
 		start: string | number,
 		stop: string | number,
 		options: ZrangeOptions,
-	): Promise<{
-		member: string,
-		score: number,
-	}[]>;
+	): Promise<
+		{
+			member: string;
+			score: number;
+		}[]
+	>;
 
 	ZRANGE(
 		key: string,
@@ -1803,11 +1852,7 @@ export class RedisXClient {
 	 * @returns The number of fields that were added.
 	 * @see {@link https://redis.io/commands/hset}
 	 */
-	HSET(
-		key: string,
-		field: string,
-		value: string | number,
-	): Promise<number>;
+	HSET(key: string, field: string, value: string | number): Promise<number>;
 	/**
 	 * Sets the specified fields to their respective values in the hash stored at key.
 	 * - Available since: 2.0.0.
@@ -1818,22 +1863,11 @@ export class RedisXClient {
 	 * @returns The number of fields that were added.
 	 * @see {@link https://redis.io/commands/hset}
 	 */
-	HSET(
-		key: string,
-		pairs: Record<
-			string,
-			string | number
-		>
-	): Promise<number>;
+	HSET(key: string, pairs: Record<string, string | number>): Promise<number>;
 
 	HSET(
 		key: string,
-		arg1:
-			| string
-			| Record<
-				string,
-				string | number
-			>,
+		arg1: string | Record<string, string | number>,
 		arg2?: string | number,
 	) {
 		return this.useCommand(input_hset(key, arg1, arg2));
@@ -1852,7 +1886,11 @@ export class RedisXClient {
 	 * @returns The value of the field after the increment operation as a string representing the floating point value.
 	 * @see {@link https://redis.io/commands/hincrbyfloat}
 	 */
-	HINCRBYFLOAT(key: string, field: string | number, increment: number): Promise<string> {
+	HINCRBYFLOAT(
+		key: string,
+		field: string | number,
+		increment: number,
+	): Promise<string> {
 		return this.useCommand(input_hincrbyfloat(key, field, increment));
 	}
 
@@ -1895,11 +1933,7 @@ export class RedisXClient {
 	 * @returns Simple string reply: "OK".
 	 * @see {@link https://redis.io/commands/hmset}
 	 */
-	HMSET(
-		key: string,
-		field: string,
-		value: string | number,
-	): Promise<'OK'>;
+	HMSET(key: string, field: string, value: string | number): Promise<'OK'>;
 	/**
 	 * Sets the specified fields to their respective values in the hash stored at key.
 	 * This command overwrites any specified fields already existing in the hash.
@@ -1913,22 +1947,11 @@ export class RedisXClient {
 	 * @returns Simple string reply: "OK".
 	 * @see {@link https://redis.io/commands/hmset}
 	 */
-	HMSET(
-		key: string,
-		pairs: Record<
-			string,
-			string | number
-		>,
-	): Promise<'OK'>;
+	HMSET(key: string, pairs: Record<string, string | number>): Promise<'OK'>;
 
 	HMSET(
 		key: string,
-		arg1:
-			| string
-			| Record<
-				string,
-				string | number
-			>,
+		arg1: string | Record<string, string | number>,
 		arg2?: string | number,
 	): Promise<'OK'> {
 		return this.useCommand(input_hmset(key, arg1, arg2));
@@ -1963,7 +1986,10 @@ export class RedisXClient {
 	 */
 	HMGET(key: string, ...fields: string[]): Promise<(string | null)[]>;
 
-	HMGET(key: string, ...fields: (string | string[])[]): Promise<(string | null)[]> {
+	HMGET(
+		key: string,
+		...fields: (string | string[])[]
+	): Promise<(string | null)[]> {
 		return this.useCommand(input_hmget(key, ...fields));
 	}
 
@@ -2008,7 +2034,11 @@ export class RedisXClient {
 	 * @returns The value of the field after the increment operation.
 	 * @see {@link https://redis.io/commands/hincrby}
 	 */
-	HINCRBY(key: string, field: string | number, increment: number): Promise<number> {
+	HINCRBY(
+		key: string,
+		field: string | number,
+		increment: number,
+	): Promise<number> {
 		return this.useCommand(input_hincrby(key, field, increment));
 	}
 
@@ -2037,7 +2067,10 @@ export class RedisXClient {
 	 */
 	HDEL(key: string, ...fields: (string | number)[]): Promise<number>;
 
-	HDEL(key: string, ...fields: (string | number | (string | number)[])[]): Promise<number> {
+	HDEL(
+		key: string,
+		...fields: (string | number | (string | number)[])[]
+	): Promise<number> {
 		return this.useCommand(input_hdel(key, ...fields));
 	}
 
@@ -2109,110 +2142,53 @@ export class RedisXClient {
 }
 
 // MARK: imports
-import {
-	input as input_srem,
-} from './commands/set/srem.js';
-import {
-	input as input_smismember,
-} from './commands/set/smismember.js';
-import {
-	input as input_smembers,
-} from './commands/set/smembers.js';
-import {
-	input as input_sismember,
-} from './commands/set/sismember.js';
-import {
-	input as input_scard,
-} from './commands/set/scard.js';
-import {
-	input as input_sadd,
-} from './commands/set/sadd.js';
-import {
-	input as input_msetnx,
-} from './commands/string/msetnx.js';
-import {
-	input as input_setnx,
-} from './commands/string/setnx.js';
-import {
-	input as input_get,
-} from './commands/string/get.js';
+
+import { input as input_srem } from './commands/set/srem.js';
+import { input as input_smismember } from './commands/set/smismember.js';
+import { input as input_smembers } from './commands/set/smembers.js';
+import { input as input_sismember } from './commands/set/sismember.js';
+import { input as input_scard } from './commands/set/scard.js';
+import { input as input_sadd } from './commands/set/sadd.js';
+import { input as input_msetnx } from './commands/string/msetnx.js';
+import { input as input_setnx } from './commands/string/setnx.js';
+import { input as input_get } from './commands/string/get.js';
 import {
 	type SetOptions,
 	type SetOptionsGet,
 	input as input_set,
 } from './commands/string/set.js';
-import {
-	input as input_append,
-} from './commands/string/append.js';
-import {
-	input as input_incr,
-} from './commands/string/incr.js';
-import {
-	input as input_incrbyfloat,
-} from './commands/string/incrbyfloat.js';
-import {
-	input as input_mget,
-} from './commands/string/mget.js';
-import {
-	input as input_getdel,
-} from './commands/string/getdel.js';
-import {
-	input as input_mset,
-} from './commands/string/mset.js';
-import {
-	input as input_incrby,
-} from './commands/string/incrby.js';
-import {
-	input as input_setrange,
-} from './commands/string/setrange.js';
-import {
-	input as input_substr,
-} from './commands/string/substr.js';
-import {
-	input as input_getset,
-} from './commands/string/getset.js';
-import {
-	input as input_decrby,
-} from './commands/string/decrby.js';
-import {
-	input as input_getrange,
-} from './commands/string/getrange.js';
-import {
-	input as input_setex,
-} from './commands/string/setex.js';
+import { input as input_append } from './commands/string/append.js';
+import { input as input_incr } from './commands/string/incr.js';
+import { input as input_incrbyfloat } from './commands/string/incrbyfloat.js';
+import { input as input_mget } from './commands/string/mget.js';
+import { input as input_getdel } from './commands/string/getdel.js';
+import { input as input_mset } from './commands/string/mset.js';
+import { input as input_incrby } from './commands/string/incrby.js';
+import { input as input_setrange } from './commands/string/setrange.js';
+import { input as input_substr } from './commands/string/substr.js';
+import { input as input_getset } from './commands/string/getset.js';
+import { input as input_decrby } from './commands/string/decrby.js';
+import { input as input_getrange } from './commands/string/getrange.js';
+import { input as input_setex } from './commands/string/setex.js';
 import {
 	type GetexOptions,
 	input as input_getex,
 } from './commands/string/getex.js';
-import {
-	input as input_strlen,
-} from './commands/string/strlen.js';
-import {
-	input as input_decr,
-} from './commands/string/decr.js';
-import {
-	input as input_psetex,
-} from './commands/string/psetex.js';
+import { input as input_strlen } from './commands/string/strlen.js';
+import { input as input_decr } from './commands/string/decr.js';
+import { input as input_psetex } from './commands/string/psetex.js';
 import {
 	type PexpireOptions,
 	input as input_pexpire,
 } from './commands/generic/pexpire.js';
-import {
-	input as input_pttl,
-} from './commands/generic/pttl.js';
-import {
-	input as input_ttl,
-} from './commands/generic/ttl.js';
+import { input as input_pttl } from './commands/generic/pttl.js';
+import { input as input_ttl } from './commands/generic/ttl.js';
 import {
 	type ExpireOptions,
 	input as input_expire,
 } from './commands/generic/expire.js';
-import {
-	input as input_type,
-} from './commands/generic/type.js';
-import {
-	input as input_keys,
-} from './commands/generic/keys.js';
+import { input as input_type } from './commands/generic/type.js';
+import { input as input_keys } from './commands/generic/keys.js';
 import {
 	type CopyOptions,
 	input as input_copy,
@@ -2225,75 +2201,29 @@ import {
 	type PexpireatOptions,
 	input as input_pexpireat,
 } from './commands/generic/pexpireat.js';
-import {
-	input as input_persist,
-} from './commands/generic/persist.js';
-import {
-	input as input_expiretime,
-} from './commands/generic/expiretime.js';
-import {
-	input as input_rename,
-} from './commands/generic/rename.js';
-import {
-	input as input_renamenx,
-} from './commands/generic/renamenx.js';
-import {
-	input as input_pexpiretime,
-} from './commands/generic/pexpiretime.js';
-import {
-	input as input_del,
-} from './commands/generic/del.js';
-import {
-	input as input_exists,
-} from './commands/generic/exists.js';
-import {
-	input as input_rpush,
-} from './commands/list/rpush.js';
-import {
-	input as input_lpop,
-} from './commands/list/lpop.js';
-import {
-	input as input_rpoplpush,
-} from './commands/list/rpoplpush.js';
-import {
-	input as input_rpushx,
-} from './commands/list/rpushx.js';
-import {
-	input as input_lset,
-} from './commands/list/lset.js';
-import {
-	input as input_lrem,
-} from './commands/list/lrem.js';
-import {
-	input as input_lpush,
-} from './commands/list/lpush.js';
-import {
-	input as input_lpushx,
-} from './commands/list/lpushx.js';
-import {
-	input as input_rpop,
-} from './commands/list/rpop.js';
-import {
-	input as input_lrange,
-} from './commands/list/lrange.js';
-import {
-	input as input_llen,
-} from './commands/list/llen.js';
-import {
-	input as input_linsert,
-} from './commands/list/linsert.js';
-import {
-	input as input_ltrim,
-} from './commands/list/ltrim.js';
-import {
-	input as input_lindex,
-} from './commands/list/lindex.js';
-import {
-	input as input_xlen,
-} from './commands/stream/xlen.js';
-import {
-	input as input_xdel,
-} from './commands/stream/xdel.js';
+import { input as input_persist } from './commands/generic/persist.js';
+import { input as input_expiretime } from './commands/generic/expiretime.js';
+import { input as input_rename } from './commands/generic/rename.js';
+import { input as input_renamenx } from './commands/generic/renamenx.js';
+import { input as input_pexpiretime } from './commands/generic/pexpiretime.js';
+import { input as input_del } from './commands/generic/del.js';
+import { input as input_exists } from './commands/generic/exists.js';
+import { input as input_rpush } from './commands/list/rpush.js';
+import { input as input_lpop } from './commands/list/lpop.js';
+import { input as input_rpoplpush } from './commands/list/rpoplpush.js';
+import { input as input_rpushx } from './commands/list/rpushx.js';
+import { input as input_lset } from './commands/list/lset.js';
+import { input as input_lrem } from './commands/list/lrem.js';
+import { input as input_lpush } from './commands/list/lpush.js';
+import { input as input_lpushx } from './commands/list/lpushx.js';
+import { input as input_rpop } from './commands/list/rpop.js';
+import { input as input_lrange } from './commands/list/lrange.js';
+import { input as input_llen } from './commands/list/llen.js';
+import { input as input_linsert } from './commands/list/linsert.js';
+import { input as input_ltrim } from './commands/list/ltrim.js';
+import { input as input_lindex } from './commands/list/lindex.js';
+import { input as input_xlen } from './commands/stream/xlen.js';
+import { input as input_xdel } from './commands/stream/xdel.js';
 import {
 	type XreadId,
 	type XReadOptions,
@@ -2319,20 +2249,14 @@ import {
 	type XtrimOptions,
 	input as input_xtrim,
 } from './commands/stream/xtrim.js';
-import {
-	input as input_zcard,
-} from './commands/sorted-set/zcard.js';
+import { input as input_zcard } from './commands/sorted-set/zcard.js';
 import {
 	type ZrangebyscoreOptions,
 	type ZrangebyscoreOptionsWithscores,
 	input as input_zrangebyscore,
 } from './commands/sorted-set/zrangebyscore.js';
-import {
-	input as input_zscore,
-} from './commands/sorted-set/zscore.js';
-import {
-	input as input_zcount,
-} from './commands/sorted-set/zcount.js';
+import { input as input_zscore } from './commands/sorted-set/zscore.js';
+import { input as input_zcount } from './commands/sorted-set/zcount.js';
 import {
 	type ZaddOptions,
 	input as input_zadd,
@@ -2341,9 +2265,7 @@ import {
 	type ZrankOptionsWithscore,
 	input as input_zrank,
 } from './commands/sorted-set/zrank.js';
-import {
-	input as input_zrem,
-} from './commands/sorted-set/zrem.js';
+import { input as input_zrem } from './commands/sorted-set/zrem.js';
 import {
 	type ZrangeOptions,
 	input as input_zrange,
@@ -2356,49 +2278,20 @@ import {
 	type ZrangebylexOptions,
 	input as input_zrangebylex,
 } from './commands/sorted-set/zrangebylex.js';
-import {
-	input as input_hvals,
-} from './commands/hash/hvals.js';
-import {
-	input as input_hset,
-} from './commands/hash/hset.js';
-import {
-	input as input_hincrbyfloat,
-} from './commands/hash/hincrbyfloat.js';
-import {
-	input as input_hgetall,
-} from './commands/hash/hgetall.js';
-import {
-	input as input_hget,
-} from './commands/hash/hget.js';
-import {
-	input as input_hmset,
-} from './commands/hash/hmset.js';
-import {
-	input as input_hmget,
-} from './commands/hash/hmget.js';
-import {
-	input as input_hlen,
-} from './commands/hash/hlen.js';
-import {
-	input as input_hkeys,
-} from './commands/hash/hkeys.js';
-import {
-	input as input_hincrby,
-} from './commands/hash/hincrby.js';
-import {
-	input as input_hdel,
-} from './commands/hash/hdel.js';
-import {
-	input as input_hstrlen,
-} from './commands/hash/hstrlen.js';
-import {
-	input as input_hexists,
-} from './commands/hash/hexists.js';
-import {
-	input as input_hsetnx,
-} from './commands/hash/hsetnx.js';
-import {
-	input as input_eval,
-} from './commands/scripting/eval.js';
+import { input as input_hvals } from './commands/hash/hvals.js';
+import { input as input_hset } from './commands/hash/hset.js';
+import { input as input_hincrbyfloat } from './commands/hash/hincrbyfloat.js';
+import { input as input_hgetall } from './commands/hash/hgetall.js';
+import { input as input_hget } from './commands/hash/hget.js';
+import { input as input_hmset } from './commands/hash/hmset.js';
+import { input as input_hmget } from './commands/hash/hmget.js';
+import { input as input_hlen } from './commands/hash/hlen.js';
+import { input as input_hkeys } from './commands/hash/hkeys.js';
+import { input as input_hincrby } from './commands/hash/hincrby.js';
+import { input as input_hdel } from './commands/hash/hdel.js';
+import { input as input_hstrlen } from './commands/hash/hstrlen.js';
+import { input as input_hexists } from './commands/hash/hexists.js';
+import { input as input_hsetnx } from './commands/hash/hsetnx.js';
+import { input as input_eval } from './commands/scripting/eval.js';
+
 // MARK: end imports

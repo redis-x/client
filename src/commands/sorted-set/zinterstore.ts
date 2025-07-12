@@ -8,7 +8,7 @@ export type ZinterstoreOptions = {
 	 *
 	 * When this option is set to either `MIN` or `MAX`, the resulting set will contain the minimum or maximum score of an element across the inputs where it exists.
 	 */
-	AGGREGATE?: 'SUM' | 'MIN' | 'MAX',
+	AGGREGATE?: 'SUM' | 'MIN' | 'MAX';
 };
 
 /**
@@ -49,29 +49,18 @@ export function input(
 	arg1: (string | number)[] | Record<string, number>,
 	options?: ZinterstoreOptions,
 ): Command<number> {
-	const args = [
-		'ZINTERSTORE',
-		destination,
-	];
+	const args = ['ZINTERSTORE', destination];
 
 	if (Array.isArray(arg1)) {
-		args.push(
-			String(arg1.length),
-			...arg1.map(String),
-		);
-	}
-	else {
+		args.push(String(arg1.length), ...arg1.map(String));
+	} else {
 		const entries = Object.entries(arg1);
-		args.push(
-			String(entries.length),
-		);
+		args.push(String(entries.length));
 
 		const weights = [];
-		for (const [ key, weight ] of entries) {
+		for (const [key, weight] of entries) {
 			args.push(key);
-			weights.push(
-				String(weight),
-			);
+			weights.push(String(weight));
 		}
 
 		args.push('WEIGHTS', ...weights);

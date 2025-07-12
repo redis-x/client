@@ -6,30 +6,26 @@ export type ExpireOptions = {
 	 * Set expiry only when the key has no expiry.
 	 * - Incompatible with options `XX`, `GT` and `LT`.
 	 * - Available since: 7.0.0.
-	 * @type {boolean}
 	 */
-	NX?: boolean,
+	NX?: boolean;
 	/**
 	 * Set expiry only when the key has an existing expiry.
 	 * - Incompatible with options `NX`, `GT` and `LT`.
 	 * - Available since: 7.0.0.
-	 * @type {boolean}
 	 */
-	XX?: boolean,
+	XX?: boolean;
 	/**
 	 * Set expiry only when the new expiry is greater than current one. A non-volatile key is treated as an infinite TTL.
 	 * - Incompatible with options `NX`, `XX` and `LT`.
 	 * - Available since: 7.0.0.
-	 * @type {boolean}
 	 */
-	GT?: boolean,
+	GT?: boolean;
 	/**
 	 * Set expiry only when the new expiry is less than current one. A non-volatile key is treated as an infinite TTL.
 	 * - Incompatible with options `NX`, `XX` and `GT`.
 	 * - Available since: 7.0.0.
-	 * @type {boolean}
 	 */
-	LT?: boolean,
+	LT?: boolean;
 };
 
 /**
@@ -44,7 +40,11 @@ export type ExpireOptions = {
  * @returns Returns `true` if the timeout was set. Returns `false` if the timeout was not set; for example, the key doesn't exist, or the operation was skipped because of the provided arguments.
  * @see {@link https://redis.io/commands/expire}
  */
-export function input(key: string, seconds: number, options?: ExpireOptions): Command<boolean> {
+export function input(
+	key: string,
+	seconds: number,
+	options?: ExpireOptions,
+): Command<boolean> {
 	const args_options = [];
 
 	if (options) {
@@ -67,12 +67,7 @@ export function input(key: string, seconds: number, options?: ExpireOptions): Co
 
 	return {
 		kind: '#schema',
-		args: [
-			'EXPIRE',
-			key,
-			String(seconds),
-			...args_options,
-		],
+		args: ['EXPIRE', key, String(seconds), ...args_options],
 		replyTransform,
 	};
 }

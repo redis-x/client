@@ -33,13 +33,12 @@ declare function _command(key: string, member: (string | number)[]): number;
 declare function _command(key: string, ...members: (string | number)[]): number;
 
 // eslint-disable-next-line jsdoc/require-jsdoc
-export function input(key: string, ...members: (string | number | (string | number)[])[]): Command<number> {
+export function input(
+	key: string,
+	...members: (string | number | (string | number)[])[]
+): Command<number> {
 	return {
 		kind: '#schema',
-		args: [
-			'SADD',
-			key,
-			...members.flat().map(String),
-		],
+		args: ['SADD', key, ...members.flat().map(String)],
 	};
 }

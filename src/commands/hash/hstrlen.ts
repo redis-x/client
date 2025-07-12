@@ -14,10 +14,6 @@ import type { Command } from '../../types.js';
 export function input(key: string, field: string): Command<number> {
 	return {
 		kind: '#schema',
-		args: [
-			'HSTRLEN',
-			key,
-			field,
-		],
+		args: ['HSTRLEN', key, field],
 	};
 }

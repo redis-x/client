@@ -8,12 +8,13 @@ import type { Command } from '../../types.js';
  * @returns "OK".
  * @see {@link https://redis.io/commands/rename}
  */
-export function input(key: string): Command<'string' | 'list' | 'set' | 'zset' | 'hash' | 'stream' | 'vectorset'> {
+export function input(
+	key: string,
+): Command<
+	'string' | 'list' | 'set' | 'zset' | 'hash' | 'stream' | 'vectorset'
+> {
 	return {
 		kind: '#schema',
-		args: [
-			'TYPE',
-			key,
-		],
+		args: ['TYPE', key],
 	};
 }

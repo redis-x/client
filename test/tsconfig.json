@@ -3,8 +3,6 @@
 	"compilerOptions": {
 		"isolatedDeclarations": false
 	},
-	"include": [
-		"./**/*.ts",
-		"../src/**/*.test.ts"
-	]
+	"include": ["./**/*.ts", "../src/**/*.test.ts"],
+	"exclude": []
 }

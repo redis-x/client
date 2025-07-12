@@ -7,43 +7,43 @@ export type SetOptions = {
 	 * - Incompatible with option `GET` before 7.0.0.
 	 * - Available since: 2.6.12.
 	 */
-	NX?: boolean,
+	NX?: boolean;
 	/**
 	 * Only set the key if it already exist.
 	 * - Incompatible with option `NX`.
 	 * - Available since: 2.6.12.
 	 */
-	XX?: boolean,
+	XX?: boolean;
 	/**
 	 * Set the specified expire time, in *seconds*.
 	 * - Incompatible with options `PX`, `EXAT`, `PXAT` and `KEEPTTL`.
 	 * - Available since: 2.6.12.
 	 */
-	EX?: number,
+	EX?: number;
 	/**
 	 * Set the specified expire time, in *milliseconds*.
 	 * - Incompatible with options `EX`, `EXAT`, `PXAT` and `KEEPTTL`.
 	 * - Available since: 2.6.12.
 	 */
-	PX?: number,
+	PX?: number;
 	/**
 	 * Set the specified expire time, in *seconds*.
 	 * - Incompatible with options `EX`, `PX`, `PXAT` and `KEEPTTL`.
 	 * - Available since: 6.2.0.
 	 */
-	EXAT?: number,
+	EXAT?: number;
 	/**
 	 * Set the specified expire time, in *milliseconds*.
 	 * - Incompatible with options `EX`, `PX`, `EXAT` and `KEEPTTL`.
 	 * - Available since: 6.2.0.
 	 */
-	PXAT?: number,
+	PXAT?: number;
 	/**
 	 * Retain the time to live associated with the key.
 	 * - Incompatible with options `EX`, `PX`, `EXAT` and `PXAT`.
 	 * - Available since: 6.0.0.
 	 */
-	KEEPTTL?: boolean,
+	KEEPTTL?: boolean;
 };
 export type SetOptionsGet = {
 	/**
@@ -51,7 +51,7 @@ export type SetOptionsGet = {
 	 * - Incompatible with option `NX` before 7.0.0.
 	 * - Available since: 6.2.0.
 	 */
-	GET: true,
+	GET: true;
 };
 
 /**
@@ -75,7 +75,11 @@ declare function _command(key: string, value: string | number): 'OK' | null;
  * @returns Returns string `"OK"` if the key was set, or `null` if operation was aborted (conflict with one of the XX/NX options).
  * @see {@link https://redis.io/commands/set}
  */
-declare function _command(key: string, value: string | number, options: SetOptions): 'OK' | null;
+declare function _command(
+	key: string,
+	value: string | number,
+	options: SetOptions,
+): 'OK' | null;
 
 /**
  * Set the string value of a key.
@@ -87,10 +91,18 @@ declare function _command(key: string, value: string | number, options: SetOptio
  * @returns Returns string with the previous value of the key, or `null` if the key didn't exist before the SET.
  * @see {@link https://redis.io/commands/set}
  */
-declare function _command(key: string, value: string | number, options: SetOptions & SetOptionsGet): string | null;
+declare function _command(
+	key: string,
+	value: string | number,
+	options: SetOptions & SetOptionsGet,
+): string | null;
 
 // eslint-disable-next-line jsdoc/require-jsdoc
-export function input(key: string, value: string | number, options?: SetOptions & Partial<SetOptionsGet>): Command {
+export function input(
+	key: string,
+	value: string | number,
+	options?: SetOptions & Partial<SetOptionsGet>,
+): Command {
 	const args_options: string[] = [];
 
 	if (options) {
@@ -103,31 +115,19 @@ export function input(key: string, value: string | number, options?: SetOptions 
 		}
 
 		if (options.EX) {
-			args_options.push(
-				'EX',
-				String(options.EX),
-			);
+			args_options.push('EX', String(options.EX));
 		}
 
 		if (options.PX) {
-			args_options.push(
-				'PX',
-				String(options.PX),
-			);
+			args_options.push('PX', String(options.PX));
 		}
 
 		if (options.EXAT) {
-			args_options.push(
-				'EXAT',
-				String(options.EXAT),
-			);
+			args_options.push('EXAT', String(options.EXAT));
 		}
 
 		if (options.PXAT) {
-			args_options.push(
-				'PXAT',
-				String(options.PXAT),
-			);
+			args_options.push('PXAT', String(options.PXAT));
 		}
 
 		if (options.KEEPTTL) {
@@ -141,11 +141,6 @@ export function input(key: string, value: string | number, options?: SetOptions 
 
 	return {
 		kind: '#schema',
-		args: [
-			'SET',
-			key,
-			String(value),
-			...args_options,
-		],
+		args: ['SET', key, String(value), ...args_options],
 	};
 }

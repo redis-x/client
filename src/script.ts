@@ -1,10 +1,10 @@
 import type { RedisClient } from './types.js';
 
 export type RedisXScriptOptions<I = string[], O = unknown> = {
-	code: string,
-	keys?: string[],
-	inputValidator?: (value: I) => string[],
-	outputValidator?: (value: unknown) => O,
+	code: string;
+	keys?: string[];
+	inputValidator?: (value: I) => string[];
+	outputValidator?: (value: unknown) => O;
 };
 
 export class RedisXScript<
@@ -33,11 +33,7 @@ export class RedisXScript<
 	}
 
 	private async load() {
-		const result = await this.client.sendCommand([
-			'SCRIPT',
-			'LOAD',
-			this.code,
-		]);
+		const result = await this.client.sendCommand(['SCRIPT', 'LOAD', this.code]);
 		if (typeof result !== 'string') {
 			throw new TypeError('Invalid response from SCRIPT LOAD');
 		}
@@ -60,9 +56,10 @@ export class RedisXScript<
 				...(this.inputValidator ? this.inputValidator(args) : args),
 			]);
 
-			return this.outputValidator ? this.outputValidator(result) : result as O;
-		}
-		catch (error) {
+			return this.outputValidator
+				? this.outputValidator(result)
+				: (result as O);
+		} catch (error) {
 			if (error instanceof Error && error.message.startsWith('NOSCRIPT')) {
 				this.sha = null;
 				return this.execute(...args);

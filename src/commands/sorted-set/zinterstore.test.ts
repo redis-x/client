@@ -1,17 +1,11 @@
-import {
-	describe,
-	expect,
-	test,
-} from 'vitest';
+import { describe, expect, test } from 'vitest';
 import { input } from './zinterstore.js';
 
 describe('command', () => {
 	test('list of keys', () => {
-		const command = input('destination', [ 'foo', 'bar' ]);
+		const command = input('destination', ['foo', 'bar']);
 
-		expect(
-			command.args,
-		).toStrictEqual([
+		expect(command.args).toStrictEqual([
 			'ZINTERSTORE',
 			'destination',
 			'2',
@@ -23,17 +17,12 @@ describe('command', () => {
 	});
 
 	test('keys with weights', () => {
-		const command = input(
-			'destination',
-			{
-				foo: 1,
-				bar: 2,
-			},
-		);
+		const command = input('destination', {
+			foo: 1,
+			bar: 2,
+		});
 
-		expect(
-			command.args,
-		).toStrictEqual([
+		expect(command.args).toStrictEqual([
 			'ZINTERSTORE',
 			'destination',
 			'2',
@@ -48,17 +37,11 @@ describe('command', () => {
 	});
 
 	test('keys with options', () => {
-		const command = input(
-			'destination',
-			[ 'foo', 'bar' ],
-			{
-				AGGREGATE: 'SUM',
-			},
-		);
+		const command = input('destination', ['foo', 'bar'], {
+			AGGREGATE: 'SUM',
+		});
 
-		expect(
-			command.args,
-		).toStrictEqual([
+		expect(command.args).toStrictEqual([
 			'ZINTERSTORE',
 			'destination',
 			'2',

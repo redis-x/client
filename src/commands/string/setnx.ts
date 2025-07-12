@@ -16,11 +16,7 @@ import type { Command } from '../../types.js';
 export function input(key: string, value: string | number): Command<boolean> {
 	return {
 		kind: '#schema',
-		args: [
-			'SETNX',
-			key,
-			String(value),
-		],
+		args: ['SETNX', key, String(value)],
 		replyTransform,
 	};
 }

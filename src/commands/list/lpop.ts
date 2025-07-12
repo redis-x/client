@@ -32,23 +32,19 @@ declare function _command(key: string): string | null;
 declare function _command(key: string, count: number): string[] | null;
 
 // eslint-disable-next-line jsdoc/require-jsdoc
-export function input(key: string, count?: number): Command<string | string[] | null> {
+export function input(
+	key: string,
+	count?: number,
+): Command<string | string[] | null> {
 	if (count !== undefined) {
 		return {
 			kind: '#schema',
-			args: [
-				'LPOP',
-				key,
-				String(count),
-			],
+			args: ['LPOP', key, String(count)],
 		};
 	}
 
 	return {
 		kind: '#schema',
-		args: [
-			'LPOP',
-			key,
-		],
+		args: ['LPOP', key],
 	};
 }

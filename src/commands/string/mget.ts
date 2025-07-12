@@ -11,7 +11,9 @@ import type { Command } from '../../types.js';
  * @returns Array reply: a list of values at the specified keys.
  * @see {@link https://redis.io/commands/mget}
  */
-declare function _command<const K extends string[]>(keys: K): { [I in keyof K]: string | null };
+declare function _command<const K extends string[]>(
+	keys: K,
+): { [I in keyof K]: string | null };
 
 /**
  * Returns the values of all specified keys. For every key that does not hold a
@@ -24,15 +26,16 @@ declare function _command<const K extends string[]>(keys: K): { [I in keyof K]: 
  * @returns Array reply: a list of values at the specified keys.
  * @see {@link https://redis.io/commands/mget}
  */
-declare function _command<const K extends string[]>(...keys: K): { [I in keyof K]: string | null };
+declare function _command<const K extends string[]>(
+	...keys: K
+): { [I in keyof K]: string | null };
 
 // eslint-disable-next-line jsdoc/require-jsdoc
-export function input(...args: (string | string[])[]): Command<(string | null)[]> {
+export function input(
+	...args: (string | string[])[]
+): Command<(string | null)[]> {
 	return {
 		kind: '#schema',
-		args: [
-			'MGET',
-			...args.flat(),
-		],
+		args: ['MGET', ...args.flat()],
 	};
 }

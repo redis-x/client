@@ -12,10 +12,7 @@ import type { Command } from '../../types.js';
 export function input(key: string): Command<Set<string>> {
 	return {
 		kind: '#schema',
-		args: [
-			'HVALS',
-			key,
-		],
+		args: ['HVALS', key],
 		replyTransform,
 	};
 }

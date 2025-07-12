@@ -6,14 +6,14 @@ export type XtrimOptions = {
 	 * The stream may have few tens of additional entries over the threshold.
 	 * - Available since: 5.0.0.
 	 */
-	trimOperator?: '~' | '=',
+	trimOperator?: '~' | '=';
 	/**
 	 * Specifies the maximal count of entries that will be evicted.
 	 * When not specified, the default value of 100 * the number of entries in a macro node will be implicitly used.
 	 * Specifying the value 0 disables the limiting mechanism entirely.
 	 * - Available since: 6.2.0.
 	 */
-	LIMIT?: number,
+	LIMIT?: number;
 };
 
 /**
@@ -65,11 +65,7 @@ export function input(
 	threshold: number | string,
 	options?: XtrimOptions,
 ): Command<number> {
-	const args: string[] = [
-		'XTRIM',
-		key,
-		strategy,
-	];
+	const args: string[] = ['XTRIM', key, strategy];
 
 	if (options?.trimOperator) {
 		args.push(options.trimOperator);

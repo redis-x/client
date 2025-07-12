@@ -5,21 +5,21 @@ export type ZrangeOptions = {
 	 * Returns the range of elements from the sorted set having scores equal or between `<start>` and `<stop>`.
 	 * - Available since: 6.2.0.
 	 */
-	BY?: 'SCORE' | 'LEX',
+	BY?: 'SCORE' | 'LEX';
 	/**
 	 * Reverses the ordering, so elements are ordered from highest to lowest score, and score ties are resolved by reverse lexicographical ordering.
 	 * - Available since: 6.2.0.
 	 */
-	REV?: boolean,
+	REV?: boolean;
 	/**
 	 * Obtains a sub-range from the matching elements (similar to SELECT LIMIT offset, count in SQL). A negative `<count>` returns all elements from the `<offset>`.
 	 * - Available since: 6.2.0.
 	 */
-	LIMIT?: [ number, number ],
+	LIMIT?: [number, number];
 	/**
 	 * Supplements the command's reply with the scores of elements returned.
 	 */
-	WITHSCORES?: true,
+	WITHSCORES?: true;
 };
 
 /**
@@ -57,8 +57,8 @@ declare function _command(
 	stop: string | number,
 	options: ZrangeOptions,
 ): {
-	member: string,
-	score: number,
+	member: string;
+	score: number;
 }[];
 
 // eslint-disable-next-line jsdoc/require-jsdoc
@@ -68,12 +68,7 @@ export function input(
 	stop: string | number,
 	options?: ZrangeOptions,
 ): Command {
-	const args = [
-		'ZRANGE',
-		key,
-		String(start),
-		String(stop),
-	];
+	const args = ['ZRANGE', key, String(start), String(stop)];
 
 	if (options) {
 		if (options.BY) {
@@ -85,11 +80,7 @@ export function input(
 		}
 
 		if (options.LIMIT) {
-			args.push(
-				'LIMIT',
-				String(options.LIMIT[0]),
-				String(options.LIMIT[1]),
-			);
+			args.push('LIMIT', String(options.LIMIT[0]), String(options.LIMIT[1]));
 		}
 
 		if (options.WITHSCORES) {

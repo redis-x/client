@@ -11,7 +11,7 @@ export type XaddOptions = {
 		 * With MINID, the stream is limited by the minimum ID.
 		 * - Available since: 5.0.0 for MAXLEN, 6.2.0 for MINID.
 		 */
-		strategy: 'MAXLEN' | 'MINID',
+		strategy: 'MAXLEN' | 'MINID';
 		/**
 		 * Exact trimming or almost exact trimming.
 		 * When `~` is specified, the trimming will be performed in a more efficient way, but may
@@ -19,20 +19,20 @@ export type XaddOptions = {
 		 * When `=` is specified (or when not specified at all), the trimming will be exact.
 		 * - Available since: 5.0.0.
 		 */
-		operator?: '~' | '=',
+		operator?: '~' | '=';
 		/**
 		 * The threshold used for trimming. With MAXLEN, it represents the maximum number of
 		 * entries. With MINID, it represents the minimum ID.
 		 * - Available since: 5.0.0.
 		 */
-		threshold: string | number,
+		threshold: string | number;
 		/**
 		 * The maximum number of entries to trim. By default, all entries that exceed the threshold
 		 * are removed. With LIMIT, only the specified number of entries are removed.
 		 * - Available since: 6.2.0.
 		 */
-		LIMIT?: number,
-	},
+		LIMIT?: number;
+	};
 };
 
 export type XaddOptionsNomkstream = {
@@ -41,7 +41,7 @@ export type XaddOptionsNomkstream = {
 	 * if it doesn't exist.
 	 * - Available since: 6.2.0.
 	 */
-	NOMKSTREAM: boolean,
+	NOMKSTREAM: boolean;
 };
 
 /**
@@ -56,11 +56,7 @@ export type XaddOptionsNomkstream = {
  * @returns The ID of the added entry.
  * @see {@link https://redis.io/commands/xadd}
  */
-declare function _command(
-	key: string,
-	id: XaddId,
-	pairs: XaddPairs,
-): string;
+declare function _command(key: string, id: XaddId, pairs: XaddPairs): string;
 
 /**
  * Appends the specified stream entry to the stream at the specified key.
@@ -110,7 +106,7 @@ export function input(
 	options?: XaddOptions & Partial<XaddOptionsNomkstream>,
 ): Command<string | null> {
 	// Build command arguments
-	const cmdArgs: string[] = [ 'XADD', key ];
+	const cmdArgs: string[] = ['XADD', key];
 
 	// Add options if present
 	if (options) {
@@ -139,7 +135,7 @@ export function input(
 	cmdArgs.push(String(id));
 
 	// Add fields and values
-	for (const [ field, value ] of Object.entries(pairs)) {
+	for (const [field, value] of Object.entries(pairs)) {
 		if (value === undefined) {
 			continue;
 		}

@@ -15,10 +15,6 @@ import type { Command } from '../../types.js';
 export function input(key: string, index: number): Command<string | null> {
 	return {
 		kind: '#schema',
-		args: [
-			'LINDEX',
-			key,
-			String(index),
-		],
+		args: ['LINDEX', key, String(index)],
 	};
 }

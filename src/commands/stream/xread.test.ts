@@ -1,38 +1,19 @@
-/* eslint-disable @stylistic/array-element-newline */
-
-import {
-	describe,
-	expect,
-	test,
-} from 'vitest';
+import { describe, expect, test } from 'vitest';
 import { input } from './xread.js';
 
 const zread_reply = [
 	[
 		'mystream',
 		[
-
-			[
-				'1526984818136-0',
-				[ 'duration', '1532', 'event_id', '5' ],
-			],
-			[
-				'1526999352406-0',
-				[ 'duration', '9526', 'event_id', '10' ],
-			],
+			['1526984818136-0', ['duration', '1532', 'event_id', '5']],
+			['1526999352406-0', ['duration', '9526', 'event_id', '10']],
 		],
 	],
 	[
 		'writers',
 		[
-			[
-				'1526985676425-0',
-				[ 'name', 'Peter', 'surname', 'McDonald' ],
-			],
-			[
-				'1526985679425-0',
-				[ 'name', 'Elizabeth', 'surname', 'Taylor' ],
-			],
+			['1526985676425-0', ['name', 'Peter', 'surname', 'McDonald']],
+			['1526985679425-0', ['name', 'Elizabeth', 'surname', 'Taylor']],
 		],
 	],
 ];
@@ -76,15 +57,12 @@ describe('command', () => {
 	test('single stream', () => {
 		const command = input('mystream', '0-0');
 
-		expect(command.args).toStrictEqual([
-			'XREAD',
-			'STREAMS',
-			'mystream',
-			'0-0',
-		]);
+		expect(command.args).toStrictEqual(['XREAD', 'STREAMS', 'mystream', '0-0']);
 
 		expect(command.replyTransform?.(null)).toStrictEqual([]);
-		expect(command.replyTransform?.(zread_reply.slice(0, 1))).toStrictEqual(zread_return.mystream);
+		expect(command.replyTransform?.(zread_reply.slice(0, 1))).toStrictEqual(
+			zread_return.mystream,
+		);
 	});
 
 	test('multiple streams', () => {
@@ -113,19 +91,32 @@ describe('command', () => {
 		test('single stream', () => {
 			const command = input('mystream', '0-0', { BLOCK: 1000 });
 
-			expect(command.args).toStrictEqual([ 'XREAD', 'BLOCK', '1000', 'STREAMS', 'mystream', '0-0' ]);
+			expect(command.args).toStrictEqual([
+				'XREAD',
+				'BLOCK',
+				'1000',
+				'STREAMS',
+				'mystream',
+				'0-0',
+			]);
 
 			expect(command.replyTransform?.(null)).toStrictEqual([]);
-			expect(command.replyTransform?.(zread_reply.slice(0, 1))).toStrictEqual(zread_return.mystream);
+			expect(command.replyTransform?.(zread_reply.slice(0, 1))).toStrictEqual(
+				zread_return.mystream,
+			);
 		});
 
 		test('multiple streams', () => {
-			const command = input(
-				{ mystream: '0-0' },
-				{ BLOCK: 1000 },
-			);
+			const command = input({ mystream: '0-0' }, { BLOCK: 1000 });
 
-			expect(command.args).toStrictEqual([ 'XREAD', 'BLOCK', '1000', 'STREAMS', 'mystream', '0-0' ]);
+			expect(command.args).toStrictEqual([
+				'XREAD',
+				'BLOCK',
+				'1000',
+				'STREAMS',
+				'mystream',
+				'0-0',
+			]);
 		});
 	});
 
@@ -133,19 +124,32 @@ describe('command', () => {
 		test('single stream', () => {
 			const command = input('mystream', '0-0', { COUNT: 100 });
 
-			expect(command.args).toStrictEqual([ 'XREAD', 'COUNT', '100', 'STREAMS', 'mystream', '0-0' ]);
+			expect(command.args).toStrictEqual([
+				'XREAD',
+				'COUNT',
+				'100',
+				'STREAMS',
+				'mystream',
+				'0-0',
+			]);
 
 			expect(command.replyTransform?.(null)).toStrictEqual([]);
-			expect(command.replyTransform?.(zread_reply.slice(0, 1))).toStrictEqual(zread_return.mystream);
+			expect(command.replyTransform?.(zread_reply.slice(0, 1))).toStrictEqual(
+				zread_return.mystream,
+			);
 		});
 
 		test('multiple streams', () => {
-			const command = input(
-				{ mystream: '0-0' },
-				{ COUNT: 100 },
-			);
+			const command = input({ mystream: '0-0' }, { COUNT: 100 });
 
-			expect(command.args).toStrictEqual([ 'XREAD', 'COUNT', '100', 'STREAMS', 'mystream', '0-0' ]);
+			expect(command.args).toStrictEqual([
+				'XREAD',
+				'COUNT',
+				'100',
+				'STREAMS',
+				'mystream',
+				'0-0',
+			]);
 		});
 	});
 });

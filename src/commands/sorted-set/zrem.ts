@@ -9,10 +9,7 @@ import type { Command } from '../../types.js';
  * @returns The number of members removed from the sorted set, not including non-existing members.
  * @see {@link https://redis.io/commands/zrem}
  */
-declare function _command(
-	key: string,
-	...members: (string | number)[]
-): number;
+declare function _command(key: string, ...members: (string | number)[]): number;
 
 /**
  * Removes the specified members from the sorted set stored at key. Non existing members are ignored.
@@ -31,24 +28,20 @@ declare function _command(
 // eslint-disable-next-line jsdoc/require-jsdoc
 export function input(
 	key: string,
-	arg1: string | number | (string | number)[] | Set<string> | IterableIterator<string>,
+	arg1:
+		| string
+		| number
+		| (string | number)[]
+		| Set<string>
+		| IterableIterator<string>,
 	...args_rest: (string | number)[]
 ): Command<number> {
-	const args = [
-		'ZREM',
-		key,
-	];
+	const args = ['ZREM', key];
 
 	if (typeof arg1 === 'string' || typeof arg1 === 'number') {
-		args.push(
-			String(arg1),
-			...args_rest.map(String),
-		);
-	}
-	else {
-		args.push(
-			...[ ...arg1 ].map(String),
-		);
+		args.push(String(arg1), ...args_rest.map(String));
+	} else {
+		args.push(...[...arg1].map(String));
 	}
 
 	return {

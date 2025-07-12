@@ -22,11 +22,6 @@ export function input(
 ): Command<number> {
 	return {
 		kind: '#schema',
-		args: [
-			'ZCOUNT',
-			key,
-			String(min),
-			String(max),
-		],
+		args: ['ZCOUNT', key, String(min), String(max)],
 	};
 }

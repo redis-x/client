@@ -1,10 +1,4 @@
-/* eslint-disable @stylistic/array-element-newline */
-
-import {
-	describe,
-	expect,
-	test,
-} from 'vitest';
+import { describe, expect, test } from 'vitest';
 import { input } from './pexpireat.js';
 
 describe('command', () => {
@@ -13,16 +7,14 @@ describe('command', () => {
 	test('no options', () => {
 		const command = input('key', timestamp);
 
-		expect(command.args).toStrictEqual(
-			[ 'PEXPIREAT', 'key', String(timestamp) ],
-		);
+		expect(command.args).toStrictEqual(['PEXPIREAT', 'key', String(timestamp)]);
 
 		expect(command.replyTransform).toBeTypeOf('function');
 	});
 
-	for (const option of [ 'NX', 'XX', 'GT', 'LT' ]) {
+	for (const option of ['NX', 'XX', 'GT', 'LT']) {
 		describe(`option ${option}`, () => {
-			for (const value of [ true, false ]) {
+			for (const value of [true, false]) {
 				test(String(value), () => {
 					const command = input('key', timestamp, {
 						[option]: value,
@@ -30,8 +22,8 @@ describe('command', () => {
 
 					expect(command.args).toStrictEqual(
 						value
-							? [ 'PEXPIREAT', 'key', String(timestamp), option ]
-							: [ 'PEXPIREAT', 'key', String(timestamp) ],
+							? ['PEXPIREAT', 'key', String(timestamp), option]
+							: ['PEXPIREAT', 'key', String(timestamp)],
 					);
 				});
 			}

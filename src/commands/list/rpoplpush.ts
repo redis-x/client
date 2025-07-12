@@ -20,13 +20,12 @@ import type { Command } from '../../types.js';
  * @returns The element being popped and pushed, or `null` if the source list is empty.
  * @see {@link https://redis.io/commands/rpoplpush}
  */
-export function input(source: string, destination: string): Command<string | null> {
+export function input(
+	source: string,
+	destination: string,
+): Command<string | null> {
 	return {
 		kind: '#schema',
-		args: [
-			'RPOPLPUSH',
-			source,
-			destination,
-		],
+		args: ['RPOPLPUSH', source, destination],
 	};
 }

@@ -13,14 +13,13 @@ import type { Command } from '../../types.js';
  * @returns Simple string reply: OK.
  * @see {@link https://redis.io/commands/setex}
  */
-export function input(key: string, seconds: number, value: string | number): Command<'OK'> {
+export function input(
+	key: string,
+	seconds: number,
+	value: string | number,
+): Command<'OK'> {
 	return {
 		kind: '#schema',
-		args: [
-			'SETEX',
-			key,
-			String(seconds),
-			String(value),
-		],
+		args: ['SETEX', key, String(seconds), String(value)],
 	};
 }

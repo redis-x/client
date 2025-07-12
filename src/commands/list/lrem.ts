@@ -15,14 +15,13 @@ import type { Command } from '../../types.js';
  * @returns The number of removed elements.
  * @see {@link https://redis.io/commands/lrem}
  */
-export function input(key: string, count: number, element: string | number): Command<number> {
+export function input(
+	key: string,
+	count: number,
+	element: string | number,
+): Command<number> {
 	return {
 		kind: '#schema',
-		args: [
-			'LREM',
-			key,
-			String(count),
-			String(element),
-		],
+		args: ['LREM', key, String(count), String(element)],
 	};
 }

@@ -13,14 +13,13 @@ import type { Command } from '../../types.js';
  * @returns "OK" if the command was executed successfully.
  * @see {@link https://redis.io/commands/psetex}
  */
-export function input(key: string, milliseconds: number, value: string | number): Command<'OK'> {
+export function input(
+	key: string,
+	milliseconds: number,
+	value: string | number,
+): Command<'OK'> {
 	return {
 		kind: '#schema',
-		args: [
-			'PSETEX',
-			key,
-			String(milliseconds),
-			String(value),
-		],
+		args: ['PSETEX', key, String(milliseconds), String(value)],
 	};
 }

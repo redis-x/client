@@ -12,10 +12,6 @@ import type { Command } from '../../types.js';
 export function input(key: string, field: string): Command<string | null> {
 	return {
 		kind: '#schema',
-		args: [
-			'HGET',
-			key,
-			field,
-		],
+		args: ['HGET', key, field],
 	};
 }

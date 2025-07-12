@@ -14,14 +14,13 @@ import type { Command } from '../../types.js';
  * @returns The substring.
  * @see {@link https://redis.io/commands/getrange}
  */
-export function input(key: string, start: number, end: number): Command<string> {
+export function input(
+	key: string,
+	start: number,
+	end: number,
+): Command<string> {
 	return {
 		kind: '#schema',
-		args: [
-			'GETRANGE',
-			key,
-			String(start),
-			String(end),
-		],
+		args: ['GETRANGE', key, String(start), String(end)],
 	};
 }

@@ -1,24 +1,11 @@
-import {
-	test,
-	expect,
-} from 'vitest';
+import { expect, test } from 'vitest';
 import { input } from './eval.js';
 
 test('command', () => {
 	const script = 'return {KEYS[1],ARGV[1]}';
-	const command = input(
-		script,
-		[ 'foo' ],
-		[ 'bar' ],
-	);
+	const command = input(script, ['foo'], ['bar']);
 
-	expect(command.args).toStrictEqual([
-		'EVAL',
-		script,
-		'1',
-		'foo',
-		'bar',
-	]);
+	expect(command.args).toStrictEqual(['EVAL', script, '1', 'foo', 'bar']);
 
 	expect(command.replyTransform).toBeUndefined();
 });

@@ -10,8 +10,8 @@ import type { Command } from '../../types.js';
  * @see {@link https://redis.io/commands/mset}
  */
 export function input(pairs: Record<string, string | number>): Command<'OK'> {
-	const args: string[] = [ 'MSET' ];
-	for (const [ key, value ] of Object.entries(pairs)) {
+	const args: string[] = ['MSET'];
+	for (const [key, value] of Object.entries(pairs)) {
 		args.push(key, String(value));
 	}
 

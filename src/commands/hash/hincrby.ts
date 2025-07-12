@@ -15,14 +15,13 @@ import type { Command } from '../../types.js';
  * @returns The value of the field after the increment operation.
  * @see {@link https://redis.io/commands/hincrby}
  */
-export function input(key: string, field: string | number, increment: number): Command<number> {
+export function input(
+	key: string,
+	field: string | number,
+	increment: number,
+): Command<number> {
 	return {
 		kind: '#schema',
-		args: [
-			'HINCRBY',
-			key,
-			String(field),
-			String(increment),
-		],
+		args: ['HINCRBY', key, String(field), String(increment)],
 	};
 }

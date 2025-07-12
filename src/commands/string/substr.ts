@@ -13,14 +13,13 @@ import type { Command } from '../../types.js';
  * @returns The substring of the string value stored at key.
  * @see {@link https://redis.io/commands/substr}
  */
-export function input(key: string, start: number, end: number): Command<string> {
+export function input(
+	key: string,
+	start: number,
+	end: number,
+): Command<string> {
 	return {
 		kind: '#schema',
-		args: [
-			'SUBSTR',
-			key,
-			String(start),
-			String(end),
-		],
+		args: ['SUBSTR', key, String(start), String(end)],
 	};
 }

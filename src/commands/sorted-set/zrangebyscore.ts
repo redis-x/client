@@ -5,14 +5,14 @@ export type ZrangebyscoreOptions = {
 	 * Returns only a specified range of elements. Start and count are zero-based indexes, inclusive.
 	 * - Available since: 1.0.5.
 	 */
-	LIMIT?: [ number, number ],
+	LIMIT?: [number, number];
 };
 export type ZrangebyscoreOptionsWithscores = {
 	/**
 	 * Specifies if the scores should also be returned.
 	 * - Available since: 2.0.0.
 	 */
-	WITHSCORES: true,
+	WITHSCORES: true;
 };
 
 /**
@@ -60,8 +60,8 @@ declare function _command(
 	max: number | `(${number}` | '+inf',
 	options: ZrangebyscoreOptions & ZrangebyscoreOptionsWithscores,
 ): {
-	member: string,
-	score: number,
+	member: string;
+	score: number;
 }[];
 
 // eslint-disable-next-line jsdoc/require-jsdoc
@@ -71,12 +71,7 @@ export function input(
 	max: number | `(${number}` | '+inf',
 	options?: ZrangebyscoreOptions & Partial<ZrangebyscoreOptionsWithscores>,
 ): Command {
-	const args: string[] = [
-		'ZRANGEBYSCORE',
-		key,
-		String(min),
-		String(max),
-	];
+	const args: string[] = ['ZRANGEBYSCORE', key, String(min), String(max)];
 
 	if (options) {
 		if (options.WITHSCORES) {
@@ -84,11 +79,7 @@ export function input(
 		}
 
 		if (options.LIMIT) {
-			args.push(
-				'LIMIT',
-				String(options.LIMIT[0]),
-				String(options.LIMIT[1]),
-			);
+			args.push('LIMIT', String(options.LIMIT[0]), String(options.LIMIT[1]));
 		}
 	}
 

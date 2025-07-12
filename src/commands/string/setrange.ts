@@ -15,14 +15,13 @@ import type { Command } from '../../types.js';
  * @returns The length of the string after it was modified by the command.
  * @see {@link https://redis.io/commands/setrange}
  */
-export function input(key: string, offset: number, value: string): Command<number> {
+export function input(
+	key: string,
+	offset: number,
+	value: string,
+): Command<number> {
 	return {
 		kind: '#schema',
-		args: [
-			'SETRANGE',
-			key,
-			String(offset),
-			value,
-		],
+		args: ['SETRANGE', key, String(offset), value],
 	};
 }

@@ -11,9 +11,11 @@ import type { Command } from '../../types.js';
  * @returns `true` if all the keys were set, `false` if no key was set (at least one key already existed).
  * @see {@link https://redis.io/commands/msetnx}
  */
-export function input(pairs: Record<string, string | number>): Command<boolean> {
-	const args: string[] = [ 'MSETNX' ];
-	for (const [ key, value ] of Object.entries(pairs)) {
+export function input(
+	pairs: Record<string, string | number>,
+): Command<boolean> {
+	const args: string[] = ['MSETNX'];
+	for (const [key, value] of Object.entries(pairs)) {
 		args.push(key, String(value));
 	}
 

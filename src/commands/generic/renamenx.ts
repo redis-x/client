@@ -13,10 +13,6 @@ import type { Command } from '../../types.js';
 export function input(key: string, newkey: string): Command<'OK'> {
 	return {
 		kind: '#schema',
-		args: [
-			'RENAMENX',
-			key,
-			newkey,
-		],
+		args: ['RENAMENX', key, newkey],
 	};
 }

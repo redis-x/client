@@ -13,14 +13,13 @@ import type { Command } from '../../types.js';
  * @returns The value of the field after the increment operation as a string representing the floating point value.
  * @see {@link https://redis.io/commands/hincrbyfloat}
  */
-export function input(key: string, field: string | number, increment: number): Command<string> {
+export function input(
+	key: string,
+	field: string | number,
+	increment: number,
+): Command<string> {
 	return {
 		kind: '#schema',
-		args: [
-			'HINCRBYFLOAT',
-			key,
-			String(field),
-			String(increment),
-		],
+		args: ['HINCRBYFLOAT', key, String(field), String(increment)],
 	};
 }

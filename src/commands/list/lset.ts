@@ -13,14 +13,13 @@ import type { Command } from '../../types.js';
  * @returns "OK" if successful.
  * @see {@link https://redis.io/commands/lset}
  */
-export function input(key: string, index: number, element: string | number): Command<'OK'> {
+export function input(
+	key: string,
+	index: number,
+	element: string | number,
+): Command<'OK'> {
 	return {
 		kind: '#schema',
-		args: [
-			'LSET',
-			key,
-			String(index),
-			String(element),
-		],
+		args: ['LSET', key, String(index), String(element)],
 	};
 }

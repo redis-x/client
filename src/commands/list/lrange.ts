@@ -21,14 +21,13 @@ import type { Command } from '../../types.js';
  * @returns Array of elements in the specified range, or an empty array if the key doesn't exist.
  * @see {@link https://redis.io/commands/lrange}
  */
-export function input(key: string, start: number, stop: number): Command<string[]> {
+export function input(
+	key: string,
+	start: number,
+	stop: number,
+): Command<string[]> {
 	return {
 		kind: '#schema',
-		args: [
-			'LRANGE',
-			key,
-			String(start),
-			String(stop),
-		],
+		args: ['LRANGE', key, String(start), String(stop)],
 	};
 }

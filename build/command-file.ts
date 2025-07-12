@@ -1,22 +1,27 @@
-import { parseSync, type ParamPattern } from 'oxc-parser';
+/* eslint-disable n/no-unpublished-import */
+/* eslint-disable complexity */
+/* eslint-disable max-lines-per-function */
+/* eslint-disable jsdoc/require-jsdoc */
+
+import { type ParamPattern, parseSync } from 'oxc-parser';
 
 type CommandOverload = {
-	getJsDoc: (returns_text?: string) => string,
-	type_parameters: string,
+	getJsDoc: (returns_text?: string) => string;
+	type_parameters: string;
 	arguments: {
-		raw: string,
-	},
-	return_type: string,
-}
+		raw: string;
+	};
+	return_type: string;
+};
 type CommandImplementation = {
-	getJsDoc?: (returns_text?: string) => string,
-	type_parameters: string,
+	getJsDoc?: (returns_text?: string) => string;
+	type_parameters: string;
 	arguments: {
-		raw: string,
-		list: string,
-	},
-	return_type?: string,
-}
+		raw: string;
+		list: string;
+	};
+	return_type?: string;
+};
 
 function processRawArguments(value: string) {
 	// if (value.includes('\n')) {
@@ -31,12 +36,15 @@ function processRawArguments(value: string) {
 	// 	value = value.slice(0, -1);
 	// }
 
-	value = value.replaceAll(/\n/g, '\n\t');
+	value = value.replaceAll('\n', '\n\t');
 
 	return value;
 }
 
-function extractFunctionParameters(contents: string, params: ParamPattern[]): string {
+function extractFunctionParameters(
+	contents: string,
+	params: ParamPattern[],
+): string {
 	const parameter_first = params[0];
 
 	if (parameter_first) {
@@ -77,27 +85,26 @@ export class CommandFile {
 			if (comment.type === 'Block') {
 				const comment_text = `/*${comment.value}*/`;
 				const comment_lines = comment_text.split('\n');
-				const index_returns = comment_lines.findIndex(line => line.startsWith(' * @returns '));
-
-				comments.set(
-					comment.end + 1,
-					(returns_description?: string) => {
-						if (typeof returns_description === 'string') {
-							comment_lines[index_returns] = ` * @returns ${returns_description}`;
-							return comment_lines.join('\n');
-						}
-
-						return comment_text;
-					},
+				const index_returns = comment_lines.findIndex((line) =>
+					line.startsWith(' * @returns '),
 				);
+
+				comments.set(comment.end + 1, (returns_description?: string) => {
+					if (typeof returns_description === 'string') {
+						comment_lines[index_returns] = ` * @returns ${returns_description}`;
+						return comment_lines.join('\n');
+					}
+
+					return comment_text;
+				});
 			}
 		}
 
 		for (const node of oxc.program.body) {
 			if (
-				node.type === 'TSDeclareFunction'
-				&& node.id?.type === 'Identifier'
-				&& node.id.name === '_command'
+				node.type === 'TSDeclareFunction' &&
+				node.id?.type === 'Identifier' &&
+				node.id.name === '_command'
 			) {
 				const getJsDoc = comments.get(node.start);
 				if (!getJsDoc) {
@@ -121,39 +128,36 @@ export class CommandFile {
 				this.overloads.push({
 					getJsDoc,
 					type_parameters: node.typeParameters
-						? contents.slice(
-							node.typeParameters.start,
-							node.typeParameters.end,
-						)
+						? contents.slice(node.typeParameters.start, node.typeParameters.end)
 						: '',
 					arguments: {
 						raw: processRawArguments(arguments_raw),
 					},
 					return_type,
 				});
-			}
-			else if (
-				node.type === 'ExportNamedDeclaration'
-				&& node.declaration?.type === 'FunctionDeclaration'
-				&& node.declaration.id?.type === 'Identifier'
-				&& node.declaration.id.name === 'input'
+			} else if (
+				node.type === 'ExportNamedDeclaration' &&
+				node.declaration?.type === 'FunctionDeclaration' &&
+				node.declaration.id?.type === 'Identifier' &&
+				node.declaration.id.name === 'input'
 			) {
 				const getJsDoc = comments.get(node.start);
 
 				let return_type: string | undefined;
 				if (
-					node.declaration.returnType
-					&& node.declaration.returnType.typeAnnotation.type === 'TSTypeReference'
-					&& node.declaration.returnType.typeAnnotation.typeName.type === 'Identifier'
-					&& node.declaration.returnType.typeAnnotation.typeName.name === 'Command'
-					&& node.declaration.returnType.typeAnnotation.typeArguments
+					node.declaration.returnType &&
+					node.declaration.returnType.typeAnnotation.type ===
+						'TSTypeReference' &&
+					node.declaration.returnType.typeAnnotation.typeName.type ===
+						'Identifier' &&
+					node.declaration.returnType.typeAnnotation.typeName.name ===
+						'Command' &&
+					node.declaration.returnType.typeAnnotation.typeArguments
 				) {
-					const { params } = node.declaration.returnType.typeAnnotation.typeArguments;
+					const { params } =
+						node.declaration.returnType.typeAnnotation.typeArguments;
 					if (params[0]) {
-						return_type = contents.slice(
-							params[0].start,
-							params[0].end,
-						);
+						return_type = contents.slice(params[0].start, params[0].end);
 					}
 				}
 
@@ -161,36 +165,37 @@ export class CommandFile {
 					getJsDoc,
 					type_parameters: node.declaration.typeParameters
 						? contents.slice(
-							node.declaration.typeParameters.start,
-							node.declaration.typeParameters.end,
-						)
+								node.declaration.typeParameters.start,
+								node.declaration.typeParameters.end,
+							)
 						: '',
 					arguments: {
 						raw: processRawArguments(
 							extractFunctionParameters(contents, node.declaration.params),
 						),
-						list: node.declaration.params.map((item) => {
-							if (item.type === 'Identifier') {
-								return item.name;
-							}
+						list: node.declaration.params
+							.map((item) => {
+								if (item.type === 'Identifier') {
+									return item.name;
+								}
 
-							if (
-								item.type === 'RestElement'
-								&& item.argument.type === 'Identifier'
-							) {
-								return `...${item.argument.name}`;
-							}
+								if (
+									item.type === 'RestElement' &&
+									item.argument.type === 'Identifier'
+								) {
+									return `...${item.argument.name}`;
+								}
 
-							throw new Error('Unexpected parameter type.');
-						}).join(', '),
+								throw new Error('Unexpected parameter type.');
+							})
+							.join(', '),
 					},
 					return_type,
 				};
-			}
-			else if (
-				node.type === 'ExportNamedDeclaration'
-				&& node.declaration?.type === 'TSTypeAliasDeclaration'
-				&& node.declaration.id?.type === 'Identifier'
+			} else if (
+				node.type === 'ExportNamedDeclaration' &&
+				node.declaration?.type === 'TSTypeAliasDeclaration' &&
+				node.declaration.id?.type === 'Identifier'
 			) {
 				imports.push(`\ttype ${node.declaration.id.name},`);
 			}
@@ -200,13 +205,13 @@ export class CommandFile {
 		}
 
 		if (
-			this.overloads.length === 0
-			&& (
-				this.implementation.getJsDoc === undefined
-				|| this.implementation.return_type === undefined
-			)
+			this.overloads.length === 0 &&
+			(this.implementation.getJsDoc === undefined ||
+				this.implementation.return_type === undefined)
 		) {
-			throw new Error(`No overloads found in ${path} and no JsDoc for implementation found.`);
+			throw new Error(
+				`No overloads found in ${path} and no JsDoc for implementation found.`,
+			);
 		}
 
 		imports.push(`\tinput as ${this.import_input},`);
@@ -214,11 +219,8 @@ export class CommandFile {
 	}
 }
 
-export async function createCommandFile(path: string) {
+export async function createCommandFile(path: string): Promise<CommandFile> {
 	const file = Bun.file(path);
 
-	return new CommandFile(
-		path,
-		await file.text(),
-	);
+	return new CommandFile(path, await file.text());
 }

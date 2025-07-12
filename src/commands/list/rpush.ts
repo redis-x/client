@@ -28,16 +28,18 @@ declare function _command(key: string, elements: (string | number)[]): number;
  * @returns The length of the list after the push operation.
  * @see {@link https://redis.io/commands/rpush}
  */
-declare function _command(key: string, ...elements: (string | number)[]): number;
+declare function _command(
+	key: string,
+	...elements: (string | number)[]
+): number;
 
 // eslint-disable-next-line jsdoc/require-jsdoc
-export function input(key: string, ...elements: (string | number | (string | number)[])[]): Command<number> {
+export function input(
+	key: string,
+	...elements: (string | number | (string | number)[])[]
+): Command<number> {
 	return {
 		kind: '#schema',
-		args: [
-			'RPUSH',
-			key,
-			...elements.flat().map(String),
-		],
+		args: ['RPUSH', key, ...elements.flat().map(String)],
 	};
 }

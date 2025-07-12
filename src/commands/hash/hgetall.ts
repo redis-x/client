@@ -12,10 +12,7 @@ import { stringBulkToObject } from '../../utils.js';
 export function input(key: string): Command<Record<string, string>> {
 	return {
 		kind: '#schema',
-		args: [
-			'HGETALL',
-			key,
-		],
+		args: ['HGETALL', key],
 		replyTransform: stringBulkToObject,
 	};
 }

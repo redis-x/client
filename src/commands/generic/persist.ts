@@ -13,10 +13,7 @@ import type { Command } from '../../types.js';
 export function input(key: string): Command<boolean> {
 	return {
 		kind: '#schema',
-		args: [
-			'PERSIST',
-			key,
-		],
+		args: ['PERSIST', key],
 		replyTransform,
 	};
 }

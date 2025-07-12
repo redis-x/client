@@ -16,20 +16,22 @@ import type { Command } from '../../types.js';
 export function input(
 	key: string,
 	element: string | number,
-	options: {
-		BEFORE: string | number,
-	} | {
-		AFTER: string | number,
-	},
+	options:
+		| {
+				BEFORE: string | number;
+		  }
+		| {
+				AFTER: string | number;
+		  },
 ): Command<number> {
 	return {
 		kind: '#schema',
 		args: [
 			'LINSERT',
 			key,
-			...'BEFORE' in options
-				? [ 'BEFORE', String(options.BEFORE) ]
-				: [ 'AFTER', String(options.AFTER) ],
+			...('BEFORE' in options
+				? ['BEFORE', String(options.BEFORE)]
+				: ['AFTER', String(options.AFTER)]),
 			String(element),
 		],
 	};

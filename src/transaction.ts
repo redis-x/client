@@ -3,20 +3,17 @@
 
 import type { Promisable } from 'type-fest';
 import {
-	type UnwrapRedisXTransactionCommand,
 	RedisXTransactionCommand,
+	type UnwrapRedisXTransactionCommand,
 	unwrapRedisTransactionCommand,
 } from './transaction/command.js';
 import { RedisXTransactionUse } from './transaction/use.js';
-import type {
-	Command,
-	RedisClient,
-} from './types.js';
+import type { Command, RedisClient } from './types.js';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-type AddToList<T, U> = T extends any[] ? [ ...T, U ] : [ U ];
+type AddToList<T, U> = T extends any[] ? [...T, U] : [U];
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-type GetLast<L> = L extends [ ...any[], infer T ] ? T : never;
+type GetLast<L> = L extends [...any[], infer T] ? T : never;
 
 export class RedisXTransaction<
 	// list of types
@@ -37,15 +34,9 @@ export class RedisXTransaction<
 		this.multi = redisClient.MULTI();
 	}
 
-	addCommand(
-		command: string,
-		...args: (string | number)[]
-	) {
+	addCommand(command: string, ...args: (string | number)[]) {
 		this.promise = this.promise.then(() => {
-			this.multi.addCommand([
-				command,
-				...args.map(String),
-			]);
+			this.multi.addCommand([command, ...args.map(String)]);
 
 			this.queue_length++;
 		});
@@ -82,31 +73,40 @@ export class RedisXTransaction<
 		});
 
 		// return this as unknown as RedisTransaction<L, C, { [P in keyof D | K]: P extends keyof D ? D[P] : GetLast<L> }>;
-		return this as unknown as RedisXTransaction<L, C, { [P in keyof D | K]: K extends P ? GetLast<L> : P extends keyof D ? D[P] : never }>;
+		return this as unknown as RedisXTransaction<
+			L,
+			C,
+			{
+				[P in keyof D | K]: K extends P
+					? GetLast<L>
+					: P extends keyof D
+						? D[P]
+						: never;
+			}
+		>;
 	}
 
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	use<const CB extends (transaction: RedisXTransactionUse) => Promisable<Record<string, any> | void>>(callback: CB) {
+	use<
+		const CB extends (
+			transaction: RedisXTransactionUse,
+			// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		) => Promisable<Record<string, any> | void>,
+	>(callback: CB) {
 		this.return_no_array = true;
 		this.promise = this.promise.then(async () => {
 			const transaction_use = new RedisXTransactionUse(this);
 			// eslint-disable-next-line promise/no-callback-in-promise
 			const result = await callback(transaction_use);
 
-			for (
-				const {
-					command,
-					redis_transaction_command,
-				} of transaction_use.queue
-			) {
+			for (const {
+				command,
+				redis_transaction_command,
+			} of transaction_use.queue) {
 				this.queueCommand(command);
 				redis_transaction_command.index = this.queue_length - 1;
 			}
 
-			Object.assign(
-				this.data,
-				result,
-			);
+			Object.assign(this.data, result);
 		});
 
 		return this as unknown as RedisXTransaction<
@@ -120,7 +120,7 @@ export class RedisXTransaction<
 	}
 
 	async execute<
-		RL = C extends true ? unknown : (L extends [] ? unknown : L),
+		RL = C extends true ? unknown : L extends [] ? unknown : L,
 		R = unknown extends D
 			? unknown extends RL
 				? Record<string, never>
@@ -129,8 +129,8 @@ export class RedisXTransaction<
 	>(): Promise<R> {
 		await this.promise;
 
-		const result = await this.multi.exec() as unknown[];
-		for (const [ index, transformer ] of this.transformers.entries()) {
+		const result = (await this.multi.exec()) as unknown[];
+		for (const [index, transformer] of this.transformers.entries()) {
 			if (transformer) {
 				result[index] = transformer(result[index]);
 			}
@@ -144,10 +144,7 @@ export class RedisXTransaction<
 			return result_named as R;
 		}
 
-		return Object.assign(
-			result,
-			result_named,
-		) as R;
+		return Object.assign(result, result_named) as R;
 	}
 
 	// MARK: commands
@@ -163,7 +160,10 @@ export class RedisXTransaction<
 	 * @returns The number of members that were removed from the set, not including non existing members.
 	 * @see {@link https://redis.io/commands/srem}
 	 */
-	SREM(key: string, member: (string | number)[]): RedisXTransaction<AddToList<L, number>, C, D>;
+	SREM(
+		key: string,
+		member: (string | number)[],
+	): RedisXTransaction<AddToList<L, number>, C, D>;
 	/**
 	 * Remove the specified members from the set stored at key.
 	 * Specified members that are not a member of this set are ignored.
@@ -176,9 +176,15 @@ export class RedisXTransaction<
 	 * @returns The number of members that were removed from the set, not including non existing members.
 	 * @see {@link https://redis.io/commands/srem}
 	 */
-	SREM(key: string, ...members: (string | number)[]): RedisXTransaction<AddToList<L, number>, C, D>;
+	SREM(
+		key: string,
+		...members: (string | number)[]
+	): RedisXTransaction<AddToList<L, number>, C, D>;
 
-	SREM(key: string, ...members: (string | number | (string | number)[])[]): RedisXTransaction<AddToList<L, number>, C, D> {
+	SREM(
+		key: string,
+		...members: (string | number | (string | number)[])[]
+	): RedisXTransaction<AddToList<L, number>, C, D> {
 		return this.useCommand(input_srem(key, ...members));
 	}
 
@@ -195,7 +201,10 @@ export class RedisXTransaction<
 	 * @returns An array of booleans, representing the membership of the given elements in the same order as they are requested.
 	 * @see {@link https://redis.io/commands/smismember}
 	 */
-	SMISMEMBER(key: string, ...members: string[]): RedisXTransaction<AddToList<L, boolean[]>, C, D> {
+	SMISMEMBER(
+		key: string,
+		...members: string[]
+	): RedisXTransaction<AddToList<L, boolean[]>, C, D> {
 		return this.useCommand(input_smismember(key, ...members));
 	}
 
@@ -222,7 +231,10 @@ export class RedisXTransaction<
 	 * @returns `true` if the member is a member of the set stored at key, `false` otherwise.
 	 * @see {@link https://redis.io/commands/sismember}
 	 */
-	SISMEMBER(key: string, member: string): RedisXTransaction<AddToList<L, boolean>, C, D> {
+	SISMEMBER(
+		key: string,
+		member: string,
+	): RedisXTransaction<AddToList<L, boolean>, C, D> {
 		return this.useCommand(input_sismember(key, member));
 	}
 
@@ -253,7 +265,10 @@ export class RedisXTransaction<
 	 * @returns The number of elements that were added to the set, not including all the elements already present in the set.
 	 * @see {@link https://redis.io/commands/sadd}
 	 */
-	SADD(key: string, member: (string | number)[]): RedisXTransaction<AddToList<L, number>, C, D>;
+	SADD(
+		key: string,
+		member: (string | number)[],
+	): RedisXTransaction<AddToList<L, number>, C, D>;
 	/**
 	 * Add the specified members to the set stored at key.
 	 * Specified members that are already a member of this set are ignored.
@@ -268,9 +283,15 @@ export class RedisXTransaction<
 	 * @returns The number of elements that were added to the set, not including all the elements already present in the set.
 	 * @see {@link https://redis.io/commands/sadd}
 	 */
-	SADD(key: string, ...members: (string | number)[]): RedisXTransaction<AddToList<L, number>, C, D>;
+	SADD(
+		key: string,
+		...members: (string | number)[]
+	): RedisXTransaction<AddToList<L, number>, C, D>;
 
-	SADD(key: string, ...members: (string | number | (string | number)[])[]): RedisXTransaction<AddToList<L, number>, C, D> {
+	SADD(
+		key: string,
+		...members: (string | number | (string | number)[])[]
+	): RedisXTransaction<AddToList<L, number>, C, D> {
 		return this.useCommand(input_sadd(key, ...members));
 	}
 
@@ -284,7 +305,9 @@ export class RedisXTransaction<
 	 * @returns `true` if all the keys were set, `false` if no key was set (at least one key already existed).
 	 * @see {@link https://redis.io/commands/msetnx}
 	 */
-	MSETNX(pairs: Record<string, string | number>): RedisXTransaction<AddToList<L, boolean>, C, D> {
+	MSETNX(
+		pairs: Record<string, string | number>,
+	): RedisXTransaction<AddToList<L, boolean>, C, D> {
 		return this.useCommand(input_msetnx(pairs));
 	}
 
@@ -300,7 +323,10 @@ export class RedisXTransaction<
 	 * @returns Integer reply: 1 if the key was set, 0 if the key was not set.
 	 * @see {@link https://redis.io/commands/setnx}
 	 */
-	SETNX(key: string, value: string | number): RedisXTransaction<AddToList<L, boolean>, C, D> {
+	SETNX(
+		key: string,
+		value: string | number,
+	): RedisXTransaction<AddToList<L, boolean>, C, D> {
 		return this.useCommand(input_setnx(key, value));
 	}
 
@@ -329,7 +355,10 @@ export class RedisXTransaction<
 	 * @returns Returns string `"OK"` if the key was set, or `null` if operation was aborted (conflict with one of the XX/NX options).
 	 * @see {@link https://redis.io/commands/set}
 	 */
-	SET(key: string, value: string | number): RedisXTransaction<AddToList<L, 'OK' | null>, C, D>;
+	SET(
+		key: string,
+		value: string | number,
+	): RedisXTransaction<AddToList<L, 'OK' | null>, C, D>;
 	/**
 	 * Set the string value of a key.
 	 * - Available since: 1.0.0.
@@ -340,7 +369,11 @@ export class RedisXTransaction<
 	 * @returns Returns string `"OK"` if the key was set, or `null` if operation was aborted (conflict with one of the XX/NX options).
 	 * @see {@link https://redis.io/commands/set}
 	 */
-	SET(key: string, value: string | number, options: SetOptions): RedisXTransaction<AddToList<L, 'OK' | null>, C, D>;
+	SET(
+		key: string,
+		value: string | number,
+		options: SetOptions,
+	): RedisXTransaction<AddToList<L, 'OK' | null>, C, D>;
 	/**
 	 * Set the string value of a key.
 	 * - Available since: 1.0.0.
@@ -351,9 +384,17 @@ export class RedisXTransaction<
 	 * @returns Returns string with the previous value of the key, or `null` if the key didn't exist before the SET.
 	 * @see {@link https://redis.io/commands/set}
 	 */
-	SET(key: string, value: string | number, options: SetOptions & SetOptionsGet): RedisXTransaction<AddToList<L, string | null>, C, D>;
+	SET(
+		key: string,
+		value: string | number,
+		options: SetOptions & SetOptionsGet,
+	): RedisXTransaction<AddToList<L, string | null>, C, D>;
 
-	SET(key: string, value: string | number, options?: SetOptions & Partial<SetOptionsGet>) {
+	SET(
+		key: string,
+		value: string | number,
+		options?: SetOptions & Partial<SetOptionsGet>,
+	) {
 		return this.useCommand(input_set(key, value, options));
 	}
 
@@ -369,7 +410,10 @@ export class RedisXTransaction<
 	 * @returns The length of the string after the append operation.
 	 * @see {@link https://redis.io/commands/append}
 	 */
-	APPEND(key: string, value: string): RedisXTransaction<AddToList<L, number>, C, D> {
+	APPEND(
+		key: string,
+		value: string,
+	): RedisXTransaction<AddToList<L, number>, C, D> {
 		return this.useCommand(input_append(key, value));
 	}
 
@@ -400,7 +444,10 @@ export class RedisXTransaction<
 	 * @returns The value of key after the increment.
 	 * @see {@link https://redis.io/commands/incrbyfloat}
 	 */
-	INCRBYFLOAT(key: string, increment: number): RedisXTransaction<AddToList<L, string>, C, D> {
+	INCRBYFLOAT(
+		key: string,
+		increment: number,
+	): RedisXTransaction<AddToList<L, string>, C, D> {
 		return this.useCommand(input_incrbyfloat(key, increment));
 	}
 
@@ -415,7 +462,9 @@ export class RedisXTransaction<
 	 * @returns Array reply: a list of values at the specified keys.
 	 * @see {@link https://redis.io/commands/mget}
 	 */
-	MGET<const K extends string[]>(keys: K): RedisXTransaction<AddToList<L, { [I in keyof K]: string | null }>, C, D>;
+	MGET<const K extends string[]>(
+		keys: K,
+	): RedisXTransaction<AddToList<L, { [I in keyof K]: string | null }>, C, D>;
 	/**
 	 * Returns the values of all specified keys. For every key that does not hold a
 	 * string value or does not exist, the special value `null` is returned.
@@ -427,9 +476,13 @@ export class RedisXTransaction<
 	 * @returns Array reply: a list of values at the specified keys.
 	 * @see {@link https://redis.io/commands/mget}
 	 */
-	MGET<const K extends string[]>(...keys: K): RedisXTransaction<AddToList<L, { [I in keyof K]: string | null }>, C, D>;
+	MGET<const K extends string[]>(
+		...keys: K
+	): RedisXTransaction<AddToList<L, { [I in keyof K]: string | null }>, C, D>;
 
-	MGET(...args: (string | string[])[]): RedisXTransaction<AddToList<L, (string | null)[]>, C, D> {
+	MGET(
+		...args: (string | string[])[]
+	): RedisXTransaction<AddToList<L, (string | null)[]>, C, D> {
 		return this.useCommand(input_mget(...args));
 	}
 
@@ -456,7 +509,9 @@ export class RedisXTransaction<
 	 * @returns "OK"
 	 * @see {@link https://redis.io/commands/mset}
 	 */
-	MSET(pairs: Record<string, string | number>): RedisXTransaction<AddToList<L, 'OK'>, C, D> {
+	MSET(
+		pairs: Record<string, string | number>,
+	): RedisXTransaction<AddToList<L, 'OK'>, C, D> {
 		return this.useCommand(input_mset(pairs));
 	}
 
@@ -472,7 +527,10 @@ export class RedisXTransaction<
 	 * @returns The value of the key after the increment.
 	 * @see {@link https://redis.io/commands/incrby}
 	 */
-	INCRBY(key: string, increment: number): RedisXTransaction<AddToList<L, number>, C, D> {
+	INCRBY(
+		key: string,
+		increment: number,
+	): RedisXTransaction<AddToList<L, number>, C, D> {
 		return this.useCommand(input_incrby(key, increment));
 	}
 
@@ -491,7 +549,11 @@ export class RedisXTransaction<
 	 * @returns The length of the string after it was modified by the command.
 	 * @see {@link https://redis.io/commands/setrange}
 	 */
-	SETRANGE(key: string, offset: number, value: string): RedisXTransaction<AddToList<L, number>, C, D> {
+	SETRANGE(
+		key: string,
+		offset: number,
+		value: string,
+	): RedisXTransaction<AddToList<L, number>, C, D> {
 		return this.useCommand(input_setrange(key, offset, value));
 	}
 
@@ -508,7 +570,11 @@ export class RedisXTransaction<
 	 * @returns The substring of the string value stored at key.
 	 * @see {@link https://redis.io/commands/substr}
 	 */
-	SUBSTR(key: string, start: number, end: number): RedisXTransaction<AddToList<L, string>, C, D> {
+	SUBSTR(
+		key: string,
+		start: number,
+		end: number,
+	): RedisXTransaction<AddToList<L, string>, C, D> {
 		return this.useCommand(input_substr(key, start, end));
 	}
 
@@ -525,7 +591,10 @@ export class RedisXTransaction<
 	 * @returns The old value stored at key, or `null` if key did not exist.
 	 * @see {@link https://redis.io/commands/getset}
 	 */
-	GETSET(key: string, value: string | number): RedisXTransaction<AddToList<L, string | null>, C, D> {
+	GETSET(
+		key: string,
+		value: string | number,
+	): RedisXTransaction<AddToList<L, string | null>, C, D> {
 		return this.useCommand(input_getset(key, value));
 	}
 
@@ -542,7 +611,10 @@ export class RedisXTransaction<
 	 * @returns The value of the key after decrementing it.
 	 * @see {@link https://redis.io/commands/decrby}
 	 */
-	DECRBY(key: string, decrement: number): RedisXTransaction<AddToList<L, number>, C, D> {
+	DECRBY(
+		key: string,
+		decrement: number,
+	): RedisXTransaction<AddToList<L, number>, C, D> {
 		return this.useCommand(input_decrby(key, decrement));
 	}
 
@@ -560,7 +632,11 @@ export class RedisXTransaction<
 	 * @returns The substring.
 	 * @see {@link https://redis.io/commands/getrange}
 	 */
-	GETRANGE(key: string, start: number, end: number): RedisXTransaction<AddToList<L, string>, C, D> {
+	GETRANGE(
+		key: string,
+		start: number,
+		end: number,
+	): RedisXTransaction<AddToList<L, string>, C, D> {
 		return this.useCommand(input_getrange(key, start, end));
 	}
 
@@ -577,7 +653,11 @@ export class RedisXTransaction<
 	 * @returns Simple string reply: OK.
 	 * @see {@link https://redis.io/commands/setex}
 	 */
-	SETEX(key: string, seconds: number, value: string | number): RedisXTransaction<AddToList<L, 'OK'>, C, D> {
+	SETEX(
+		key: string,
+		seconds: number,
+		value: string | number,
+	): RedisXTransaction<AddToList<L, 'OK'>, C, D> {
 		return this.useCommand(input_setex(key, seconds, value));
 	}
 
@@ -593,7 +673,10 @@ export class RedisXTransaction<
 	 * @returns The value of key, or `null` when key does not exist.
 	 * @see {@link https://redis.io/commands/getex}
 	 */
-	GETEX(key: string, options?: GetexOptions): RedisXTransaction<AddToList<L, string | null>, C, D> {
+	GETEX(
+		key: string,
+		options?: GetexOptions,
+	): RedisXTransaction<AddToList<L, string | null>, C, D> {
 		return this.useCommand(input_getex(key, options));
 	}
 
@@ -639,7 +722,11 @@ export class RedisXTransaction<
 	 * @returns "OK" if the command was executed successfully.
 	 * @see {@link https://redis.io/commands/psetex}
 	 */
-	PSETEX(key: string, milliseconds: number, value: string | number): RedisXTransaction<AddToList<L, 'OK'>, C, D> {
+	PSETEX(
+		key: string,
+		milliseconds: number,
+		value: string | number,
+	): RedisXTransaction<AddToList<L, 'OK'>, C, D> {
 		return this.useCommand(input_psetex(key, milliseconds, value));
 	}
 
@@ -654,7 +741,11 @@ export class RedisXTransaction<
 	 * @see {@link https://redis.io/commands/pexpire}
 	 * @see {@link https://redis.io/commands/expire}
 	 */
-	PEXPIRE(key: string, seconds: number, options?: PexpireOptions): RedisXTransaction<AddToList<L, boolean>, C, D> {
+	PEXPIRE(
+		key: string,
+		seconds: number,
+		options?: PexpireOptions,
+	): RedisXTransaction<AddToList<L, boolean>, C, D> {
 		return this.useCommand(input_pexpire(key, seconds, options));
 	}
 
@@ -710,7 +801,11 @@ export class RedisXTransaction<
 	 * @returns Returns `true` if the timeout was set. Returns `false` if the timeout was not set; for example, the key doesn't exist, or the operation was skipped because of the provided arguments.
 	 * @see {@link https://redis.io/commands/expire}
 	 */
-	EXPIRE(key: string, seconds: number, options?: ExpireOptions): RedisXTransaction<AddToList<L, boolean>, C, D> {
+	EXPIRE(
+		key: string,
+		seconds: number,
+		options?: ExpireOptions,
+	): RedisXTransaction<AddToList<L, boolean>, C, D> {
 		return this.useCommand(input_expire(key, seconds, options));
 	}
 
@@ -722,7 +817,16 @@ export class RedisXTransaction<
 	 * @returns "OK".
 	 * @see {@link https://redis.io/commands/rename}
 	 */
-	TYPE(key: string): RedisXTransaction<AddToList<L, 'string' | 'list' | 'set' | 'zset' | 'hash' | 'stream' | 'vectorset'>, C, D> {
+	TYPE(
+		key: string,
+	): RedisXTransaction<
+		AddToList<
+			L,
+			'string' | 'list' | 'set' | 'zset' | 'hash' | 'stream' | 'vectorset'
+		>,
+		C,
+		D
+	> {
 		return this.useCommand(input_type(key));
 	}
 
@@ -769,7 +873,11 @@ export class RedisXTransaction<
 	 * @see {@link https://redis.io/commands/expireat}
 	 * @see {@link https://redis.io/commands/expire}
 	 */
-	EXPIREAT(key: string, timestamp: number, options?: ExpireatOptions): RedisXTransaction<AddToList<L, boolean>, C, D> {
+	EXPIREAT(
+		key: string,
+		timestamp: number,
+		options?: ExpireatOptions,
+	): RedisXTransaction<AddToList<L, boolean>, C, D> {
 		return this.useCommand(input_expireat(key, timestamp, options));
 	}
 
@@ -784,7 +892,11 @@ export class RedisXTransaction<
 	 * @see {@link https://redis.io/commands/pexpireat}
 	 * @see {@link https://redis.io/commands/expireat}
 	 */
-	PEXPIREAT(key: string, timestamp: number, options?: PexpireatOptions): RedisXTransaction<AddToList<L, boolean>, C, D> {
+	PEXPIREAT(
+		key: string,
+		timestamp: number,
+		options?: PexpireatOptions,
+	): RedisXTransaction<AddToList<L, boolean>, C, D> {
 		return this.useCommand(input_pexpireat(key, timestamp, options));
 	}
 
@@ -826,7 +938,10 @@ export class RedisXTransaction<
 	 * @returns "OK".
 	 * @see {@link https://redis.io/commands/rename}
 	 */
-	RENAME(key: string, newkey: string): RedisXTransaction<AddToList<L, 'OK'>, C, D> {
+	RENAME(
+		key: string,
+		newkey: string,
+	): RedisXTransaction<AddToList<L, 'OK'>, C, D> {
 		return this.useCommand(input_rename(key, newkey));
 	}
 
@@ -840,7 +955,10 @@ export class RedisXTransaction<
 	 * @returns "OK".
 	 * @see {@link https://redis.io/commands/renamenx}
 	 */
-	RENAMENX(key: string, newkey: string): RedisXTransaction<AddToList<L, 'OK'>, C, D> {
+	RENAMENX(
+		key: string,
+		newkey: string,
+	): RedisXTransaction<AddToList<L, 'OK'>, C, D> {
 		return this.useCommand(input_renamenx(key, newkey));
 	}
 
@@ -901,7 +1019,10 @@ export class RedisXTransaction<
 	 * @returns The length of the list after the push operation.
 	 * @see {@link https://redis.io/commands/rpush}
 	 */
-	RPUSH(key: string, elements: (string | number)[]): RedisXTransaction<AddToList<L, number>, C, D>;
+	RPUSH(
+		key: string,
+		elements: (string | number)[],
+	): RedisXTransaction<AddToList<L, number>, C, D>;
 	/**
 	 * Insert all the specified values at the tail of the list stored at key.
 	 *
@@ -915,9 +1036,15 @@ export class RedisXTransaction<
 	 * @returns The length of the list after the push operation.
 	 * @see {@link https://redis.io/commands/rpush}
 	 */
-	RPUSH(key: string, ...elements: (string | number)[]): RedisXTransaction<AddToList<L, number>, C, D>;
+	RPUSH(
+		key: string,
+		...elements: (string | number)[]
+	): RedisXTransaction<AddToList<L, number>, C, D>;
 
-	RPUSH(key: string, ...elements: (string | number | (string | number)[])[]): RedisXTransaction<AddToList<L, number>, C, D> {
+	RPUSH(
+		key: string,
+		...elements: (string | number | (string | number)[])[]
+	): RedisXTransaction<AddToList<L, number>, C, D> {
 		return this.useCommand(input_rpush(key, ...elements));
 	}
 
@@ -949,9 +1076,15 @@ export class RedisXTransaction<
 	 * @returns An array of popped elements, or `null` when key does not exist.
 	 * @see {@link https://redis.io/commands/lpop}
 	 */
-	LPOP(key: string, count: number): RedisXTransaction<AddToList<L, string[] | null>, C, D>;
+	LPOP(
+		key: string,
+		count: number,
+	): RedisXTransaction<AddToList<L, string[] | null>, C, D>;
 
-	LPOP(key: string, count?: number): RedisXTransaction<AddToList<L, string | string[] | null>, C, D> {
+	LPOP(
+		key: string,
+		count?: number,
+	): RedisXTransaction<AddToList<L, string | string[] | null>, C, D> {
 		return this.useCommand(input_lpop(key, count));
 	}
 
@@ -975,7 +1108,10 @@ export class RedisXTransaction<
 	 * @returns The element being popped and pushed, or `null` if the source list is empty.
 	 * @see {@link https://redis.io/commands/rpoplpush}
 	 */
-	RPOPLPUSH(source: string, destination: string): RedisXTransaction<AddToList<L, string | null>, C, D> {
+	RPOPLPUSH(
+		source: string,
+		destination: string,
+	): RedisXTransaction<AddToList<L, string | null>, C, D> {
 		return this.useCommand(input_rpoplpush(source, destination));
 	}
 
@@ -991,7 +1127,10 @@ export class RedisXTransaction<
 	 * @returns The length of the list after the push operation.
 	 * @see {@link https://redis.io/commands/rpushx}
 	 */
-	RPUSHX(key: string, elements: (string | number)[]): RedisXTransaction<AddToList<L, number>, C, D>;
+	RPUSHX(
+		key: string,
+		elements: (string | number)[],
+	): RedisXTransaction<AddToList<L, number>, C, D>;
 	/**
 	 * Insert all the specified values at the tail of the list stored at key, only if key already exists and holds a list.
 	 * In contrary to RPUSH, no operation will be performed when key does not yet exist.
@@ -1004,9 +1143,15 @@ export class RedisXTransaction<
 	 * @returns The length of the list after the push operation.
 	 * @see {@link https://redis.io/commands/rpushx}
 	 */
-	RPUSHX(key: string, ...elements: (string | number)[]): RedisXTransaction<AddToList<L, number>, C, D>;
+	RPUSHX(
+		key: string,
+		...elements: (string | number)[]
+	): RedisXTransaction<AddToList<L, number>, C, D>;
 
-	RPUSHX(key: string, ...elements: (string | number | (string | number)[])[]): RedisXTransaction<AddToList<L, number>, C, D> {
+	RPUSHX(
+		key: string,
+		...elements: (string | number | (string | number)[])[]
+	): RedisXTransaction<AddToList<L, number>, C, D> {
 		return this.useCommand(input_rpushx(key, ...elements));
 	}
 
@@ -1023,7 +1168,11 @@ export class RedisXTransaction<
 	 * @returns "OK" if successful.
 	 * @see {@link https://redis.io/commands/lset}
 	 */
-	LSET(key: string, index: number, element: string | number): RedisXTransaction<AddToList<L, 'OK'>, C, D> {
+	LSET(
+		key: string,
+		index: number,
+		element: string | number,
+	): RedisXTransaction<AddToList<L, 'OK'>, C, D> {
 		return this.useCommand(input_lset(key, index, element));
 	}
 
@@ -1042,7 +1191,11 @@ export class RedisXTransaction<
 	 * @returns The number of removed elements.
 	 * @see {@link https://redis.io/commands/lrem}
 	 */
-	LREM(key: string, count: number, element: string | number): RedisXTransaction<AddToList<L, number>, C, D> {
+	LREM(
+		key: string,
+		count: number,
+		element: string | number,
+	): RedisXTransaction<AddToList<L, number>, C, D> {
 		return this.useCommand(input_lrem(key, count, element));
 	}
 
@@ -1058,7 +1211,10 @@ export class RedisXTransaction<
 	 * @returns The length of the list after the push operation.
 	 * @see {@link https://redis.io/commands/lpush}
 	 */
-	LPUSH(key: string, elements: (string | number)[]): RedisXTransaction<AddToList<L, number>, C, D>;
+	LPUSH(
+		key: string,
+		elements: (string | number)[],
+	): RedisXTransaction<AddToList<L, number>, C, D>;
 	/**
 	 * Insert all the specified elements at the head of the list stored at key.
 	 *
@@ -1071,9 +1227,15 @@ export class RedisXTransaction<
 	 * @returns The length of the list after the push operation.
 	 * @see {@link https://redis.io/commands/lpush}
 	 */
-	LPUSH(key: string, ...elements: (string | number)[]): RedisXTransaction<AddToList<L, number>, C, D>;
+	LPUSH(
+		key: string,
+		...elements: (string | number)[]
+	): RedisXTransaction<AddToList<L, number>, C, D>;
 
-	LPUSH(key: string, ...elements: (string | number | (string | number)[])[]): RedisXTransaction<AddToList<L, number>, C, D> {
+	LPUSH(
+		key: string,
+		...elements: (string | number | (string | number)[])[]
+	): RedisXTransaction<AddToList<L, number>, C, D> {
 		return this.useCommand(input_lpush(key, ...elements));
 	}
 
@@ -1088,7 +1250,10 @@ export class RedisXTransaction<
 	 * @returns The length of the list after the push operation.
 	 * @see {@link https://redis.io/commands/lpushx}
 	 */
-	LPUSHX(key: string, elements: (string | number)[]): RedisXTransaction<AddToList<L, number>, C, D>;
+	LPUSHX(
+		key: string,
+		elements: (string | number)[],
+	): RedisXTransaction<AddToList<L, number>, C, D>;
 	/**
 	 * Inserts specified values at the head of the list stored at key, only if key already exists and holds a list.
 	 * In contrary to LPUSH, no operation will be performed when key does not yet exist.
@@ -1100,9 +1265,15 @@ export class RedisXTransaction<
 	 * @returns The length of the list after the push operation.
 	 * @see {@link https://redis.io/commands/lpushx}
 	 */
-	LPUSHX(key: string, ...elements: (string | number)[]): RedisXTransaction<AddToList<L, number>, C, D>;
+	LPUSHX(
+		key: string,
+		...elements: (string | number)[]
+	): RedisXTransaction<AddToList<L, number>, C, D>;
 
-	LPUSHX(key: string, ...elements: (string | number | (string | number)[])[]): RedisXTransaction<AddToList<L, number>, C, D> {
+	LPUSHX(
+		key: string,
+		...elements: (string | number | (string | number)[])[]
+	): RedisXTransaction<AddToList<L, number>, C, D> {
 		return this.useCommand(input_lpushx(key, ...elements));
 	}
 
@@ -1134,9 +1305,15 @@ export class RedisXTransaction<
 	 * @returns Array of popped elements, or `null` when key does not exist.
 	 * @see {@link https://redis.io/commands/rpop}
 	 */
-	RPOP(key: string, count: number): RedisXTransaction<AddToList<L, string[] | null>, C, D>;
+	RPOP(
+		key: string,
+		count: number,
+	): RedisXTransaction<AddToList<L, string[] | null>, C, D>;
 
-	RPOP(key: string, count?: number): RedisXTransaction<AddToList<L, string | string[] | null>, C, D> {
+	RPOP(
+		key: string,
+		count?: number,
+	): RedisXTransaction<AddToList<L, string | string[] | null>, C, D> {
 		return this.useCommand(input_rpop(key, count));
 	}
 
@@ -1161,7 +1338,11 @@ export class RedisXTransaction<
 	 * @returns Array of elements in the specified range, or an empty array if the key doesn't exist.
 	 * @see {@link https://redis.io/commands/lrange}
 	 */
-	LRANGE(key: string, start: number, stop: number): RedisXTransaction<AddToList<L, string[]>, C, D> {
+	LRANGE(
+		key: string,
+		start: number,
+		stop: number,
+	): RedisXTransaction<AddToList<L, string[]>, C, D> {
 		return this.useCommand(input_lrange(key, start, stop));
 	}
 
@@ -1195,11 +1376,13 @@ export class RedisXTransaction<
 	LINSERT(
 		key: string,
 		element: string | number,
-		options: {
-			BEFORE: string | number,
-		} | {
-			AFTER: string | number,
-		},
+		options:
+			| {
+					BEFORE: string | number;
+			  }
+			| {
+					AFTER: string | number;
+			  },
 	): RedisXTransaction<AddToList<L, number>, C, D> {
 		return this.useCommand(input_linsert(key, element, options));
 	}
@@ -1224,7 +1407,11 @@ export class RedisXTransaction<
 	 * @returns "OK"
 	 * @see {@link https://redis.io/commands/ltrim}
 	 */
-	LTRIM(key: string, start: number, stop: number): RedisXTransaction<AddToList<L, 'OK'>, C, D> {
+	LTRIM(
+		key: string,
+		start: number,
+		stop: number,
+	): RedisXTransaction<AddToList<L, 'OK'>, C, D> {
 		return this.useCommand(input_ltrim(key, start, stop));
 	}
 
@@ -1240,7 +1427,10 @@ export class RedisXTransaction<
 	 * @returns The requested element, or `null` when index is out of range.
 	 * @see {@link https://redis.io/commands/lindex}
 	 */
-	LINDEX(key: string, index: number): RedisXTransaction<AddToList<L, string | null>, C, D> {
+	LINDEX(
+		key: string,
+		index: number,
+	): RedisXTransaction<AddToList<L, string | null>, C, D> {
 		return this.useCommand(input_lindex(key, index));
 	}
 
@@ -1275,7 +1465,10 @@ export class RedisXTransaction<
 	 * @returns The number of entries actually deleted.
 	 * @see {@link https://redis.io/commands/xdel}
 	 */
-	XDEL(key: string, ids: string[]): RedisXTransaction<AddToList<L, number>, C, D>;
+	XDEL(
+		key: string,
+		ids: string[],
+	): RedisXTransaction<AddToList<L, number>, C, D>;
 	/**
 	 * Removes the specified entries from a stream, and returns the number of entries deleted.
 	 * This number may be less than the number of IDs passed to the command in the case where
@@ -1288,7 +1481,10 @@ export class RedisXTransaction<
 	 * @returns The number of entries actually deleted.
 	 * @see {@link https://redis.io/commands/xdel}
 	 */
-	XDEL(key: string, ...ids: string[]): RedisXTransaction<AddToList<L, number>, C, D>;
+	XDEL(
+		key: string,
+		...ids: string[]
+	): RedisXTransaction<AddToList<L, number>, C, D>;
 
 	XDEL(
 		key: string,
@@ -1308,7 +1504,11 @@ export class RedisXTransaction<
 	 * @returns An array of stream entries or `null` if no entries are available.
 	 * @see {@link https://redis.io/commands/xread}
 	 */
-	XREAD(key: string, id: XreadId, options?: XReadOptions): RedisXTransaction<AddToList<L, XStreamEntry[]>, C, D>;
+	XREAD(
+		key: string,
+		id: XreadId,
+		options?: XReadOptions,
+	): RedisXTransaction<AddToList<L, XStreamEntry[]>, C, D>;
 	/**
 	 * Read data from one or multiple streams, only returning entries with an ID greater than the last received ID reported by the caller.
 	 *
@@ -1319,13 +1519,20 @@ export class RedisXTransaction<
 	 * @returns An object where keys are stream names and values are arrays of stream entries or `null` if no entries are available.
 	 * @see {@link https://redis.io/commands/xread}
 	 */
-	XREAD<const S extends Record<string, XreadId>>(streams: S, options?: XReadOptions): RedisXTransaction<AddToList<L, { [K in keyof S]: XStreamEntry[] }>, C, D>;
+	XREAD<const S extends Record<string, XreadId>>(
+		streams: S,
+		options?: XReadOptions,
+	): RedisXTransaction<AddToList<L, { [K in keyof S]: XStreamEntry[] }>, C, D>;
 
 	XREAD(
 		arg0: string | Record<string, XreadId>,
 		arg1?: XreadId | XReadOptions,
 		arg2?: XReadOptions,
-	): RedisXTransaction<AddToList<L, XStreamEntry[] | Record<string, XStreamEntry[] | null> | null>, C, D> {
+	): RedisXTransaction<
+		AddToList<L, XStreamEntry[] | Record<string, XStreamEntry[] | null> | null>,
+		C,
+		D
+	> {
 		return this.useCommand(input_xread(arg0, arg1, arg2));
 	}
 
@@ -1553,10 +1760,17 @@ export class RedisXTransaction<
 		min: number | `(${number}` | '-inf',
 		max: number | `(${number}` | '+inf',
 		options: ZrangebyscoreOptions & ZrangebyscoreOptionsWithscores,
-	): RedisXTransaction<AddToList<L, {
-		member: string,
-		score: number,
-	}[]>, C, D>;
+	): RedisXTransaction<
+		AddToList<
+			L,
+			{
+				member: string;
+				score: number;
+			}[]
+		>,
+		C,
+		D
+	>;
 
 	ZRANGEBYSCORE(
 		key: string,
@@ -1576,7 +1790,10 @@ export class RedisXTransaction<
 	 * @returns The score of the member (a double-precision floating point number), represented as a string, or `null` if member does not exist in the sorted set, or the key does not exist.
 	 * @see {@link https://redis.io/commands/zscore}
 	 */
-	ZSCORE(key: string, member: string | number): RedisXTransaction<AddToList<L, number | null>, C, D> {
+	ZSCORE(
+		key: string,
+		member: string | number,
+	): RedisXTransaction<AddToList<L, number | null>, C, D> {
 		return this.useCommand(input_zscore(key, member));
 	}
 
@@ -1640,9 +1857,7 @@ export class RedisXTransaction<
 
 	ZADD(
 		key: string,
-		arg1:
-			| number
-			| Record<string, number>,
+		arg1: number | Record<string, number>,
 		arg2?: string | number | ZaddOptions,
 		arg3?: ZaddOptions,
 	) {
@@ -1660,7 +1875,10 @@ export class RedisXTransaction<
 	 * @returns The rank of member if member exists in the sorted set, or null if member does not exist in the sorted set or key does not exist.
 	 * @see {@link https://redis.io/commands/zrank}
 	 */
-	ZRANK(key: string, member: string | number): RedisXTransaction<AddToList<L, number | null>, C, D>;
+	ZRANK(
+		key: string,
+		member: string | number,
+	): RedisXTransaction<AddToList<L, number | null>, C, D>;
 	/**
 	 * Returns the rank of member in the sorted set stored at key, with the scores ordered from low to high.
 	 * The rank (or index) is 0-based, which means that the member with the lowest score has rank 0.
@@ -1677,10 +1895,17 @@ export class RedisXTransaction<
 		key: string,
 		member: string | number,
 		options: ZrankOptionsWithscore,
-	): RedisXTransaction<AddToList<L, {
-		rank: number,
-		score: number,
-	} | null>, C, D>;
+	): RedisXTransaction<
+		AddToList<
+			L,
+			{
+				rank: number;
+				score: number;
+			} | null
+		>,
+		C,
+		D
+	>;
 
 	ZRANK(
 		key: string,
@@ -1719,7 +1944,12 @@ export class RedisXTransaction<
 
 	ZREM(
 		key: string,
-		arg1: string | number | (string | number)[] | Set<string> | IterableIterator<string>,
+		arg1:
+			| string
+			| number
+			| (string | number)[]
+			| Set<string>
+			| IterableIterator<string>,
 		...args_rest: (string | number)[]
 	): RedisXTransaction<AddToList<L, number>, C, D> {
 		return this.useCommand(input_zrem(key, arg1, ...args_rest));
@@ -1758,10 +1988,17 @@ export class RedisXTransaction<
 		start: string | number,
 		stop: string | number,
 		options: ZrangeOptions,
-	): RedisXTransaction<AddToList<L, {
-		member: string,
-		score: number,
-	}[]>, C, D>;
+	): RedisXTransaction<
+		AddToList<
+			L,
+			{
+				member: string;
+				score: number;
+			}[]
+		>,
+		C,
+		D
+	>;
 
 	ZRANGE(
 		key: string,
@@ -1879,20 +2116,12 @@ export class RedisXTransaction<
 	 */
 	HSET(
 		key: string,
-		pairs: Record<
-			string,
-			string | number
-		>
+		pairs: Record<string, string | number>,
 	): RedisXTransaction<AddToList<L, number>, C, D>;
 
 	HSET(
 		key: string,
-		arg1:
-			| string
-			| Record<
-				string,
-				string | number
-			>,
+		arg1: string | Record<string, string | number>,
 		arg2?: string | number,
 	) {
 		return this.useCommand(input_hset(key, arg1, arg2));
@@ -1911,7 +2140,11 @@ export class RedisXTransaction<
 	 * @returns The value of the field after the increment operation as a string representing the floating point value.
 	 * @see {@link https://redis.io/commands/hincrbyfloat}
 	 */
-	HINCRBYFLOAT(key: string, field: string | number, increment: number): RedisXTransaction<AddToList<L, string>, C, D> {
+	HINCRBYFLOAT(
+		key: string,
+		field: string | number,
+		increment: number,
+	): RedisXTransaction<AddToList<L, string>, C, D> {
 		return this.useCommand(input_hincrbyfloat(key, field, increment));
 	}
 
@@ -1923,7 +2156,9 @@ export class RedisXTransaction<
 	 * @returns A record of fields and their values stored in the hash.
 	 * @see {@link https://redis.io/commands/hgetall}
 	 */
-	HGETALL(key: string): RedisXTransaction<AddToList<L, Record<string, string>>, C, D> {
+	HGETALL(
+		key: string,
+	): RedisXTransaction<AddToList<L, Record<string, string>>, C, D> {
 		return this.useCommand(input_hgetall(key));
 	}
 
@@ -1936,7 +2171,10 @@ export class RedisXTransaction<
 	 * @returns The value associated with field in the hash stored at key or null.
 	 * @see {@link https://redis.io/commands/hget}
 	 */
-	HGET(key: string, field: string): RedisXTransaction<AddToList<L, string | null>, C, D> {
+	HGET(
+		key: string,
+		field: string,
+	): RedisXTransaction<AddToList<L, string | null>, C, D> {
 		return this.useCommand(input_hget(key, field));
 	}
 
@@ -1974,20 +2212,12 @@ export class RedisXTransaction<
 	 */
 	HMSET(
 		key: string,
-		pairs: Record<
-			string,
-			string | number
-		>,
+		pairs: Record<string, string | number>,
 	): RedisXTransaction<AddToList<L, 'OK'>, C, D>;
 
 	HMSET(
 		key: string,
-		arg1:
-			| string
-			| Record<
-				string,
-				string | number
-			>,
+		arg1: string | Record<string, string | number>,
 		arg2?: string | number,
 	): RedisXTransaction<AddToList<L, 'OK'>, C, D> {
 		return this.useCommand(input_hmset(key, arg1, arg2));
@@ -2006,7 +2236,10 @@ export class RedisXTransaction<
 	 * @returns Array of values associated with the given fields, in the same order as they are requested.
 	 * @see {@link https://redis.io/commands/hmget}
 	 */
-	HMGET(key: string, fields: string[]): RedisXTransaction<AddToList<L, (string | null)[]>, C, D>;
+	HMGET(
+		key: string,
+		fields: string[],
+	): RedisXTransaction<AddToList<L, (string | null)[]>, C, D>;
 	/**
 	 * Returns the values associated with the specified fields in the hash stored at key.
 	 *
@@ -2020,9 +2253,15 @@ export class RedisXTransaction<
 	 * @returns Array of values associated with the given fields, in the same order as they are requested.
 	 * @see {@link https://redis.io/commands/hmget}
 	 */
-	HMGET(key: string, ...fields: string[]): RedisXTransaction<AddToList<L, (string | null)[]>, C, D>;
+	HMGET(
+		key: string,
+		...fields: string[]
+	): RedisXTransaction<AddToList<L, (string | null)[]>, C, D>;
 
-	HMGET(key: string, ...fields: (string | string[])[]): RedisXTransaction<AddToList<L, (string | null)[]>, C, D> {
+	HMGET(
+		key: string,
+		...fields: (string | string[])[]
+	): RedisXTransaction<AddToList<L, (string | null)[]>, C, D> {
 		return this.useCommand(input_hmget(key, ...fields));
 	}
 
@@ -2067,7 +2306,11 @@ export class RedisXTransaction<
 	 * @returns The value of the field after the increment operation.
 	 * @see {@link https://redis.io/commands/hincrby}
 	 */
-	HINCRBY(key: string, field: string | number, increment: number): RedisXTransaction<AddToList<L, number>, C, D> {
+	HINCRBY(
+		key: string,
+		field: string | number,
+		increment: number,
+	): RedisXTransaction<AddToList<L, number>, C, D> {
 		return this.useCommand(input_hincrby(key, field, increment));
 	}
 
@@ -2082,7 +2325,10 @@ export class RedisXTransaction<
 	 * @returns The number of fields that were removed from the hash, excluding specified but non-existing fields.
 	 * @see {@link https://redis.io/commands/hdel}
 	 */
-	HDEL(key: string, fields: (string | number)[]): RedisXTransaction<AddToList<L, number>, C, D>;
+	HDEL(
+		key: string,
+		fields: (string | number)[],
+	): RedisXTransaction<AddToList<L, number>, C, D>;
 	/**
 	 * Removes the specified fields from the hash stored at key. Specified fields that do not exist within this hash are ignored.
 	 * Deletes the hash if no fields remain. If key does not exist, it is treated as an empty hash and this command returns 0.
@@ -2094,9 +2340,15 @@ export class RedisXTransaction<
 	 * @returns The number of fields that were removed from the hash, excluding specified but non-existing fields.
 	 * @see {@link https://redis.io/commands/hdel}
 	 */
-	HDEL(key: string, ...fields: (string | number)[]): RedisXTransaction<AddToList<L, number>, C, D>;
+	HDEL(
+		key: string,
+		...fields: (string | number)[]
+	): RedisXTransaction<AddToList<L, number>, C, D>;
 
-	HDEL(key: string, ...fields: (string | number | (string | number)[])[]): RedisXTransaction<AddToList<L, number>, C, D> {
+	HDEL(
+		key: string,
+		...fields: (string | number | (string | number)[])[]
+	): RedisXTransaction<AddToList<L, number>, C, D> {
 		return this.useCommand(input_hdel(key, ...fields));
 	}
 
@@ -2111,7 +2363,10 @@ export class RedisXTransaction<
 	 * @returns The string length of the value associated with the field, or zero when the field isn't present in the hash or the key doesn't exist at all.
 	 * @see {@link https://redis.io/commands/hstrlen}
 	 */
-	HSTRLEN(key: string, field: string): RedisXTransaction<AddToList<L, number>, C, D> {
+	HSTRLEN(
+		key: string,
+		field: string,
+	): RedisXTransaction<AddToList<L, number>, C, D> {
 		return this.useCommand(input_hstrlen(key, field));
 	}
 
@@ -2125,7 +2380,10 @@ export class RedisXTransaction<
 	 * @returns Returns `true` if the hash contains the field. Returns `false` if the hash does not contain the field, or the key does not exist.
 	 * @see {@link https://redis.io/commands/hexists}
 	 */
-	HEXISTS(key: string, field: string | number): RedisXTransaction<AddToList<L, boolean>, C, D> {
+	HEXISTS(
+		key: string,
+		field: string | number,
+	): RedisXTransaction<AddToList<L, boolean>, C, D> {
 		return this.useCommand(input_hexists(key, field));
 	}
 
@@ -2142,7 +2400,11 @@ export class RedisXTransaction<
 	 * @returns Returns `true` if the field is new and the value was set. Returns `false` if the field already exists and no operation was performed.
 	 * @see {@link https://redis.io/commands/hsetnx}
 	 */
-	HSETNX(key: string, field: string, value: string | number): RedisXTransaction<AddToList<L, boolean>, C, D> {
+	HSETNX(
+		key: string,
+		field: string,
+		value: string | number,
+	): RedisXTransaction<AddToList<L, boolean>, C, D> {
 		return this.useCommand(input_hsetnx(key, field, value));
 	}
 
@@ -2168,110 +2430,53 @@ export class RedisXTransaction<
 }
 
 // MARK: imports
-import {
-	input as input_srem,
-} from './commands/set/srem.js';
-import {
-	input as input_smismember,
-} from './commands/set/smismember.js';
-import {
-	input as input_smembers,
-} from './commands/set/smembers.js';
-import {
-	input as input_sismember,
-} from './commands/set/sismember.js';
-import {
-	input as input_scard,
-} from './commands/set/scard.js';
-import {
-	input as input_sadd,
-} from './commands/set/sadd.js';
-import {
-	input as input_msetnx,
-} from './commands/string/msetnx.js';
-import {
-	input as input_setnx,
-} from './commands/string/setnx.js';
-import {
-	input as input_get,
-} from './commands/string/get.js';
+
+import { input as input_srem } from './commands/set/srem.js';
+import { input as input_smismember } from './commands/set/smismember.js';
+import { input as input_smembers } from './commands/set/smembers.js';
+import { input as input_sismember } from './commands/set/sismember.js';
+import { input as input_scard } from './commands/set/scard.js';
+import { input as input_sadd } from './commands/set/sadd.js';
+import { input as input_msetnx } from './commands/string/msetnx.js';
+import { input as input_setnx } from './commands/string/setnx.js';
+import { input as input_get } from './commands/string/get.js';
 import {
 	type SetOptions,
 	type SetOptionsGet,
 	input as input_set,
 } from './commands/string/set.js';
-import {
-	input as input_append,
-} from './commands/string/append.js';
-import {
-	input as input_incr,
-} from './commands/string/incr.js';
-import {
-	input as input_incrbyfloat,
-} from './commands/string/incrbyfloat.js';
-import {
-	input as input_mget,
-} from './commands/string/mget.js';
-import {
-	input as input_getdel,
-} from './commands/string/getdel.js';
-import {
-	input as input_mset,
-} from './commands/string/mset.js';
-import {
-	input as input_incrby,
-} from './commands/string/incrby.js';
-import {
-	input as input_setrange,
-} from './commands/string/setrange.js';
-import {
-	input as input_substr,
-} from './commands/string/substr.js';
-import {
-	input as input_getset,
-} from './commands/string/getset.js';
-import {
-	input as input_decrby,
-} from './commands/string/decrby.js';
-import {
-	input as input_getrange,
-} from './commands/string/getrange.js';
-import {
-	input as input_setex,
-} from './commands/string/setex.js';
+import { input as input_append } from './commands/string/append.js';
+import { input as input_incr } from './commands/string/incr.js';
+import { input as input_incrbyfloat } from './commands/string/incrbyfloat.js';
+import { input as input_mget } from './commands/string/mget.js';
+import { input as input_getdel } from './commands/string/getdel.js';
+import { input as input_mset } from './commands/string/mset.js';
+import { input as input_incrby } from './commands/string/incrby.js';
+import { input as input_setrange } from './commands/string/setrange.js';
+import { input as input_substr } from './commands/string/substr.js';
+import { input as input_getset } from './commands/string/getset.js';
+import { input as input_decrby } from './commands/string/decrby.js';
+import { input as input_getrange } from './commands/string/getrange.js';
+import { input as input_setex } from './commands/string/setex.js';
 import {
 	type GetexOptions,
 	input as input_getex,
 } from './commands/string/getex.js';
-import {
-	input as input_strlen,
-} from './commands/string/strlen.js';
-import {
-	input as input_decr,
-} from './commands/string/decr.js';
-import {
-	input as input_psetex,
-} from './commands/string/psetex.js';
+import { input as input_strlen } from './commands/string/strlen.js';
+import { input as input_decr } from './commands/string/decr.js';
+import { input as input_psetex } from './commands/string/psetex.js';
 import {
 	type PexpireOptions,
 	input as input_pexpire,
 } from './commands/generic/pexpire.js';
-import {
-	input as input_pttl,
-} from './commands/generic/pttl.js';
-import {
-	input as input_ttl,
-} from './commands/generic/ttl.js';
+import { input as input_pttl } from './commands/generic/pttl.js';
+import { input as input_ttl } from './commands/generic/ttl.js';
 import {
 	type ExpireOptions,
 	input as input_expire,
 } from './commands/generic/expire.js';
-import {
-	input as input_type,
-} from './commands/generic/type.js';
-import {
-	input as input_keys,
-} from './commands/generic/keys.js';
+import { input as input_type } from './commands/generic/type.js';
+import { input as input_keys } from './commands/generic/keys.js';
 import {
 	type CopyOptions,
 	input as input_copy,
@@ -2284,75 +2489,29 @@ import {
 	type PexpireatOptions,
 	input as input_pexpireat,
 } from './commands/generic/pexpireat.js';
-import {
-	input as input_persist,
-} from './commands/generic/persist.js';
-import {
-	input as input_expiretime,
-} from './commands/generic/expiretime.js';
-import {
-	input as input_rename,
-} from './commands/generic/rename.js';
-import {
-	input as input_renamenx,
-} from './commands/generic/renamenx.js';
-import {
-	input as input_pexpiretime,
-} from './commands/generic/pexpiretime.js';
-import {
-	input as input_del,
-} from './commands/generic/del.js';
-import {
-	input as input_exists,
-} from './commands/generic/exists.js';
-import {
-	input as input_rpush,
-} from './commands/list/rpush.js';
-import {
-	input as input_lpop,
-} from './commands/list/lpop.js';
-import {
-	input as input_rpoplpush,
-} from './commands/list/rpoplpush.js';
-import {
-	input as input_rpushx,
-} from './commands/list/rpushx.js';
-import {
-	input as input_lset,
-} from './commands/list/lset.js';
-import {
-	input as input_lrem,
-} from './commands/list/lrem.js';
-import {
-	input as input_lpush,
-} from './commands/list/lpush.js';
-import {
-	input as input_lpushx,
-} from './commands/list/lpushx.js';
-import {
-	input as input_rpop,
-} from './commands/list/rpop.js';
-import {
-	input as input_lrange,
-} from './commands/list/lrange.js';
-import {
-	input as input_llen,
-} from './commands/list/llen.js';
-import {
-	input as input_linsert,
-} from './commands/list/linsert.js';
-import {
-	input as input_ltrim,
-} from './commands/list/ltrim.js';
-import {
-	input as input_lindex,
-} from './commands/list/lindex.js';
-import {
-	input as input_xlen,
-} from './commands/stream/xlen.js';
-import {
-	input as input_xdel,
-} from './commands/stream/xdel.js';
+import { input as input_persist } from './commands/generic/persist.js';
+import { input as input_expiretime } from './commands/generic/expiretime.js';
+import { input as input_rename } from './commands/generic/rename.js';
+import { input as input_renamenx } from './commands/generic/renamenx.js';
+import { input as input_pexpiretime } from './commands/generic/pexpiretime.js';
+import { input as input_del } from './commands/generic/del.js';
+import { input as input_exists } from './commands/generic/exists.js';
+import { input as input_rpush } from './commands/list/rpush.js';
+import { input as input_lpop } from './commands/list/lpop.js';
+import { input as input_rpoplpush } from './commands/list/rpoplpush.js';
+import { input as input_rpushx } from './commands/list/rpushx.js';
+import { input as input_lset } from './commands/list/lset.js';
+import { input as input_lrem } from './commands/list/lrem.js';
+import { input as input_lpush } from './commands/list/lpush.js';
+import { input as input_lpushx } from './commands/list/lpushx.js';
+import { input as input_rpop } from './commands/list/rpop.js';
+import { input as input_lrange } from './commands/list/lrange.js';
+import { input as input_llen } from './commands/list/llen.js';
+import { input as input_linsert } from './commands/list/linsert.js';
+import { input as input_ltrim } from './commands/list/ltrim.js';
+import { input as input_lindex } from './commands/list/lindex.js';
+import { input as input_xlen } from './commands/stream/xlen.js';
+import { input as input_xdel } from './commands/stream/xdel.js';
 import {
 	type XreadId,
 	type XReadOptions,
@@ -2378,20 +2537,14 @@ import {
 	type XtrimOptions,
 	input as input_xtrim,
 } from './commands/stream/xtrim.js';
-import {
-	input as input_zcard,
-} from './commands/sorted-set/zcard.js';
+import { input as input_zcard } from './commands/sorted-set/zcard.js';
 import {
 	type ZrangebyscoreOptions,
 	type ZrangebyscoreOptionsWithscores,
 	input as input_zrangebyscore,
 } from './commands/sorted-set/zrangebyscore.js';
-import {
-	input as input_zscore,
-} from './commands/sorted-set/zscore.js';
-import {
-	input as input_zcount,
-} from './commands/sorted-set/zcount.js';
+import { input as input_zscore } from './commands/sorted-set/zscore.js';
+import { input as input_zcount } from './commands/sorted-set/zcount.js';
 import {
 	type ZaddOptions,
 	input as input_zadd,
@@ -2400,9 +2553,7 @@ import {
 	type ZrankOptionsWithscore,
 	input as input_zrank,
 } from './commands/sorted-set/zrank.js';
-import {
-	input as input_zrem,
-} from './commands/sorted-set/zrem.js';
+import { input as input_zrem } from './commands/sorted-set/zrem.js';
 import {
 	type ZrangeOptions,
 	input as input_zrange,
@@ -2415,49 +2566,20 @@ import {
 	type ZrangebylexOptions,
 	input as input_zrangebylex,
 } from './commands/sorted-set/zrangebylex.js';
-import {
-	input as input_hvals,
-} from './commands/hash/hvals.js';
-import {
-	input as input_hset,
-} from './commands/hash/hset.js';
-import {
-	input as input_hincrbyfloat,
-} from './commands/hash/hincrbyfloat.js';
-import {
-	input as input_hgetall,
-} from './commands/hash/hgetall.js';
-import {
-	input as input_hget,
-} from './commands/hash/hget.js';
-import {
-	input as input_hmset,
-} from './commands/hash/hmset.js';
-import {
-	input as input_hmget,
-} from './commands/hash/hmget.js';
-import {
-	input as input_hlen,
-} from './commands/hash/hlen.js';
-import {
-	input as input_hkeys,
-} from './commands/hash/hkeys.js';
-import {
-	input as input_hincrby,
-} from './commands/hash/hincrby.js';
-import {
-	input as input_hdel,
-} from './commands/hash/hdel.js';
-import {
-	input as input_hstrlen,
-} from './commands/hash/hstrlen.js';
-import {
-	input as input_hexists,
-} from './commands/hash/hexists.js';
-import {
-	input as input_hsetnx,
-} from './commands/hash/hsetnx.js';
-import {
-	input as input_eval,
-} from './commands/scripting/eval.js';
+import { input as input_hvals } from './commands/hash/hvals.js';
+import { input as input_hset } from './commands/hash/hset.js';
+import { input as input_hincrbyfloat } from './commands/hash/hincrbyfloat.js';
+import { input as input_hgetall } from './commands/hash/hgetall.js';
+import { input as input_hget } from './commands/hash/hget.js';
+import { input as input_hmset } from './commands/hash/hmset.js';
+import { input as input_hmget } from './commands/hash/hmget.js';
+import { input as input_hlen } from './commands/hash/hlen.js';
+import { input as input_hkeys } from './commands/hash/hkeys.js';
+import { input as input_hincrby } from './commands/hash/hincrby.js';
+import { input as input_hdel } from './commands/hash/hdel.js';
+import { input as input_hstrlen } from './commands/hash/hstrlen.js';
+import { input as input_hexists } from './commands/hash/hexists.js';
+import { input as input_hsetnx } from './commands/hash/hsetnx.js';
+import { input as input_eval } from './commands/scripting/eval.js';
+
 // MARK: end imports

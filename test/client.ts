@@ -8,6 +8,6 @@ export const redisClient = createClient({
 });
 
 await redisClient.connect();
-await redisClient.sendCommand([ 'FLUSHDB' ]);
+await redisClient.sendCommand(['FLUSHDB']);
 
 export const redisXClient = new RedisXClient(redisClient);
