@@ -5478,4 +5478,4 @@ var RedisXClient = class {
 };
 
 //#endregion
-export { RedisXClient };
+export { RedisXClient, stringBulkToObject };

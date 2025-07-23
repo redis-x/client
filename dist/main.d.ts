@@ -5191,4 +5191,12 @@ declare class RedisXClient {
   EVAL(script: string, keys: (string | number)[], args?: (string | number)[]): Promise<unknown>;
 }
 //#endregion
-export { RedisXClient, RedisXTransaction };
+//#region src/utils.d.ts
+/**
+* Converts a string array to an object.
+* @param values A flat array containing the keys and the values.
+* @returns Object with keys and values.
+*/
+declare function stringBulkToObject(values: string[]): Record<string, string>;
+//#endregion
+export { RedisXClient, RedisXTransaction, stringBulkToObject };
