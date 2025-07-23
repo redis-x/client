@@ -3,7 +3,7 @@ import type { RedisClient } from './types.js';
 export type RedisXScriptOptions<I = string[], O = unknown> = {
 	code: string;
 	keys?: string[];
-	inputValidator?: (value: I) => string[];
+	inputValidator?: (value: I) => (string | number)[];
 	outputValidator?: (value: unknown) => O;
 };
 
@@ -15,7 +15,7 @@ export class RedisXScript<
 	private code: string;
 	private keys: string[] = [];
 	private sha: string | null = null;
-	private inputValidator?: (value: I) => string[];
+	private inputValidator?: (value: I) => (string | number)[];
 	private outputValidator?: (value: unknown) => O;
 
 	constructor(
@@ -53,7 +53,7 @@ export class RedisXScript<
 				this.sha,
 				String(this.keys.length),
 				...this.keys,
-				...(this.inputValidator ? this.inputValidator(args) : args),
+				...(this.inputValidator ? this.inputValidator(args).map(String) : args),
 			]);
 
 			return this.outputValidator

@@ -14,7 +14,7 @@ type Command<T = unknown> = {
 type RedisXScriptOptions<I = string[], O = unknown> = {
   code: string;
   keys?: string[];
-  inputValidator?: (value: I) => string[];
+  inputValidator?: (value: I) => (string | number)[];
   outputValidator?: (value: unknown) => O;
 };
 declare class RedisXScript<I extends any[] = string[], O = unknown> {

@@ -30,7 +30,7 @@ var RedisXScript = class {
 				this.sha,
 				String(this.keys.length),
 				...this.keys,
-				...this.inputValidator ? this.inputValidator(args) : args
+				...this.inputValidator ? this.inputValidator(args).map(String) : args
 			]);
 			return this.outputValidator ? this.outputValidator(result) : result;
 		} catch (error) {
