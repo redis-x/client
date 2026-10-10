@@ -12,10 +12,6 @@ Next IDs: **1.12** and **2.7**.
 
 ## 1. Invalid or incomplete implementations
 
-1.2. **ZADD: serialize numeric members as strings.**
-  [Implementation](src/commands/sorted-set/zadd.ts)
-  The single-member branch uses `arg2 as string`, which does not convert the value. `input('key', 1, 42)` produces `['ZADD', 'key', '1', 42]`, violating the command argument contract. Cover numeric members, including zero.
-
 1.3. **SET: stop silently dropping zero-valued expiration arguments.**
   [Implementation](src/commands/string/set.ts) · [Redis reference](https://redis.io/docs/latest/commands/set/)
   Truthiness checks omit `EX`, `PX`, `EXAT`, and `PXAT` when their value is zero. For example, `{ EX: 0 }` becomes an ordinary persistent `SET`. Preserve explicitly supplied arguments so Redis can apply its validation and semantics, as `GETEX` already does.
@@ -27,10 +23,6 @@ Next IDs: **1.12** and **2.7**.
 1.7. **XADD NOMKSTREAM: preserve nullability when options are stored in a variable.**
   [Implementation](src/commands/stream/xadd.ts) · [Redis reference](https://redis.io/docs/latest/commands/xadd/)
   A variable containing both `NOMKSTREAM: true` and `trim` can select the overload returning `string`. Redis returns `null` if the stream does not exist. Ensure the generated APIs retain that possibility.
-
-1.8. **HGETALL and stream readers: preserve fields named `__proto__`.**
-  [Shared conversion](src/utils.ts) · [HGETALL](src/commands/hash/hgetall.ts) · [XRANGE](src/commands/stream/xrange.ts) · [XREVRANGE](src/commands/stream/xrevrange.ts) · [XREAD](src/commands/stream/xread.ts)
-  `stringBulkToObject` assigns fields onto a normal object. The reply `['__proto__', 'value', 'normal', 'kept']` loses the `__proto__` field. Use safe property construction while preserving the intended public object API.
 
 1.9. **Stream commands: provide a lossless representation for repeated fields.**
   [XADD](src/commands/stream/xadd.ts) · [XRANGE](src/commands/stream/xrange.ts) · [XREVRANGE](src/commands/stream/xrevrange.ts) · [XREAD](src/commands/stream/xread.ts) · [Redis reference](https://redis.io/docs/latest/commands/xread/)

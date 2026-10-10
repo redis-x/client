@@ -11,6 +11,12 @@ describe('command', () => {
 		expect(command.replyTransform!(1)).toStrictEqual(1);
 	});
 
+	test('single pair with numeric member', () => {
+		const command = input('key', 1, 0);
+
+		expect(command.args).toStrictEqual(['ZADD', 'key', '1', '0']);
+	});
+
 	test('multiple pairs', () => {
 		const command = input('key', {
 			foo: 1,

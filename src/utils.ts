@@ -24,7 +24,12 @@ export function stringBulkToObject(values: string[]): Record<string, string> {
 	const object: Record<string, string> = {};
 
 	for (let index = 0; index < values.length; index += 2) {
-		object[values[index]!] = values[index + 1]!;
+		Object.defineProperty(object, values[index]!, {
+			value: values[index + 1]!,
+			writable: true,
+			enumerable: true,
+			configurable: true,
+		});
 	}
 
 	return object;

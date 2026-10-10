@@ -133,7 +133,7 @@ export function input(
 	const pairs: string[] = [];
 
 	if (typeof arg1 === 'number') {
-		pairs.push(String(arg1), arg2 as string);
+		pairs.push(String(arg1), String(arg2));
 	} else {
 		for (const [member, score] of Object.entries(arg1)) {
 			pairs.push(String(score), member);

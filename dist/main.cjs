@@ -61,7 +61,12 @@ function isPlainObject(value) {
 */
 function stringBulkToObject(values) {
 	const object = {};
-	for (let index = 0; index < values.length; index += 2) object[values[index]] = values[index + 1];
+	for (let index = 0; index < values.length; index += 2) Object.defineProperty(object, values[index], {
+		value: values[index + 1],
+		writable: true,
+		enumerable: true,
+		configurable: true
+	});
 	return object;
 }
 //#endregion
@@ -1672,7 +1677,7 @@ function input$21(key, min, max) {
 function input$20(key, arg1, arg2, arg3) {
 	const args = ["ZADD", key];
 	const pairs = [];
-	if (typeof arg1 === "number") pairs.push(String(arg1), arg2);
+	if (typeof arg1 === "number") pairs.push(String(arg1), String(arg2));
 	else for (const [member, score] of Object.entries(arg1)) pairs.push(String(score), member);
 	const options = typeof arg2 === "string" || typeof arg2 === "number" ? arg3 : arg2;
 	if (options) {
