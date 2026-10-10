@@ -958,10 +958,10 @@ declare class RedisXTransactionUse {
    * - Available since: 1.0.0.
    * - Time complexity: O(1).
    * @param key The key to check.
-   * @returns "OK".
-   * @see {@link https://redis.io/commands/rename}
+   * @returns The type of the value stored at the key, or `"none"` if the key does not exist.
+   * @see {@link https://redis.io/commands/type}
    */
-  TYPE(key: string): RedisXTransactionCommand<"string" | "list" | "set" | "zset" | "hash" | "stream" | "vectorset">;
+  TYPE(key: string): RedisXTransactionCommand<"none" | "string" | "list" | "set" | "zset" | "hash" | "stream" | "vectorset">;
   /**
    * Returns all keys matching pattern.
    * - Available since: 1.0.0.
@@ -1048,10 +1048,10 @@ declare class RedisXTransactionUse {
    * - Time complexity: O(1).
    * @param key The key to rename.
    * @param newkey The new key name.
-   * @returns "OK".
+   * @returns `1` if the key was renamed, or `0` if the destination key already exists.
    * @see {@link https://redis.io/commands/renamenx}
    */
-  RENAMENX(key: string, newkey: string): RedisXTransactionCommand<"OK">;
+  RENAMENX(key: string, newkey: string): RedisXTransactionCommand<0 | 1>;
   /**
    * PEXPIRETIME has the same semantic as EXPIRETIME, but returns the absolute Unix expiration timestamp in milliseconds instead of seconds.
    * - Available since: 7.0.0.
@@ -1778,10 +1778,10 @@ declare class RedisXTransactionUse {
    * - Available since: 2.0.0.
    * - Time complexity: O(N) where N is the size of the hash.
    * @param key The key of the hash.
-   * @returns A set of values in the hash, or an empty set when the key does not exist.
+   * @returns An array of values in the hash, preserving duplicates, or an empty array when the key does not exist.
    * @see {@link https://redis.io/commands/hvals}
    */
-  HVALS(key: string): RedisXTransactionCommand<Set<string>>;
+  HVALS(key: string): RedisXTransactionCommand<string[]>;
   /**
    * Sets the specified fields to their respective values in the hash stored at key.
    * - Available since: 2.0.0.
@@ -2493,10 +2493,10 @@ declare class RedisXTransaction<L = [], C extends boolean = false, D = unknown> 
    * - Available since: 1.0.0.
    * - Time complexity: O(1).
    * @param key The key to check.
-   * @returns "OK".
-   * @see {@link https://redis.io/commands/rename}
+   * @returns The type of the value stored at the key, or `"none"` if the key does not exist.
+   * @see {@link https://redis.io/commands/type}
    */
-  TYPE(key: string): RedisXTransaction<AddToList<L, "string" | "list" | "set" | "zset" | "hash" | "stream" | "vectorset">, C, D>;
+  TYPE(key: string): RedisXTransaction<AddToList<L, "none" | "string" | "list" | "set" | "zset" | "hash" | "stream" | "vectorset">, C, D>;
   /**
    * Returns all keys matching pattern.
    * - Available since: 1.0.0.
@@ -2583,10 +2583,10 @@ declare class RedisXTransaction<L = [], C extends boolean = false, D = unknown> 
    * - Time complexity: O(1).
    * @param key The key to rename.
    * @param newkey The new key name.
-   * @returns "OK".
+   * @returns `1` if the key was renamed, or `0` if the destination key already exists.
    * @see {@link https://redis.io/commands/renamenx}
    */
-  RENAMENX(key: string, newkey: string): RedisXTransaction<AddToList<L, "OK">, C, D>;
+  RENAMENX(key: string, newkey: string): RedisXTransaction<AddToList<L, 0 | 1>, C, D>;
   /**
    * PEXPIRETIME has the same semantic as EXPIRETIME, but returns the absolute Unix expiration timestamp in milliseconds instead of seconds.
    * - Available since: 7.0.0.
@@ -3313,10 +3313,10 @@ declare class RedisXTransaction<L = [], C extends boolean = false, D = unknown> 
    * - Available since: 2.0.0.
    * - Time complexity: O(N) where N is the size of the hash.
    * @param key The key of the hash.
-   * @returns A set of values in the hash, or an empty set when the key does not exist.
+   * @returns An array of values in the hash, preserving duplicates, or an empty array when the key does not exist.
    * @see {@link https://redis.io/commands/hvals}
    */
-  HVALS(key: string): RedisXTransaction<AddToList<L, Set<string>>, C, D>;
+  HVALS(key: string): RedisXTransaction<AddToList<L, string[]>, C, D>;
   /**
    * Sets the specified fields to their respective values in the hash stored at key.
    * - Available since: 2.0.0.
@@ -4019,10 +4019,10 @@ export declare class RedisXClient {
    * - Available since: 1.0.0.
    * - Time complexity: O(1).
    * @param key The key to check.
-   * @returns "OK".
-   * @see {@link https://redis.io/commands/rename}
+   * @returns The type of the value stored at the key, or `"none"` if the key does not exist.
+   * @see {@link https://redis.io/commands/type}
    */
-  TYPE(key: string): Promise<"string" | "list" | "set" | "zset" | "hash" | "stream" | "vectorset">;
+  TYPE(key: string): Promise<"none" | "string" | "list" | "set" | "zset" | "hash" | "stream" | "vectorset">;
   /**
    * Returns all keys matching pattern.
    * - Available since: 1.0.0.
@@ -4109,10 +4109,10 @@ export declare class RedisXClient {
    * - Time complexity: O(1).
    * @param key The key to rename.
    * @param newkey The new key name.
-   * @returns "OK".
+   * @returns `1` if the key was renamed, or `0` if the destination key already exists.
    * @see {@link https://redis.io/commands/renamenx}
    */
-  RENAMENX(key: string, newkey: string): Promise<"OK">;
+  RENAMENX(key: string, newkey: string): Promise<0 | 1>;
   /**
    * PEXPIRETIME has the same semantic as EXPIRETIME, but returns the absolute Unix expiration timestamp in milliseconds instead of seconds.
    * - Available since: 7.0.0.
@@ -4839,10 +4839,10 @@ export declare class RedisXClient {
    * - Available since: 2.0.0.
    * - Time complexity: O(N) where N is the size of the hash.
    * @param key The key of the hash.
-   * @returns A set of values in the hash, or an empty set when the key does not exist.
+   * @returns An array of values in the hash, preserving duplicates, or an empty array when the key does not exist.
    * @see {@link https://redis.io/commands/hvals}
    */
-  HVALS(key: string): Promise<Set<string>>;
+  HVALS(key: string): Promise<string[]>;
   /**
    * Sets the specified fields to their respective values in the hash stored at key.
    * - Available since: 2.0.0.

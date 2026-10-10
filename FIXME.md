@@ -1,0 +1,83 @@
+# Command fixes and updates
+
+Audit baseline: the [Redis 8.10 command reference](https://redis.io/docs/latest/commands/redis-8-10-commands/), checked October 10, 2026. This backlog covers commands already implemented by this client. Commands without dedicated wrappers are outside its scope.
+
+Findings come from reviewing all 89 command implementations against their individual Redis references, with local serialization, transformation, and TypeScript inference probes. They have not been validated by integration tests against Redis 8.10.
+
+When implementing an item, follow [CONTRIBUTING.md](CONTRIBUTING.md), change the command definitions, and regenerate the client and transaction APIs with `bun run build:lib`. Changes to public result shapes require a compatibility decision. The current test setup uses Redis 7; validation of Redis 8 features will need an appropriate server version.
+
+Item IDs are permanent. Remove completed entries without renumbering the remaining entries or reusing retired IDs. Assign new entries the next unused ID in their category and advance the corresponding counter below.
+
+Next IDs: **1.12** and **2.7**.
+
+## 1. Invalid or incomplete implementations
+
+1.1. **ZADD INCR: represent an aborted update in the result type.**
+  [Implementation](src/commands/sorted-set/zadd.ts) · [Redis reference](https://redis.io/docs/latest/commands/zadd/)
+  The single-member overload always returns `number`, but `INCR` combined with a condition such as `XX` can return `null`. The transformer already passes `null` through, while its parameter type also omits it. Make the overloads and transformer types reflect the actual replies.
+
+1.2. **ZADD: serialize numeric members as strings.**
+  [Implementation](src/commands/sorted-set/zadd.ts)
+  The single-member branch uses `arg2 as string`, which does not convert the value. `input('key', 1, 42)` produces `['ZADD', 'key', '1', 42]`, violating the command argument contract. Cover numeric members, including zero.
+
+1.3. **SET: stop silently dropping zero-valued expiration arguments.**
+  [Implementation](src/commands/string/set.ts) · [Redis reference](https://redis.io/docs/latest/commands/set/)
+  Truthiness checks omit `EX`, `PX`, `EXAT`, and `PXAT` when their value is zero. For example, `{ EX: 0 }` becomes an ordinary persistent `SET`. Preserve explicitly supplied arguments so Redis can apply its validation and semantics, as `GETEX` already does.
+
+1.4. **SET GET: fix overload selection for option variables.**
+  [Implementation](src/commands/string/set.ts)
+  With `const options = { GET: true, NX: true } as const`, `client.SET('key', 'value', options)` is inferred as `Promise<'OK' | null>`, although it returns the previous value. Ensure options stored in variables retain the `GET` result type, including when combined with other options.
+
+1.5. **ZRANGE WITHSCORES: fix overload selection and the discriminator.**
+  [Implementation](src/commands/sorted-set/zrange.ts) · [Redis reference](https://redis.io/docs/latest/commands/zrange/)
+  With `const options = { WITHSCORES: true, REV: true } as const`, the call is inferred as returning `string[]`, although the transformer returns `{ member, score }[]`. The scored-result overload also uses a type where `WITHSCORES` is optional. Make result types follow the actual option value for both object literals and variables.
+
+1.6. **ZRANGEBYSCORE WITHSCORES: fix overload selection for option variables.**
+  [Implementation](src/commands/sorted-set/zrangebyscore.ts) · [Redis reference](https://redis.io/docs/latest/commands/zrangebyscore/)
+  A variable typed as `{ WITHSCORES: true; LIMIT: [number, number] }` selects the `string[]` overload, although the transformer returns `{ member, score }[]`. Cover combined options supplied through variables.
+
+1.7. **XADD NOMKSTREAM: preserve nullability when options are stored in a variable.**
+  [Implementation](src/commands/stream/xadd.ts) · [Redis reference](https://redis.io/docs/latest/commands/xadd/)
+  A variable containing both `NOMKSTREAM: true` and `trim` can select the overload returning `string`. Redis returns `null` if the stream does not exist. Ensure the generated APIs retain that possibility.
+
+1.8. **HGETALL and stream readers: preserve fields named `__proto__`.**
+  [Shared conversion](src/utils.ts) · [HGETALL](src/commands/hash/hgetall.ts) · [XRANGE](src/commands/stream/xrange.ts) · [XREVRANGE](src/commands/stream/xrevrange.ts) · [XREAD](src/commands/stream/xread.ts)
+  `stringBulkToObject` assigns fields onto a normal object. The reply `['__proto__', 'value', 'normal', 'kept']` loses the `__proto__` field. Use safe property construction while preserving the intended public object API.
+
+1.9. **Stream commands: provide a lossless representation for repeated fields.**
+  [XADD](src/commands/stream/xadd.ts) · [XRANGE](src/commands/stream/xrange.ts) · [XREVRANGE](src/commands/stream/xrevrange.ts) · [XREAD](src/commands/stream/xread.ts) · [Redis reference](https://redis.io/docs/latest/commands/xread/)
+  `XADD` accepts a record, so it cannot represent repeated field names. The readers also convert field/value pairs into records, overwriting earlier occurrences. Decide how to expose ordered pairs without silently losing data or unexpectedly breaking existing callers.
+
+1.10. **Existing commands: decide and implement binary-safe argument and reply support.**
+  [Command types](src/types.ts) · [Client transport](src/client.ts) · [Redis strings](https://redis.io/docs/latest/develop/data-types/strings/)
+  Redis supports binary strings, but command definitions use string keys and string/number values, and `Command.args` is `string[]`. This is an existing representation limitation rather than a newly added Redis option. Supporting buffers requires coordinated signatures, serialization, reply handling, and transformation changes.
+
+1.11. **Integer commands: support exact values across Redis's signed 64-bit range.**
+  [INCRBY](src/commands/string/incrby.ts) · [DECRBY](src/commands/string/decrby.ts) · [HINCRBY](src/commands/hash/hincrby.ts) · [INCR](src/commands/string/incr.ts) · [DECR](src/commands/string/decr.ts) · [Redis reference](https://redis.io/docs/latest/commands/incrby/)
+  JavaScript `number` cannot represent every signed 64-bit integer exactly. Increment/decrement arguments and result types currently rely on it. Choose an exact-value API for large integers and verify the underlying Redis client's reply decoding; changing TypeScript declarations alone is insufficient. Preserve compatibility for ordinary numeric calls deliberately.
+
+## 2. Updates to already implemented commands
+
+2.1. **SET: add value- and digest-based conditions introduced in Redis 8.4.**
+  [Implementation](src/commands/string/set.ts) · [Redis reference](https://redis.io/docs/latest/commands/set/)
+  Add `IFEQ value`, `IFNE value`, `IFDEQ digest`, and `IFDNE digest`. Extend option types, serialization, and documentation. Verify their interaction with `GET` and expiration options, and retain the appropriate previous-value or success/null result type.
+
+2.2. **ZINTERSTORE: add `AGGREGATE COUNT`, introduced in Redis 8.8.**
+  [Implementation](src/commands/sorted-set/zinterstore.ts) · [Redis reference](https://redis.io/docs/latest/commands/zinterstore/)
+  Extend `AGGREGATE` beyond `'SUM' | 'MIN' | 'MAX'`. The serializer already forwards the selected aggregate string, but the public type and documentation exclude `COUNT`. The result remains the number of members stored.
+
+2.3. **XADD: add reference-handling policies introduced in Redis 8.2.**
+  [Implementation](src/commands/stream/xadd.ts) · [Redis reference](https://redis.io/docs/latest/commands/xadd/)
+  Expose `KEEPREF`, `DELREF`, and `ACKED` with the correct placement in the command arguments. Redis's default `KEEPREF` behavior already applies; selecting the other policies or explicitly supplying `KEEPREF` is not currently possible.
+
+2.4. **XADD: add idempotent insertion introduced in Redis 8.6.**
+  [Implementation](src/commands/stream/xadd.ts) · [Redis reference](https://redis.io/docs/latest/commands/xadd/)
+  Add `IDMP producer-id idempotent-id` and `IDMPAUTO producer-id`. Model the mutually exclusive forms, serialize their arguments, and document that a duplicate returns the original entry ID. Preserve `NOMKSTREAM` nullability.
+
+2.5. **XTRIM: add pending-reference policies.**
+  [Implementation](src/commands/stream/xtrim.ts) · [Redis reference](https://redis.io/docs/latest/commands/xtrim/)
+  Expose `KEEPREF`, `DELREF`, and `ACKED` alongside the existing strategy, operator, threshold, and `LIMIT` options. Preserve the default policy when none is supplied. The result remains the number of entries deleted.
+
+2.6. **XREAD: add combined reply limits introduced in Redis 8.10.**
+  [Implementation](src/commands/stream/xread.ts) · [Redis reference](https://redis.io/docs/latest/commands/xread/)
+  Add `MAXCOUNT` and `MAXSIZE` to the option type and serializer. Document their cumulative scope across streams, as distinct from per-stream `COUNT`, and cover both single-stream and multi-stream overloads. Preserve the existing transformed result shapes.

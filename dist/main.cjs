@@ -819,8 +819,8 @@ function input$58(key, seconds, options) {
 * - Available since: 1.0.0.
 * - Time complexity: O(1).
 * @param key The key to check.
-* @returns "OK".
-* @see {@link https://redis.io/commands/rename}
+* @returns The type of the value stored at the key, or `"none"` if the key does not exist.
+* @see {@link https://redis.io/commands/type}
 */
 function input$57(key) {
 	return {
@@ -1005,7 +1005,7 @@ function input$50(key, newkey) {
 * - Time complexity: O(1).
 * @param key The key to rename.
 * @param newkey The new key name.
-* @returns "OK".
+* @returns `1` if the key was renamed, or `0` if the destination key already exists.
 * @see {@link https://redis.io/commands/renamenx}
 */
 function input$49(key, newkey) {
@@ -1822,14 +1822,13 @@ function input$15(key, min, max, options) {
 * - Available since: 2.0.0.
 * - Time complexity: O(N) where N is the size of the hash.
 * @param key The key of the hash.
-* @returns A set of values in the hash, or an empty set when the key does not exist.
+* @returns An array of values in the hash, preserving duplicates, or an empty array when the key does not exist.
 * @see {@link https://redis.io/commands/hvals}
 */
 function input$14(key) {
 	return {
 		kind: "#schema",
-		args: ["HVALS", key],
-		replyTransform: replyTransform$1
+		args: ["HVALS", key]
 	};
 }
 //#endregion
@@ -2554,8 +2553,8 @@ var RedisXTransactionUse = class {
 	* - Available since: 1.0.0.
 	* - Time complexity: O(1).
 	* @param key The key to check.
-	* @returns "OK".
-	* @see {@link https://redis.io/commands/rename}
+	* @returns The type of the value stored at the key, or `"none"` if the key does not exist.
+	* @see {@link https://redis.io/commands/type}
 	*/
 	TYPE(key) {
 		return this.useCommand(input$57(key));
@@ -2660,7 +2659,7 @@ var RedisXTransactionUse = class {
 	* - Time complexity: O(1).
 	* @param key The key to rename.
 	* @param newkey The new key name.
-	* @returns "OK".
+	* @returns `1` if the key was renamed, or `0` if the destination key already exists.
 	* @see {@link https://redis.io/commands/renamenx}
 	*/
 	RENAMENX(key, newkey) {
@@ -3031,7 +3030,7 @@ var RedisXTransactionUse = class {
 	* - Available since: 2.0.0.
 	* - Time complexity: O(N) where N is the size of the hash.
 	* @param key The key of the hash.
-	* @returns A set of values in the hash, or an empty set when the key does not exist.
+	* @returns An array of values in the hash, preserving duplicates, or an empty array when the key does not exist.
 	* @see {@link https://redis.io/commands/hvals}
 	*/
 	HVALS(key) {
@@ -3669,8 +3668,8 @@ var RedisXTransaction = class {
 	* - Available since: 1.0.0.
 	* - Time complexity: O(1).
 	* @param key The key to check.
-	* @returns "OK".
-	* @see {@link https://redis.io/commands/rename}
+	* @returns The type of the value stored at the key, or `"none"` if the key does not exist.
+	* @see {@link https://redis.io/commands/type}
 	*/
 	TYPE(key) {
 		return this.useCommand(input$57(key));
@@ -3775,7 +3774,7 @@ var RedisXTransaction = class {
 	* - Time complexity: O(1).
 	* @param key The key to rename.
 	* @param newkey The new key name.
-	* @returns "OK".
+	* @returns `1` if the key was renamed, or `0` if the destination key already exists.
 	* @see {@link https://redis.io/commands/renamenx}
 	*/
 	RENAMENX(key, newkey) {
@@ -4146,7 +4145,7 @@ var RedisXTransaction = class {
 	* - Available since: 2.0.0.
 	* - Time complexity: O(N) where N is the size of the hash.
 	* @param key The key of the hash.
-	* @returns A set of values in the hash, or an empty set when the key does not exist.
+	* @returns An array of values in the hash, preserving duplicates, or an empty array when the key does not exist.
 	* @see {@link https://redis.io/commands/hvals}
 	*/
 	HVALS(key) {
@@ -4752,8 +4751,8 @@ var RedisXClient = class {
 	* - Available since: 1.0.0.
 	* - Time complexity: O(1).
 	* @param key The key to check.
-	* @returns "OK".
-	* @see {@link https://redis.io/commands/rename}
+	* @returns The type of the value stored at the key, or `"none"` if the key does not exist.
+	* @see {@link https://redis.io/commands/type}
 	*/
 	TYPE(key) {
 		return this.useCommand(input$57(key));
@@ -4858,7 +4857,7 @@ var RedisXClient = class {
 	* - Time complexity: O(1).
 	* @param key The key to rename.
 	* @param newkey The new key name.
-	* @returns "OK".
+	* @returns `1` if the key was renamed, or `0` if the destination key already exists.
 	* @see {@link https://redis.io/commands/renamenx}
 	*/
 	RENAMENX(key, newkey) {
@@ -5229,7 +5228,7 @@ var RedisXClient = class {
 	* - Available since: 2.0.0.
 	* - Time complexity: O(N) where N is the size of the hash.
 	* @param key The key of the hash.
-	* @returns A set of values in the hash, or an empty set when the key does not exist.
+	* @returns An array of values in the hash, preserving duplicates, or an empty array when the key does not exist.
 	* @see {@link https://redis.io/commands/hvals}
 	*/
 	HVALS(key) {

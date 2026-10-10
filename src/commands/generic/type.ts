@@ -5,13 +5,13 @@ import type { Command } from '../../types.js';
  * - Available since: 1.0.0.
  * - Time complexity: O(1).
  * @param key The key to check.
- * @returns "OK".
- * @see {@link https://redis.io/commands/rename}
+ * @returns The type of the value stored at the key, or `"none"` if the key does not exist.
+ * @see {@link https://redis.io/commands/type}
  */
 export function input(
 	key: string,
 ): Command<
-	'string' | 'list' | 'set' | 'zset' | 'hash' | 'stream' | 'vectorset'
+	'none' | 'string' | 'list' | 'set' | 'zset' | 'hash' | 'stream' | 'vectorset'
 > {
 	return {
 		kind: '#schema',

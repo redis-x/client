@@ -680,13 +680,20 @@ export class RedisXClient {
 	 * - Available since: 1.0.0.
 	 * - Time complexity: O(1).
 	 * @param key The key to check.
-	 * @returns "OK".
-	 * @see {@link https://redis.io/commands/rename}
+	 * @returns The type of the value stored at the key, or `"none"` if the key does not exist.
+	 * @see {@link https://redis.io/commands/type}
 	 */
 	TYPE(
 		key: string,
 	): Promise<
-		'string' | 'list' | 'set' | 'zset' | 'hash' | 'stream' | 'vectorset'
+		| 'none'
+		| 'string'
+		| 'list'
+		| 'set'
+		| 'zset'
+		| 'hash'
+		| 'stream'
+		| 'vectorset'
 	> {
 		return this.useCommand(input_type(key));
 	}
@@ -810,10 +817,10 @@ export class RedisXClient {
 	 * - Time complexity: O(1).
 	 * @param key The key to rename.
 	 * @param newkey The new key name.
-	 * @returns "OK".
+	 * @returns `1` if the key was renamed, or `0` if the destination key already exists.
 	 * @see {@link https://redis.io/commands/renamenx}
 	 */
-	RENAMENX(key: string, newkey: string): Promise<'OK'> {
+	RENAMENX(key: string, newkey: string): Promise<0 | 1> {
 		return this.useCommand(input_renamenx(key, newkey));
 	}
 
@@ -1835,10 +1842,10 @@ export class RedisXClient {
 	 * - Available since: 2.0.0.
 	 * - Time complexity: O(N) where N is the size of the hash.
 	 * @param key The key of the hash.
-	 * @returns A set of values in the hash, or an empty set when the key does not exist.
+	 * @returns An array of values in the hash, preserving duplicates, or an empty array when the key does not exist.
 	 * @see {@link https://redis.io/commands/hvals}
 	 */
-	HVALS(key: string): Promise<Set<string>> {
+	HVALS(key: string): Promise<string[]> {
 		return this.useCommand(input_hvals(key));
 	}
 

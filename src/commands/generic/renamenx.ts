@@ -7,10 +7,10 @@ import type { Command } from '../../types.js';
  * - Time complexity: O(1).
  * @param key The key to rename.
  * @param newkey The new key name.
- * @returns "OK".
+ * @returns `1` if the key was renamed, or `0` if the destination key already exists.
  * @see {@link https://redis.io/commands/renamenx}
  */
-export function input(key: string, newkey: string): Command<'OK'> {
+export function input(key: string, newkey: string): Command<0 | 1> {
 	return {
 		kind: '#schema',
 		args: ['RENAMENX', key, newkey],

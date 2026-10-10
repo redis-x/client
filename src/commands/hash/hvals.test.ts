@@ -6,5 +6,5 @@ test('command', () => {
 
 	expect(command.args).toStrictEqual(['HVALS', 'myhash']);
 
-	expect(command.replyTransform).toBeTypeOf('function');
+	expect(command.replyTransform).toBeUndefined();
 });
