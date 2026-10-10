@@ -391,36 +391,36 @@ type ZrangebyscoreOptions = {
 //#region src/commands/sorted-set/zadd.d.ts
 type ZaddOptions = {
   /**
-   * Only add new elements. Don't update already existing elements.
-   * - Incompatible with option `XX`, `GT` and `LT`.
+   * Only add new members; do not update existing members.
+   * `NX` and `XX` are mutually exclusive, as are `GT` and `LT`.
    * - Available since: 3.0.2.
    */
   NX?: boolean;
   /**
-   * Only update elements that already exist. Don't add new elements.
-   * - Incompatible with option `NX`, `GT` and `LT`.
+   * Only update existing members; do not add new members.
+   * `NX` and `XX` are mutually exclusive, as are `GT` and `LT`.
    * - Available since: 3.0.2.
    */
   XX?: boolean;
   /**
-   * Only update existing elements if the new score is greater than the current score. This flag doesn't prevent adding new elements.
-   * - Incompatible with options `NX`, `XX` and `LT`.
+   * Only update an existing member if the new score is greater than the current score. Does not prevent adding new members.
+   * `NX` and `XX` are mutually exclusive, as are `GT` and `LT`.
    * - Available since: 6.2.0.
    */
   GT?: boolean;
   /**
-   * Only update existing elements if the new score is less than the current score. This flag doesn't prevent adding new elements.
-   * - Incompatible with option `NX`, `XX` and `GT`.
+   * Only update an existing member if the new score is less than the current score. Does not prevent adding new members.
+   * `NX` and `XX` are mutually exclusive, as are `GT` and `LT`.
    * - Available since: 6.2.0.
    */
   LT?: boolean;
   /**
-   * Modify the return value from the number of new elements added, to the total number of elements changed.
+   * Change the return value from the number of added members to the number of changed members (added plus updated).
    * - Available since: 3.0.2.
    */
   CH?: boolean;
   /**
-   * When this option is specified ZADD acts like ZINCRBY. Only one score-element pair can be specified in this mode.
+   * Increment the member's score by `score` instead of setting it, behaving like `ZINCRBY`. Only one score-member pair may be given.
    * - Available since: 3.0.2.
    */
   INCR?: boolean;
@@ -1654,30 +1654,72 @@ declare class RedisXTransactionUse {
    */
   ZCOUNT(key: string, min: number | `(${number}` | "-inf", max: number | `(${number}` | "+inf"): RedisXTransactionCommand<number>;
   /**
-   * Adds member with the specified score to the sorted set stored at key.
+   * Adds all the specified members with the specified scores to the sorted set stored at `key`.
    * - Available since: 1.2.0
-   * - Multiple score/member pairs are available since Redis 2.4.0.
+   * - Starting with Redis version 2.4.0: Accepts multiple elements.
    * - Time complexity: O(log(N)) for each item added, where N is the number of elements in the sorted set.
-   * @param key - Key holds a sorted set.
-   * @param score - Score associated with the member.
-   * @param member - Member to add.
+   * @param key - The name of the key that holds the sorted set.
+   * @param score - `score` is a double-precision floating-point number.
+   * @param member -
    * @param options -
-   * @returns The number of fields that were added.
+   * @returns Any of the following:
+   * - Integer reply: the number of new members when the CH option is not used.
+   * - Integer reply: the number of new or updated members when the CH option is used.
    * @see {@link https://redis.io/commands/zadd}
    */
-  ZADD(key: string, score: number, member: string | number, options?: ZaddOptions): RedisXTransactionCommand<number>;
+  ZADD(key: string, score: number, member: string | number, options?: ZaddOptions & {
+    INCR?: false;
+  }): RedisXTransactionCommand<number>;
   /**
-   * Adds all the specified members with the specified scores to the sorted set stored at key.
+   * Adds all the specified members with the specified scores to the sorted set stored at `key`.
    * - Available since: 1.2.0
-   * - Multiple score/member pairs are available since Redis 2.4.0.
+   * - Starting with Redis version 3.0.2: Added the `XX`, `NX`, `CH` and `INCR` options.
    * - Time complexity: O(log(N)) for each item added, where N is the number of elements in the sorted set.
-   * @param key - Key holds a sorted set.
-   * @param pairs - Object containing score/member pairs to set.
+   * @param key - The name of the key that holds the sorted set.
+   * @param score - `score` is a double-precision floating-point number.
+   * @param member -
    * @param options -
-   * @returns The number of fields that were added.
+   * @returns Any of the following:
+   * - Nil reply: if the operation was aborted because of a conflict with one of the XX/NX/LT/GT options.
+   * - Bulk string reply: the updated score of the member when the INCR option is used.
    * @see {@link https://redis.io/commands/zadd}
    */
-  ZADD(key: string, pairs: Record<string, number>, options?: Omit<ZaddOptions, "INCR">): RedisXTransactionCommand<number>;
+  ZADD(key: string, score: number, member: string | number, options: ZaddOptions & {
+    INCR: true;
+  }): RedisXTransactionCommand<number | null>;
+  /**
+   * Adds all the specified members with the specified scores to the sorted set stored at `key`.
+   * - Available since: 1.2.0
+   * - Starting with Redis version 2.4.0: Accepts multiple elements.
+   * - Time complexity: O(log(N)) for each item added, where N is the number of elements in the sorted set.
+   * @param key - The name of the key that holds the sorted set.
+   * @param pairs - One or more score-member pairs to add or update.
+   * @param options -
+   * @returns Any of the following:
+   * - Integer reply: the number of new members when the CH option is not used.
+   * - Integer reply: the number of new or updated members when the CH option is used.
+   * @see {@link https://redis.io/commands/zadd}
+   */
+  ZADD(key: string, pairs: Record<string, number>, options?: ZaddOptions & {
+    INCR?: false;
+  }): RedisXTransactionCommand<number>;
+  /**
+   * Adds all the specified members with the specified scores to the sorted set stored at `key`.
+   * - Available since: 1.2.0
+   * - Starting with Redis version 3.0.2: Added the `XX`, `NX`, `CH` and `INCR` options.
+   * - Time complexity: O(log(N)) for each item added, where N is the number of elements in the sorted set.
+   * @param key - The name of the key that holds the sorted set.
+   * @param score - `score` is a double-precision floating-point number.
+   * @param member -
+   * @param options -
+   * @returns Any of the following:
+   * - Nil reply: if the operation was aborted because of a conflict with one of the XX/NX/LT/GT options.
+   * - Integer reply: the number of new members when the CH option is not used.
+   * - Integer reply: the number of new or updated members when the CH option is used.
+   * - Bulk string reply: the updated score of the member when the INCR option is used.
+   * @see {@link https://redis.io/commands/zadd}
+   */
+  ZADD(key: string, score: number, member: string | number, options?: ZaddOptions): RedisXTransactionCommand<number | null>;
   /**
    * Returns the rank of member in the sorted set stored at key, with the scores ordered from low to high.
    * The rank (or index) is 0-based, which means that the member with the lowest score has rank 0.
@@ -3232,30 +3274,72 @@ declare class RedisXTransaction<L = [], C extends boolean = false, D = unknown> 
    */
   ZCOUNT(key: string, min: number | `(${number}` | "-inf", max: number | `(${number}` | "+inf"): RedisXTransaction<AddToList<L, number>, C, D>;
   /**
-   * Adds member with the specified score to the sorted set stored at key.
+   * Adds all the specified members with the specified scores to the sorted set stored at `key`.
    * - Available since: 1.2.0
-   * - Multiple score/member pairs are available since Redis 2.4.0.
+   * - Starting with Redis version 2.4.0: Accepts multiple elements.
    * - Time complexity: O(log(N)) for each item added, where N is the number of elements in the sorted set.
-   * @param key - Key holds a sorted set.
-   * @param score - Score associated with the member.
-   * @param member - Member to add.
+   * @param key - The name of the key that holds the sorted set.
+   * @param score - `score` is a double-precision floating-point number.
+   * @param member -
    * @param options -
-   * @returns The number of fields that were added.
+   * @returns Any of the following:
+   * - Integer reply: the number of new members when the CH option is not used.
+   * - Integer reply: the number of new or updated members when the CH option is used.
    * @see {@link https://redis.io/commands/zadd}
    */
-  ZADD(key: string, score: number, member: string | number, options?: ZaddOptions): RedisXTransaction<AddToList<L, number>, C, D>;
+  ZADD(key: string, score: number, member: string | number, options?: ZaddOptions & {
+    INCR?: false;
+  }): RedisXTransaction<AddToList<L, number>, C, D>;
   /**
-   * Adds all the specified members with the specified scores to the sorted set stored at key.
+   * Adds all the specified members with the specified scores to the sorted set stored at `key`.
    * - Available since: 1.2.0
-   * - Multiple score/member pairs are available since Redis 2.4.0.
+   * - Starting with Redis version 3.0.2: Added the `XX`, `NX`, `CH` and `INCR` options.
    * - Time complexity: O(log(N)) for each item added, where N is the number of elements in the sorted set.
-   * @param key - Key holds a sorted set.
-   * @param pairs - Object containing score/member pairs to set.
+   * @param key - The name of the key that holds the sorted set.
+   * @param score - `score` is a double-precision floating-point number.
+   * @param member -
    * @param options -
-   * @returns The number of fields that were added.
+   * @returns Any of the following:
+   * - Nil reply: if the operation was aborted because of a conflict with one of the XX/NX/LT/GT options.
+   * - Bulk string reply: the updated score of the member when the INCR option is used.
    * @see {@link https://redis.io/commands/zadd}
    */
-  ZADD(key: string, pairs: Record<string, number>, options?: Omit<ZaddOptions, "INCR">): RedisXTransaction<AddToList<L, number>, C, D>;
+  ZADD(key: string, score: number, member: string | number, options: ZaddOptions & {
+    INCR: true;
+  }): RedisXTransaction<AddToList<L, number | null>, C, D>;
+  /**
+   * Adds all the specified members with the specified scores to the sorted set stored at `key`.
+   * - Available since: 1.2.0
+   * - Starting with Redis version 2.4.0: Accepts multiple elements.
+   * - Time complexity: O(log(N)) for each item added, where N is the number of elements in the sorted set.
+   * @param key - The name of the key that holds the sorted set.
+   * @param pairs - One or more score-member pairs to add or update.
+   * @param options -
+   * @returns Any of the following:
+   * - Integer reply: the number of new members when the CH option is not used.
+   * - Integer reply: the number of new or updated members when the CH option is used.
+   * @see {@link https://redis.io/commands/zadd}
+   */
+  ZADD(key: string, pairs: Record<string, number>, options?: ZaddOptions & {
+    INCR?: false;
+  }): RedisXTransaction<AddToList<L, number>, C, D>;
+  /**
+   * Adds all the specified members with the specified scores to the sorted set stored at `key`.
+   * - Available since: 1.2.0
+   * - Starting with Redis version 3.0.2: Added the `XX`, `NX`, `CH` and `INCR` options.
+   * - Time complexity: O(log(N)) for each item added, where N is the number of elements in the sorted set.
+   * @param key - The name of the key that holds the sorted set.
+   * @param score - `score` is a double-precision floating-point number.
+   * @param member -
+   * @param options -
+   * @returns Any of the following:
+   * - Nil reply: if the operation was aborted because of a conflict with one of the XX/NX/LT/GT options.
+   * - Integer reply: the number of new members when the CH option is not used.
+   * - Integer reply: the number of new or updated members when the CH option is used.
+   * - Bulk string reply: the updated score of the member when the INCR option is used.
+   * @see {@link https://redis.io/commands/zadd}
+   */
+  ZADD(key: string, score: number, member: string | number, options?: ZaddOptions): RedisXTransaction<AddToList<L, number | null>, C, D>;
   /**
    * Returns the rank of member in the sorted set stored at key, with the scores ordered from low to high.
    * The rank (or index) is 0-based, which means that the member with the lowest score has rank 0.
@@ -4801,30 +4885,72 @@ export declare class RedisXClient {
    */
   ZCOUNT(key: string, min: number | `(${number}` | "-inf", max: number | `(${number}` | "+inf"): Promise<number>;
   /**
-   * Adds member with the specified score to the sorted set stored at key.
+   * Adds all the specified members with the specified scores to the sorted set stored at `key`.
    * - Available since: 1.2.0
-   * - Multiple score/member pairs are available since Redis 2.4.0.
+   * - Starting with Redis version 2.4.0: Accepts multiple elements.
    * - Time complexity: O(log(N)) for each item added, where N is the number of elements in the sorted set.
-   * @param key - Key holds a sorted set.
-   * @param score - Score associated with the member.
-   * @param member - Member to add.
+   * @param key - The name of the key that holds the sorted set.
+   * @param score - `score` is a double-precision floating-point number.
+   * @param member -
    * @param options -
-   * @returns The number of fields that were added.
+   * @returns Any of the following:
+   * - Integer reply: the number of new members when the CH option is not used.
+   * - Integer reply: the number of new or updated members when the CH option is used.
    * @see {@link https://redis.io/commands/zadd}
    */
-  ZADD(key: string, score: number, member: string | number, options?: ZaddOptions): Promise<number>;
+  ZADD(key: string, score: number, member: string | number, options?: ZaddOptions & {
+    INCR?: false;
+  }): Promise<number>;
   /**
-   * Adds all the specified members with the specified scores to the sorted set stored at key.
+   * Adds all the specified members with the specified scores to the sorted set stored at `key`.
    * - Available since: 1.2.0
-   * - Multiple score/member pairs are available since Redis 2.4.0.
+   * - Starting with Redis version 3.0.2: Added the `XX`, `NX`, `CH` and `INCR` options.
    * - Time complexity: O(log(N)) for each item added, where N is the number of elements in the sorted set.
-   * @param key - Key holds a sorted set.
-   * @param pairs - Object containing score/member pairs to set.
+   * @param key - The name of the key that holds the sorted set.
+   * @param score - `score` is a double-precision floating-point number.
+   * @param member -
    * @param options -
-   * @returns The number of fields that were added.
+   * @returns Any of the following:
+   * - Nil reply: if the operation was aborted because of a conflict with one of the XX/NX/LT/GT options.
+   * - Bulk string reply: the updated score of the member when the INCR option is used.
    * @see {@link https://redis.io/commands/zadd}
    */
-  ZADD(key: string, pairs: Record<string, number>, options?: Omit<ZaddOptions, "INCR">): Promise<number>;
+  ZADD(key: string, score: number, member: string | number, options: ZaddOptions & {
+    INCR: true;
+  }): Promise<number | null>;
+  /**
+   * Adds all the specified members with the specified scores to the sorted set stored at `key`.
+   * - Available since: 1.2.0
+   * - Starting with Redis version 2.4.0: Accepts multiple elements.
+   * - Time complexity: O(log(N)) for each item added, where N is the number of elements in the sorted set.
+   * @param key - The name of the key that holds the sorted set.
+   * @param pairs - One or more score-member pairs to add or update.
+   * @param options -
+   * @returns Any of the following:
+   * - Integer reply: the number of new members when the CH option is not used.
+   * - Integer reply: the number of new or updated members when the CH option is used.
+   * @see {@link https://redis.io/commands/zadd}
+   */
+  ZADD(key: string, pairs: Record<string, number>, options?: ZaddOptions & {
+    INCR?: false;
+  }): Promise<number>;
+  /**
+   * Adds all the specified members with the specified scores to the sorted set stored at `key`.
+   * - Available since: 1.2.0
+   * - Starting with Redis version 3.0.2: Added the `XX`, `NX`, `CH` and `INCR` options.
+   * - Time complexity: O(log(N)) for each item added, where N is the number of elements in the sorted set.
+   * @param key - The name of the key that holds the sorted set.
+   * @param score - `score` is a double-precision floating-point number.
+   * @param member -
+   * @param options -
+   * @returns Any of the following:
+   * - Nil reply: if the operation was aborted because of a conflict with one of the XX/NX/LT/GT options.
+   * - Integer reply: the number of new members when the CH option is not used.
+   * - Integer reply: the number of new or updated members when the CH option is used.
+   * - Bulk string reply: the updated score of the member when the INCR option is used.
+   * @see {@link https://redis.io/commands/zadd}
+   */
+  ZADD(key: string, score: number, member: string | number, options?: ZaddOptions): Promise<number | null>;
   /**
    * Returns the rank of member in the sorted set stored at key, with the scores ordered from low to high.
    * The rank (or index) is 0-based, which means that the member with the lowest score has rank 0.

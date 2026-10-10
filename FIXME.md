@@ -12,10 +12,6 @@ Next IDs: **1.12** and **2.7**.
 
 ## 1. Invalid or incomplete implementations
 
-1.1. **ZADD INCR: represent an aborted update in the result type.**
-  [Implementation](src/commands/sorted-set/zadd.ts) · [Redis reference](https://redis.io/docs/latest/commands/zadd/)
-  The single-member overload always returns `number`, but `INCR` combined with a condition such as `XX` can return `null`. The transformer already passes `null` through, while its parameter type also omits it. Make the overloads and transformer types reflect the actual replies.
-
 1.2. **ZADD: serialize numeric members as strings.**
   [Implementation](src/commands/sorted-set/zadd.ts)
   The single-member branch uses `arg2 as string`, which does not convert the value. `input('key', 1, 42)` produces `['ZADD', 'key', '1', 42]`, violating the command argument contract. Cover numeric members, including zero.

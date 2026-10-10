@@ -7,10 +7,8 @@ describe('command', () => {
 
 		expect(command.args).toStrictEqual(['ZADD', 'key', '1', 'member']);
 
-		expect(command.replyTransform!('1')).toStrictEqual(1);
-		expect(command.replyTransform!('-1')).toStrictEqual(-1);
-		expect(command.replyTransform!('10.345')).toStrictEqual(10.345);
-		expect(command.replyTransform!(null)).toBeNull();
+		expect(command.replyTransform!(0)).toStrictEqual(0);
+		expect(command.replyTransform!(1)).toStrictEqual(1);
 	});
 
 	test('multiple pairs', () => {
@@ -20,6 +18,40 @@ describe('command', () => {
 		});
 
 		expect(command.args).toStrictEqual(['ZADD', 'key', '1', 'foo', '2', 'bar']);
+	});
+
+	test('increment with a condition', () => {
+		const command = input('key', 1, 'member', { INCR: true, XX: true });
+
+		expect(command.args).toStrictEqual([
+			'ZADD',
+			'key',
+			'XX',
+			'INCR',
+			'1',
+			'member',
+		]);
+		expect(command.replyTransform!('0')).toStrictEqual(0);
+		expect(command.replyTransform!('-1')).toStrictEqual(-1);
+		expect(command.replyTransform!('10.345')).toStrictEqual(10.345);
+		expect(command.replyTransform!(10.345)).toStrictEqual(10.345);
+		expect(command.replyTransform!(null)).toBeNull();
+	});
+
+	test('multiple pairs with increment disabled', () => {
+		const command = input('key', { foo: 1, bar: 2 }, { INCR: false, CH: true });
+
+		expect(command.args).toStrictEqual([
+			'ZADD',
+			'key',
+			'CH',
+			'1',
+			'foo',
+			'2',
+			'bar',
+		]);
+		expect(command.replyTransform!(0)).toStrictEqual(0);
+		expect(command.replyTransform!(2)).toStrictEqual(2);
 	});
 
 	for (const option of ['NX', 'XX', 'GT', 'LT', 'CH', 'INCR']) {
