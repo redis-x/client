@@ -26,7 +26,7 @@ jobs:
     outputs:
       npm_tag: ${{ steps.set-tag.outputs.npm_tag }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Determine NPM tag
         id: set-tag
