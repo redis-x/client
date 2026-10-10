@@ -305,6 +305,8 @@ With input validation, you can transform function arguments from any complex obj
 
 The `redis-x` client is more a proof of concept than a complete implementation. It currently supports a subset of Redis commands, but the full support for all commands is planned.
 
+Totals use the [Redis command reference](https://redis.io/docs/latest/commands/) (checked October 10, 2026), counting each listed command or subcommand once, including deprecated entries.
+
 <!--
 7 blocks:
 - red means no support
@@ -316,19 +318,19 @@ X / Y / (1/7)
 | Section                                           | Commands available | |
 | ------------------------------------------------- | - | -: |
 | [Generic](src/commands/generic)                   | 🟩🟩🟩🟨🟥🟥🟥 | **16** / 32 |
-| [Hash](src/commands/hash)                         | 🟩🟩🟩🟨🟥🟥🟥 | **14** / 28 |
-| [List](src/commands/list)                         | 🟩🟩🟩🟩🟥🟥🟥 | **14** / 22 |
+| [Hash](src/commands/hash)                         | 🟩🟩🟨🟥🟥🟥🟥 | **14** / 33 |
+| [List](src/commands/list)                         | 🟩🟩🟩🟩🟥🟥🟥 | **14** / 24 |
 | [Scripting and Functions](src/commands/scripting) | 🟥🟥🟥🟥🟥🟥🟥 |  **1** / 19 |
-| [Set](src/commands/set)                           | 🟩🟩🟥🟥🟥🟥🟥 |  **6** / 17 |
+| [Set](src/commands/set)                           | 🟩🟩🟥🟥🟥🟥🟥 |  **6** / 19 |
 | [Sorted Set](src/commands/sorted-set)             | 🟩🟩🟥🟥🟥🟥🟥 | **10** / 35 |
-| [Stream](src/commands/stream)                     | 🟩🟩🟥🟥🟥🟥🟥 |  **7** / 21 |
-| [String](src/commands/string)                     | 🟩🟩🟩🟩🟩🟩🟨 | **21** / 22 |
+| [Stream](src/commands/stream)                     | 🟩🟨🟥🟥🟥🟥🟥 |  **7** / 26 |
+| [String](src/commands/string)                     | 🟩🟩🟩🟩🟩🟨🟥 | **21** / 26 |
 
 <!--
 More sections to come:
-| [Cluster management](src/commands/cluster) | 🟥🟥🟥🟥🟥🟥🟥 <br>  **0** / 30 |
-| [Connection management](src/commands/connection) | 🟥🟥🟥🟥🟥🟥🟥 <br>  **0** / 32 |
+| [Cluster management](src/commands/cluster) | 🟥🟥🟥🟥🟥🟥🟥 <br>  **0** / 32 |
+| [Connection management](src/commands/connection) | 🟥🟥🟥🟥🟥🟥🟥 <br>  **0** / 24 |
 | [Geospatial indices](src/commands/geospatial) | 🟥🟥🟥🟥🟥🟥🟥 <br>  **0** / 10 |
 | [Pub/Sub](src/commands/pub-sub) | 🟥🟥🟥🟥🟥🟥🟥 <br>  **0** / 13 |
-| [Server management](src/commands/server) | 🟥🟥🟥🟥🟥🟥🟥 <br>  **0** / 62 |
+| [Server management](src/commands/server) | 🟥🟥🟥🟥🟥🟥🟥 <br>  **0** / 73 |
 -->
