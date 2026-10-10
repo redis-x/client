@@ -1,5 +1,6 @@
 //#region src/script.ts
 var RedisXScript = class {
+	client;
 	code;
 	keys = [];
 	sha = null;
@@ -42,7 +43,6 @@ var RedisXScript = class {
 		}
 	}
 };
-
 //#endregion
 //#region src/utils.ts
 /**
@@ -51,7 +51,7 @@ var RedisXScript = class {
 * @returns -
 */
 function isPlainObject(value) {
-	return typeof value === "object" && value !== null && Array.isArray(value) !== true && value.constructor === Object && Object.getPrototypeOf(value) === Object.prototype;
+	return typeof value === "object" && value !== null && !Array.isArray(value) && value.constructor === Object && Object.getPrototypeOf(value) === Object.prototype;
 }
 /**
 * Converts a string array to an object.
@@ -63,10 +63,10 @@ function stringBulkToObject(values) {
 	for (let index = 0; index < values.length; index += 2) object[values[index]] = values[index + 1];
 	return object;
 }
-
 //#endregion
 //#region src/transaction/command.ts
 var RedisXTransactionCommand = class {
+	index;
 	_type;
 	constructor(index) {
 		this.index = index;
@@ -84,7 +84,6 @@ function unwrapRedisTransactionCommand(target, result) {
 	else if (isPlainObject(target)) for (const [key, value] of Object.entries(target)) target[key] = unwrapRedisTransactionCommand(value, result);
 	return target;
 }
-
 //#endregion
 //#region src/commands/set/srem.ts
 function input$88(key, ...members) {
@@ -97,7 +96,6 @@ function input$88(key, ...members) {
 		]
 	};
 }
-
 //#endregion
 //#region src/commands/set/smismember.ts
 /**
@@ -132,7 +130,6 @@ function input$87(key, ...members) {
 function replyTransform$2(reply) {
 	return reply.map((value) => value === 1);
 }
-
 //#endregion
 //#region src/reply-transformers/array-to-set.ts
 /**
@@ -143,7 +140,6 @@ function replyTransform$2(reply) {
 function replyTransform$1(reply) {
 	return new Set(reply);
 }
-
 //#endregion
 //#region src/commands/set/smembers.ts
 /**
@@ -162,7 +158,6 @@ function input$86(key) {
 		replyTransform: replyTransform$1
 	};
 }
-
 //#endregion
 //#region src/reply-transformers/number-to-boolean.ts
 /**
@@ -173,7 +168,6 @@ function input$86(key) {
 function replyTransform(reply) {
 	return reply === 1;
 }
-
 //#endregion
 //#region src/commands/set/sismember.ts
 /**
@@ -197,7 +191,6 @@ function input$85(key, member) {
 		replyTransform
 	};
 }
-
 //#endregion
 //#region src/commands/set/scard.ts
 /**
@@ -215,7 +208,6 @@ function input$84(key) {
 		args: ["SCARD", key]
 	};
 }
-
 //#endregion
 //#region src/commands/set/sadd.ts
 function input$83(key, ...members) {
@@ -228,7 +220,6 @@ function input$83(key, ...members) {
 		]
 	};
 }
-
 //#endregion
 //#region src/commands/string/msetnx.ts
 /**
@@ -250,7 +241,6 @@ function input$82(pairs) {
 		replyTransform
 	};
 }
-
 //#endregion
 //#region src/commands/string/setnx.ts
 /**
@@ -276,7 +266,6 @@ function input$81(key, value) {
 		replyTransform
 	};
 }
-
 //#endregion
 //#region src/commands/string/get.ts
 /**
@@ -297,7 +286,6 @@ function input$80(key) {
 		args: ["GET", key]
 	};
 }
-
 //#endregion
 //#region src/commands/string/set.ts
 function input$79(key, value, options) {
@@ -322,7 +310,6 @@ function input$79(key, value, options) {
 		]
 	};
 }
-
 //#endregion
 //#region src/commands/string/append.ts
 /**
@@ -347,7 +334,6 @@ function input$78(key, value) {
 		]
 	};
 }
-
 //#endregion
 //#region src/commands/string/incr.ts
 /**
@@ -367,7 +353,6 @@ function input$77(key) {
 		args: ["INCR", key]
 	};
 }
-
 //#endregion
 //#region src/commands/string/incrbyfloat.ts
 /**
@@ -392,7 +377,6 @@ function input$76(key, increment) {
 		]
 	};
 }
-
 //#endregion
 //#region src/commands/string/mget.ts
 function input$75(...args) {
@@ -401,7 +385,6 @@ function input$75(...args) {
 		args: ["MGET", ...args.flat()]
 	};
 }
-
 //#endregion
 //#region src/commands/string/getdel.ts
 /**
@@ -420,7 +403,6 @@ function input$74(key) {
 		args: ["GETDEL", key]
 	};
 }
-
 //#endregion
 //#region src/commands/string/mset.ts
 /**
@@ -440,7 +422,6 @@ function input$73(pairs) {
 		args
 	};
 }
-
 //#endregion
 //#region src/commands/string/incrby.ts
 /**
@@ -465,7 +446,6 @@ function input$72(key, increment) {
 		]
 	};
 }
-
 //#endregion
 //#region src/commands/string/setrange.ts
 /**
@@ -494,7 +474,6 @@ function input$71(key, offset, value) {
 		]
 	};
 }
-
 //#endregion
 //#region src/commands/string/substr.ts
 /**
@@ -521,7 +500,6 @@ function input$70(key, start, end) {
 		]
 	};
 }
-
 //#endregion
 //#region src/commands/string/getset.ts
 /**
@@ -547,7 +525,6 @@ function input$69(key, value) {
 		]
 	};
 }
-
 //#endregion
 //#region src/commands/string/decrby.ts
 /**
@@ -573,7 +550,6 @@ function input$68(key, decrement) {
 		]
 	};
 }
-
 //#endregion
 //#region src/commands/string/getrange.ts
 /**
@@ -601,7 +577,6 @@ function input$67(key, start, end) {
 		]
 	};
 }
-
 //#endregion
 //#region src/commands/string/setex.ts
 /**
@@ -628,7 +603,6 @@ function input$66(key, seconds, value) {
 		]
 	};
 }
-
 //#endregion
 //#region src/commands/string/getex.ts
 /**
@@ -661,7 +635,6 @@ function input$65(key, options) {
 		]
 	};
 }
-
 //#endregion
 //#region src/commands/string/strlen.ts
 /**
@@ -680,7 +653,6 @@ function input$64(key) {
 		args: ["STRLEN", key]
 	};
 }
-
 //#endregion
 //#region src/commands/string/decr.ts
 /**
@@ -700,7 +672,6 @@ function input$63(key) {
 		args: ["DECR", key]
 	};
 }
-
 //#endregion
 //#region src/commands/string/psetex.ts
 /**
@@ -727,7 +698,6 @@ function input$62(key, milliseconds, value) {
 		]
 	};
 }
-
 //#endregion
 //#region src/commands/generic/pexpire.ts
 /**
@@ -760,7 +730,6 @@ function input$61(key, seconds, options) {
 		replyTransform
 	};
 }
-
 //#endregion
 //#region src/commands/generic/pttl.ts
 /**
@@ -786,7 +755,6 @@ function input$60(key) {
 		args: ["PTTL", key]
 	};
 }
-
 //#endregion
 //#region src/commands/generic/ttl.ts
 /**
@@ -810,7 +778,6 @@ function input$59(key) {
 		args: ["TTL", key]
 	};
 }
-
 //#endregion
 //#region src/commands/generic/expire.ts
 /**
@@ -844,7 +811,6 @@ function input$58(key, seconds, options) {
 		replyTransform
 	};
 }
-
 //#endregion
 //#region src/commands/generic/type.ts
 /**
@@ -861,7 +827,6 @@ function input$57(key) {
 		args: ["TYPE", key]
 	};
 }
-
 //#endregion
 //#region src/commands/generic/keys.ts
 /**
@@ -879,7 +844,6 @@ function input$56(pattern) {
 		replyTransform: replyTransform$1
 	};
 }
-
 //#endregion
 //#region src/commands/generic/copy.ts
 /**
@@ -906,7 +870,6 @@ function input$55(source, destination, options) {
 		replyTransform
 	};
 }
-
 //#endregion
 //#region src/commands/generic/expireat.ts
 /**
@@ -941,7 +904,6 @@ function input$54(key, timestamp, options) {
 		replyTransform
 	};
 }
-
 //#endregion
 //#region src/commands/generic/pexpireat.ts
 /**
@@ -974,7 +936,6 @@ function input$53(key, timestamp, options) {
 		replyTransform
 	};
 }
-
 //#endregion
 //#region src/commands/generic/persist.ts
 /**
@@ -993,7 +954,6 @@ function input$52(key) {
 		replyTransform
 	};
 }
-
 //#endregion
 //#region src/commands/generic/expiretime.ts
 /**
@@ -1013,7 +973,6 @@ function input$51(key) {
 		args: ["EXPIRETIME", key]
 	};
 }
-
 //#endregion
 //#region src/commands/generic/rename.ts
 /**
@@ -1036,7 +995,6 @@ function input$50(key, newkey) {
 		]
 	};
 }
-
 //#endregion
 //#region src/commands/generic/renamenx.ts
 /**
@@ -1059,7 +1017,6 @@ function input$49(key, newkey) {
 		]
 	};
 }
-
 //#endregion
 //#region src/commands/generic/pexpiretime.ts
 /**
@@ -1080,7 +1037,6 @@ function input$48(key) {
 		args: ["PEXPIRETIME", key]
 	};
 }
-
 //#endregion
 //#region src/commands/generic/del.ts
 /**
@@ -1099,7 +1055,6 @@ function input$47(...keys) {
 		args: ["DEL", ...keys]
 	};
 }
-
 //#endregion
 //#region src/commands/generic/exists.ts
 /**
@@ -1118,7 +1073,6 @@ function input$46(...keys) {
 		args: ["EXISTS", ...keys]
 	};
 }
-
 //#endregion
 //#region src/commands/list/rpush.ts
 function input$45(key, ...elements) {
@@ -1131,7 +1085,6 @@ function input$45(key, ...elements) {
 		]
 	};
 }
-
 //#endregion
 //#region src/commands/list/lpop.ts
 function input$44(key, count) {
@@ -1148,7 +1101,6 @@ function input$44(key, count) {
 		args: ["LPOP", key]
 	};
 }
-
 //#endregion
 //#region src/commands/list/rpoplpush.ts
 /**
@@ -1181,7 +1133,6 @@ function input$43(source, destination) {
 		]
 	};
 }
-
 //#endregion
 //#region src/commands/list/rpushx.ts
 function input$42(key, ...elements) {
@@ -1194,7 +1145,6 @@ function input$42(key, ...elements) {
 		]
 	};
 }
-
 //#endregion
 //#region src/commands/list/lset.ts
 /**
@@ -1221,7 +1171,6 @@ function input$41(key, index, element) {
 		]
 	};
 }
-
 //#endregion
 //#region src/commands/list/lrem.ts
 /**
@@ -1250,7 +1199,6 @@ function input$40(key, count, element) {
 		]
 	};
 }
-
 //#endregion
 //#region src/commands/list/lpush.ts
 function input$39(key, ...elements) {
@@ -1263,7 +1211,6 @@ function input$39(key, ...elements) {
 		]
 	};
 }
-
 //#endregion
 //#region src/commands/list/lpushx.ts
 function input$38(key, ...elements) {
@@ -1276,7 +1223,6 @@ function input$38(key, ...elements) {
 		]
 	};
 }
-
 //#endregion
 //#region src/commands/list/rpop.ts
 function input$37(key, count) {
@@ -1293,7 +1239,6 @@ function input$37(key, count) {
 		args: ["RPOP", key]
 	};
 }
-
 //#endregion
 //#region src/commands/list/lrange.ts
 /**
@@ -1328,7 +1273,6 @@ function input$36(key, start, stop) {
 		]
 	};
 }
-
 //#endregion
 //#region src/commands/list/llen.ts
 /**
@@ -1347,7 +1291,6 @@ function input$35(key) {
 		args: ["LLEN", key]
 	};
 }
-
 //#endregion
 //#region src/commands/list/linsert.ts
 /**
@@ -1374,7 +1317,6 @@ function input$34(key, element, options) {
 		]
 	};
 }
-
 //#endregion
 //#region src/commands/list/ltrim.ts
 /**
@@ -1408,7 +1350,6 @@ function input$33(key, start, stop) {
 		]
 	};
 }
-
 //#endregion
 //#region src/commands/list/lindex.ts
 /**
@@ -1433,7 +1374,6 @@ function input$32(key, index) {
 		]
 	};
 }
-
 //#endregion
 //#region src/commands/stream/xlen.ts
 /**
@@ -1457,7 +1397,6 @@ function input$31(key) {
 		args: ["XLEN", key]
 	};
 }
-
 //#endregion
 //#region src/commands/stream/xdel.ts
 function input$30(key, ...ids) {
@@ -1470,7 +1409,6 @@ function input$30(key, ...ids) {
 		]
 	};
 }
-
 //#endregion
 //#region src/commands/stream/xread.ts
 function input$29(arg0, arg1, arg2) {
@@ -1510,7 +1448,6 @@ function input$29(arg0, arg1, arg2) {
 		}
 	};
 }
-
 //#endregion
 //#region src/commands/stream/xadd.ts
 function input$28(key, id, pairs, options) {
@@ -1524,7 +1461,7 @@ function input$28(key, id, pairs, options) {
 			if (options.trim.LIMIT !== void 0) cmdArgs.push("LIMIT", String(options.trim.LIMIT));
 		}
 	}
-	cmdArgs.push(String(id));
+	cmdArgs.push(id);
 	for (const [field, value] of Object.entries(pairs)) {
 		if (value === void 0) continue;
 		cmdArgs.push(field, String(value));
@@ -1534,7 +1471,6 @@ function input$28(key, id, pairs, options) {
 		args: cmdArgs
 	};
 }
-
 //#endregion
 //#region src/commands/stream/xrange.ts
 /**
@@ -1579,7 +1515,6 @@ function input$27(key, start, end, options) {
 		}
 	};
 }
-
 //#endregion
 //#region src/commands/stream/xrevrange.ts
 /**
@@ -1618,7 +1553,6 @@ function input$26(key, end, start, options) {
 		}
 	};
 }
-
 //#endregion
 //#region src/commands/stream/xtrim.ts
 function input$25(key, strategy, threshold, options) {
@@ -1635,7 +1569,6 @@ function input$25(key, strategy, threshold, options) {
 		args
 	};
 }
-
 //#endregion
 //#region src/commands/sorted-set/zcard.ts
 /**
@@ -1652,7 +1585,6 @@ function input$24(key) {
 		args: ["ZCARD", key]
 	};
 }
-
 //#endregion
 //#region src/commands/sorted-set/zrangebyscore.ts
 function input$23(key, min, max, options) {
@@ -1682,7 +1614,6 @@ function input$23(key, min, max, options) {
 		}
 	};
 }
-
 //#endregion
 //#region src/commands/sorted-set/zscore.ts
 /**
@@ -1703,11 +1634,10 @@ function input$22(key, member) {
 			String(member)
 		],
 		replyTransform(result) {
-			return result ? Number.parseFloat(result) : null;
+			return result ? Number(result) : null;
 		}
 	};
 }
-
 //#endregion
 //#region src/commands/sorted-set/zcount.ts
 /**
@@ -1736,7 +1666,6 @@ function input$21(key, min, max) {
 		]
 	};
 }
-
 //#endregion
 //#region src/commands/sorted-set/zadd.ts
 function input$20(key, arg1, arg2, arg3) {
@@ -1758,12 +1687,11 @@ function input$20(key, arg1, arg2, arg3) {
 		kind: "#schema",
 		args,
 		replyTransform(result) {
-			if (typeof result === "string") return Number.parseFloat(result);
+			if (typeof result === "string") return Number(result);
 			return result;
 		}
 	};
 }
-
 //#endregion
 //#region src/commands/sorted-set/zrank.ts
 function input$19(key, member, options) {
@@ -1782,14 +1710,13 @@ function input$19(key, member, options) {
 				const [rank, score] = result;
 				return {
 					rank,
-					score: Number.parseFloat(score)
+					score: Number(score)
 				};
 			}
 			return result;
 		}
 	};
 }
-
 //#endregion
 //#region src/commands/sorted-set/zrem.ts
 function input$18(key, arg1, ...args_rest) {
@@ -1801,7 +1728,6 @@ function input$18(key, arg1, ...args_rest) {
 		args
 	};
 }
-
 //#endregion
 //#region src/commands/sorted-set/zrange.ts
 function input$17(key, start, stop, options) {
@@ -1833,7 +1759,6 @@ function input$17(key, start, stop, options) {
 		}
 	};
 }
-
 //#endregion
 //#region src/commands/sorted-set/zinterstore.ts
 function input$16(destination, arg1, options) {
@@ -1855,7 +1780,6 @@ function input$16(destination, arg1, options) {
 		args
 	};
 }
-
 //#endregion
 //#region src/commands/sorted-set/zrangebylex.ts
 /**
@@ -1890,7 +1814,6 @@ function input$15(key, min, max, options) {
 		args
 	};
 }
-
 //#endregion
 //#region src/commands/hash/hvals.ts
 /**
@@ -1908,7 +1831,6 @@ function input$14(key) {
 		replyTransform: replyTransform$1
 	};
 }
-
 //#endregion
 //#region src/commands/hash/hset.ts
 function input$13(key, arg1, arg2) {
@@ -1924,7 +1846,6 @@ function input$13(key, arg1, arg2) {
 		]
 	};
 }
-
 //#endregion
 //#region src/commands/hash/hincrbyfloat.ts
 /**
@@ -1951,7 +1872,6 @@ function input$12(key, field, increment) {
 		]
 	};
 }
-
 //#endregion
 //#region src/commands/hash/hgetall.ts
 /**
@@ -1969,7 +1889,6 @@ function input$11(key) {
 		replyTransform: stringBulkToObject
 	};
 }
-
 //#endregion
 //#region src/commands/hash/hget.ts
 /**
@@ -1991,7 +1910,6 @@ function input$10(key, field) {
 		]
 	};
 }
-
 //#endregion
 //#region src/commands/hash/hmset.ts
 function input$9(key, arg1, arg2) {
@@ -2007,7 +1925,6 @@ function input$9(key, arg1, arg2) {
 		]
 	};
 }
-
 //#endregion
 //#region src/commands/hash/hmget.ts
 function input$8(key, ...fields) {
@@ -2020,7 +1937,6 @@ function input$8(key, ...fields) {
 		]
 	};
 }
-
 //#endregion
 //#region src/commands/hash/hlen.ts
 /**
@@ -2038,7 +1954,6 @@ function input$7(key) {
 		args: ["HLEN", key]
 	};
 }
-
 //#endregion
 //#region src/commands/hash/hkeys.ts
 /**
@@ -2057,7 +1972,6 @@ function input$6(key) {
 		replyTransform: replyTransform$1
 	};
 }
-
 //#endregion
 //#region src/commands/hash/hincrby.ts
 /**
@@ -2086,7 +2000,6 @@ function input$5(key, field, increment) {
 		]
 	};
 }
-
 //#endregion
 //#region src/commands/hash/hdel.ts
 function input$4(key, ...fields) {
@@ -2099,7 +2012,6 @@ function input$4(key, ...fields) {
 		]
 	};
 }
-
 //#endregion
 //#region src/commands/hash/hstrlen.ts
 /**
@@ -2123,7 +2035,6 @@ function input$3(key, field) {
 		]
 	};
 }
-
 //#endregion
 //#region src/commands/hash/hexists.ts
 /**
@@ -2147,7 +2058,6 @@ function input$2(key, field) {
 		replyTransform
 	};
 }
-
 //#endregion
 //#region src/commands/hash/hsetnx.ts
 /**
@@ -2175,7 +2085,6 @@ function input$1(key, field, value) {
 		replyTransform
 	};
 }
-
 //#endregion
 //#region src/commands/scripting/eval.ts
 /**
@@ -2201,10 +2110,10 @@ function input(script, keys, args) {
 		args: command_args
 	};
 }
-
 //#endregion
 //#region src/transaction/use.ts
 var RedisXTransactionUse = class {
+	transaction;
 	queue = [];
 	constructor(transaction) {
 		this.transaction = transaction;
@@ -3277,7 +3186,6 @@ var RedisXTransactionUse = class {
 		return this.useCommand(input(script, keys, args));
 	}
 };
-
 //#endregion
 //#region src/transaction.ts
 var RedisXTransaction = class {
@@ -4393,10 +4301,10 @@ var RedisXTransaction = class {
 		return this.useCommand(input(script, keys, args));
 	}
 };
-
 //#endregion
 //#region src/client.ts
 var RedisXClient = class {
+	redisClient;
 	constructor(redisClient) {
 		this.redisClient = redisClient;
 	}
@@ -5476,6 +5384,5 @@ var RedisXClient = class {
 		return this.useCommand(input(script, keys, args));
 	}
 };
-
 //#endregion
 export { RedisXClient, stringBulkToObject };

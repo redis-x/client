@@ -1,5 +1,10 @@
 # ignore source files of the Typescript project
 src/
+build/
+
+# ignore md
+AGENTS.md
+CONTRIBUTING.md
 
 # ignore tests
 **/*.test.*
@@ -9,14 +14,18 @@ test-d/
 
 # ignore configs
 .luarc.json
+.oxlintrc.json
 biome.json
+bunfig.toml
 # these names cannot be declared using {js,mjs,cjs} syntax
 # is this case rule n/no-unpublished-import yells at me
 eslint.config.js
 eslint.config.mjs
 eslint.config.cjs
+oxlint.config.ts
 tsconfig.json
 tsconfig.*.json
+tsdown.config.ts
 vitest.config.js
 vitest.config.ts
 
@@ -28,9 +37,16 @@ pnpm-lock.yaml
 yarn.lock
 
 # ignore repo configs
-.github/
+.forgejo/
 .gitea/
+.github/
 
 # ignore IDE files
 .idea
 .nova
+.vscode
+.zed
+
+# ignore packages
+*.tar.gz
+*.tgz

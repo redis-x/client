@@ -128,7 +128,7 @@ export function input(
 		args,
 		replyTransform(result: string | number) {
 			if (typeof result === 'string') {
-				return Number.parseFloat(result);
+				return Number(result);
 			}
 
 			return result;

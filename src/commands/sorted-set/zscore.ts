@@ -17,7 +17,7 @@ export function input(
 		kind: '#schema',
 		args: ['ZSCORE', key, String(member)],
 		replyTransform(result: string | null) {
-			return result ? Number.parseFloat(result) : null;
+			return result ? Number(result) : null;
 		},
 	};
 }

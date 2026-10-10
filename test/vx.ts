@@ -28,7 +28,7 @@ export function strictParser(
 	v.BaseSchema<unknown, unknown, v.BaseIssue<unknown>>,
 	v.Config<v.BaseIssue<unknown>> | undefined
 > {
-	// eslint-disable-next-line func-style
+	// oxlint-disable-next-line func-style
 	const func: StrictParser<
 		v.BaseSchema<unknown, unknown, v.BaseIssue<unknown>>,
 		v.Config<v.BaseIssue<unknown>> | undefined

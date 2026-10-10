@@ -1,9 +1,8 @@
 /* eslint-disable jsdoc/require-jsdoc */
-/* eslint-disable n/no-unpublished-import */
 
 import node_path from 'node:path';
 import { ParseResult, parseSync } from 'oxc-parser';
-import { type CommandFile } from './command-file.js';
+import type { CommandFile } from './command-file.js';
 
 type TargetFileOptions = {
 	getReturnType: (return_type: string) => string;
@@ -20,13 +19,13 @@ class TargetFile {
 
 	get text() {
 		return (
-			this.contents[0] +
-			this.contents.methods +
-			this.contents[1] +
-			'\n' +
-			this.contents.imports +
-			'\n' +
-			this.contents[2]
+			this.contents[0]
+			+ this.contents.methods
+			+ this.contents[1]
+			+ '\n'
+			+ this.contents.imports
+			+ '\n'
+			+ this.contents[2]
 		);
 	}
 
@@ -111,17 +110,17 @@ class TargetFile {
 	addCommand(commandFile: CommandFile) {
 		for (const overload of commandFile.overloads) {
 			this.contents.methods +=
-				'\t' +
-				overload.getJsDoc().replaceAll('\n', '\n\t') +
-				'\n\t' +
-				commandFile.command +
-				overload.type_parameters +
-				overload.arguments.raw +
-				': ' +
-				this.options
+				'\t'
+				+ overload.getJsDoc().replaceAll('\n', '\n\t')
+				+ '\n\t'
+				+ commandFile.command
+				+ overload.type_parameters
+				+ overload.arguments.raw
+				+ ': '
+				+ this.options
 					.getReturnType(overload.return_type)
-					.replaceAll('\n', '\n\t') +
-				';\n';
+					.replaceAll('\n', '\n\t')
+				+ ';\n';
 		}
 
 		if (commandFile.implementation.getJsDoc) {
@@ -129,20 +128,20 @@ class TargetFile {
 		}
 
 		this.contents.methods +=
-			'\n\t' +
-			commandFile.command +
-			commandFile.implementation.type_parameters +
-			commandFile.implementation.arguments.raw +
-			(commandFile.implementation.return_type
+			'\n\t'
+			+ commandFile.command
+			+ commandFile.implementation.type_parameters
+			+ commandFile.implementation.arguments.raw
+			+ (commandFile.implementation.return_type
 				? `: ${this.options.getReturnType(commandFile.implementation.return_type).replaceAll('\n', '\n\t')}`
-				: '') +
-			' {\n';
+				: '')
+			+ ' {\n';
 		this.contents.methods += `\t\treturn this.useCommand(${commandFile.import_input}(${commandFile.implementation.arguments.list}));\n`;
 		this.contents.methods += '\t}\n\n';
 
 		let import_path = node_path
 			.relative(node_path.dirname(this.path), commandFile.path)
-			.replace(/\.ts$/, '.js');
+			.replace(/\.ts$/u, '.js');
 		if (import_path.startsWith('.') !== true) {
 			import_path = `./${import_path}`;
 		}
@@ -178,12 +177,12 @@ export async function createTargetFile(
 
 			await Bun.write(
 				path,
-				contents.slice(0, commands_start + mark_commands_start.length - 1) +
-					contents.slice(
+				contents.slice(0, commands_start + mark_commands_start.length - 1)
+					+ contents.slice(
 						commands_end,
 						imports_start + mark_imports_start.length - 1,
-					) +
-					contents.slice(imports_end),
+					)
+					+ contents.slice(imports_end),
 			);
 
 			return createTargetFile(path, options, try_id + 1);

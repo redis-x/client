@@ -1,4 +1,4 @@
-/* eslint-disable max-lines */
+// oxlint-disable max-lines
 
 import type { RedisXTransaction } from '../transaction.js';
 import type { Command } from '../types.js';
@@ -7,11 +7,11 @@ import { RedisXTransactionCommand } from './command.js';
 export class RedisXTransactionUse {
 	queue: {
 		command: Command;
-		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		// oxlint-disable-next-line typescript/no-explicit-any
 		redis_transaction_command: RedisXTransactionCommand<any>;
 	}[] = [];
 
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	// oxlint-disable-next-line typescript/no-explicit-any
 	constructor(private transaction: RedisXTransaction<any, any, any>) {}
 
 	addCommand(
@@ -24,7 +24,7 @@ export class RedisXTransactionUse {
 		});
 	}
 
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	// oxlint-disable-next-line typescript/no-explicit-any
 	private useCommand(command: Command): RedisXTransactionCommand<any> {
 		const redis_transaction_command = new RedisXTransactionCommand(-1);
 

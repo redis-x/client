@@ -16,9 +16,9 @@ describe('command', () => {
 
 		expect(command.args).toStrictEqual(['ZRANK', 'key', 'member', 'WITHSCORE']);
 
-		expect(command.replyTransform?.([2, '3.14'])).toStrictEqual({
+		expect(command.replyTransform?.([2, '1.23'])).toStrictEqual({
 			rank: 2,
-			score: 3.14,
+			score: 1.23,
 		});
 		expect(command.replyTransform?.(null)).toBeNull();
 	});

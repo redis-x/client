@@ -1,4 +1,4 @@
-/* eslint-disable max-lines */
+// oxlint-disable max-lines
 
 import { RedisXScript, type RedisXScriptOptions } from './script.js';
 import { RedisXTransaction } from './transaction.js';
@@ -14,7 +14,7 @@ export class RedisXClient {
 		return await this.redisClient.sendCommand([command, ...args.map(String)]);
 	}
 
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	// oxlint-disable-next-line @typescript-eslint/no-explicit-any
 	private async useCommand(command: Command): Promise<any> {
 		const result = await this.redisClient.sendCommand(command.args);
 
@@ -30,6 +30,7 @@ export class RedisXClient {
 	}
 
 	createScript(code: string): RedisXScript<string[], unknown>;
+	// oxlint-disable-next-line typescript/unified-signatures
 	createScript(code: string, keys: string[]): RedisXScript<string[], unknown>;
 	createScript<O = unknown>(
 		code: string,
@@ -41,12 +42,12 @@ export class RedisXClient {
 		outputValidator: (value: unknown) => O,
 	): RedisXScript<string[], O>;
 	createScript<
-		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		// oxlint-disable-next-line @typescript-eslint/no-explicit-any
 		I extends any[] = string[],
 		O = unknown,
 	>(options: RedisXScriptOptions<I, O>): RedisXScript<I, O>;
 	createScript<
-		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		// oxlint-disable-next-line @typescript-eslint/no-explicit-any
 		I extends any[] = string[],
 		O = unknown,
 	>(

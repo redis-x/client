@@ -11,7 +11,7 @@ export type UnwrapRedisXTransactionCommand<T> =
 		? A
 		: T extends (infer U)[]
 			? UnwrapRedisXTransactionCommand<U>[]
-			: // eslint-disable-next-line @typescript-eslint/no-explicit-any
+			: // oxlint-disable-next-line typescript/no-explicit-any
 				T extends Record<string, any>
 				? { [K in keyof T]: UnwrapRedisXTransactionCommand<T[K]> }
 				: T;

@@ -62,7 +62,7 @@ test('(code, keys, outputValidator)', async () => {
 		v.parser(
 			v.pipe(
 				v.string(),
-				v.transform((value) => Number.parseInt(value)),
+				v.transform((value) => Math.trunc(Number(value))),
 			),
 		),
 	);

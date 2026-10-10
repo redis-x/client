@@ -1,4 +1,4 @@
-import { configCommon } from '@kirick/lint/eslint/common';
-import { configNode } from '@kirick/lint/eslint/node';
+import { eslint } from '@kirick/lint/eslint';
+import { defineConfig } from 'eslint/config';
 
-export default [...configCommon, ...configNode];
+export default defineConfig(eslint);

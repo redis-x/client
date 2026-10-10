@@ -66,7 +66,7 @@ export function input(
 				const [rank, score] = result as [number, string];
 				return {
 					rank,
-					score: Number.parseFloat(score),
+					score: Number(score),
 				};
 			}
 

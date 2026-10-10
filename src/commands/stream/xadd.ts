@@ -132,7 +132,7 @@ export function input(
 	}
 
 	// Add ID
-	cmdArgs.push(String(id));
+	cmdArgs.push(id);
 
 	// Add fields and values
 	for (const [field, value] of Object.entries(pairs)) {

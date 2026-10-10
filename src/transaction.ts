@@ -1,5 +1,4 @@
-/* eslint-disable max-lines */
-/* eslint-disable promise/always-return */
+// oxlint-disable max-lines, promise/always-return
 
 import type { Promisable } from 'type-fest';
 import {
@@ -10,9 +9,9 @@ import {
 import { RedisXTransactionUse } from './transaction/use.js';
 import type { Command, RedisClient } from './types.js';
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+// oxlint-disable-next-line typescript/no-explicit-any
 type AddToList<T, U> = T extends any[] ? [...T, U] : [U];
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+// oxlint-disable-next-line typescript/no-explicit-any
 type GetLast<L> = L extends [...any[], infer T] ? T : never;
 
 export class RedisXTransaction<
@@ -35,6 +34,7 @@ export class RedisXTransaction<
 	}
 
 	addCommand(command: string, ...args: (string | number)[]) {
+		// oxlint-disable-next-line promise/prefer-await-to-then
 		this.promise = this.promise.then(() => {
 			this.multi.addCommand([command, ...args.map(String)]);
 
@@ -58,8 +58,9 @@ export class RedisXTransaction<
 		}
 	}
 
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	// oxlint-disable-next-line typescript/no-explicit-any
 	private useCommand(command: Command): RedisXTransaction<any, any, any> {
+		// oxlint-disable-next-line promise/prefer-await-to-then
 		this.promise = this.promise.then(() => {
 			this.queueCommand(command);
 		});
@@ -68,6 +69,7 @@ export class RedisXTransaction<
 	}
 
 	as<const K extends string>(key: K) {
+		// oxlint-disable-next-line promise/prefer-await-to-then
 		this.promise = this.promise.then(() => {
 			this.data[key] = new RedisXTransactionCommand(this.queue_length - 1);
 		});
@@ -89,13 +91,14 @@ export class RedisXTransaction<
 	use<
 		const CB extends (
 			transaction: RedisXTransactionUse,
-			// eslint-disable-next-line @typescript-eslint/no-explicit-any
+			// oxlint-disable-next-line typescript/no-explicit-any typescript/no-invalid-void-type
 		) => Promisable<Record<string, any> | void>,
 	>(callback: CB) {
 		this.return_no_array = true;
+		// oxlint-disable-next-line promise/prefer-await-to-then
 		this.promise = this.promise.then(async () => {
 			const transaction_use = new RedisXTransactionUse(this);
-			// eslint-disable-next-line promise/no-callback-in-promise
+			// oxlint-disable-next-line promise/no-callback-in-promise
 			const result = await callback(transaction_use);
 
 			for (const {
@@ -112,7 +115,7 @@ export class RedisXTransaction<
 		return this as unknown as RedisXTransaction<
 			[],
 			true,
-			// eslint-disable-next-line @typescript-eslint/no-explicit-any
+			// oxlint-disable-next-line typescript/no-explicit-any
 			Awaited<ReturnType<CB>> extends Record<string, any>
 				? UnwrapRedisXTransactionCommand<Awaited<ReturnType<CB>>> & D
 				: D

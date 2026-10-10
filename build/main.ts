@@ -39,10 +39,7 @@ if (process.argv.includes('--dry-run')) {
 		targetFile.print();
 	}
 } else {
-	const promises = [];
-	for (const targetFile of targetFiles) {
-		promises.push(targetFile.write());
-	}
+	const promises = Array.from(targetFiles, (targetFile) => targetFile.write());
 
 	await Promise.all(promises);
 }

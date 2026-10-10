@@ -1,7 +1,5 @@
-/* eslint-disable n/no-unpublished-import */
-/* eslint-disable complexity */
-/* eslint-disable max-lines-per-function */
 /* eslint-disable jsdoc/require-jsdoc */
+// oxlint-disable complexity, max-lines-per-function
 
 import { type ParamPattern, parseSync } from 'oxc-parser';
 
@@ -60,7 +58,7 @@ function extractFunctionParameters(
 export class CommandFile {
 	command: string;
 	import_input: string;
-	imports: string = '';
+	imports = '';
 	overloads: CommandOverload[] = [];
 	implementation: CommandImplementation = {
 		type_parameters: '',
@@ -74,6 +72,7 @@ export class CommandFile {
 		public path: string,
 		contents: string,
 	) {
+		// eslint-disable-next-line unicorn/prefer-split-limit
 		this.command = path.split('/').pop()!.split('.')[0]!.toUpperCase();
 		this.import_input = `input_${this.command.toLowerCase()}`;
 
@@ -102,9 +101,9 @@ export class CommandFile {
 
 		for (const node of oxc.program.body) {
 			if (
-				node.type === 'TSDeclareFunction' &&
-				node.id?.type === 'Identifier' &&
-				node.id.name === '_command'
+				node.type === 'TSDeclareFunction'
+				&& node.id?.type === 'Identifier'
+				&& node.id.name === '_command'
 			) {
 				const getJsDoc = comments.get(node.start);
 				if (!getJsDoc) {
@@ -136,23 +135,23 @@ export class CommandFile {
 					return_type,
 				});
 			} else if (
-				node.type === 'ExportNamedDeclaration' &&
-				node.declaration?.type === 'FunctionDeclaration' &&
-				node.declaration.id?.type === 'Identifier' &&
-				node.declaration.id.name === 'input'
+				node.type === 'ExportNamedDeclaration'
+				&& node.declaration?.type === 'FunctionDeclaration'
+				&& node.declaration.id?.type === 'Identifier'
+				&& node.declaration.id.name === 'input'
 			) {
 				const getJsDoc = comments.get(node.start);
 
 				let return_type: string | undefined;
 				if (
-					node.declaration.returnType &&
-					node.declaration.returnType.typeAnnotation.type ===
-						'TSTypeReference' &&
-					node.declaration.returnType.typeAnnotation.typeName.type ===
-						'Identifier' &&
-					node.declaration.returnType.typeAnnotation.typeName.name ===
-						'Command' &&
-					node.declaration.returnType.typeAnnotation.typeArguments
+					node.declaration.returnType
+					&& node.declaration.returnType.typeAnnotation.type
+						=== 'TSTypeReference'
+					&& node.declaration.returnType.typeAnnotation.typeName.type
+						=== 'Identifier'
+					&& node.declaration.returnType.typeAnnotation.typeName.name
+						=== 'Command'
+					&& node.declaration.returnType.typeAnnotation.typeArguments
 				) {
 					const { params } =
 						node.declaration.returnType.typeAnnotation.typeArguments;
@@ -180,8 +179,8 @@ export class CommandFile {
 								}
 
 								if (
-									item.type === 'RestElement' &&
-									item.argument.type === 'Identifier'
+									item.type === 'RestElement'
+									&& item.argument.type === 'Identifier'
 								) {
 									return `...${item.argument.name}`;
 								}
@@ -193,9 +192,9 @@ export class CommandFile {
 					return_type,
 				};
 			} else if (
-				node.type === 'ExportNamedDeclaration' &&
-				node.declaration?.type === 'TSTypeAliasDeclaration' &&
-				node.declaration.id?.type === 'Identifier'
+				node.type === 'ExportNamedDeclaration'
+				&& node.declaration?.type === 'TSTypeAliasDeclaration'
+				&& node.declaration.id?.type === 'Identifier'
 			) {
 				imports.push(`\ttype ${node.declaration.id.name},`);
 			}
@@ -205,9 +204,9 @@ export class CommandFile {
 		}
 
 		if (
-			this.overloads.length === 0 &&
-			(this.implementation.getJsDoc === undefined ||
-				this.implementation.return_type === undefined)
+			this.overloads.length === 0
+			&& (this.implementation.getJsDoc === undefined
+				|| this.implementation.return_type === undefined)
 		) {
 			throw new Error(
 				`No overloads found in ${path} and no JsDoc for implementation found.`,
