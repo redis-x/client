@@ -12,14 +12,6 @@ Next IDs: **1.12** and **2.7**.
 
 ## 1. Invalid or incomplete implementations
 
-1.3. **SET: stop silently dropping zero-valued expiration arguments.**
-  [Implementation](src/commands/string/set.ts) · [Redis reference](https://redis.io/docs/latest/commands/set/)
-  Truthiness checks omit `EX`, `PX`, `EXAT`, and `PXAT` when their value is zero. For example, `{ EX: 0 }` becomes an ordinary persistent `SET`. Preserve explicitly supplied arguments so Redis can apply its validation and semantics, as `GETEX` already does.
-
-1.4. **SET GET: fix overload selection for option variables.**
-  [Implementation](src/commands/string/set.ts)
-  With `const options = { GET: true, NX: true } as const`, `client.SET('key', 'value', options)` is inferred as `Promise<'OK' | null>`, although it returns the previous value. Ensure options stored in variables retain the `GET` result type, including when combined with other options.
-
 1.7. **XADD NOMKSTREAM: preserve nullability when options are stored in a variable.**
   [Implementation](src/commands/stream/xadd.ts) · [Redis reference](https://redis.io/docs/latest/commands/xadd/)
   A variable containing both `NOMKSTREAM: true` and `trim` can select the overload returning `string`. Redis returns `null` if the stream does not exist. Ensure the generated APIs retain that possibility.
@@ -37,10 +29,6 @@ Next IDs: **1.12** and **2.7**.
   JavaScript `number` cannot represent every signed 64-bit integer exactly. Increment/decrement arguments and result types currently rely on it. Choose an exact-value API for large integers and verify the underlying Redis client's reply decoding; changing TypeScript declarations alone is insufficient. Preserve compatibility for ordinary numeric calls deliberately.
 
 ## 2. Updates to already implemented commands
-
-2.1. **SET: add value- and digest-based conditions introduced in Redis 8.4.**
-  [Implementation](src/commands/string/set.ts) · [Redis reference](https://redis.io/docs/latest/commands/set/)
-  Add `IFEQ value`, `IFNE value`, `IFDEQ digest`, and `IFDNE digest`. Extend option types, serialization, and documentation. Verify their interaction with `GET` and expiration options, and retain the appropriate previous-value or success/null result type.
 
 2.2. **ZINTERSTORE: add `AGGREGATE COUNT`, introduced in Redis 8.8.**
   [Implementation](src/commands/sorted-set/zinterstore.ts) · [Redis reference](https://redis.io/docs/latest/commands/zinterstore/)

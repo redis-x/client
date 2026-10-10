@@ -350,54 +350,66 @@ export class RedisXTransaction<
 	}
 
 	/**
-	 * Set the string value of a key.
+	 * Set `key` to hold the string `value`.
 	 * - Available since: 1.0.0.
 	 * - Time complexity: O(1).
-	 * @param key Key to set.
-	 * @param value Value to set.
-	 * @returns Returns string `"OK"` if the key was set, or `null` if operation was aborted (conflict with one of the XX/NX options).
+	 * @param key The name of the key.
+	 * @param value The string value to set.
+	 * @param options Command options.
+	 * @returns
+	 * - Simple string reply: `OK`: The key was set.
+	 * - Null bulk string reply in the following two cases.
+	 *   - The key doesn’t exist and `XX/IFEQ/IFDEQ` was specified. The key was not created.
+	 *   - The key exists, and `NX` was specified or a specified `IFEQ/IFNE/IFDEQ/IFDNE` condition is false. The key was not set.
 	 * @see {@link https://redis.io/commands/set}
 	 */
 	SET(
 		key: string,
 		value: string | number,
+		options?: SetOptions & { GET?: false },
 	): RedisXTransaction<AddToList<L, 'OK' | null>, C, D>;
 	/**
-	 * Set the string value of a key.
+	 * Set `key` to hold the string `value`.
 	 * - Available since: 1.0.0.
 	 * - Time complexity: O(1).
-	 * @param key Key to set.
-	 * @param value Value to set.
+	 * @param key The name of the key.
+	 * @param value The string value to set.
 	 * @param options Command options.
-	 * @returns Returns string `"OK"` if the key was set, or `null` if operation was aborted (conflict with one of the XX/NX options).
+	 * @returns
+	 * - Null bulk string reply: The key didn't exist before the `SET` operation, whether the key was created of not.
+	 * - Bulk string reply: The previous value of the key, whether the key was set or not.
 	 * @see {@link https://redis.io/commands/set}
 	 */
 	SET(
 		key: string,
 		value: string | number,
-		options: SetOptions,
-	): RedisXTransaction<AddToList<L, 'OK' | null>, C, D>;
+		options: SetOptions & { GET: true },
+	): RedisXTransaction<AddToList<L, string | null>, C, D>;
 	/**
-	 * Set the string value of a key.
+	 * Set `key` to hold the string `value`.
 	 * - Available since: 1.0.0.
 	 * - Time complexity: O(1).
-	 * @param key Key to set.
-	 * @param value Value to set.
+	 * @param key The name of the key.
+	 * @param value The string value to set.
 	 * @param options Command options.
-	 * @returns Returns string with the previous value of the key, or `null` if the key didn't exist before the SET.
+	 * @returns
+	 * - If `GET` was not specified, one of the following:
+	 *   - Simple string reply: `OK`: The key was set.
+	 *   - Null bulk string reply in the following two cases.
+	 *     - The key doesn’t exist and `XX/IFEQ/IFDEQ` was specified. The key was not created.
+	 *     - The key exists, and `NX` was specified or a specified `IFEQ/IFNE/IFDEQ/IFDNE` condition is false. The key was not set.
+	 * - If `GET` was specified, one of the following:
+	 *   - Null bulk string reply: The key didn't exist before the `SET` operation, whether the key was created of not.
+	 *   - Bulk string reply: The previous value of the key, whether the key was set or not.
 	 * @see {@link https://redis.io/commands/set}
 	 */
 	SET(
 		key: string,
 		value: string | number,
-		options: SetOptions & SetOptionsGet,
+		options?: SetOptions,
 	): RedisXTransaction<AddToList<L, string | null>, C, D>;
 
-	SET(
-		key: string,
-		value: string | number,
-		options?: SetOptions & Partial<SetOptionsGet>,
-	) {
+	SET(key: string, value: string | number, options?: SetOptions) {
 		return this.useCommand(input_set(key, value, options));
 	}
 
@@ -2543,11 +2555,7 @@ import { input as input_sadd } from './commands/set/sadd.js';
 import { input as input_msetnx } from './commands/string/msetnx.js';
 import { input as input_setnx } from './commands/string/setnx.js';
 import { input as input_get } from './commands/string/get.js';
-import {
-	type SetOptions,
-	type SetOptionsGet,
-	input as input_set,
-} from './commands/string/set.js';
+import { type SetOptions, input as input_set } from './commands/string/set.js';
 import { input as input_append } from './commands/string/append.js';
 import { input as input_incr } from './commands/string/incr.js';
 import { input as input_incrbyfloat } from './commands/string/incrbyfloat.js';
