@@ -24,23 +24,6 @@ describe('command', () => {
 		expect(command.replyTransform).toBeUndefined();
 	});
 
-	test('option NOMKSTREAM', () => {
-		const command = input(
-			'mystream',
-			'*',
-			{ foo: 'bar' },
-			{ NOMKSTREAM: true },
-		);
-		expect(command.args).toStrictEqual([
-			'XADD',
-			'mystream',
-			'NOMKSTREAM',
-			'*',
-			'foo',
-			'bar',
-		]);
-	});
-
 	test('trimming', () => {
 		const command = input(
 			'mystream',
@@ -97,4 +80,55 @@ describe('command', () => {
 			'bar',
 		]);
 	});
+});
+
+describe('option NOMKSTREAM', () => {
+	for (const nomkstream of [true, false]) {
+		test(String(nomkstream), () => {
+			const command = input(
+				'mystream',
+				'*',
+				{ foo: 'bar' },
+				{ NOMKSTREAM: nomkstream },
+			);
+			expect(command.args).toStrictEqual([
+				'XADD',
+				'mystream',
+				...(nomkstream ? ['NOMKSTREAM'] : []),
+				'*',
+				'foo',
+				'bar',
+			]);
+		});
+
+		test(`${nomkstream} with trimming`, () => {
+			const command = input(
+				'mystream',
+				'*',
+				{ foo: 'bar' },
+				{
+					NOMKSTREAM: nomkstream,
+					trim: {
+						strategy: 'MAXLEN',
+						operator: '~',
+						threshold: 1000,
+						LIMIT: 10,
+					},
+				},
+			);
+			expect(command.args).toStrictEqual([
+				'XADD',
+				'mystream',
+				...(nomkstream ? ['NOMKSTREAM'] : []),
+				'MAXLEN',
+				'~',
+				'1000',
+				'LIMIT',
+				'10',
+				'*',
+				'foo',
+				'bar',
+			]);
+		});
+	}
 });

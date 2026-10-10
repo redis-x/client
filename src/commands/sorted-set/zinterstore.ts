@@ -2,13 +2,17 @@ import type { Command } from '../../types.js';
 
 export type ZinterstoreOptions = {
 	/**
-	 * Specifies how the results of the intersection are aggregated.
+	 * How to combine the scores of members that exist in multiple sets: `SUM` (the default), `MIN`, `MAX`, or `COUNT`.
 	 *
-	 * This option defaults to `SUM`, where the score of an element is summed across the inputs where it exists.
+	 * When `AGGREGATE COUNT` is specified, the original element scores are ignored entirely.
+	 * The resulting score for each element is determined by which input sets contain it, optionally scaled by `WEIGHTS`:
+	 * - Without `WEIGHTS`, each input set containing the element contributes `1` to its score — effectively counting set membership.
+	 * - With `WEIGHTS`, each input set containing the element contributes its corresponding weight, so the score becomes the sum of those weights.
 	 *
-	 * When this option is set to either `MIN` or `MAX`, the resulting set will contain the minimum or maximum score of an element across the inputs where it exists.
+	 * Starting with Redis version 8.8.0: Added `COUNT` aggregate option.
+	 * @see {@link https://redis.io/docs/latest/commands/zunionstore/}
 	 */
-	AGGREGATE?: 'SUM' | 'MIN' | 'MAX';
+	AGGREGATE?: 'SUM' | 'MIN' | 'MAX' | 'COUNT';
 };
 
 /**

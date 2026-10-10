@@ -36,10 +36,32 @@ describe('command', () => {
 		expect(command.replyTransform).toBeUndefined();
 	});
 
-	test('keys with options', () => {
-		const command = input('destination', ['foo', 'bar'], {
-			AGGREGATE: 'SUM',
+	for (const aggregate of ['SUM', 'MIN', 'MAX', 'COUNT'] as const) {
+		test(`keys with AGGREGATE ${aggregate}`, () => {
+			const command = input('destination', ['foo', 'bar'], {
+				AGGREGATE: aggregate,
+			});
+
+			expect(command.args).toStrictEqual([
+				'ZINTERSTORE',
+				'destination',
+				'2',
+				'foo',
+				'bar',
+				'AGGREGATE',
+				aggregate,
+			]);
+
+			expect(command.replyTransform).toBeUndefined();
 		});
+	}
+
+	test('keys with weights and AGGREGATE COUNT', () => {
+		const command = input(
+			'destination',
+			{ foo: 1, bar: 2 },
+			{ AGGREGATE: 'COUNT' },
+		);
 
 		expect(command.args).toStrictEqual([
 			'ZINTERSTORE',
@@ -47,8 +69,11 @@ describe('command', () => {
 			'2',
 			'foo',
 			'bar',
+			'WEIGHTS',
+			'1',
+			'2',
 			'AGGREGATE',
-			'SUM',
+			'COUNT',
 		]);
 
 		expect(command.replyTransform).toBeUndefined();

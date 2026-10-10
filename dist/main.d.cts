@@ -329,6 +329,11 @@ type XStreamEntry = {
 type XaddId = "*" | (string & {});
 type XaddPairs = Record<string, string | number | undefined>;
 type XaddOptions = {
+  /**
+   * Prevents the creation of a new stream if the key does not exist.
+   * - Available since: 6.2.0.
+   */
+  NOMKSTREAM?: boolean;
   trim?: {
     /**
      * When specified, limits the stream to the specified threshold.
@@ -358,14 +363,6 @@ type XaddOptions = {
      */
     LIMIT?: number;
   };
-};
-type XaddOptionsNomkstream = {
-  /**
-   * Do not create the key if it does not exist. By default, the key is created automatically
-   * if it doesn't exist.
-   * - Available since: 6.2.0.
-   */
-  NOMKSTREAM: boolean;
 };
 //#endregion
 //#region src/commands/stream/xrange.d.ts
@@ -490,13 +487,17 @@ type ZrangeOptions = {
 //#region src/commands/sorted-set/zinterstore.d.ts
 type ZinterstoreOptions = {
   /**
-   * Specifies how the results of the intersection are aggregated.
+   * How to combine the scores of members that exist in multiple sets: `SUM` (the default), `MIN`, `MAX`, or `COUNT`.
    *
-   * This option defaults to `SUM`, where the score of an element is summed across the inputs where it exists.
+   * When `AGGREGATE COUNT` is specified, the original element scores are ignored entirely.
+   * The resulting score for each element is determined by which input sets contain it, optionally scaled by `WEIGHTS`:
+   * - Without `WEIGHTS`, each input set containing the element contributes `1` to its score — effectively counting set membership.
+   * - With `WEIGHTS`, each input set containing the element contributes its corresponding weight, so the score becomes the sum of those weights.
    *
-   * When this option is set to either `MIN` or `MAX`, the resulting set will contain the minimum or maximum score of an element across the inputs where it exists.
+   * Starting with Redis version 8.8.0: Added `COUNT` aggregate option.
+   * @see {@link https://redis.io/docs/latest/commands/zunionstore/}
    */
-  AGGREGATE?: "SUM" | "MIN" | "MAX";
+  AGGREGATE?: "SUM" | "MIN" | "MAX" | "COUNT";
 };
 //#endregion
 //#region src/commands/sorted-set/zrangebylex.d.ts
@@ -1497,46 +1498,55 @@ declare class RedisXTransactionUse {
    */
   XREAD<const S extends Record<string, XreadId>>(streams: S, options?: XReadOptions): RedisXTransactionCommand<{ [K in keyof S]: XStreamEntry[]; }>;
   /**
-   * Appends the specified stream entry to the stream at the specified key.
-   * If the key does not exist, as a side effect of running this command the key is created
-   * with a stream value. The creation of stream's key can be disabled with the NOMKSTREAM option.
+   * Appends the specified stream entry to the stream at the specified `key`.
+   * If the key does not exist, `XADD` will create a new key with the given stream value as a side effect of running this command.
+   * You can turn off key creation with the `NOMKSTREAM` option.
    * - Available since: 5.0.0.
    * - Time complexity: O(1) when adding a new entry, O(N) when trimming where N being the number of entries evicted.
-   * @param key The key of the stream.
-   * @param id The ID of the entry to add. Use * to auto-generate an ID. You can also specify a custom ID.
-   * @param pairs A key-value pairs to add to the stream. Must be an even number of arguments.
-   * @returns The ID of the added entry.
-   * @see {@link https://redis.io/commands/xadd}
-   */
-  XADD(key: string, id: XaddId, pairs: XaddPairs): RedisXTransactionCommand<string>;
-  /**
-   * Appends the specified stream entry to the stream at the specified key.
-   * If the key does not exist, as a side effect of running this command the key is created
-   * with a stream value. The creation of stream's key can be disabled with the NOMKSTREAM option.
-   * - Available since: 5.0.0.
-   * - Time complexity: O(1) when adding a new entry, O(N) when trimming where N being the number of entries evicted.
-   * @param key The key of the stream.
-   * @param id The ID of the entry to add. Use * to auto-generate an ID. You can also specify a custom ID.
-   * @param pairs A key-value pairs to add to the stream. Must be an even number of arguments.
+   * @param key The name of the stream key.
+   * @param id The stream entry ID. Use `*` to auto-generate a unique ID, or specify a well-formed ID in the format `<ms>-<seq>` (for example, `1526919030474-55`).
+   * @param pairs One or more field-value pairs that make up the stream entry. You must provide at least one field-value pair.
    * @param options Command options.
-   * @returns The ID of the added entry.
+   * @returns Bulk string reply: The ID of the added entry.
    * @see {@link https://redis.io/commands/xadd}
    */
-  XADD(key: string, id: XaddId, pairs: XaddPairs, options: XaddOptions): RedisXTransactionCommand<string>;
+  XADD(key: string, id: XaddId, pairs: XaddPairs, options?: XaddOptions & {
+    NOMKSTREAM?: false;
+  }): RedisXTransactionCommand<string>;
   /**
-   * Appends the specified stream entry to the stream at the specified key.
-   * If the key does not exist, as a side effect of running this command the key is created
-   * with a stream value. The creation of stream's key can be disabled with the NOMKSTREAM option.
+   * Appends the specified stream entry to the stream at the specified `key`.
+   * If the key does not exist, `XADD` will create a new key with the given stream value as a side effect of running this command.
+   * You can turn off key creation with the `NOMKSTREAM` option.
    * - Available since: 5.0.0.
    * - Time complexity: O(1) when adding a new entry, O(N) when trimming where N being the number of entries evicted.
-   * @param key The key of the stream.
-   * @param id The ID of the entry to add. Use * to auto-generate an ID. You can also specify a custom ID.
-   * @param pairs A key-value pairs to add to the stream. Must be an even number of arguments.
+   * @param key The name of the stream key.
+   * @param id The stream entry ID. Use `*` to auto-generate a unique ID, or specify a well-formed ID in the format `<ms>-<seq>` (for example, `1526919030474-55`).
+   * @param pairs One or more field-value pairs that make up the stream entry. You must provide at least one field-value pair.
    * @param options Command options.
-   * @returns The ID of the added entry, or `null` the key doesn't exist.
+   * @returns
+   * - Bulk string reply: The ID of the added entry.
+   * - Nil reply: if the NOMKSTREAM option is given and the key doesn't exist.
    * @see {@link https://redis.io/commands/xadd}
    */
-  XADD(key: string, id: XaddId, pairs: XaddPairs, options: XaddOptions & XaddOptionsNomkstream): RedisXTransactionCommand<string | null>;
+  XADD(key: string, id: XaddId, pairs: XaddPairs, options: XaddOptions & {
+    NOMKSTREAM: true;
+  }): RedisXTransactionCommand<string | null>;
+  /**
+   * Appends the specified stream entry to the stream at the specified `key`.
+   * If the key does not exist, `XADD` will create a new key with the given stream value as a side effect of running this command.
+   * You can turn off key creation with the `NOMKSTREAM` option.
+   * - Available since: 5.0.0.
+   * - Time complexity: O(1) when adding a new entry, O(N) when trimming where N being the number of entries evicted.
+   * @param key The name of the stream key.
+   * @param id The stream entry ID. Use `*` to auto-generate a unique ID, or specify a well-formed ID in the format `<ms>-<seq>` (for example, `1526919030474-55`).
+   * @param pairs One or more field-value pairs that make up the stream entry. You must provide at least one field-value pair.
+   * @param options Command options.
+   * @returns
+   * - Bulk string reply: The ID of the added entry.
+   * - Nil reply: if the NOMKSTREAM option is given and the key doesn't exist.
+   * @see {@link https://redis.io/commands/xadd}
+   */
+  XADD(key: string, id: XaddId, pairs: XaddPairs, options?: XaddOptions): RedisXTransactionCommand<string | null>;
   /**
    * Returns the stream entries matching a given range of IDs.
    *
@@ -3136,46 +3146,55 @@ declare class RedisXTransaction<L = [], C extends boolean = false, D = unknown> 
    */
   XREAD<const S extends Record<string, XreadId>>(streams: S, options?: XReadOptions): RedisXTransaction<AddToList<L, { [K in keyof S]: XStreamEntry[]; }>, C, D>;
   /**
-   * Appends the specified stream entry to the stream at the specified key.
-   * If the key does not exist, as a side effect of running this command the key is created
-   * with a stream value. The creation of stream's key can be disabled with the NOMKSTREAM option.
+   * Appends the specified stream entry to the stream at the specified `key`.
+   * If the key does not exist, `XADD` will create a new key with the given stream value as a side effect of running this command.
+   * You can turn off key creation with the `NOMKSTREAM` option.
    * - Available since: 5.0.0.
    * - Time complexity: O(1) when adding a new entry, O(N) when trimming where N being the number of entries evicted.
-   * @param key The key of the stream.
-   * @param id The ID of the entry to add. Use * to auto-generate an ID. You can also specify a custom ID.
-   * @param pairs A key-value pairs to add to the stream. Must be an even number of arguments.
-   * @returns The ID of the added entry.
-   * @see {@link https://redis.io/commands/xadd}
-   */
-  XADD(key: string, id: XaddId, pairs: XaddPairs): RedisXTransaction<AddToList<L, string>, C, D>;
-  /**
-   * Appends the specified stream entry to the stream at the specified key.
-   * If the key does not exist, as a side effect of running this command the key is created
-   * with a stream value. The creation of stream's key can be disabled with the NOMKSTREAM option.
-   * - Available since: 5.0.0.
-   * - Time complexity: O(1) when adding a new entry, O(N) when trimming where N being the number of entries evicted.
-   * @param key The key of the stream.
-   * @param id The ID of the entry to add. Use * to auto-generate an ID. You can also specify a custom ID.
-   * @param pairs A key-value pairs to add to the stream. Must be an even number of arguments.
+   * @param key The name of the stream key.
+   * @param id The stream entry ID. Use `*` to auto-generate a unique ID, or specify a well-formed ID in the format `<ms>-<seq>` (for example, `1526919030474-55`).
+   * @param pairs One or more field-value pairs that make up the stream entry. You must provide at least one field-value pair.
    * @param options Command options.
-   * @returns The ID of the added entry.
+   * @returns Bulk string reply: The ID of the added entry.
    * @see {@link https://redis.io/commands/xadd}
    */
-  XADD(key: string, id: XaddId, pairs: XaddPairs, options: XaddOptions): RedisXTransaction<AddToList<L, string>, C, D>;
+  XADD(key: string, id: XaddId, pairs: XaddPairs, options?: XaddOptions & {
+    NOMKSTREAM?: false;
+  }): RedisXTransaction<AddToList<L, string>, C, D>;
   /**
-   * Appends the specified stream entry to the stream at the specified key.
-   * If the key does not exist, as a side effect of running this command the key is created
-   * with a stream value. The creation of stream's key can be disabled with the NOMKSTREAM option.
+   * Appends the specified stream entry to the stream at the specified `key`.
+   * If the key does not exist, `XADD` will create a new key with the given stream value as a side effect of running this command.
+   * You can turn off key creation with the `NOMKSTREAM` option.
    * - Available since: 5.0.0.
    * - Time complexity: O(1) when adding a new entry, O(N) when trimming where N being the number of entries evicted.
-   * @param key The key of the stream.
-   * @param id The ID of the entry to add. Use * to auto-generate an ID. You can also specify a custom ID.
-   * @param pairs A key-value pairs to add to the stream. Must be an even number of arguments.
+   * @param key The name of the stream key.
+   * @param id The stream entry ID. Use `*` to auto-generate a unique ID, or specify a well-formed ID in the format `<ms>-<seq>` (for example, `1526919030474-55`).
+   * @param pairs One or more field-value pairs that make up the stream entry. You must provide at least one field-value pair.
    * @param options Command options.
-   * @returns The ID of the added entry, or `null` the key doesn't exist.
+   * @returns
+   * - Bulk string reply: The ID of the added entry.
+   * - Nil reply: if the NOMKSTREAM option is given and the key doesn't exist.
    * @see {@link https://redis.io/commands/xadd}
    */
-  XADD(key: string, id: XaddId, pairs: XaddPairs, options: XaddOptions & XaddOptionsNomkstream): RedisXTransaction<AddToList<L, string | null>, C, D>;
+  XADD(key: string, id: XaddId, pairs: XaddPairs, options: XaddOptions & {
+    NOMKSTREAM: true;
+  }): RedisXTransaction<AddToList<L, string | null>, C, D>;
+  /**
+   * Appends the specified stream entry to the stream at the specified `key`.
+   * If the key does not exist, `XADD` will create a new key with the given stream value as a side effect of running this command.
+   * You can turn off key creation with the `NOMKSTREAM` option.
+   * - Available since: 5.0.0.
+   * - Time complexity: O(1) when adding a new entry, O(N) when trimming where N being the number of entries evicted.
+   * @param key The name of the stream key.
+   * @param id The stream entry ID. Use `*` to auto-generate a unique ID, or specify a well-formed ID in the format `<ms>-<seq>` (for example, `1526919030474-55`).
+   * @param pairs One or more field-value pairs that make up the stream entry. You must provide at least one field-value pair.
+   * @param options Command options.
+   * @returns
+   * - Bulk string reply: The ID of the added entry.
+   * - Nil reply: if the NOMKSTREAM option is given and the key doesn't exist.
+   * @see {@link https://redis.io/commands/xadd}
+   */
+  XADD(key: string, id: XaddId, pairs: XaddPairs, options?: XaddOptions): RedisXTransaction<AddToList<L, string | null>, C, D>;
   /**
    * Returns the stream entries matching a given range of IDs.
    *
@@ -4766,46 +4785,55 @@ export declare class RedisXClient {
    */
   XREAD<const S extends Record<string, XreadId>>(streams: S, options?: XReadOptions): Promise<{ [K in keyof S]: XStreamEntry[]; }>;
   /**
-   * Appends the specified stream entry to the stream at the specified key.
-   * If the key does not exist, as a side effect of running this command the key is created
-   * with a stream value. The creation of stream's key can be disabled with the NOMKSTREAM option.
+   * Appends the specified stream entry to the stream at the specified `key`.
+   * If the key does not exist, `XADD` will create a new key with the given stream value as a side effect of running this command.
+   * You can turn off key creation with the `NOMKSTREAM` option.
    * - Available since: 5.0.0.
    * - Time complexity: O(1) when adding a new entry, O(N) when trimming where N being the number of entries evicted.
-   * @param key The key of the stream.
-   * @param id The ID of the entry to add. Use * to auto-generate an ID. You can also specify a custom ID.
-   * @param pairs A key-value pairs to add to the stream. Must be an even number of arguments.
-   * @returns The ID of the added entry.
-   * @see {@link https://redis.io/commands/xadd}
-   */
-  XADD(key: string, id: XaddId, pairs: XaddPairs): Promise<string>;
-  /**
-   * Appends the specified stream entry to the stream at the specified key.
-   * If the key does not exist, as a side effect of running this command the key is created
-   * with a stream value. The creation of stream's key can be disabled with the NOMKSTREAM option.
-   * - Available since: 5.0.0.
-   * - Time complexity: O(1) when adding a new entry, O(N) when trimming where N being the number of entries evicted.
-   * @param key The key of the stream.
-   * @param id The ID of the entry to add. Use * to auto-generate an ID. You can also specify a custom ID.
-   * @param pairs A key-value pairs to add to the stream. Must be an even number of arguments.
+   * @param key The name of the stream key.
+   * @param id The stream entry ID. Use `*` to auto-generate a unique ID, or specify a well-formed ID in the format `<ms>-<seq>` (for example, `1526919030474-55`).
+   * @param pairs One or more field-value pairs that make up the stream entry. You must provide at least one field-value pair.
    * @param options Command options.
-   * @returns The ID of the added entry.
+   * @returns Bulk string reply: The ID of the added entry.
    * @see {@link https://redis.io/commands/xadd}
    */
-  XADD(key: string, id: XaddId, pairs: XaddPairs, options: XaddOptions): Promise<string>;
+  XADD(key: string, id: XaddId, pairs: XaddPairs, options?: XaddOptions & {
+    NOMKSTREAM?: false;
+  }): Promise<string>;
   /**
-   * Appends the specified stream entry to the stream at the specified key.
-   * If the key does not exist, as a side effect of running this command the key is created
-   * with a stream value. The creation of stream's key can be disabled with the NOMKSTREAM option.
+   * Appends the specified stream entry to the stream at the specified `key`.
+   * If the key does not exist, `XADD` will create a new key with the given stream value as a side effect of running this command.
+   * You can turn off key creation with the `NOMKSTREAM` option.
    * - Available since: 5.0.0.
    * - Time complexity: O(1) when adding a new entry, O(N) when trimming where N being the number of entries evicted.
-   * @param key The key of the stream.
-   * @param id The ID of the entry to add. Use * to auto-generate an ID. You can also specify a custom ID.
-   * @param pairs A key-value pairs to add to the stream. Must be an even number of arguments.
+   * @param key The name of the stream key.
+   * @param id The stream entry ID. Use `*` to auto-generate a unique ID, or specify a well-formed ID in the format `<ms>-<seq>` (for example, `1526919030474-55`).
+   * @param pairs One or more field-value pairs that make up the stream entry. You must provide at least one field-value pair.
    * @param options Command options.
-   * @returns The ID of the added entry, or `null` the key doesn't exist.
+   * @returns
+   * - Bulk string reply: The ID of the added entry.
+   * - Nil reply: if the NOMKSTREAM option is given and the key doesn't exist.
    * @see {@link https://redis.io/commands/xadd}
    */
-  XADD(key: string, id: XaddId, pairs: XaddPairs, options: XaddOptions & XaddOptionsNomkstream): Promise<string | null>;
+  XADD(key: string, id: XaddId, pairs: XaddPairs, options: XaddOptions & {
+    NOMKSTREAM: true;
+  }): Promise<string | null>;
+  /**
+   * Appends the specified stream entry to the stream at the specified `key`.
+   * If the key does not exist, `XADD` will create a new key with the given stream value as a side effect of running this command.
+   * You can turn off key creation with the `NOMKSTREAM` option.
+   * - Available since: 5.0.0.
+   * - Time complexity: O(1) when adding a new entry, O(N) when trimming where N being the number of entries evicted.
+   * @param key The name of the stream key.
+   * @param id The stream entry ID. Use `*` to auto-generate a unique ID, or specify a well-formed ID in the format `<ms>-<seq>` (for example, `1526919030474-55`).
+   * @param pairs One or more field-value pairs that make up the stream entry. You must provide at least one field-value pair.
+   * @param options Command options.
+   * @returns
+   * - Bulk string reply: The ID of the added entry.
+   * - Nil reply: if the NOMKSTREAM option is given and the key doesn't exist.
+   * @see {@link https://redis.io/commands/xadd}
+   */
+  XADD(key: string, id: XaddId, pairs: XaddPairs, options?: XaddOptions): Promise<string | null>;
   /**
    * Returns the stream entries matching a given range of IDs.
    *

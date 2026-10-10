@@ -12,10 +12,6 @@ Next IDs: **1.12** and **2.7**.
 
 ## 1. Invalid or incomplete implementations
 
-1.7. **XADD NOMKSTREAM: preserve nullability when options are stored in a variable.**
-  [Implementation](src/commands/stream/xadd.ts) · [Redis reference](https://redis.io/docs/latest/commands/xadd/)
-  A variable containing both `NOMKSTREAM: true` and `trim` can select the overload returning `string`. Redis returns `null` if the stream does not exist. Ensure the generated APIs retain that possibility.
-
 1.9. **Stream commands: provide a lossless representation for repeated fields.**
   [XADD](src/commands/stream/xadd.ts) · [XRANGE](src/commands/stream/xrange.ts) · [XREVRANGE](src/commands/stream/xrevrange.ts) · [XREAD](src/commands/stream/xread.ts) · [Redis reference](https://redis.io/docs/latest/commands/xread/)
   `XADD` accepts a record, so it cannot represent repeated field names. The readers also convert field/value pairs into records, overwriting earlier occurrences. Decide how to expose ordered pairs without silently losing data or unexpectedly breaking existing callers.
@@ -29,10 +25,6 @@ Next IDs: **1.12** and **2.7**.
   JavaScript `number` cannot represent every signed 64-bit integer exactly. Increment/decrement arguments and result types currently rely on it. Choose an exact-value API for large integers and verify the underlying Redis client's reply decoding; changing TypeScript declarations alone is insufficient. Preserve compatibility for ordinary numeric calls deliberately.
 
 ## 2. Updates to already implemented commands
-
-2.2. **ZINTERSTORE: add `AGGREGATE COUNT`, introduced in Redis 8.8.**
-  [Implementation](src/commands/sorted-set/zinterstore.ts) · [Redis reference](https://redis.io/docs/latest/commands/zinterstore/)
-  Extend `AGGREGATE` beyond `'SUM' | 'MIN' | 'MAX'`. The serializer already forwards the selected aggregate string, but the public type and documentation exclude `COUNT`. The result remains the number of members stored.
 
 2.3. **XADD: add reference-handling policies introduced in Redis 8.2.**
   [Implementation](src/commands/stream/xadd.ts) · [Redis reference](https://redis.io/docs/latest/commands/xadd/)
