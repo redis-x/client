@@ -1747,7 +1747,7 @@ export class RedisXTransaction<
 		key: string,
 		min: number | `(${number}` | '-inf',
 		max: number | `(${number}` | '+inf',
-		options?: ZrangebyscoreOptions,
+		options?: ZrangebyscoreOptions & { WITHSCORES?: false },
 	): RedisXTransaction<AddToList<L, string[]>, C, D>;
 	/**
 	 * Returns all the elements in the sorted set at key with a score between min and max (including elements with score equal to min or max).
@@ -1769,7 +1769,7 @@ export class RedisXTransaction<
 		key: string,
 		min: number | `(${number}` | '-inf',
 		max: number | `(${number}` | '+inf',
-		options: ZrangebyscoreOptions & ZrangebyscoreOptionsWithscores,
+		options: ZrangebyscoreOptions & { WITHSCORES: true },
 	): RedisXTransaction<
 		AddToList<
 			L,
@@ -1781,12 +1781,38 @@ export class RedisXTransaction<
 		C,
 		D
 	>;
+	/**
+	 * Returns all the elements in the sorted set at key with a score between min and max (including elements with score equal to min or max).
+	 * The elements are considered to be ordered from low to high scores.
+	 *
+	 * The elements having the same score are returned in lexicographical order.
+	 *
+	 * - Available since: 1.0.5.
+	 * - Time complexity: O(log(N)+M) with N being the number of elements in the sorted set and M the number of elements being returned. If M is constant (e.g. always asking for the first 10 elements with LIMIT), you can consider it O(log(N)).
+	 * @deprecated As of Redis version 6.2.0, this command is regarded as deprecated. It can be replaced by ZRANGE with the BYSCORE argument when migrating or writing new code.
+	 * @param key The key of the sorted set.
+	 * @param min The minimum score to consider.
+	 * @param max The maximum score to consider.
+	 * @param options Additional options for the command.
+	 * @returns Array of elements, with their scores when requested.
+	 * @see {@link https://redis.io/commands/zrangebyscore}
+	 */
+	ZRANGEBYSCORE(
+		key: string,
+		min: number | `(${number}` | '-inf',
+		max: number | `(${number}` | '+inf',
+		options?: ZrangebyscoreOptions,
+	): RedisXTransaction<
+		AddToList<L, string[] | { member: string; score: number }[]>,
+		C,
+		D
+	>;
 
 	ZRANGEBYSCORE(
 		key: string,
 		min: number | `(${number}` | '-inf',
 		max: number | `(${number}` | '+inf',
-		options?: ZrangebyscoreOptions & Partial<ZrangebyscoreOptionsWithscores>,
+		options?: ZrangebyscoreOptions,
 	) {
 		return this.useCommand(input_zrangebyscore(key, min, max, options));
 	}
@@ -1980,7 +2006,7 @@ export class RedisXTransaction<
 		key: string,
 		start: string | number,
 		stop: string | number,
-		options?: Omit<ZrangeOptions, 'WITHSCORES'>,
+		options?: ZrangeOptions & { WITHSCORES?: false },
 	): RedisXTransaction<AddToList<L, string[]>, C, D>;
 	/**
 	 * Returns the specified range of elements in the sorted set stored at key.
@@ -1997,7 +2023,7 @@ export class RedisXTransaction<
 		key: string,
 		start: string | number,
 		stop: string | number,
-		options: ZrangeOptions,
+		options: ZrangeOptions & { WITHSCORES: true },
 	): RedisXTransaction<
 		AddToList<
 			L,
@@ -2006,6 +2032,27 @@ export class RedisXTransaction<
 				score: number;
 			}[]
 		>,
+		C,
+		D
+	>;
+	/**
+	 * Returns the specified range of elements in the sorted set stored at key.
+	 * - Available since: 1.2.0
+	 * - Time complexity: O(log(N)+M) with N being the number of elements in the sorted set and M the number of elements returned.
+	 * @param key - Key that contains the sorted set.
+	 * @param start - Start index by default, minimum score if BY is `SCORE` or minimum lexicographical string if BY is `LEX`.
+	 * @param stop - Stop index by default, maximum score if BY is `SCORE` or maximum lexicographical string if BY is `LEX`.
+	 * @param options - Additional options for the command.
+	 * @returns List of members, with their scores when requested.
+	 * @see {@link https://redis.io/commands/zrange}
+	 */
+	ZRANGE(
+		key: string,
+		start: string | number,
+		stop: string | number,
+		options?: ZrangeOptions,
+	): RedisXTransaction<
+		AddToList<L, string[] | { member: string; score: number }[]>,
 		C,
 		D
 	>;
@@ -2550,7 +2597,6 @@ import {
 import { input as input_zcard } from './commands/sorted-set/zcard.js';
 import {
 	type ZrangebyscoreOptions,
-	type ZrangebyscoreOptionsWithscores,
 	input as input_zrangebyscore,
 } from './commands/sorted-set/zrangebyscore.js';
 import { input as input_zscore } from './commands/sorted-set/zscore.js';

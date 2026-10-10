@@ -28,14 +28,6 @@ Next IDs: **1.12** and **2.7**.
   [Implementation](src/commands/string/set.ts)
   With `const options = { GET: true, NX: true } as const`, `client.SET('key', 'value', options)` is inferred as `Promise<'OK' | null>`, although it returns the previous value. Ensure options stored in variables retain the `GET` result type, including when combined with other options.
 
-1.5. **ZRANGE WITHSCORES: fix overload selection and the discriminator.**
-  [Implementation](src/commands/sorted-set/zrange.ts) · [Redis reference](https://redis.io/docs/latest/commands/zrange/)
-  With `const options = { WITHSCORES: true, REV: true } as const`, the call is inferred as returning `string[]`, although the transformer returns `{ member, score }[]`. The scored-result overload also uses a type where `WITHSCORES` is optional. Make result types follow the actual option value for both object literals and variables.
-
-1.6. **ZRANGEBYSCORE WITHSCORES: fix overload selection for option variables.**
-  [Implementation](src/commands/sorted-set/zrangebyscore.ts) · [Redis reference](https://redis.io/docs/latest/commands/zrangebyscore/)
-  A variable typed as `{ WITHSCORES: true; LIMIT: [number, number] }` selects the `string[]` overload, although the transformer returns `{ member, score }[]`. Cover combined options supplied through variables.
-
 1.7. **XADD NOMKSTREAM: preserve nullability when options are stored in a variable.**
   [Implementation](src/commands/stream/xadd.ts) · [Redis reference](https://redis.io/docs/latest/commands/xadd/)
   A variable containing both `NOMKSTREAM: true` and `trim` can select the overload returning `string`. Redis returns `null` if the stream does not exist. Ensure the generated APIs retain that possibility.

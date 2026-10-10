@@ -79,4 +79,29 @@ describe('command', () => {
 			},
 		]);
 	});
+
+	test('option WITHSCORES false with other options', () => {
+		const command = input('key', 1, 2, {
+			BY: 'SCORE',
+			REV: true,
+			LIMIT: [0, 2],
+			WITHSCORES: false,
+		});
+
+		expect(command.args).toStrictEqual([
+			'ZRANGE',
+			'key',
+			'1',
+			'2',
+			'BYSCORE',
+			'REV',
+			'LIMIT',
+			'0',
+			'2',
+		]);
+		expect(command.replyTransform!(['foo', 'bar'])).toStrictEqual([
+			'foo',
+			'bar',
+		]);
+	});
 });

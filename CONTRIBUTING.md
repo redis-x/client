@@ -58,9 +58,14 @@ The structure for implementing Redis commands follows these rules:
   - If the command accepts an options object, document the options fields only in the exported options type, and **do not** reference it from the command documentation.
 
 4. **Options**:
-  - If a command accepts options, declare its type as `export type <CommandName>Options`.
+  - If a command accepts options, declare one object type containing all its options as `export type <CommandName>Options`. Do not split out separate option objects for individual flags or overloads.
   - The `export` keyword is mandatory for command options types.
+  - Describe the full accepted value type in this object. Never restrict an option to a single literal value to select an overload: boolean flags must use `boolean`, not `true` or `false`. Keep unions of valid enumerated values, such as `BY?: 'SCORE' | 'LEX'`.
   - Document every field in the options type with detailed JSDoc.
+  - Narrow options in overloads using intersections with the complete options type. For example, use `options: ZrangeOptions & { WITHSCORES: true }` for scored results and `options?: ZrangeOptions & { WITHSCORES?: false }` for plain results.
+  - Put a broad fallback overload after the specific overloads. It accepts the complete options type and returns the union of possible results for runtime booleans or optional flags. Preserve precise results for literal `true`, literal `false`, and omitted flags, including when options are stored in variables.
+  - Keep the documented property in the intersection. Do not remove it with `Omit` and redeclare it: doing so loses its original JSDoc and omitting a property alone does not forbid it on an existing object variable.
+  - Hover and autocomplete must retain option descriptions and JSDoc tags, including for properties narrowed by intersections. Verify both on the generated API and published declarations using the supported TypeScript language service; passing type checks alone does not verify documentation.
 
 5. **Transformations**:
   - If you need to transform the Redis reply, implement a `replyTransform` function.

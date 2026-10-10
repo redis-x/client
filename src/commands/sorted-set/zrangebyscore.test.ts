@@ -76,4 +76,25 @@ describe('command', () => {
 			'bar',
 		]);
 	});
+
+	test('option WITHSCORES false with LIMIT', () => {
+		const command = input('myzset', 1, 5, {
+			LIMIT: [0, 2],
+			WITHSCORES: false,
+		});
+
+		expect(command.args).toStrictEqual([
+			'ZRANGEBYSCORE',
+			'myzset',
+			'1',
+			'5',
+			'LIMIT',
+			'0',
+			'2',
+		]);
+		expect(command.replyTransform?.(['foo', 'bar'])).toStrictEqual([
+			'foo',
+			'bar',
+		]);
+	});
 });

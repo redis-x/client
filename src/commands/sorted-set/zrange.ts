@@ -19,7 +19,7 @@ export type ZrangeOptions = {
 	/**
 	 * Supplements the command's reply with the scores of elements returned.
 	 */
-	WITHSCORES?: true;
+	WITHSCORES?: boolean;
 };
 
 /**
@@ -37,7 +37,7 @@ declare function _command(
 	key: string,
 	start: string | number,
 	stop: string | number,
-	options?: Omit<ZrangeOptions, 'WITHSCORES'>,
+	options?: ZrangeOptions & { WITHSCORES?: false },
 ): string[];
 
 /**
@@ -55,11 +55,29 @@ declare function _command(
 	key: string,
 	start: string | number,
 	stop: string | number,
-	options: ZrangeOptions,
+	options: ZrangeOptions & { WITHSCORES: true },
 ): {
 	member: string;
 	score: number;
 }[];
+
+/**
+ * Returns the specified range of elements in the sorted set stored at key.
+ * - Available since: 1.2.0
+ * - Time complexity: O(log(N)+M) with N being the number of elements in the sorted set and M the number of elements returned.
+ * @param key - Key that contains the sorted set.
+ * @param start - Start index by default, minimum score if BY is `SCORE` or minimum lexicographical string if BY is `LEX`.
+ * @param stop - Stop index by default, maximum score if BY is `SCORE` or maximum lexicographical string if BY is `LEX`.
+ * @param options - Additional options for the command.
+ * @returns List of members, with their scores when requested.
+ * @see {@link https://redis.io/commands/zrange}
+ */
+declare function _command(
+	key: string,
+	start: string | number,
+	stop: string | number,
+	options?: ZrangeOptions,
+): string[] | { member: string; score: number }[];
 
 // eslint-disable-next-line jsdoc/require-jsdoc
 export function input(
