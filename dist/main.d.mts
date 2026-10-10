@@ -61,6 +61,15 @@ declare class RedisXTransactionCommand<T> {
 }
 type UnwrapRedisXTransactionCommand<T> = T extends RedisXTransactionCommand<infer A> ? A : T extends (infer U)[] ? UnwrapRedisXTransactionCommand<U>[] : T extends Record<string, any> ? { [K in keyof T]: UnwrapRedisXTransactionCommand<T[K]>; } : T;
 //#endregion
+//#region src/utils.d.ts
+/**
+ * Converts a string array to an object.
+ * @param values A flat array containing the keys and the values.
+ * @returns Object with keys and values.
+ */
+export declare function stringBulkToObject(values: string[]): Record<string, string>;
+type Collection<T> = readonly T[] | ReadonlySet<T> | IterableIterator<T>;
+//#endregion
 //#region src/commands/string/set.d.ts
 type SetOptions = {
   /**
@@ -527,11 +536,11 @@ declare class RedisXTransactionUse {
    * - Available since: 1.0.0. Multiple members support added in 2.4.0.
    * - Time complexity: O(N) where N is the number of members to be removed.
    * @param key Key of the set.
-   * @param member Member to remove from the set.
+   * @param members One or more members to remove from the set.
    * @returns The number of members that were removed from the set, not including non existing members.
    * @see {@link https://redis.io/commands/srem}
    */
-  SREM(key: string, member: (string | number)[]): RedisXTransactionCommand<number>;
+  SREM(key: string, members: Collection<string | number>): RedisXTransactionCommand<number>;
   /**
    * Remove the specified members from the set stored at key.
    * Specified members that are not a member of this set are ignored.
@@ -548,17 +557,31 @@ declare class RedisXTransactionUse {
   /**
    * Returns whether each member is a member of the set stored at key.
    *
-   * For every member, `true` is returned if the value is a member of the set,
-   * or `false` if the element is not a member of the set or if key does not exist.
+   * For every member, 1 is returned if the value is a member of the set,
+   * or 0 if the element is not a member of the set or if key does not exist.
    *
    * - Available since: 6.2.0.
    * - Time complexity: O(N) where N is the number of elements being checked for membership.
    * @param key The key of the set.
    * @param members The members to check.
-   * @returns An array of booleans, representing the membership of the given elements in the same order as they are requested.
+   * @returns A list representing the membership of the given elements, in the same order as they are requested.
    * @see {@link https://redis.io/commands/smismember}
    */
-  SMISMEMBER(key: string, ...members: string[]): RedisXTransactionCommand<boolean[]>;
+  SMISMEMBER(key: string, ...members: (string | number)[]): RedisXTransactionCommand<boolean[]>;
+  /**
+   * Returns whether each member is a member of the set stored at key.
+   *
+   * For every member, 1 is returned if the value is a member of the set,
+   * or 0 if the element is not a member of the set or if key does not exist.
+   *
+   * - Available since: 6.2.0.
+   * - Time complexity: O(N) where N is the number of elements being checked for membership.
+   * @param key The name of the key that holds the set.
+   * @param members One or more members to check for.
+   * @returns A list representing the membership of the given elements, in the same order as they are requested.
+   * @see {@link https://redis.io/commands/smismember}
+   */
+  SMISMEMBER(key: string, members: Collection<string | number>): RedisXTransactionCommand<boolean[]>;
   /**
    * Returns all the members of the set value stored at key.
    *
@@ -600,11 +623,11 @@ declare class RedisXTransactionUse {
    * - Available since: 1.0.0. Multiple members support added in 2.4.0.
    * - Time complexity: O(1) for each element added.
    * @param key Key of the set.
-   * @param member Member to add to the set.
+   * @param members One or more members to add to the set.
    * @returns The number of elements that were added to the set, not including all the elements already present in the set.
    * @see {@link https://redis.io/commands/sadd}
    */
-  SADD(key: string, member: (string | number)[]): RedisXTransactionCommand<number>;
+  SADD(key: string, members: Collection<string | number>): RedisXTransactionCommand<number>;
   /**
    * Add the specified members to the set stored at key.
    * Specified members that are already a member of this set are ignored.
@@ -1124,9 +1147,20 @@ declare class RedisXTransactionUse {
    */
   DEL(...keys: string[]): RedisXTransactionCommand<number>;
   /**
-   * Returns the number of keys that exist from those specified as arguments.
+   * Removes the specified keys.
    *
-   * The user should be aware that if the same existing key is mentioned in the arguments multiple times, it will be counted multiple times. So if somekey exists, EXISTS somekey somekey will return 2.
+   * A key is ignored if it does not exist.
+   * - Available since: 1.0.0.
+   * - Time complexity: O(N) where N is the number of keys that will be removed. When a key to remove holds a value other than a string, the individual complexity for this key is O(M) where M is the number of elements in the list, set, sorted set or hash.
+   * @param keys One or more keys to delete.
+   * @returns The number of keys that were removed.
+   * @see {@link https://redis.io/commands/del}
+   */
+  DEL(keys: Collection<string>): RedisXTransactionCommand<number>;
+  /**
+   * Returns the number of keys that exist.
+   *
+   * If you specify the same existing key multiple times, EXISTS counts it each time. For example, if somekey exists, EXISTS somekey somekey returns 2.
    * - Available since: 1.0.0.
    * - Time complexity: O(N) where N is the number of keys to check.
    * @param keys Keys to check.
@@ -1134,6 +1168,17 @@ declare class RedisXTransactionUse {
    * @see {@link https://redis.io/commands/exists}
    */
   EXISTS(...keys: string[]): RedisXTransactionCommand<number>;
+  /**
+   * Returns the number of keys that exist.
+   *
+   * If you specify the same existing key multiple times, EXISTS counts it each time. For example, if somekey exists, EXISTS somekey somekey returns 2.
+   * - Available since: 1.0.0.
+   * - Time complexity: O(N) where N is the number of keys to check.
+   * @param keys One or more keys to check for existence. A repeated key is counted once per occurrence.
+   * @returns The number of keys existing among the ones specified as arguments.
+   * @see {@link https://redis.io/commands/exists}
+   */
+  EXISTS(keys: Collection<string>): RedisXTransactionCommand<number>;
   /**
    * Insert all the specified values at the tail of the list stored at key.
    *
@@ -1825,7 +1870,7 @@ declare class RedisXTransactionUse {
    * @returns The number of members removed from the sorted set, not including non-existing members.
    * @see {@link https://redis.io/commands/zrem}
    */
-  ZREM(key: string, members: (string | number)[] | Set<string> | IterableIterator<string>): RedisXTransactionCommand<number>;
+  ZREM(key: string, members: Collection<string | number>): RedisXTransactionCommand<number>;
   /**
    * Returns the specified range of elements in the sorted set stored at key.
    * - Available since: 1.2.0
@@ -2079,11 +2124,11 @@ declare class RedisXTransactionUse {
    * - Available since: 2.0.0. Multiple field arguments support added in 2.4.0.
    * - Time complexity: O(N) where N is the number of fields to be removed.
    * @param key Key of the hash.
-   * @param fields Field to remove from the hash.
+   * @param fields One or more fields to delete from the hash.
    * @returns The number of fields that were removed from the hash, excluding specified but non-existing fields.
    * @see {@link https://redis.io/commands/hdel}
    */
-  HDEL(key: string, fields: (string | number)[]): RedisXTransactionCommand<number>;
+  HDEL(key: string, fields: Collection<string | number>): RedisXTransactionCommand<number>;
   /**
    * Removes the specified fields from the hash stored at key. Specified fields that do not exist within this hash are ignored.
    * Deletes the hash if no fields remain. If key does not exist, it is treated as an empty hash and this command returns 0.
@@ -2175,11 +2220,11 @@ declare class RedisXTransaction<L = [], C extends boolean = false, D = unknown> 
    * - Available since: 1.0.0. Multiple members support added in 2.4.0.
    * - Time complexity: O(N) where N is the number of members to be removed.
    * @param key Key of the set.
-   * @param member Member to remove from the set.
+   * @param members One or more members to remove from the set.
    * @returns The number of members that were removed from the set, not including non existing members.
    * @see {@link https://redis.io/commands/srem}
    */
-  SREM(key: string, member: (string | number)[]): RedisXTransaction<AddToList<L, number>, C, D>;
+  SREM(key: string, members: Collection<string | number>): RedisXTransaction<AddToList<L, number>, C, D>;
   /**
    * Remove the specified members from the set stored at key.
    * Specified members that are not a member of this set are ignored.
@@ -2196,17 +2241,31 @@ declare class RedisXTransaction<L = [], C extends boolean = false, D = unknown> 
   /**
    * Returns whether each member is a member of the set stored at key.
    *
-   * For every member, `true` is returned if the value is a member of the set,
-   * or `false` if the element is not a member of the set or if key does not exist.
+   * For every member, 1 is returned if the value is a member of the set,
+   * or 0 if the element is not a member of the set or if key does not exist.
    *
    * - Available since: 6.2.0.
    * - Time complexity: O(N) where N is the number of elements being checked for membership.
    * @param key The key of the set.
    * @param members The members to check.
-   * @returns An array of booleans, representing the membership of the given elements in the same order as they are requested.
+   * @returns A list representing the membership of the given elements, in the same order as they are requested.
    * @see {@link https://redis.io/commands/smismember}
    */
-  SMISMEMBER(key: string, ...members: string[]): RedisXTransaction<AddToList<L, boolean[]>, C, D>;
+  SMISMEMBER(key: string, ...members: (string | number)[]): RedisXTransaction<AddToList<L, boolean[]>, C, D>;
+  /**
+   * Returns whether each member is a member of the set stored at key.
+   *
+   * For every member, 1 is returned if the value is a member of the set,
+   * or 0 if the element is not a member of the set or if key does not exist.
+   *
+   * - Available since: 6.2.0.
+   * - Time complexity: O(N) where N is the number of elements being checked for membership.
+   * @param key The name of the key that holds the set.
+   * @param members One or more members to check for.
+   * @returns A list representing the membership of the given elements, in the same order as they are requested.
+   * @see {@link https://redis.io/commands/smismember}
+   */
+  SMISMEMBER(key: string, members: Collection<string | number>): RedisXTransaction<AddToList<L, boolean[]>, C, D>;
   /**
    * Returns all the members of the set value stored at key.
    *
@@ -2248,11 +2307,11 @@ declare class RedisXTransaction<L = [], C extends boolean = false, D = unknown> 
    * - Available since: 1.0.0. Multiple members support added in 2.4.0.
    * - Time complexity: O(1) for each element added.
    * @param key Key of the set.
-   * @param member Member to add to the set.
+   * @param members One or more members to add to the set.
    * @returns The number of elements that were added to the set, not including all the elements already present in the set.
    * @see {@link https://redis.io/commands/sadd}
    */
-  SADD(key: string, member: (string | number)[]): RedisXTransaction<AddToList<L, number>, C, D>;
+  SADD(key: string, members: Collection<string | number>): RedisXTransaction<AddToList<L, number>, C, D>;
   /**
    * Add the specified members to the set stored at key.
    * Specified members that are already a member of this set are ignored.
@@ -2772,9 +2831,20 @@ declare class RedisXTransaction<L = [], C extends boolean = false, D = unknown> 
    */
   DEL(...keys: string[]): RedisXTransaction<AddToList<L, number>, C, D>;
   /**
-   * Returns the number of keys that exist from those specified as arguments.
+   * Removes the specified keys.
    *
-   * The user should be aware that if the same existing key is mentioned in the arguments multiple times, it will be counted multiple times. So if somekey exists, EXISTS somekey somekey will return 2.
+   * A key is ignored if it does not exist.
+   * - Available since: 1.0.0.
+   * - Time complexity: O(N) where N is the number of keys that will be removed. When a key to remove holds a value other than a string, the individual complexity for this key is O(M) where M is the number of elements in the list, set, sorted set or hash.
+   * @param keys One or more keys to delete.
+   * @returns The number of keys that were removed.
+   * @see {@link https://redis.io/commands/del}
+   */
+  DEL(keys: Collection<string>): RedisXTransaction<AddToList<L, number>, C, D>;
+  /**
+   * Returns the number of keys that exist.
+   *
+   * If you specify the same existing key multiple times, EXISTS counts it each time. For example, if somekey exists, EXISTS somekey somekey returns 2.
    * - Available since: 1.0.0.
    * - Time complexity: O(N) where N is the number of keys to check.
    * @param keys Keys to check.
@@ -2782,6 +2852,17 @@ declare class RedisXTransaction<L = [], C extends boolean = false, D = unknown> 
    * @see {@link https://redis.io/commands/exists}
    */
   EXISTS(...keys: string[]): RedisXTransaction<AddToList<L, number>, C, D>;
+  /**
+   * Returns the number of keys that exist.
+   *
+   * If you specify the same existing key multiple times, EXISTS counts it each time. For example, if somekey exists, EXISTS somekey somekey returns 2.
+   * - Available since: 1.0.0.
+   * - Time complexity: O(N) where N is the number of keys to check.
+   * @param keys One or more keys to check for existence. A repeated key is counted once per occurrence.
+   * @returns The number of keys existing among the ones specified as arguments.
+   * @see {@link https://redis.io/commands/exists}
+   */
+  EXISTS(keys: Collection<string>): RedisXTransaction<AddToList<L, number>, C, D>;
   /**
    * Insert all the specified values at the tail of the list stored at key.
    *
@@ -3473,7 +3554,7 @@ declare class RedisXTransaction<L = [], C extends boolean = false, D = unknown> 
    * @returns The number of members removed from the sorted set, not including non-existing members.
    * @see {@link https://redis.io/commands/zrem}
    */
-  ZREM(key: string, members: (string | number)[] | Set<string> | IterableIterator<string>): RedisXTransaction<AddToList<L, number>, C, D>;
+  ZREM(key: string, members: Collection<string | number>): RedisXTransaction<AddToList<L, number>, C, D>;
   /**
    * Returns the specified range of elements in the sorted set stored at key.
    * - Available since: 1.2.0
@@ -3727,11 +3808,11 @@ declare class RedisXTransaction<L = [], C extends boolean = false, D = unknown> 
    * - Available since: 2.0.0. Multiple field arguments support added in 2.4.0.
    * - Time complexity: O(N) where N is the number of fields to be removed.
    * @param key Key of the hash.
-   * @param fields Field to remove from the hash.
+   * @param fields One or more fields to delete from the hash.
    * @returns The number of fields that were removed from the hash, excluding specified but non-existing fields.
    * @see {@link https://redis.io/commands/hdel}
    */
-  HDEL(key: string, fields: (string | number)[]): RedisXTransaction<AddToList<L, number>, C, D>;
+  HDEL(key: string, fields: Collection<string | number>): RedisXTransaction<AddToList<L, number>, C, D>;
   /**
    * Removes the specified fields from the hash stored at key. Specified fields that do not exist within this hash are ignored.
    * Deletes the hash if no fields remain. If key does not exist, it is treated as an empty hash and this command returns 0.
@@ -3814,11 +3895,11 @@ export declare class RedisXClient {
    * - Available since: 1.0.0. Multiple members support added in 2.4.0.
    * - Time complexity: O(N) where N is the number of members to be removed.
    * @param key Key of the set.
-   * @param member Member to remove from the set.
+   * @param members One or more members to remove from the set.
    * @returns The number of members that were removed from the set, not including non existing members.
    * @see {@link https://redis.io/commands/srem}
    */
-  SREM(key: string, member: (string | number)[]): Promise<number>;
+  SREM(key: string, members: Collection<string | number>): Promise<number>;
   /**
    * Remove the specified members from the set stored at key.
    * Specified members that are not a member of this set are ignored.
@@ -3835,17 +3916,31 @@ export declare class RedisXClient {
   /**
    * Returns whether each member is a member of the set stored at key.
    *
-   * For every member, `true` is returned if the value is a member of the set,
-   * or `false` if the element is not a member of the set or if key does not exist.
+   * For every member, 1 is returned if the value is a member of the set,
+   * or 0 if the element is not a member of the set or if key does not exist.
    *
    * - Available since: 6.2.0.
    * - Time complexity: O(N) where N is the number of elements being checked for membership.
    * @param key The key of the set.
    * @param members The members to check.
-   * @returns An array of booleans, representing the membership of the given elements in the same order as they are requested.
+   * @returns A list representing the membership of the given elements, in the same order as they are requested.
    * @see {@link https://redis.io/commands/smismember}
    */
-  SMISMEMBER(key: string, ...members: string[]): Promise<boolean[]>;
+  SMISMEMBER(key: string, ...members: (string | number)[]): Promise<boolean[]>;
+  /**
+   * Returns whether each member is a member of the set stored at key.
+   *
+   * For every member, 1 is returned if the value is a member of the set,
+   * or 0 if the element is not a member of the set or if key does not exist.
+   *
+   * - Available since: 6.2.0.
+   * - Time complexity: O(N) where N is the number of elements being checked for membership.
+   * @param key The name of the key that holds the set.
+   * @param members One or more members to check for.
+   * @returns A list representing the membership of the given elements, in the same order as they are requested.
+   * @see {@link https://redis.io/commands/smismember}
+   */
+  SMISMEMBER(key: string, members: Collection<string | number>): Promise<boolean[]>;
   /**
    * Returns all the members of the set value stored at key.
    *
@@ -3887,11 +3982,11 @@ export declare class RedisXClient {
    * - Available since: 1.0.0. Multiple members support added in 2.4.0.
    * - Time complexity: O(1) for each element added.
    * @param key Key of the set.
-   * @param member Member to add to the set.
+   * @param members One or more members to add to the set.
    * @returns The number of elements that were added to the set, not including all the elements already present in the set.
    * @see {@link https://redis.io/commands/sadd}
    */
-  SADD(key: string, member: (string | number)[]): Promise<number>;
+  SADD(key: string, members: Collection<string | number>): Promise<number>;
   /**
    * Add the specified members to the set stored at key.
    * Specified members that are already a member of this set are ignored.
@@ -4411,9 +4506,20 @@ export declare class RedisXClient {
    */
   DEL(...keys: string[]): Promise<number>;
   /**
-   * Returns the number of keys that exist from those specified as arguments.
+   * Removes the specified keys.
    *
-   * The user should be aware that if the same existing key is mentioned in the arguments multiple times, it will be counted multiple times. So if somekey exists, EXISTS somekey somekey will return 2.
+   * A key is ignored if it does not exist.
+   * - Available since: 1.0.0.
+   * - Time complexity: O(N) where N is the number of keys that will be removed. When a key to remove holds a value other than a string, the individual complexity for this key is O(M) where M is the number of elements in the list, set, sorted set or hash.
+   * @param keys One or more keys to delete.
+   * @returns The number of keys that were removed.
+   * @see {@link https://redis.io/commands/del}
+   */
+  DEL(keys: Collection<string>): Promise<number>;
+  /**
+   * Returns the number of keys that exist.
+   *
+   * If you specify the same existing key multiple times, EXISTS counts it each time. For example, if somekey exists, EXISTS somekey somekey returns 2.
    * - Available since: 1.0.0.
    * - Time complexity: O(N) where N is the number of keys to check.
    * @param keys Keys to check.
@@ -4421,6 +4527,17 @@ export declare class RedisXClient {
    * @see {@link https://redis.io/commands/exists}
    */
   EXISTS(...keys: string[]): Promise<number>;
+  /**
+   * Returns the number of keys that exist.
+   *
+   * If you specify the same existing key multiple times, EXISTS counts it each time. For example, if somekey exists, EXISTS somekey somekey returns 2.
+   * - Available since: 1.0.0.
+   * - Time complexity: O(N) where N is the number of keys to check.
+   * @param keys One or more keys to check for existence. A repeated key is counted once per occurrence.
+   * @returns The number of keys existing among the ones specified as arguments.
+   * @see {@link https://redis.io/commands/exists}
+   */
+  EXISTS(keys: Collection<string>): Promise<number>;
   /**
    * Insert all the specified values at the tail of the list stored at key.
    *
@@ -5112,7 +5229,7 @@ export declare class RedisXClient {
    * @returns The number of members removed from the sorted set, not including non-existing members.
    * @see {@link https://redis.io/commands/zrem}
    */
-  ZREM(key: string, members: (string | number)[] | Set<string> | IterableIterator<string>): Promise<number>;
+  ZREM(key: string, members: Collection<string | number>): Promise<number>;
   /**
    * Returns the specified range of elements in the sorted set stored at key.
    * - Available since: 1.2.0
@@ -5366,11 +5483,11 @@ export declare class RedisXClient {
    * - Available since: 2.0.0. Multiple field arguments support added in 2.4.0.
    * - Time complexity: O(N) where N is the number of fields to be removed.
    * @param key Key of the hash.
-   * @param fields Field to remove from the hash.
+   * @param fields One or more fields to delete from the hash.
    * @returns The number of fields that were removed from the hash, excluding specified but non-existing fields.
    * @see {@link https://redis.io/commands/hdel}
    */
-  HDEL(key: string, fields: (string | number)[]): Promise<number>;
+  HDEL(key: string, fields: Collection<string | number>): Promise<number>;
   /**
    * Removes the specified fields from the hash stored at key. Specified fields that do not exist within this hash are ignored.
    * Deletes the hash if no fields remain. If key does not exist, it is treated as an empty hash and this command returns 0.
@@ -5432,13 +5549,5 @@ export declare class RedisXClient {
    */
   EVAL(script: string, keys: (string | number)[], args?: (string | number)[]): Promise<unknown>;
 }
-//#endregion
-//#region src/utils.d.ts
-/**
- * Converts a string array to an object.
- * @param values A flat array containing the keys and the values.
- * @returns Object with keys and values.
- */
-export declare function stringBulkToObject(values: string[]): Record<string, string>;
 //#endregion
 export type { RedisXTransaction };

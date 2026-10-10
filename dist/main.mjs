@@ -68,6 +68,13 @@ function stringBulkToObject(values) {
 	});
 	return object;
 }
+/**
+* Converts a collection to a string array.
+* @param values Collection to convert.
+*/
+function collectionToStringArray(values) {
+	return Array.from(values, String);
+}
 //#endregion
 //#region src/transaction/command.ts
 var RedisXTransactionCommand = class {
@@ -91,39 +98,24 @@ function unwrapRedisTransactionCommand(target, result) {
 }
 //#endregion
 //#region src/commands/set/srem.ts
-function input$88(key, ...members) {
+function input$88(key, arg1, ...args_rest) {
+	const args = ["SREM", key];
+	if (typeof arg1 === "string" || typeof arg1 === "number") args.push(String(arg1), ...args_rest.map(String));
+	else args.push(...collectionToStringArray(arg1));
 	return {
 		kind: "#schema",
-		args: [
-			"SREM",
-			key,
-			...members.flat().map(String)
-		]
+		args
 	};
 }
 //#endregion
 //#region src/commands/set/smismember.ts
-/**
-* Returns whether each member is a member of the set stored at key.
-*
-* For every member, `true` is returned if the value is a member of the set,
-* or `false` if the element is not a member of the set or if key does not exist.
-*
-* - Available since: 6.2.0.
-* - Time complexity: O(N) where N is the number of elements being checked for membership.
-* @param key The key of the set.
-* @param members The members to check.
-* @returns An array of booleans, representing the membership of the given elements in the same order as they are requested.
-* @see {@link https://redis.io/commands/smismember}
-*/
-function input$87(key, ...members) {
+function input$87(key, arg1, ...args_rest) {
+	const args = ["SMISMEMBER", key];
+	if (typeof arg1 === "string" || typeof arg1 === "number") args.push(String(arg1), ...args_rest.map(String));
+	else args.push(...collectionToStringArray(arg1));
 	return {
 		kind: "#schema",
-		args: [
-			"SMISMEMBER",
-			key,
-			...members
-		],
+		args,
 		replyTransform: replyTransform$2
 	};
 }
@@ -215,14 +207,13 @@ function input$84(key) {
 }
 //#endregion
 //#region src/commands/set/sadd.ts
-function input$83(key, ...members) {
+function input$83(key, arg1, ...args_rest) {
+	const args = ["SADD", key];
+	if (typeof arg1 === "string" || typeof arg1 === "number") args.push(String(arg1), ...args_rest.map(String));
+	else args.push(...collectionToStringArray(arg1));
 	return {
 		kind: "#schema",
-		args: [
-			"SADD",
-			key,
-			...members.flat().map(String)
-		]
+		args
 	};
 }
 //#endregion
@@ -1048,38 +1039,24 @@ function input$48(key) {
 }
 //#endregion
 //#region src/commands/generic/del.ts
-/**
-* Removes the specified keys.
-*
-* A key is ignored if it does not exist.
-* - Available since: 1.0.0.
-* - Time complexity: O(N) where N is the number of keys that will be removed. When a key to remove holds a value other than a string, the individual complexity for this key is O(M) where M is the number of elements in the list, set, sorted set or hash.
-* @param keys Keys to delete.
-* @returns The number of keys that were removed.
-* @see {@link https://redis.io/commands/del}
-*/
-function input$47(...keys) {
+function input$47(arg0, ...args_rest) {
+	const args = ["DEL"];
+	if (typeof arg0 === "string") args.push(arg0, ...args_rest);
+	else args.push(...collectionToStringArray(arg0));
 	return {
 		kind: "#schema",
-		args: ["DEL", ...keys]
+		args
 	};
 }
 //#endregion
 //#region src/commands/generic/exists.ts
-/**
-* Returns the number of keys that exist from those specified as arguments.
-*
-* The user should be aware that if the same existing key is mentioned in the arguments multiple times, it will be counted multiple times. So if somekey exists, EXISTS somekey somekey will return 2.
-* - Available since: 1.0.0.
-* - Time complexity: O(N) where N is the number of keys to check.
-* @param keys Keys to check.
-* @returns The number of keys existing among the ones specified as arguments.
-* @see {@link https://redis.io/commands/exists}
-*/
-function input$46(...keys) {
+function input$46(arg0, ...args_rest) {
+	const args = ["EXISTS"];
+	if (typeof arg0 === "string") args.push(arg0, ...args_rest);
+	else args.push(...collectionToStringArray(arg0));
 	return {
 		kind: "#schema",
-		args: ["EXISTS", ...keys]
+		args
 	};
 }
 //#endregion
@@ -1731,7 +1708,7 @@ function input$19(key, member, options) {
 function input$18(key, arg1, ...args_rest) {
 	const args = ["ZREM", key];
 	if (typeof arg1 === "string" || typeof arg1 === "number") args.push(String(arg1), ...args_rest.map(String));
-	else args.push(...[...arg1].map(String));
+	else args.push(...collectionToStringArray(arg1));
 	return {
 		kind: "#schema",
 		args
@@ -2010,14 +1987,13 @@ function input$5(key, field, increment) {
 }
 //#endregion
 //#region src/commands/hash/hdel.ts
-function input$4(key, ...fields) {
+function input$4(key, arg1, ...args_rest) {
+	const args = ["HDEL", key];
+	if (typeof arg1 === "string" || typeof arg1 === "number") args.push(String(arg1), ...args_rest.map(String));
+	else args.push(...collectionToStringArray(arg1));
 	return {
 		kind: "#schema",
-		args: [
-			"HDEL",
-			key,
-			...fields.flat().map(String)
-		]
+		args
 	};
 }
 //#endregion
@@ -2140,24 +2116,11 @@ var RedisXTransactionUse = class {
 		});
 		return redis_transaction_command;
 	}
-	SREM(key, ...members) {
-		return this.useCommand(input$88(key, ...members));
+	SREM(key, arg1, ...args_rest) {
+		return this.useCommand(input$88(key, arg1, ...args_rest));
 	}
-	/**
-	* Returns whether each member is a member of the set stored at key.
-	*
-	* For every member, `true` is returned if the value is a member of the set,
-	* or `false` if the element is not a member of the set or if key does not exist.
-	*
-	* - Available since: 6.2.0.
-	* - Time complexity: O(N) where N is the number of elements being checked for membership.
-	* @param key The key of the set.
-	* @param members The members to check.
-	* @returns An array of booleans, representing the membership of the given elements in the same order as they are requested.
-	* @see {@link https://redis.io/commands/smismember}
-	*/
-	SMISMEMBER(key, ...members) {
-		return this.useCommand(input$87(key, ...members));
+	SMISMEMBER(key, arg1, ...args_rest) {
+		return this.useCommand(input$87(key, arg1, ...args_rest));
 	}
 	/**
 	* Returns all the members of the set value stored at key.
@@ -2196,8 +2159,8 @@ var RedisXTransactionUse = class {
 	SCARD(key) {
 		return this.useCommand(input$84(key));
 	}
-	SADD(key, ...members) {
-		return this.useCommand(input$83(key, ...members));
+	SADD(key, arg1, ...args_rest) {
+		return this.useCommand(input$83(key, arg1, ...args_rest));
 	}
 	/**
 	* Sets the given keys to their respective values. MSETNX will not perform
@@ -2688,31 +2651,11 @@ var RedisXTransactionUse = class {
 	PEXPIRETIME(key) {
 		return this.useCommand(input$48(key));
 	}
-	/**
-	* Removes the specified keys.
-	*
-	* A key is ignored if it does not exist.
-	* - Available since: 1.0.0.
-	* - Time complexity: O(N) where N is the number of keys that will be removed. When a key to remove holds a value other than a string, the individual complexity for this key is O(M) where M is the number of elements in the list, set, sorted set or hash.
-	* @param keys Keys to delete.
-	* @returns The number of keys that were removed.
-	* @see {@link https://redis.io/commands/del}
-	*/
-	DEL(...keys) {
-		return this.useCommand(input$47(...keys));
+	DEL(arg0, ...args_rest) {
+		return this.useCommand(input$47(arg0, ...args_rest));
 	}
-	/**
-	* Returns the number of keys that exist from those specified as arguments.
-	*
-	* The user should be aware that if the same existing key is mentioned in the arguments multiple times, it will be counted multiple times. So if somekey exists, EXISTS somekey somekey will return 2.
-	* - Available since: 1.0.0.
-	* - Time complexity: O(N) where N is the number of keys to check.
-	* @param keys Keys to check.
-	* @returns The number of keys existing among the ones specified as arguments.
-	* @see {@link https://redis.io/commands/exists}
-	*/
-	EXISTS(...keys) {
-		return this.useCommand(input$46(...keys));
+	EXISTS(arg0, ...args_rest) {
+		return this.useCommand(input$46(arg0, ...args_rest));
 	}
 	RPUSH(key, ...elements) {
 		return this.useCommand(input$45(key, ...elements));
@@ -3134,8 +3077,8 @@ var RedisXTransactionUse = class {
 	HINCRBY(key, field, increment) {
 		return this.useCommand(input$5(key, field, increment));
 	}
-	HDEL(key, ...fields) {
-		return this.useCommand(input$4(key, ...fields));
+	HDEL(key, arg1, ...args_rest) {
+		return this.useCommand(input$4(key, arg1, ...args_rest));
 	}
 	/**
 	* Returns the string length of the value associated with field in the hash stored at key.
@@ -3255,24 +3198,11 @@ var RedisXTransaction = class {
 		if (this.return_no_array) return result_named;
 		return Object.assign(result, result_named);
 	}
-	SREM(key, ...members) {
-		return this.useCommand(input$88(key, ...members));
+	SREM(key, arg1, ...args_rest) {
+		return this.useCommand(input$88(key, arg1, ...args_rest));
 	}
-	/**
-	* Returns whether each member is a member of the set stored at key.
-	*
-	* For every member, `true` is returned if the value is a member of the set,
-	* or `false` if the element is not a member of the set or if key does not exist.
-	*
-	* - Available since: 6.2.0.
-	* - Time complexity: O(N) where N is the number of elements being checked for membership.
-	* @param key The key of the set.
-	* @param members The members to check.
-	* @returns An array of booleans, representing the membership of the given elements in the same order as they are requested.
-	* @see {@link https://redis.io/commands/smismember}
-	*/
-	SMISMEMBER(key, ...members) {
-		return this.useCommand(input$87(key, ...members));
+	SMISMEMBER(key, arg1, ...args_rest) {
+		return this.useCommand(input$87(key, arg1, ...args_rest));
 	}
 	/**
 	* Returns all the members of the set value stored at key.
@@ -3311,8 +3241,8 @@ var RedisXTransaction = class {
 	SCARD(key) {
 		return this.useCommand(input$84(key));
 	}
-	SADD(key, ...members) {
-		return this.useCommand(input$83(key, ...members));
+	SADD(key, arg1, ...args_rest) {
+		return this.useCommand(input$83(key, arg1, ...args_rest));
 	}
 	/**
 	* Sets the given keys to their respective values. MSETNX will not perform
@@ -3803,31 +3733,11 @@ var RedisXTransaction = class {
 	PEXPIRETIME(key) {
 		return this.useCommand(input$48(key));
 	}
-	/**
-	* Removes the specified keys.
-	*
-	* A key is ignored if it does not exist.
-	* - Available since: 1.0.0.
-	* - Time complexity: O(N) where N is the number of keys that will be removed. When a key to remove holds a value other than a string, the individual complexity for this key is O(M) where M is the number of elements in the list, set, sorted set or hash.
-	* @param keys Keys to delete.
-	* @returns The number of keys that were removed.
-	* @see {@link https://redis.io/commands/del}
-	*/
-	DEL(...keys) {
-		return this.useCommand(input$47(...keys));
+	DEL(arg0, ...args_rest) {
+		return this.useCommand(input$47(arg0, ...args_rest));
 	}
-	/**
-	* Returns the number of keys that exist from those specified as arguments.
-	*
-	* The user should be aware that if the same existing key is mentioned in the arguments multiple times, it will be counted multiple times. So if somekey exists, EXISTS somekey somekey will return 2.
-	* - Available since: 1.0.0.
-	* - Time complexity: O(N) where N is the number of keys to check.
-	* @param keys Keys to check.
-	* @returns The number of keys existing among the ones specified as arguments.
-	* @see {@link https://redis.io/commands/exists}
-	*/
-	EXISTS(...keys) {
-		return this.useCommand(input$46(...keys));
+	EXISTS(arg0, ...args_rest) {
+		return this.useCommand(input$46(arg0, ...args_rest));
 	}
 	RPUSH(key, ...elements) {
 		return this.useCommand(input$45(key, ...elements));
@@ -4249,8 +4159,8 @@ var RedisXTransaction = class {
 	HINCRBY(key, field, increment) {
 		return this.useCommand(input$5(key, field, increment));
 	}
-	HDEL(key, ...fields) {
-		return this.useCommand(input$4(key, ...fields));
+	HDEL(key, arg1, ...args_rest) {
+		return this.useCommand(input$4(key, arg1, ...args_rest));
 	}
 	/**
 	* Returns the string length of the value associated with field in the hash stored at key.
@@ -4338,24 +4248,11 @@ var RedisXClient = class {
 		} else options = arg_0;
 		return new RedisXScript(this.redisClient, options);
 	}
-	SREM(key, ...members) {
-		return this.useCommand(input$88(key, ...members));
+	SREM(key, arg1, ...args_rest) {
+		return this.useCommand(input$88(key, arg1, ...args_rest));
 	}
-	/**
-	* Returns whether each member is a member of the set stored at key.
-	*
-	* For every member, `true` is returned if the value is a member of the set,
-	* or `false` if the element is not a member of the set or if key does not exist.
-	*
-	* - Available since: 6.2.0.
-	* - Time complexity: O(N) where N is the number of elements being checked for membership.
-	* @param key The key of the set.
-	* @param members The members to check.
-	* @returns An array of booleans, representing the membership of the given elements in the same order as they are requested.
-	* @see {@link https://redis.io/commands/smismember}
-	*/
-	SMISMEMBER(key, ...members) {
-		return this.useCommand(input$87(key, ...members));
+	SMISMEMBER(key, arg1, ...args_rest) {
+		return this.useCommand(input$87(key, arg1, ...args_rest));
 	}
 	/**
 	* Returns all the members of the set value stored at key.
@@ -4394,8 +4291,8 @@ var RedisXClient = class {
 	SCARD(key) {
 		return this.useCommand(input$84(key));
 	}
-	SADD(key, ...members) {
-		return this.useCommand(input$83(key, ...members));
+	SADD(key, arg1, ...args_rest) {
+		return this.useCommand(input$83(key, arg1, ...args_rest));
 	}
 	/**
 	* Sets the given keys to their respective values. MSETNX will not perform
@@ -4886,31 +4783,11 @@ var RedisXClient = class {
 	PEXPIRETIME(key) {
 		return this.useCommand(input$48(key));
 	}
-	/**
-	* Removes the specified keys.
-	*
-	* A key is ignored if it does not exist.
-	* - Available since: 1.0.0.
-	* - Time complexity: O(N) where N is the number of keys that will be removed. When a key to remove holds a value other than a string, the individual complexity for this key is O(M) where M is the number of elements in the list, set, sorted set or hash.
-	* @param keys Keys to delete.
-	* @returns The number of keys that were removed.
-	* @see {@link https://redis.io/commands/del}
-	*/
-	DEL(...keys) {
-		return this.useCommand(input$47(...keys));
+	DEL(arg0, ...args_rest) {
+		return this.useCommand(input$47(arg0, ...args_rest));
 	}
-	/**
-	* Returns the number of keys that exist from those specified as arguments.
-	*
-	* The user should be aware that if the same existing key is mentioned in the arguments multiple times, it will be counted multiple times. So if somekey exists, EXISTS somekey somekey will return 2.
-	* - Available since: 1.0.0.
-	* - Time complexity: O(N) where N is the number of keys to check.
-	* @param keys Keys to check.
-	* @returns The number of keys existing among the ones specified as arguments.
-	* @see {@link https://redis.io/commands/exists}
-	*/
-	EXISTS(...keys) {
-		return this.useCommand(input$46(...keys));
+	EXISTS(arg0, ...args_rest) {
+		return this.useCommand(input$46(arg0, ...args_rest));
 	}
 	RPUSH(key, ...elements) {
 		return this.useCommand(input$45(key, ...elements));
@@ -5332,8 +5209,8 @@ var RedisXClient = class {
 	HINCRBY(key, field, increment) {
 		return this.useCommand(input$5(key, field, increment));
 	}
-	HDEL(key, ...fields) {
-		return this.useCommand(input$4(key, ...fields));
+	HDEL(key, arg1, ...args_rest) {
+		return this.useCommand(input$4(key, arg1, ...args_rest));
 	}
 	/**
 	* Returns the string length of the value associated with field in the hash stored at key.

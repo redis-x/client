@@ -34,3 +34,13 @@ export function stringBulkToObject(values: string[]): Record<string, string> {
 
 	return object;
 }
+
+export type Collection<T> = readonly T[] | ReadonlySet<T> | IterableIterator<T>;
+
+/**
+ * Converts a collection to a string array.
+ * @param values Collection to convert.
+ */
+export function collectionToStringArray<T>(values: Collection<T>): string[] {
+	return Array.from(values, String);
+}

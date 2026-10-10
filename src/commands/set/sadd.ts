@@ -1,4 +1,5 @@
 import type { Command } from '../../types.js';
+import { type Collection, collectionToStringArray } from '../../utils.js';
 
 /**
  * Add the specified members to the set stored at key.
@@ -10,11 +11,14 @@ import type { Command } from '../../types.js';
  * - Available since: 1.0.0. Multiple members support added in 2.4.0.
  * - Time complexity: O(1) for each element added.
  * @param key Key of the set.
- * @param member Member to add to the set.
+ * @param members One or more members to add to the set.
  * @returns The number of elements that were added to the set, not including all the elements already present in the set.
  * @see {@link https://redis.io/commands/sadd}
  */
-declare function _command(key: string, member: (string | number)[]): number;
+declare function _command(
+	key: string,
+	members: Collection<string | number>,
+): number;
 
 /**
  * Add the specified members to the set stored at key.
@@ -35,10 +39,19 @@ declare function _command(key: string, ...members: (string | number)[]): number;
 // eslint-disable-next-line jsdoc/require-jsdoc
 export function input(
 	key: string,
-	...members: (string | number | (string | number)[])[]
+	arg1: string | number | Collection<string | number>,
+	...args_rest: (string | number)[]
 ): Command<number> {
+	const args = ['SADD', key];
+
+	if (typeof arg1 === 'string' || typeof arg1 === 'number') {
+		args.push(String(arg1), ...args_rest.map(String));
+	} else {
+		args.push(...collectionToStringArray(arg1));
+	}
+
 	return {
 		kind: '#schema',
-		args: ['SADD', key, ...members.flat().map(String)],
+		args,
 	};
 }
