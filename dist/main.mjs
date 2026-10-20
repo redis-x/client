@@ -1,43 +1,40 @@
 //#region src/script.ts
 var RedisXScript = class {
-	client;
-	code;
-	keys = [];
-	sha = null;
-	inputValidator;
-	outputValidator;
-	constructor(client, options) {
-		this.client = client;
-		this.code = options.code;
-		if (options.keys) this.keys = options.keys;
-		this.inputValidator = options.inputValidator;
-		this.outputValidator = options.outputValidator;
+	#redisClient;
+	#options;
+	#sha = null;
+	constructor(redisClient, options) {
+		this.#redisClient = redisClient;
+		this.#options = options;
 	}
 	async load() {
-		const result = await this.client.sendCommand([
+		const result = await this.#redisClient.sendCommand([
 			"SCRIPT",
 			"LOAD",
-			this.code
+			this.#options.code
 		]);
 		if (typeof result !== "string") throw new TypeError("Invalid response from SCRIPT LOAD");
-		this.sha = result;
+		this.#sha = result;
 		return result;
 	}
-	async execute(...args) {
-		if (this.sha === null) this.sha = await this.load();
+	execute(...args) {
+		return this.executeWithKeys(this.#options.keys ?? [], ...args);
+	}
+	async executeWithKeys(keys, ...args) {
+		this.#sha ??= await this.load();
 		try {
-			const result = await this.client.sendCommand([
+			const result = await this.#redisClient.sendCommand([
 				"EVALSHA",
-				this.sha,
-				String(this.keys.length),
-				...this.keys,
-				...this.inputValidator ? this.inputValidator(args).map(String) : args
+				this.#sha,
+				String(keys.length),
+				...keys,
+				...this.#options.inputValidator ? this.#options.inputValidator(args).map(String) : args
 			]);
-			return this.outputValidator ? this.outputValidator(result) : result;
+			return this.#options.outputValidator ? this.#options.outputValidator(result) : result;
 		} catch (error) {
 			if (error instanceof Error && error.message.startsWith("NOSCRIPT")) {
-				this.sha = null;
-				return this.execute(...args);
+				this.#sha = null;
+				return this.executeWithKeys(keys, ...args);
 			}
 			throw error;
 		}

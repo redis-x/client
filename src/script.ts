@@ -12,57 +12,54 @@ export class RedisXScript<
 	I extends any[] = string[],
 	O = unknown,
 > {
-	private code: string;
-	private keys: string[] = [];
-	private sha: string | null = null;
-	private inputValidator?: (value: I) => (string | number)[];
-	private outputValidator?: (value: unknown) => O;
+	#redisClient: RedisClient;
+	#options: RedisXScriptOptions<I, O>;
+	#sha: string | null = null;
 
-	constructor(
-		private client: RedisClient,
-		options: RedisXScriptOptions<I, O>,
-	) {
-		this.code = options.code;
-
-		if (options.keys) {
-			this.keys = options.keys;
-		}
-
-		this.inputValidator = options.inputValidator;
-		this.outputValidator = options.outputValidator;
+	constructor(redisClient: RedisClient, options: RedisXScriptOptions<I, O>) {
+		this.#redisClient = redisClient;
+		this.#options = options;
 	}
 
 	private async load() {
-		const result = await this.client.sendCommand(['SCRIPT', 'LOAD', this.code]);
+		const result = await this.#redisClient.sendCommand([
+			'SCRIPT',
+			'LOAD',
+			this.#options.code,
+		]);
 		if (typeof result !== 'string') {
 			throw new TypeError('Invalid response from SCRIPT LOAD');
 		}
 
-		this.sha = result;
+		this.#sha = result;
 		return result;
 	}
 
-	async execute(...args: I): Promise<O> {
-		if (this.sha === null) {
-			this.sha = await this.load();
-		}
+	execute(...args: I): Promise<O> {
+		return this.executeWithKeys(this.#options.keys ?? [], ...args);
+	}
+
+	async executeWithKeys(keys: string[], ...args: I): Promise<O> {
+		this.#sha ??= await this.load();
 
 		try {
-			const result = await this.client.sendCommand([
+			const result = await this.#redisClient.sendCommand([
 				'EVALSHA',
-				this.sha,
-				String(this.keys.length),
-				...this.keys,
-				...(this.inputValidator ? this.inputValidator(args).map(String) : args),
+				this.#sha,
+				String(keys.length),
+				...keys,
+				...(this.#options.inputValidator
+					? this.#options.inputValidator(args).map(String)
+					: args),
 			]);
 
-			return this.outputValidator
-				? this.outputValidator(result)
+			return this.#options.outputValidator
+				? this.#options.outputValidator(result)
 				: (result as O);
 		} catch (error) {
 			if (error instanceof Error && error.message.startsWith('NOSCRIPT')) {
-				this.sha = null;
-				return this.execute(...args);
+				this.#sha = null;
+				return this.executeWithKeys(keys, ...args);
 			}
 
 			throw error;

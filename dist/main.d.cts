@@ -15,15 +15,11 @@ type RedisXScriptOptions<I = string[], O = unknown> = {
   outputValidator?: (value: unknown) => O;
 };
 declare class RedisXScript<I extends any[] = string[], O = unknown> {
-  private client;
-  private code;
-  private keys;
-  private sha;
-  private inputValidator?;
-  private outputValidator?;
-  constructor(client: RedisClient, options: RedisXScriptOptions<I, O>);
+  #private;
+  constructor(redisClient: RedisClient, options: RedisXScriptOptions<I, O>);
   private load;
   execute(...args: I): Promise<O>;
+  executeWithKeys(keys: string[], ...args: I): Promise<O>;
 }
 //#endregion
 //#region node_modules/type-fest/source/promisable.d.ts
