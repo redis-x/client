@@ -5546,4 +5546,4 @@ export declare class RedisXClient {
   EVAL(script: string, keys: (string | number)[], args?: (string | number)[]): Promise<unknown>;
 }
 //#endregion
-export type { RedisXTransaction };
+export type { RedisXScript, RedisXTransaction };
