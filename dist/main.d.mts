@@ -75,6 +75,20 @@ type SintercardOptions = {
   LIMIT?: number;
 };
 //#endregion
+//#region src/commands/set/sscan.d.ts
+type SscanOptions = {
+  /**
+   * Only return members matching the given glob-style pattern.
+   * - Available since: 2.8.0.
+   */
+  MATCH?: string;
+  /**
+   * A hint for the number of members to return per iteration. The default is 10.
+   * - Available since: 2.8.0.
+   */
+  COUNT?: number;
+};
+//#endregion
 //#region src/commands/set/sunioncard.d.ts
 type SunioncardOptions = {
   /**
@@ -242,6 +256,25 @@ type PexpireOptions = {
    * - Available since: 7.0.0.
    */
   LT?: boolean;
+};
+//#endregion
+//#region src/commands/generic/scan.d.ts
+type ScanOptions = {
+  /**
+   * Only return keys matching the given glob-style pattern.
+   * - Available since: 2.8.0.
+   */
+  MATCH?: string;
+  /**
+   * A hint for the number of keys to return per iteration. The default is 10.
+   * - Available since: 2.8.0.
+   */
+  COUNT?: number;
+  /**
+   * Only return keys of the given type, such as `string`, `list`, or `set`.
+   * - Available since: 6.0.0.
+   */
+  TYPE?: string;
 };
 //#endregion
 //#region src/commands/generic/expire.d.ts
@@ -472,6 +505,20 @@ type ZrangebyscoreOptions = {
   WITHSCORES?: boolean;
 };
 //#endregion
+//#region src/commands/sorted-set/zscan.d.ts
+type ZscanOptions = {
+  /**
+   * Only return members matching the given glob-style pattern.
+   * - Available since: 2.8.0.
+   */
+  MATCH?: string;
+  /**
+   * A hint for the number of members to return per iteration. The default is 10.
+   * - Available since: 2.8.0.
+   */
+  COUNT?: number;
+};
+//#endregion
 //#region src/commands/sorted-set/zrevrangebylex.d.ts
 type ZrevrangebylexOptions = {
   /**
@@ -699,6 +746,25 @@ type HexpireatOptions = {
    * - Available since: 7.4.0.
    */
   LT?: boolean;
+};
+//#endregion
+//#region src/commands/hash/hscan.d.ts
+type HscanOptions = {
+  /**
+   * Only return fields whose names match the given glob-style pattern.
+   * - Available since: 2.8.0.
+   */
+  MATCH?: string;
+  /**
+   * A hint for the number of fields to return per iteration. The default is 10.
+   * - Available since: 2.8.0.
+   */
+  COUNT?: number;
+  /**
+   * Return only the field names, without their values.
+   * - Available since: 7.4.0.
+   */
+  NOVALUES?: boolean;
 };
 //#endregion
 //#region src/commands/hash/hrandfield.d.ts
@@ -1026,6 +1092,27 @@ declare class RedisXTransactionUse {
    * @see {@link https://redis.io/commands/sdiff}
    */
   SDIFF(keys: Collection<string>): RedisXTransactionCommand<Set<string>>;
+  /**
+   * Iterates over members of a set.
+   *
+   * `SSCAN` is a cursor based iterator. This means that at every call of the command, the server returns an updated cursor that the user needs to use as the cursor argument in the next call.
+   * An iteration starts when the cursor is set to 0, and terminates when the cursor returned by the server is 0.
+   *
+   * A given element may be returned multiple times. It is up to the application to handle the case of duplicated elements, for example only using the returned elements in order to perform operations that are safe when re-applied multiple times.
+   * - Available since: 2.8.0.
+   * - Time complexity: O(1) for every call. O(N) for a complete iteration, including enough command calls for the cursor to return back to 0. N is the number of elements inside the collection.
+   * @param key - The name of the key that holds the set.
+   * @param cursor - The cursor value. Start an iteration with `0`, then use the cursor returned by each call as the argument to the next call.
+   * @param options -
+   * @returns Array reply: specifically, an array with two elements.
+   * - The first element is a Bulk string reply that represents an unsigned 64-bit number, the cursor.
+   * - The second element is an Array reply with the names of scanned members.
+   * @see {@link https://redis.io/commands/sscan}
+   */
+  SSCAN(key: string, cursor: string | number, options?: SscanOptions): RedisXTransactionCommand<{
+    cursor: string;
+    members: Set<string>;
+  }>;
   /**
    * Returns the cardinality of the union of the given sets. This is the count-only counterpart of `SUNION`: it returns just the number of distinct elements in the union, not the members themselves.
    *
@@ -1465,6 +1552,26 @@ declare class RedisXTransactionUse {
    * @see {@link https://redis.io/commands/ttl}
    */
   PTTL(key: string): RedisXTransactionCommand<number>;
+  /**
+   * Iterates over the key names in the database.
+   *
+   * `SCAN` is a cursor based iterator. This means that at every call of the command, the server returns an updated cursor that the user needs to use as the cursor argument in the next call.
+   * An iteration starts when the cursor is set to 0, and terminates when the cursor returned by the server is 0.
+   *
+   * A given element may be returned multiple times. It is up to the application to handle the case of duplicated elements, for example only using the returned elements in order to perform operations that are safe when re-applied multiple times.
+   * - Available since: 2.8.0.
+   * - Time complexity: O(1) for every call. O(N) for a complete iteration, including enough command calls for the cursor to return back to 0. N is the number of elements inside the collection.
+   * @param cursor - The cursor value. Start an iteration with `0`, then use the cursor returned by each call as the argument to the next call.
+   * @param options -
+   * @returns Array reply: specifically, an array with two elements.
+   * - The first element is a Bulk string reply that represents an unsigned 64-bit number, the cursor.
+   * - The second element is an Array reply with the names of scanned keys.
+   * @see {@link https://redis.io/commands/scan}
+   */
+  SCAN(cursor: string | number, options?: ScanOptions): RedisXTransactionCommand<{
+    cursor: string;
+    keys: Set<string>;
+  }>;
   /**
    * Returns the remaining time to live of a key that has a timeout.
    *
@@ -2215,6 +2322,27 @@ declare class RedisXTransactionUse {
     member: string;
     score: number;
   }[]>;
+  /**
+   * Iterates over members and scores of a sorted set.
+   *
+   * `ZSCAN` is a cursor based iterator. This means that at every call of the command, the server returns an updated cursor that the user needs to use as the cursor argument in the next call.
+   * An iteration starts when the cursor is set to 0, and terminates when the cursor returned by the server is 0.
+   *
+   * A given element may be returned multiple times. It is up to the application to handle the case of duplicated elements, for example only using the returned elements in order to perform operations that are safe when re-applied multiple times.
+   * - Available since: 2.8.0.
+   * - Time complexity: O(1) for every call. O(N) for a complete iteration, including enough command calls for the cursor to return back to 0. N is the number of elements inside the collection.
+   * @param key - The name of the key that holds the sorted set.
+   * @param cursor - The cursor value. Start an iteration with `0`, then use the cursor returned by each call as the argument to the next call.
+   * @param options -
+   * @returns Array reply: cursor and scan response in array form.
+   * - The first element is a Bulk string reply that represents an unsigned 64-bit number, the cursor.
+   * - The second element is an Array reply that contains two elements, a member and its associated score, for every returned element of the sorted set.
+   * @see {@link https://redis.io/commands/zscan}
+   */
+  ZSCAN(key: string, cursor: string | number, options?: ZscanOptions): RedisXTransactionCommand<{
+    cursor: string;
+    members: Record<string, number>;
+  }>;
   /**
    * When all the elements in a sorted set are inserted with the same score, in order to force lexicographical ordering, this command returns all the elements in the sorted set at `key` with a value between `max` and `min`.
    *
@@ -2995,6 +3123,73 @@ declare class RedisXTransactionUse {
    */
   HEXPIREAT(key: string, timestamp: number, fields: Collection<string | number>, options?: HexpireatOptions): RedisXTransactionCommand<number[]>;
   /**
+   * Iterates over fields and values of a hash.
+   *
+   * `HSCAN` is a cursor based iterator. This means that at every call of the command, the server returns an updated cursor that the user needs to use as the cursor argument in the next call.
+   * An iteration starts when the cursor is set to 0, and terminates when the cursor returned by the server is 0.
+   *
+   * A given element may be returned multiple times. It is up to the application to handle the case of duplicated elements, for example only using the returned elements in order to perform operations that are safe when re-applied multiple times.
+   * - Available since: 2.8.0.
+   * - Time complexity: O(1) for every call. O(N) for a complete iteration, including enough command calls for the cursor to return back to 0. N is the number of elements inside the collection.
+   * @param key - The name of the key that holds the hash.
+   * @param cursor - The cursor value. Start an iteration with `0`, then use the cursor returned by each call as the argument to the next call.
+   * @param options -
+   * @returns Array reply: a two-element array.
+   * - The first element is a Bulk string reply that represents an unsigned 64-bit number, the cursor.
+   * - The second element is an Array reply of field/value pairs that were scanned.
+   * @see {@link https://redis.io/commands/hscan}
+   */
+  HSCAN(key: string, cursor: string | number, options?: HscanOptions & {
+    NOVALUES?: false;
+  }): RedisXTransactionCommand<{
+    cursor: string;
+    fields: Record<string, string>;
+  }>;
+  /**
+   * Iterates over fields and values of a hash.
+   *
+   * `HSCAN` is a cursor based iterator. This means that at every call of the command, the server returns an updated cursor that the user needs to use as the cursor argument in the next call.
+   * An iteration starts when the cursor is set to 0, and terminates when the cursor returned by the server is 0.
+   *
+   * A given element may be returned multiple times. It is up to the application to handle the case of duplicated elements, for example only using the returned elements in order to perform operations that are safe when re-applied multiple times.
+   * - Available since: 2.8.0.
+   * - Time complexity: O(1) for every call. O(N) for a complete iteration, including enough command calls for the cursor to return back to 0. N is the number of elements inside the collection.
+   * @param key - The name of the key that holds the hash.
+   * @param cursor - The cursor value. Start an iteration with `0`, then use the cursor returned by each call as the argument to the next call.
+   * @param options -
+   * @returns Array reply: a two-element array.
+   * - The first element is a Bulk string reply that represents an unsigned 64-bit number, the cursor.
+   * - The second element is an Array reply: when the `NOVALUES` flag is used, only the field names are returned.
+   * @see {@link https://redis.io/commands/hscan}
+   */
+  HSCAN(key: string, cursor: string | number, options: HscanOptions & {
+    NOVALUES: true;
+  }): RedisXTransactionCommand<{
+    cursor: string;
+    fields: Set<string>;
+  }>;
+  /**
+   * Iterates over fields and values of a hash.
+   *
+   * `HSCAN` is a cursor based iterator. This means that at every call of the command, the server returns an updated cursor that the user needs to use as the cursor argument in the next call.
+   * An iteration starts when the cursor is set to 0, and terminates when the cursor returned by the server is 0.
+   *
+   * A given element may be returned multiple times. It is up to the application to handle the case of duplicated elements, for example only using the returned elements in order to perform operations that are safe when re-applied multiple times.
+   * - Available since: 2.8.0.
+   * - Time complexity: O(1) for every call. O(N) for a complete iteration, including enough command calls for the cursor to return back to 0. N is the number of elements inside the collection.
+   * @param key - The name of the key that holds the hash.
+   * @param cursor - The cursor value. Start an iteration with `0`, then use the cursor returned by each call as the argument to the next call.
+   * @param options -
+   * @returns Array reply: a two-element array.
+   * - The first element is a Bulk string reply that represents an unsigned 64-bit number, the cursor.
+   * - The second element is an Array reply of field/value pairs that were scanned. When the `NOVALUES` flag is used, only the field names are returned.
+   * @see {@link https://redis.io/commands/hscan}
+   */
+  HSCAN(key: string, cursor: string | number, options?: HscanOptions): RedisXTransactionCommand<{
+    cursor: string;
+    fields: Record<string, string> | Set<string>;
+  }>;
+  /**
    * When called with just the `key` argument, return a random field from the hash value stored at `key`.
    * - Available since: 6.2.0.
    * - Time complexity: O(N) where N is the number of fields returned.
@@ -3569,6 +3764,27 @@ declare class RedisXTransaction<L = [], C extends boolean = false, D = unknown> 
    */
   SDIFF(keys: Collection<string>): RedisXTransaction<AddToList<L, Set<string>>, C, D>;
   /**
+   * Iterates over members of a set.
+   *
+   * `SSCAN` is a cursor based iterator. This means that at every call of the command, the server returns an updated cursor that the user needs to use as the cursor argument in the next call.
+   * An iteration starts when the cursor is set to 0, and terminates when the cursor returned by the server is 0.
+   *
+   * A given element may be returned multiple times. It is up to the application to handle the case of duplicated elements, for example only using the returned elements in order to perform operations that are safe when re-applied multiple times.
+   * - Available since: 2.8.0.
+   * - Time complexity: O(1) for every call. O(N) for a complete iteration, including enough command calls for the cursor to return back to 0. N is the number of elements inside the collection.
+   * @param key - The name of the key that holds the set.
+   * @param cursor - The cursor value. Start an iteration with `0`, then use the cursor returned by each call as the argument to the next call.
+   * @param options -
+   * @returns Array reply: specifically, an array with two elements.
+   * - The first element is a Bulk string reply that represents an unsigned 64-bit number, the cursor.
+   * - The second element is an Array reply with the names of scanned members.
+   * @see {@link https://redis.io/commands/sscan}
+   */
+  SSCAN(key: string, cursor: string | number, options?: SscanOptions): RedisXTransaction<AddToList<L, {
+    cursor: string;
+    members: Set<string>;
+  }>, C, D>;
+  /**
    * Returns the cardinality of the union of the given sets. This is the count-only counterpart of `SUNION`: it returns just the number of distinct elements in the union, not the members themselves.
    *
    * Keys that do not exist are considered to be empty sets.
@@ -4007,6 +4223,26 @@ declare class RedisXTransaction<L = [], C extends boolean = false, D = unknown> 
    * @see {@link https://redis.io/commands/ttl}
    */
   PTTL(key: string): RedisXTransaction<AddToList<L, number>, C, D>;
+  /**
+   * Iterates over the key names in the database.
+   *
+   * `SCAN` is a cursor based iterator. This means that at every call of the command, the server returns an updated cursor that the user needs to use as the cursor argument in the next call.
+   * An iteration starts when the cursor is set to 0, and terminates when the cursor returned by the server is 0.
+   *
+   * A given element may be returned multiple times. It is up to the application to handle the case of duplicated elements, for example only using the returned elements in order to perform operations that are safe when re-applied multiple times.
+   * - Available since: 2.8.0.
+   * - Time complexity: O(1) for every call. O(N) for a complete iteration, including enough command calls for the cursor to return back to 0. N is the number of elements inside the collection.
+   * @param cursor - The cursor value. Start an iteration with `0`, then use the cursor returned by each call as the argument to the next call.
+   * @param options -
+   * @returns Array reply: specifically, an array with two elements.
+   * - The first element is a Bulk string reply that represents an unsigned 64-bit number, the cursor.
+   * - The second element is an Array reply with the names of scanned keys.
+   * @see {@link https://redis.io/commands/scan}
+   */
+  SCAN(cursor: string | number, options?: ScanOptions): RedisXTransaction<AddToList<L, {
+    cursor: string;
+    keys: Set<string>;
+  }>, C, D>;
   /**
    * Returns the remaining time to live of a key that has a timeout.
    *
@@ -4757,6 +4993,27 @@ declare class RedisXTransaction<L = [], C extends boolean = false, D = unknown> 
     member: string;
     score: number;
   }[]>, C, D>;
+  /**
+   * Iterates over members and scores of a sorted set.
+   *
+   * `ZSCAN` is a cursor based iterator. This means that at every call of the command, the server returns an updated cursor that the user needs to use as the cursor argument in the next call.
+   * An iteration starts when the cursor is set to 0, and terminates when the cursor returned by the server is 0.
+   *
+   * A given element may be returned multiple times. It is up to the application to handle the case of duplicated elements, for example only using the returned elements in order to perform operations that are safe when re-applied multiple times.
+   * - Available since: 2.8.0.
+   * - Time complexity: O(1) for every call. O(N) for a complete iteration, including enough command calls for the cursor to return back to 0. N is the number of elements inside the collection.
+   * @param key - The name of the key that holds the sorted set.
+   * @param cursor - The cursor value. Start an iteration with `0`, then use the cursor returned by each call as the argument to the next call.
+   * @param options -
+   * @returns Array reply: cursor and scan response in array form.
+   * - The first element is a Bulk string reply that represents an unsigned 64-bit number, the cursor.
+   * - The second element is an Array reply that contains two elements, a member and its associated score, for every returned element of the sorted set.
+   * @see {@link https://redis.io/commands/zscan}
+   */
+  ZSCAN(key: string, cursor: string | number, options?: ZscanOptions): RedisXTransaction<AddToList<L, {
+    cursor: string;
+    members: Record<string, number>;
+  }>, C, D>;
   /**
    * When all the elements in a sorted set are inserted with the same score, in order to force lexicographical ordering, this command returns all the elements in the sorted set at `key` with a value between `max` and `min`.
    *
@@ -5537,6 +5794,73 @@ declare class RedisXTransaction<L = [], C extends boolean = false, D = unknown> 
    */
   HEXPIREAT(key: string, timestamp: number, fields: Collection<string | number>, options?: HexpireatOptions): RedisXTransaction<AddToList<L, number[]>, C, D>;
   /**
+   * Iterates over fields and values of a hash.
+   *
+   * `HSCAN` is a cursor based iterator. This means that at every call of the command, the server returns an updated cursor that the user needs to use as the cursor argument in the next call.
+   * An iteration starts when the cursor is set to 0, and terminates when the cursor returned by the server is 0.
+   *
+   * A given element may be returned multiple times. It is up to the application to handle the case of duplicated elements, for example only using the returned elements in order to perform operations that are safe when re-applied multiple times.
+   * - Available since: 2.8.0.
+   * - Time complexity: O(1) for every call. O(N) for a complete iteration, including enough command calls for the cursor to return back to 0. N is the number of elements inside the collection.
+   * @param key - The name of the key that holds the hash.
+   * @param cursor - The cursor value. Start an iteration with `0`, then use the cursor returned by each call as the argument to the next call.
+   * @param options -
+   * @returns Array reply: a two-element array.
+   * - The first element is a Bulk string reply that represents an unsigned 64-bit number, the cursor.
+   * - The second element is an Array reply of field/value pairs that were scanned.
+   * @see {@link https://redis.io/commands/hscan}
+   */
+  HSCAN(key: string, cursor: string | number, options?: HscanOptions & {
+    NOVALUES?: false;
+  }): RedisXTransaction<AddToList<L, {
+    cursor: string;
+    fields: Record<string, string>;
+  }>, C, D>;
+  /**
+   * Iterates over fields and values of a hash.
+   *
+   * `HSCAN` is a cursor based iterator. This means that at every call of the command, the server returns an updated cursor that the user needs to use as the cursor argument in the next call.
+   * An iteration starts when the cursor is set to 0, and terminates when the cursor returned by the server is 0.
+   *
+   * A given element may be returned multiple times. It is up to the application to handle the case of duplicated elements, for example only using the returned elements in order to perform operations that are safe when re-applied multiple times.
+   * - Available since: 2.8.0.
+   * - Time complexity: O(1) for every call. O(N) for a complete iteration, including enough command calls for the cursor to return back to 0. N is the number of elements inside the collection.
+   * @param key - The name of the key that holds the hash.
+   * @param cursor - The cursor value. Start an iteration with `0`, then use the cursor returned by each call as the argument to the next call.
+   * @param options -
+   * @returns Array reply: a two-element array.
+   * - The first element is a Bulk string reply that represents an unsigned 64-bit number, the cursor.
+   * - The second element is an Array reply: when the `NOVALUES` flag is used, only the field names are returned.
+   * @see {@link https://redis.io/commands/hscan}
+   */
+  HSCAN(key: string, cursor: string | number, options: HscanOptions & {
+    NOVALUES: true;
+  }): RedisXTransaction<AddToList<L, {
+    cursor: string;
+    fields: Set<string>;
+  }>, C, D>;
+  /**
+   * Iterates over fields and values of a hash.
+   *
+   * `HSCAN` is a cursor based iterator. This means that at every call of the command, the server returns an updated cursor that the user needs to use as the cursor argument in the next call.
+   * An iteration starts when the cursor is set to 0, and terminates when the cursor returned by the server is 0.
+   *
+   * A given element may be returned multiple times. It is up to the application to handle the case of duplicated elements, for example only using the returned elements in order to perform operations that are safe when re-applied multiple times.
+   * - Available since: 2.8.0.
+   * - Time complexity: O(1) for every call. O(N) for a complete iteration, including enough command calls for the cursor to return back to 0. N is the number of elements inside the collection.
+   * @param key - The name of the key that holds the hash.
+   * @param cursor - The cursor value. Start an iteration with `0`, then use the cursor returned by each call as the argument to the next call.
+   * @param options -
+   * @returns Array reply: a two-element array.
+   * - The first element is a Bulk string reply that represents an unsigned 64-bit number, the cursor.
+   * - The second element is an Array reply of field/value pairs that were scanned. When the `NOVALUES` flag is used, only the field names are returned.
+   * @see {@link https://redis.io/commands/hscan}
+   */
+  HSCAN(key: string, cursor: string | number, options?: HscanOptions): RedisXTransaction<AddToList<L, {
+    cursor: string;
+    fields: Record<string, string> | Set<string>;
+  }>, C, D>;
+  /**
    * When called with just the `key` argument, return a random field from the hash value stored at `key`.
    * - Available since: 6.2.0.
    * - Time complexity: O(N) where N is the number of fields returned.
@@ -6102,6 +6426,27 @@ export declare class RedisXClient {
    */
   SDIFF(keys: Collection<string>): Promise<Set<string>>;
   /**
+   * Iterates over members of a set.
+   *
+   * `SSCAN` is a cursor based iterator. This means that at every call of the command, the server returns an updated cursor that the user needs to use as the cursor argument in the next call.
+   * An iteration starts when the cursor is set to 0, and terminates when the cursor returned by the server is 0.
+   *
+   * A given element may be returned multiple times. It is up to the application to handle the case of duplicated elements, for example only using the returned elements in order to perform operations that are safe when re-applied multiple times.
+   * - Available since: 2.8.0.
+   * - Time complexity: O(1) for every call. O(N) for a complete iteration, including enough command calls for the cursor to return back to 0. N is the number of elements inside the collection.
+   * @param key - The name of the key that holds the set.
+   * @param cursor - The cursor value. Start an iteration with `0`, then use the cursor returned by each call as the argument to the next call.
+   * @param options -
+   * @returns Array reply: specifically, an array with two elements.
+   * - The first element is a Bulk string reply that represents an unsigned 64-bit number, the cursor.
+   * - The second element is an Array reply with the names of scanned members.
+   * @see {@link https://redis.io/commands/sscan}
+   */
+  SSCAN(key: string, cursor: string | number, options?: SscanOptions): Promise<{
+    cursor: string;
+    members: Set<string>;
+  }>;
+  /**
    * Returns the cardinality of the union of the given sets. This is the count-only counterpart of `SUNION`: it returns just the number of distinct elements in the union, not the members themselves.
    *
    * Keys that do not exist are considered to be empty sets.
@@ -6540,6 +6885,26 @@ export declare class RedisXClient {
    * @see {@link https://redis.io/commands/ttl}
    */
   PTTL(key: string): Promise<number>;
+  /**
+   * Iterates over the key names in the database.
+   *
+   * `SCAN` is a cursor based iterator. This means that at every call of the command, the server returns an updated cursor that the user needs to use as the cursor argument in the next call.
+   * An iteration starts when the cursor is set to 0, and terminates when the cursor returned by the server is 0.
+   *
+   * A given element may be returned multiple times. It is up to the application to handle the case of duplicated elements, for example only using the returned elements in order to perform operations that are safe when re-applied multiple times.
+   * - Available since: 2.8.0.
+   * - Time complexity: O(1) for every call. O(N) for a complete iteration, including enough command calls for the cursor to return back to 0. N is the number of elements inside the collection.
+   * @param cursor - The cursor value. Start an iteration with `0`, then use the cursor returned by each call as the argument to the next call.
+   * @param options -
+   * @returns Array reply: specifically, an array with two elements.
+   * - The first element is a Bulk string reply that represents an unsigned 64-bit number, the cursor.
+   * - The second element is an Array reply with the names of scanned keys.
+   * @see {@link https://redis.io/commands/scan}
+   */
+  SCAN(cursor: string | number, options?: ScanOptions): Promise<{
+    cursor: string;
+    keys: Set<string>;
+  }>;
   /**
    * Returns the remaining time to live of a key that has a timeout.
    *
@@ -7290,6 +7655,27 @@ export declare class RedisXClient {
     member: string;
     score: number;
   }[]>;
+  /**
+   * Iterates over members and scores of a sorted set.
+   *
+   * `ZSCAN` is a cursor based iterator. This means that at every call of the command, the server returns an updated cursor that the user needs to use as the cursor argument in the next call.
+   * An iteration starts when the cursor is set to 0, and terminates when the cursor returned by the server is 0.
+   *
+   * A given element may be returned multiple times. It is up to the application to handle the case of duplicated elements, for example only using the returned elements in order to perform operations that are safe when re-applied multiple times.
+   * - Available since: 2.8.0.
+   * - Time complexity: O(1) for every call. O(N) for a complete iteration, including enough command calls for the cursor to return back to 0. N is the number of elements inside the collection.
+   * @param key - The name of the key that holds the sorted set.
+   * @param cursor - The cursor value. Start an iteration with `0`, then use the cursor returned by each call as the argument to the next call.
+   * @param options -
+   * @returns Array reply: cursor and scan response in array form.
+   * - The first element is a Bulk string reply that represents an unsigned 64-bit number, the cursor.
+   * - The second element is an Array reply that contains two elements, a member and its associated score, for every returned element of the sorted set.
+   * @see {@link https://redis.io/commands/zscan}
+   */
+  ZSCAN(key: string, cursor: string | number, options?: ZscanOptions): Promise<{
+    cursor: string;
+    members: Record<string, number>;
+  }>;
   /**
    * When all the elements in a sorted set are inserted with the same score, in order to force lexicographical ordering, this command returns all the elements in the sorted set at `key` with a value between `max` and `min`.
    *
@@ -8069,6 +8455,73 @@ export declare class RedisXClient {
    * @see {@link https://redis.io/commands/hexpireat}
    */
   HEXPIREAT(key: string, timestamp: number, fields: Collection<string | number>, options?: HexpireatOptions): Promise<number[]>;
+  /**
+   * Iterates over fields and values of a hash.
+   *
+   * `HSCAN` is a cursor based iterator. This means that at every call of the command, the server returns an updated cursor that the user needs to use as the cursor argument in the next call.
+   * An iteration starts when the cursor is set to 0, and terminates when the cursor returned by the server is 0.
+   *
+   * A given element may be returned multiple times. It is up to the application to handle the case of duplicated elements, for example only using the returned elements in order to perform operations that are safe when re-applied multiple times.
+   * - Available since: 2.8.0.
+   * - Time complexity: O(1) for every call. O(N) for a complete iteration, including enough command calls for the cursor to return back to 0. N is the number of elements inside the collection.
+   * @param key - The name of the key that holds the hash.
+   * @param cursor - The cursor value. Start an iteration with `0`, then use the cursor returned by each call as the argument to the next call.
+   * @param options -
+   * @returns Array reply: a two-element array.
+   * - The first element is a Bulk string reply that represents an unsigned 64-bit number, the cursor.
+   * - The second element is an Array reply of field/value pairs that were scanned.
+   * @see {@link https://redis.io/commands/hscan}
+   */
+  HSCAN(key: string, cursor: string | number, options?: HscanOptions & {
+    NOVALUES?: false;
+  }): Promise<{
+    cursor: string;
+    fields: Record<string, string>;
+  }>;
+  /**
+   * Iterates over fields and values of a hash.
+   *
+   * `HSCAN` is a cursor based iterator. This means that at every call of the command, the server returns an updated cursor that the user needs to use as the cursor argument in the next call.
+   * An iteration starts when the cursor is set to 0, and terminates when the cursor returned by the server is 0.
+   *
+   * A given element may be returned multiple times. It is up to the application to handle the case of duplicated elements, for example only using the returned elements in order to perform operations that are safe when re-applied multiple times.
+   * - Available since: 2.8.0.
+   * - Time complexity: O(1) for every call. O(N) for a complete iteration, including enough command calls for the cursor to return back to 0. N is the number of elements inside the collection.
+   * @param key - The name of the key that holds the hash.
+   * @param cursor - The cursor value. Start an iteration with `0`, then use the cursor returned by each call as the argument to the next call.
+   * @param options -
+   * @returns Array reply: a two-element array.
+   * - The first element is a Bulk string reply that represents an unsigned 64-bit number, the cursor.
+   * - The second element is an Array reply: when the `NOVALUES` flag is used, only the field names are returned.
+   * @see {@link https://redis.io/commands/hscan}
+   */
+  HSCAN(key: string, cursor: string | number, options: HscanOptions & {
+    NOVALUES: true;
+  }): Promise<{
+    cursor: string;
+    fields: Set<string>;
+  }>;
+  /**
+   * Iterates over fields and values of a hash.
+   *
+   * `HSCAN` is a cursor based iterator. This means that at every call of the command, the server returns an updated cursor that the user needs to use as the cursor argument in the next call.
+   * An iteration starts when the cursor is set to 0, and terminates when the cursor returned by the server is 0.
+   *
+   * A given element may be returned multiple times. It is up to the application to handle the case of duplicated elements, for example only using the returned elements in order to perform operations that are safe when re-applied multiple times.
+   * - Available since: 2.8.0.
+   * - Time complexity: O(1) for every call. O(N) for a complete iteration, including enough command calls for the cursor to return back to 0. N is the number of elements inside the collection.
+   * @param key - The name of the key that holds the hash.
+   * @param cursor - The cursor value. Start an iteration with `0`, then use the cursor returned by each call as the argument to the next call.
+   * @param options -
+   * @returns Array reply: a two-element array.
+   * - The first element is a Bulk string reply that represents an unsigned 64-bit number, the cursor.
+   * - The second element is an Array reply of field/value pairs that were scanned. When the `NOVALUES` flag is used, only the field names are returned.
+   * @see {@link https://redis.io/commands/hscan}
+   */
+  HSCAN(key: string, cursor: string | number, options?: HscanOptions): Promise<{
+    cursor: string;
+    fields: Record<string, string> | Set<string>;
+  }>;
   /**
    * When called with just the `key` argument, return a random field from the hash value stored at `key`.
    * - Available since: 6.2.0.

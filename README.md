@@ -317,20 +317,20 @@ X / Y / (1/7)
 
 | Section                                           | Commands available | |
 | ------------------------------------------------- | - | -: |
-| [Generic](src/commands/generic)                   | 🟩🟩🟩🟨🟥🟥🟥 | **16** / 32 |
-| [Hash](src/commands/hash)                         | 🟩🟩🟩🟩🟩🟥🟥 | **24** / 33 |
+| [Generic](src/commands/generic)                   | 🟩🟩🟩🟨🟥🟥🟥 | **17** / 32 |
+| [Hash](src/commands/hash)                         | 🟩🟩🟩🟩🟩🟥🟥 | **25** / 33 |
 | [List](src/commands/list)                         | 🟩🟩🟩🟩🟥🟥🟥 | **14** / 24 |
 | [Scripting and Functions](src/commands/scripting) | 🟩🟥🟥🟥🟥🟥🟥 |  **4** / 19 |
-| [Set](src/commands/set)                           | 🟩🟩🟩🟩🟩🟩🟨 | **18** / 19 |
-| [Sorted Set](src/commands/sorted-set)             | 🟩🟩🟩🟨🟥🟥🟥 | **19** / 35 |
+| [Set](src/commands/set)                           | 🟩🟩🟩🟩🟩🟩🟩 | **19** / 19 |
+| [Sorted Set](src/commands/sorted-set)             | 🟩🟩🟩🟩🟥🟥🟥 | **20** / 35 |
 | [Stream](src/commands/stream)                     | 🟩🟨🟥🟥🟥🟥🟥 |  **7** / 26 |
 | [String](src/commands/string)                     | 🟩🟩🟩🟩🟩🟨🟥 | **21** / 26 |
 
 <!--
 More sections to come:
-| [Cluster management](src/commands/cluster) | 🟥🟥🟥🟥🟥🟥🟥 <br>  **0** / 32 |
-| [Connection management](src/commands/connection) | 🟥🟥🟥🟥🟥🟥🟥 <br>  **0** / 24 |
-| [Geospatial indices](src/commands/geospatial) | 🟥🟥🟥🟥🟥🟥🟥 <br>  **0** / 10 |
-| [Pub/Sub](src/commands/pub-sub) | 🟥🟥🟥🟥🟥🟥🟥 <br>  **0** / 13 |
-| [Server management](src/commands/server) | 🟥🟥🟥🟥🟥🟥🟥 <br>  **0** / 73 |
+| [Cluster management](src/commands/cluster) | 🟥🟥🟥🟥🟥🟥🟥 | **0** / 32 |
+| [Connection management](src/commands/connection) | 🟥🟥🟥🟥🟥🟥🟥 | **0** / 24 |
+| [Geospatial indices](src/commands/geospatial) | 🟥🟥🟥🟥🟥🟥🟥 | **0** / 10 |
+| [Pub/Sub](src/commands/pub-sub) | 🟥🟥🟥🟥🟥🟥🟥 | **0** / 13 |
+| [Server management](src/commands/server) | 🟥🟥🟥🟥🟥🟥🟥 | **0** / 73 |
 -->
