@@ -76,7 +76,7 @@ function unwrapRedisTransactionCommand(target, result) {
 }
 //#endregion
 //#region src/commands/set/sintercard.ts
-function input$110(keys, options) {
+function input$113(keys, options) {
 	const key_list = collectionToStringArray(keys);
 	const args = [
 		"SINTERCARD",
@@ -91,7 +91,7 @@ function input$110(keys, options) {
 }
 //#endregion
 //#region src/commands/set/srem.ts
-function input$109(key, arg1, ...args_rest) {
+function input$112(key, arg1, ...args_rest) {
 	const args = ["SREM", key];
 	if (typeof arg1 === "string" || typeof arg1 === "number") args.push(String(arg1), ...args_rest.map(String));
 	else args.push(...collectionToStringArray(arg1));
@@ -102,7 +102,7 @@ function input$109(key, arg1, ...args_rest) {
 }
 //#endregion
 //#region src/commands/set/srandmember.ts
-function input$108(key, count) {
+function input$111(key, count) {
 	const args = ["SRANDMEMBER", key];
 	if (count !== void 0) args.push(String(count));
 	return {
@@ -117,7 +117,7 @@ function arrayToSet(reply) {
 }
 //#endregion
 //#region src/commands/set/spop.ts
-function input$107(key, count) {
+function input$110(key, count) {
 	if (count === void 0) return {
 		kind: "#schema",
 		args: ["SPOP", key]
@@ -134,7 +134,7 @@ function input$107(key, count) {
 }
 //#endregion
 //#region src/commands/set/sinterstore.ts
-function input$106(destination, arg1, ...args_rest) {
+function input$109(destination, arg1, ...args_rest) {
 	const args = ["SINTERSTORE", destination];
 	if (typeof arg1 === "string") args.push(arg1, ...args_rest);
 	else args.push(...collectionToStringArray(arg1));
@@ -145,7 +145,7 @@ function input$106(destination, arg1, ...args_rest) {
 }
 //#endregion
 //#region src/commands/set/smismember.ts
-function input$105(key, arg1, ...args_rest) {
+function input$108(key, arg1, ...args_rest) {
 	const args = ["SMISMEMBER", key];
 	if (typeof arg1 === "string" || typeof arg1 === "number") args.push(String(arg1), ...args_rest.map(String));
 	else args.push(...collectionToStringArray(arg1));
@@ -160,7 +160,7 @@ function replyTransform(reply) {
 }
 //#endregion
 //#region src/commands/set/sinter.ts
-function input$104(arg0, ...args_rest) {
+function input$107(arg0, ...args_rest) {
 	const args = ["SINTER"];
 	if (typeof arg0 === "string") args.push(arg0, ...args_rest);
 	else args.push(...collectionToStringArray(arg0));
@@ -172,7 +172,7 @@ function input$104(arg0, ...args_rest) {
 }
 //#endregion
 //#region src/commands/set/smembers.ts
-function input$103(key) {
+function input$106(key) {
 	return {
 		kind: "#schema",
 		args: ["SMEMBERS", key],
@@ -181,7 +181,7 @@ function input$103(key) {
 }
 //#endregion
 //#region src/commands/set/sunion.ts
-function input$102(arg0, ...args_rest) {
+function input$105(arg0, ...args_rest) {
 	const args = ["SUNION"];
 	if (typeof arg0 === "string") args.push(arg0, ...args_rest);
 	else args.push(...collectionToStringArray(arg0));
@@ -198,7 +198,7 @@ function numberToBoolean(reply) {
 }
 //#endregion
 //#region src/commands/set/sismember.ts
-function input$101(key, member) {
+function input$104(key, member) {
 	return {
 		kind: "#schema",
 		args: [
@@ -211,7 +211,7 @@ function input$101(key, member) {
 }
 //#endregion
 //#region src/commands/set/sunionstore.ts
-function input$100(destination, arg1, ...args_rest) {
+function input$103(destination, arg1, ...args_rest) {
 	const args = ["SUNIONSTORE", destination];
 	if (typeof arg1 === "string") args.push(arg1, ...args_rest);
 	else args.push(...collectionToStringArray(arg1));
@@ -222,7 +222,7 @@ function input$100(destination, arg1, ...args_rest) {
 }
 //#endregion
 //#region src/commands/set/smove.ts
-function input$99(source, destination, member) {
+function input$102(source, destination, member) {
 	return {
 		kind: "#schema",
 		args: [
@@ -236,7 +236,7 @@ function input$99(source, destination, member) {
 }
 //#endregion
 //#region src/commands/set/sdiff.ts
-function input$98(arg0, ...args_rest) {
+function input$101(arg0, ...args_rest) {
 	const args = ["SDIFF"];
 	if (typeof arg0 === "string") args.push(arg0, ...args_rest);
 	else args.push(...collectionToStringArray(arg0));
@@ -248,7 +248,7 @@ function input$98(arg0, ...args_rest) {
 }
 //#endregion
 //#region src/commands/set/sunioncard.ts
-function input$97(keys, options) {
+function input$100(keys, options) {
 	const key_list = collectionToStringArray(keys);
 	const args = [
 		"SUNIONCARD",
@@ -264,7 +264,7 @@ function input$97(keys, options) {
 }
 //#endregion
 //#region src/commands/set/sdiffstore.ts
-function input$96(destination, arg1, ...args_rest) {
+function input$99(destination, arg1, ...args_rest) {
 	const args = ["SDIFFSTORE", destination];
 	if (typeof arg1 === "string") args.push(arg1, ...args_rest);
 	else args.push(...collectionToStringArray(arg1));
@@ -275,7 +275,7 @@ function input$96(destination, arg1, ...args_rest) {
 }
 //#endregion
 //#region src/commands/set/scard.ts
-function input$95(key) {
+function input$98(key) {
 	return {
 		kind: "#schema",
 		args: ["SCARD", key]
@@ -283,7 +283,7 @@ function input$95(key) {
 }
 //#endregion
 //#region src/commands/set/sdiffcard.ts
-function input$94(keys, options) {
+function input$97(keys, options) {
 	const key_list = collectionToStringArray(keys);
 	const args = [
 		"SDIFFCARD",
@@ -298,7 +298,7 @@ function input$94(keys, options) {
 }
 //#endregion
 //#region src/commands/set/sadd.ts
-function input$93(key, arg1, ...args_rest) {
+function input$96(key, arg1, ...args_rest) {
 	const args = ["SADD", key];
 	if (typeof arg1 === "string" || typeof arg1 === "number") args.push(String(arg1), ...args_rest.map(String));
 	else args.push(...collectionToStringArray(arg1));
@@ -309,7 +309,7 @@ function input$93(key, arg1, ...args_rest) {
 }
 //#endregion
 //#region src/commands/string/msetnx.ts
-function input$92(pairs) {
+function input$95(pairs) {
 	const args = ["MSETNX"];
 	for (const [key, value] of Object.entries(pairs)) args.push(key, String(value));
 	return {
@@ -320,7 +320,7 @@ function input$92(pairs) {
 }
 //#endregion
 //#region src/commands/string/setnx.ts
-function input$91(key, value) {
+function input$94(key, value) {
 	return {
 		kind: "#schema",
 		args: [
@@ -333,7 +333,7 @@ function input$91(key, value) {
 }
 //#endregion
 //#region src/commands/string/get.ts
-function input$90(key) {
+function input$93(key) {
 	return {
 		kind: "#schema",
 		args: ["GET", key]
@@ -341,7 +341,7 @@ function input$90(key) {
 }
 //#endregion
 //#region src/commands/string/set.ts
-function input$89(key, value, options) {
+function input$92(key, value, options) {
 	const args_options = [];
 	if (options) {
 		if (options.NX) args_options.push("NX");
@@ -369,7 +369,7 @@ function input$89(key, value, options) {
 }
 //#endregion
 //#region src/commands/string/append.ts
-function input$88(key, value) {
+function input$91(key, value) {
 	return {
 		kind: "#schema",
 		args: [
@@ -381,7 +381,7 @@ function input$88(key, value) {
 }
 //#endregion
 //#region src/commands/string/incr.ts
-function input$87(key) {
+function input$90(key) {
 	return {
 		kind: "#schema",
 		args: ["INCR", key]
@@ -389,7 +389,7 @@ function input$87(key) {
 }
 //#endregion
 //#region src/commands/string/incrbyfloat.ts
-function input$86(key, increment) {
+function input$89(key, increment) {
 	return {
 		kind: "#schema",
 		args: [
@@ -401,7 +401,7 @@ function input$86(key, increment) {
 }
 //#endregion
 //#region src/commands/string/mget.ts
-function input$85(...args) {
+function input$88(...args) {
 	return {
 		kind: "#schema",
 		args: ["MGET", ...args.flat()]
@@ -409,7 +409,7 @@ function input$85(...args) {
 }
 //#endregion
 //#region src/commands/string/getdel.ts
-function input$84(key) {
+function input$87(key) {
 	return {
 		kind: "#schema",
 		args: ["GETDEL", key]
@@ -417,7 +417,7 @@ function input$84(key) {
 }
 //#endregion
 //#region src/commands/string/mset.ts
-function input$83(pairs) {
+function input$86(pairs) {
 	const args = ["MSET"];
 	for (const [key, value] of Object.entries(pairs)) args.push(key, String(value));
 	return {
@@ -427,7 +427,7 @@ function input$83(pairs) {
 }
 //#endregion
 //#region src/commands/string/incrby.ts
-function input$82(key, increment) {
+function input$85(key, increment) {
 	return {
 		kind: "#schema",
 		args: [
@@ -439,7 +439,7 @@ function input$82(key, increment) {
 }
 //#endregion
 //#region src/commands/string/setrange.ts
-function input$81(key, offset, value) {
+function input$84(key, offset, value) {
 	return {
 		kind: "#schema",
 		args: [
@@ -452,7 +452,7 @@ function input$81(key, offset, value) {
 }
 //#endregion
 //#region src/commands/string/substr.ts
-function input$80(key, start, end) {
+function input$83(key, start, end) {
 	return {
 		kind: "#schema",
 		args: [
@@ -465,7 +465,7 @@ function input$80(key, start, end) {
 }
 //#endregion
 //#region src/commands/string/getset.ts
-function input$79(key, value) {
+function input$82(key, value) {
 	return {
 		kind: "#schema",
 		args: [
@@ -477,7 +477,7 @@ function input$79(key, value) {
 }
 //#endregion
 //#region src/commands/string/decrby.ts
-function input$78(key, decrement) {
+function input$81(key, decrement) {
 	return {
 		kind: "#schema",
 		args: [
@@ -489,7 +489,7 @@ function input$78(key, decrement) {
 }
 //#endregion
 //#region src/commands/string/getrange.ts
-function input$77(key, start, end) {
+function input$80(key, start, end) {
 	return {
 		kind: "#schema",
 		args: [
@@ -502,7 +502,7 @@ function input$77(key, start, end) {
 }
 //#endregion
 //#region src/commands/string/setex.ts
-function input$76(key, seconds, value) {
+function input$79(key, seconds, value) {
 	return {
 		kind: "#schema",
 		args: [
@@ -515,7 +515,7 @@ function input$76(key, seconds, value) {
 }
 //#endregion
 //#region src/commands/string/getex.ts
-function input$75(key, options) {
+function input$78(key, options) {
 	const args_options = [];
 	if (options) {
 		if (options.EX !== void 0) args_options.push("EX", String(options.EX));
@@ -535,7 +535,7 @@ function input$75(key, options) {
 }
 //#endregion
 //#region src/commands/string/strlen.ts
-function input$74(key) {
+function input$77(key) {
 	return {
 		kind: "#schema",
 		args: ["STRLEN", key]
@@ -543,7 +543,7 @@ function input$74(key) {
 }
 //#endregion
 //#region src/commands/string/decr.ts
-function input$73(key) {
+function input$76(key) {
 	return {
 		kind: "#schema",
 		args: ["DECR", key]
@@ -551,7 +551,7 @@ function input$73(key) {
 }
 //#endregion
 //#region src/commands/string/psetex.ts
-function input$72(key, milliseconds, value) {
+function input$75(key, milliseconds, value) {
 	return {
 		kind: "#schema",
 		args: [
@@ -564,7 +564,7 @@ function input$72(key, milliseconds, value) {
 }
 //#endregion
 //#region src/commands/generic/pexpire.ts
-function input$71(key, seconds, options) {
+function input$74(key, seconds, options) {
 	const args_options = [];
 	if (options) {
 		if (options.NX) args_options.push("NX");
@@ -585,7 +585,7 @@ function input$71(key, seconds, options) {
 }
 //#endregion
 //#region src/commands/generic/pttl.ts
-function input$70(key) {
+function input$73(key) {
 	return {
 		kind: "#schema",
 		args: ["PTTL", key]
@@ -593,7 +593,7 @@ function input$70(key) {
 }
 //#endregion
 //#region src/commands/generic/ttl.ts
-function input$69(key) {
+function input$72(key) {
 	return {
 		kind: "#schema",
 		args: ["TTL", key]
@@ -601,7 +601,7 @@ function input$69(key) {
 }
 //#endregion
 //#region src/commands/generic/expire.ts
-function input$68(key, seconds, options) {
+function input$71(key, seconds, options) {
 	const args_options = [];
 	if (options) {
 		if (options.NX) args_options.push("NX");
@@ -622,7 +622,7 @@ function input$68(key, seconds, options) {
 }
 //#endregion
 //#region src/commands/generic/type.ts
-function input$67(key) {
+function input$70(key) {
 	return {
 		kind: "#schema",
 		args: ["TYPE", key]
@@ -630,7 +630,7 @@ function input$67(key) {
 }
 //#endregion
 //#region src/commands/generic/keys.ts
-function input$66(pattern) {
+function input$69(pattern) {
 	return {
 		kind: "#schema",
 		args: ["KEYS", pattern],
@@ -639,7 +639,7 @@ function input$66(pattern) {
 }
 //#endregion
 //#region src/commands/generic/copy.ts
-function input$65(source, destination, options) {
+function input$68(source, destination, options) {
 	const args = [
 		"COPY",
 		source,
@@ -655,7 +655,7 @@ function input$65(source, destination, options) {
 }
 //#endregion
 //#region src/commands/generic/expireat.ts
-function input$64(key, timestamp, options) {
+function input$67(key, timestamp, options) {
 	const args_options = [];
 	if (options) {
 		if (options.NX) args_options.push("NX");
@@ -676,7 +676,7 @@ function input$64(key, timestamp, options) {
 }
 //#endregion
 //#region src/commands/generic/pexpireat.ts
-function input$63(key, timestamp, options) {
+function input$66(key, timestamp, options) {
 	const args_options = [];
 	if (options) {
 		if (options.NX) args_options.push("NX");
@@ -697,7 +697,7 @@ function input$63(key, timestamp, options) {
 }
 //#endregion
 //#region src/commands/generic/persist.ts
-function input$62(key) {
+function input$65(key) {
 	return {
 		kind: "#schema",
 		args: ["PERSIST", key],
@@ -706,7 +706,7 @@ function input$62(key) {
 }
 //#endregion
 //#region src/commands/generic/expiretime.ts
-function input$61(key) {
+function input$64(key) {
 	return {
 		kind: "#schema",
 		args: ["EXPIRETIME", key]
@@ -714,7 +714,7 @@ function input$61(key) {
 }
 //#endregion
 //#region src/commands/generic/rename.ts
-function input$60(key, newkey) {
+function input$63(key, newkey) {
 	return {
 		kind: "#schema",
 		args: [
@@ -726,7 +726,7 @@ function input$60(key, newkey) {
 }
 //#endregion
 //#region src/commands/generic/renamenx.ts
-function input$59(key, newkey) {
+function input$62(key, newkey) {
 	return {
 		kind: "#schema",
 		args: [
@@ -738,7 +738,7 @@ function input$59(key, newkey) {
 }
 //#endregion
 //#region src/commands/generic/pexpiretime.ts
-function input$58(key) {
+function input$61(key) {
 	return {
 		kind: "#schema",
 		args: ["PEXPIRETIME", key]
@@ -746,7 +746,7 @@ function input$58(key) {
 }
 //#endregion
 //#region src/commands/generic/del.ts
-function input$57(arg0, ...args_rest) {
+function input$60(arg0, ...args_rest) {
 	const args = ["DEL"];
 	if (typeof arg0 === "string") args.push(arg0, ...args_rest);
 	else args.push(...collectionToStringArray(arg0));
@@ -757,7 +757,7 @@ function input$57(arg0, ...args_rest) {
 }
 //#endregion
 //#region src/commands/generic/exists.ts
-function input$56(arg0, ...args_rest) {
+function input$59(arg0, ...args_rest) {
 	const args = ["EXISTS"];
 	if (typeof arg0 === "string") args.push(arg0, ...args_rest);
 	else args.push(...collectionToStringArray(arg0));
@@ -768,7 +768,7 @@ function input$56(arg0, ...args_rest) {
 }
 //#endregion
 //#region src/commands/list/rpush.ts
-function input$55(key, ...elements) {
+function input$58(key, ...elements) {
 	return {
 		kind: "#schema",
 		args: [
@@ -780,7 +780,7 @@ function input$55(key, ...elements) {
 }
 //#endregion
 //#region src/commands/list/lpop.ts
-function input$54(key, count) {
+function input$57(key, count) {
 	if (count !== void 0) return {
 		kind: "#schema",
 		args: [
@@ -796,7 +796,7 @@ function input$54(key, count) {
 }
 //#endregion
 //#region src/commands/list/rpoplpush.ts
-function input$53(source, destination) {
+function input$56(source, destination) {
 	return {
 		kind: "#schema",
 		args: [
@@ -808,7 +808,7 @@ function input$53(source, destination) {
 }
 //#endregion
 //#region src/commands/list/rpushx.ts
-function input$52(key, ...elements) {
+function input$55(key, ...elements) {
 	return {
 		kind: "#schema",
 		args: [
@@ -820,7 +820,7 @@ function input$52(key, ...elements) {
 }
 //#endregion
 //#region src/commands/list/lset.ts
-function input$51(key, index, element) {
+function input$54(key, index, element) {
 	return {
 		kind: "#schema",
 		args: [
@@ -833,7 +833,7 @@ function input$51(key, index, element) {
 }
 //#endregion
 //#region src/commands/list/lrem.ts
-function input$50(key, count, element) {
+function input$53(key, count, element) {
 	return {
 		kind: "#schema",
 		args: [
@@ -846,7 +846,7 @@ function input$50(key, count, element) {
 }
 //#endregion
 //#region src/commands/list/lpush.ts
-function input$49(key, ...elements) {
+function input$52(key, ...elements) {
 	return {
 		kind: "#schema",
 		args: [
@@ -858,7 +858,7 @@ function input$49(key, ...elements) {
 }
 //#endregion
 //#region src/commands/list/lpushx.ts
-function input$48(key, ...elements) {
+function input$51(key, ...elements) {
 	return {
 		kind: "#schema",
 		args: [
@@ -870,7 +870,7 @@ function input$48(key, ...elements) {
 }
 //#endregion
 //#region src/commands/list/rpop.ts
-function input$47(key, count) {
+function input$50(key, count) {
 	if (count !== void 0) return {
 		kind: "#schema",
 		args: [
@@ -886,7 +886,7 @@ function input$47(key, count) {
 }
 //#endregion
 //#region src/commands/list/lrange.ts
-function input$46(key, start, stop) {
+function input$49(key, start, stop) {
 	return {
 		kind: "#schema",
 		args: [
@@ -899,7 +899,7 @@ function input$46(key, start, stop) {
 }
 //#endregion
 //#region src/commands/list/llen.ts
-function input$45(key) {
+function input$48(key) {
 	return {
 		kind: "#schema",
 		args: ["LLEN", key]
@@ -907,7 +907,7 @@ function input$45(key) {
 }
 //#endregion
 //#region src/commands/list/linsert.ts
-function input$44(key, element, options) {
+function input$47(key, element, options) {
 	const args = ["LINSERT", key];
 	if (options.BEFORE !== void 0) args.push("BEFORE", String(options.BEFORE));
 	if (options.AFTER !== void 0) args.push("AFTER", String(options.AFTER));
@@ -919,7 +919,7 @@ function input$44(key, element, options) {
 }
 //#endregion
 //#region src/commands/list/ltrim.ts
-function input$43(key, start, stop) {
+function input$46(key, start, stop) {
 	return {
 		kind: "#schema",
 		args: [
@@ -932,7 +932,7 @@ function input$43(key, start, stop) {
 }
 //#endregion
 //#region src/commands/list/lindex.ts
-function input$42(key, index) {
+function input$45(key, index) {
 	return {
 		kind: "#schema",
 		args: [
@@ -944,7 +944,7 @@ function input$42(key, index) {
 }
 //#endregion
 //#region src/commands/stream/xlen.ts
-function input$41(key) {
+function input$44(key) {
 	return {
 		kind: "#schema",
 		args: ["XLEN", key]
@@ -952,7 +952,7 @@ function input$41(key) {
 }
 //#endregion
 //#region src/commands/stream/xdel.ts
-function input$40(key, ...ids) {
+function input$43(key, ...ids) {
 	return {
 		kind: "#schema",
 		args: [
@@ -964,7 +964,7 @@ function input$40(key, ...ids) {
 }
 //#endregion
 //#region src/commands/stream/xread.ts
-function input$39(arg0, arg1, arg2) {
+function input$42(arg0, arg1, arg2) {
 	let options;
 	const stream_keys = [];
 	const stream_ids = [];
@@ -1003,7 +1003,7 @@ function input$39(arg0, arg1, arg2) {
 }
 //#endregion
 //#region src/commands/stream/xadd.ts
-function input$38(key, id, pairs, options) {
+function input$41(key, id, pairs, options) {
 	const cmdArgs = ["XADD", key];
 	if (options) {
 		if (options.NOMKSTREAM) cmdArgs.push("NOMKSTREAM");
@@ -1026,7 +1026,7 @@ function input$38(key, id, pairs, options) {
 }
 //#endregion
 //#region src/commands/stream/xrange.ts
-function input$37(key, start, end, options) {
+function input$40(key, start, end, options) {
 	const args = [
 		"XRANGE",
 		key,
@@ -1049,7 +1049,7 @@ function input$37(key, start, end, options) {
 }
 //#endregion
 //#region src/commands/stream/xrevrange.ts
-function input$36(key, end, start, options) {
+function input$39(key, end, start, options) {
 	const args = [
 		"XREVRANGE",
 		key,
@@ -1072,7 +1072,7 @@ function input$36(key, end, start, options) {
 }
 //#endregion
 //#region src/commands/stream/xtrim.ts
-function input$35(key, strategy, threshold, options) {
+function input$38(key, strategy, threshold, options) {
 	const args = [
 		"XTRIM",
 		key,
@@ -1088,7 +1088,7 @@ function input$35(key, strategy, threshold, options) {
 }
 //#endregion
 //#region src/commands/sorted-set/zremrangebyrank.ts
-function input$34(key, start, stop) {
+function input$37(key, start, stop) {
 	return {
 		kind: "#schema",
 		args: [
@@ -1101,7 +1101,7 @@ function input$34(key, start, stop) {
 }
 //#endregion
 //#region src/commands/sorted-set/zcard.ts
-function input$33(key) {
+function input$36(key) {
 	return {
 		kind: "#schema",
 		args: ["ZCARD", key]
@@ -1118,7 +1118,7 @@ function doubleToNumber(reply) {
 }
 //#endregion
 //#region src/commands/sorted-set/zrangebyscore.ts
-function input$32(key, min, max, options) {
+function input$35(key, min, max, options) {
 	const args = [
 		"ZRANGEBYSCORE",
 		key,
@@ -1147,7 +1147,7 @@ function input$32(key, min, max, options) {
 }
 //#endregion
 //#region src/commands/sorted-set/zrevrangebylex.ts
-function input$31(key, max, min, options) {
+function input$34(key, max, min, options) {
 	const args = [
 		"ZREVRANGEBYLEX",
 		key,
@@ -1162,7 +1162,7 @@ function input$31(key, max, min, options) {
 }
 //#endregion
 //#region src/commands/sorted-set/zrevrangebyscore.ts
-function input$30(key, max, min, options) {
+function input$33(key, max, min, options) {
 	const args = [
 		"ZREVRANGEBYSCORE",
 		key,
@@ -1189,7 +1189,7 @@ function input$30(key, max, min, options) {
 }
 //#endregion
 //#region src/commands/sorted-set/zscore.ts
-function input$29(key, member) {
+function input$32(key, member) {
 	return {
 		kind: "#schema",
 		args: [
@@ -1204,7 +1204,7 @@ function input$29(key, member) {
 }
 //#endregion
 //#region src/commands/sorted-set/zcount.ts
-function input$28(key, min, max) {
+function input$31(key, min, max) {
 	return {
 		kind: "#schema",
 		args: [
@@ -1217,7 +1217,7 @@ function input$28(key, min, max) {
 }
 //#endregion
 //#region src/commands/sorted-set/zadd.ts
-function input$27(key, arg1, arg2, arg3) {
+function input$30(key, arg1, arg2, arg3) {
 	const args = ["ZADD", key];
 	const pairs = [];
 	if (typeof arg1 === "number") pairs.push(String(arg1), String(arg2));
@@ -1243,7 +1243,7 @@ function input$27(key, arg1, arg2, arg3) {
 }
 //#endregion
 //#region src/commands/sorted-set/zrank.ts
-function input$26(key, member, options) {
+function input$29(key, member, options) {
 	const args = [
 		"ZRANK",
 		key,
@@ -1268,7 +1268,7 @@ function input$26(key, member, options) {
 }
 //#endregion
 //#region src/commands/sorted-set/zrandmember.ts
-function input$25(key, count, options) {
+function input$28(key, count, options) {
 	const args = ["ZRANDMEMBER", key];
 	const has_withscores = count !== void 0 && (options === null || options === void 0 ? void 0 : options.WITHSCORES) === true;
 	if (count !== void 0) args.push(String(count));
@@ -1292,7 +1292,7 @@ function input$25(key, count, options) {
 }
 //#endregion
 //#region src/commands/sorted-set/zrem.ts
-function input$24(key, arg1, ...args_rest) {
+function input$27(key, arg1, ...args_rest) {
 	const args = ["ZREM", key];
 	if (typeof arg1 === "string" || typeof arg1 === "number") args.push(String(arg1), ...args_rest.map(String));
 	else args.push(...collectionToStringArray(arg1));
@@ -1303,7 +1303,7 @@ function input$24(key, arg1, ...args_rest) {
 }
 //#endregion
 //#region src/commands/sorted-set/zremrangebyscore.ts
-function input$23(key, min, max) {
+function input$26(key, min, max) {
 	return {
 		kind: "#schema",
 		args: [
@@ -1316,7 +1316,7 @@ function input$23(key, min, max) {
 }
 //#endregion
 //#region src/commands/sorted-set/zrevrank.ts
-function input$22(key, member, options) {
+function input$25(key, member, options) {
 	const args = [
 		"ZREVRANK",
 		key,
@@ -1341,7 +1341,7 @@ function input$22(key, member, options) {
 }
 //#endregion
 //#region src/commands/sorted-set/zrange.ts
-function input$21(key, start, stop, options) {
+function input$24(key, start, stop, options) {
 	const args = [
 		"ZRANGE",
 		key,
@@ -1372,7 +1372,7 @@ function input$21(key, start, stop, options) {
 }
 //#endregion
 //#region src/commands/sorted-set/zincrby.ts
-function input$20(key, increment, member) {
+function input$23(key, increment, member) {
 	return {
 		kind: "#schema",
 		args: [
@@ -1386,7 +1386,7 @@ function input$20(key, increment, member) {
 }
 //#endregion
 //#region src/commands/sorted-set/zremrangebylex.ts
-function input$19(key, min, max) {
+function input$22(key, min, max) {
 	return {
 		kind: "#schema",
 		args: [
@@ -1399,7 +1399,7 @@ function input$19(key, min, max) {
 }
 //#endregion
 //#region src/commands/sorted-set/zinterstore.ts
-function input$18(destination, arg1, options) {
+function input$21(destination, arg1, options) {
 	const args = ["ZINTERSTORE", destination];
 	if (Array.isArray(arg1)) args.push(String(arg1.length), ...arg1.map(String));
 	else {
@@ -1420,7 +1420,7 @@ function input$18(destination, arg1, options) {
 }
 //#endregion
 //#region src/commands/sorted-set/zrevrange.ts
-function input$17(key, start, stop, options) {
+function input$20(key, start, stop, options) {
 	const args = [
 		"ZREVRANGE",
 		key,
@@ -1446,7 +1446,7 @@ function input$17(key, start, stop, options) {
 }
 //#endregion
 //#region src/commands/sorted-set/zrangebylex.ts
-function input$16(key, min, max, options) {
+function input$19(key, min, max, options) {
 	const args = [
 		"ZRANGEBYLEX",
 		key,
@@ -1461,7 +1461,7 @@ function input$16(key, min, max, options) {
 }
 //#endregion
 //#region src/commands/hash/hvals.ts
-function input$15(key) {
+function input$18(key) {
 	return {
 		kind: "#schema",
 		args: ["HVALS", key]
@@ -1469,7 +1469,7 @@ function input$15(key) {
 }
 //#endregion
 //#region src/commands/hash/hset.ts
-function input$14(key, arg1, arg2) {
+function input$17(key, arg1, arg2) {
 	const pairs = [];
 	if (typeof arg1 === "string") pairs.push(arg1, String(arg2));
 	else for (const [field, value] of Object.entries(arg1)) pairs.push(field, String(value));
@@ -1484,7 +1484,7 @@ function input$14(key, arg1, arg2) {
 }
 //#endregion
 //#region src/commands/hash/hincrbyfloat.ts
-function input$13(key, field, increment) {
+function input$16(key, field, increment) {
 	return {
 		kind: "#schema",
 		args: [
@@ -1497,7 +1497,7 @@ function input$13(key, field, increment) {
 }
 //#endregion
 //#region src/commands/hash/hgetall.ts
-function input$12(key) {
+function input$15(key) {
 	return {
 		kind: "#schema",
 		args: ["HGETALL", key],
@@ -1506,7 +1506,7 @@ function input$12(key) {
 }
 //#endregion
 //#region src/commands/hash/hget.ts
-function input$11(key, field) {
+function input$14(key, field) {
 	return {
 		kind: "#schema",
 		args: [
@@ -1518,7 +1518,7 @@ function input$11(key, field) {
 }
 //#endregion
 //#region src/commands/hash/hmset.ts
-function input$10(key, arg1, arg2) {
+function input$13(key, arg1, arg2) {
 	const pairs = [];
 	if (typeof arg1 === "string") pairs.push(arg1, String(arg2));
 	else for (const [field, value] of Object.entries(arg1)) pairs.push(field, String(value));
@@ -1533,7 +1533,7 @@ function input$10(key, arg1, arg2) {
 }
 //#endregion
 //#region src/commands/hash/hmget.ts
-function input$9(key, ...fields) {
+function input$12(key, ...fields) {
 	return {
 		kind: "#schema",
 		args: [
@@ -1545,7 +1545,7 @@ function input$9(key, ...fields) {
 }
 //#endregion
 //#region src/commands/hash/hrandfield.ts
-function input$8(key, count, options) {
+function input$11(key, count, options) {
 	const args = ["HRANDFIELD", key];
 	const has_withvalues = count !== void 0 && (options === null || options === void 0 ? void 0 : options.WITHVALUES) === true;
 	if (count !== void 0) args.push(String(count));
@@ -1569,7 +1569,7 @@ function input$8(key, count, options) {
 }
 //#endregion
 //#region src/commands/hash/hlen.ts
-function input$7(key) {
+function input$10(key) {
 	return {
 		kind: "#schema",
 		args: ["HLEN", key]
@@ -1577,7 +1577,7 @@ function input$7(key) {
 }
 //#endregion
 //#region src/commands/hash/hkeys.ts
-function input$6(key) {
+function input$9(key) {
 	return {
 		kind: "#schema",
 		args: ["HKEYS", key],
@@ -1586,7 +1586,7 @@ function input$6(key) {
 }
 //#endregion
 //#region src/commands/hash/hincrby.ts
-function input$5(key, field, increment) {
+function input$8(key, field, increment) {
 	return {
 		kind: "#schema",
 		args: [
@@ -1599,7 +1599,7 @@ function input$5(key, field, increment) {
 }
 //#endregion
 //#region src/commands/hash/hdel.ts
-function input$4(key, arg1, ...args_rest) {
+function input$7(key, arg1, ...args_rest) {
 	const args = ["HDEL", key];
 	if (typeof arg1 === "string" || typeof arg1 === "number") args.push(String(arg1), ...args_rest.map(String));
 	else args.push(...collectionToStringArray(arg1));
@@ -1610,7 +1610,7 @@ function input$4(key, arg1, ...args_rest) {
 }
 //#endregion
 //#region src/commands/hash/hstrlen.ts
-function input$3(key, field) {
+function input$6(key, field) {
 	return {
 		kind: "#schema",
 		args: [
@@ -1622,7 +1622,7 @@ function input$3(key, field) {
 }
 //#endregion
 //#region src/commands/hash/hexists.ts
-function input$2(key, field) {
+function input$5(key, field) {
 	return {
 		kind: "#schema",
 		args: [
@@ -1635,7 +1635,7 @@ function input$2(key, field) {
 }
 //#endregion
 //#region src/commands/hash/hsetnx.ts
-function input$1(key, field, value) {
+function input$4(key, field, value) {
 	return {
 		kind: "#schema",
 		args: [
@@ -1648,11 +1648,56 @@ function input$1(key, field, value) {
 	};
 }
 //#endregion
+//#region src/commands/scripting/eval_ro.ts
+function input$3(script, keys, args) {
+	const command_args = [
+		"EVAL_RO",
+		script,
+		String(keys.length),
+		...keys.map(String)
+	];
+	if (args) command_args.push(...args.map(String));
+	return {
+		kind: "#schema",
+		args: command_args
+	};
+}
+//#endregion
 //#region src/commands/scripting/eval.ts
-function input(script, keys, args) {
+function input$2(script, keys, args) {
 	const command_args = [
 		"EVAL",
 		script,
+		String(keys.length),
+		...keys.map(String)
+	];
+	if (args) command_args.push(...args.map(String));
+	return {
+		kind: "#schema",
+		args: command_args
+	};
+}
+//#endregion
+//#region src/commands/scripting/evalsha.ts
+function input$1(sha1, keys, args) {
+	const command_args = [
+		"EVALSHA",
+		sha1,
+		String(keys.length),
+		...keys.map(String)
+	];
+	if (args) command_args.push(...args.map(String));
+	return {
+		kind: "#schema",
+		args: command_args
+	};
+}
+//#endregion
+//#region src/commands/scripting/evalsha_ro.ts
+function input(sha1, keys, args) {
+	const command_args = [
+		"EVALSHA_RO",
+		sha1,
 		String(keys.length),
 		...keys.map(String)
 	];
@@ -1685,337 +1730,346 @@ var RedisXTransactionUse = class {
 		return redis_transaction_command;
 	}
 	SINTERCARD(keys, options) {
-		return this.useCommand(input$110(keys, options));
+		return this.useCommand(input$113(keys, options));
 	}
 	SREM(key, arg1, ...args_rest) {
-		return this.useCommand(input$109(key, arg1, ...args_rest));
+		return this.useCommand(input$112(key, arg1, ...args_rest));
 	}
 	SRANDMEMBER(key, count) {
-		return this.useCommand(input$108(key, count));
+		return this.useCommand(input$111(key, count));
 	}
 	SPOP(key, count) {
-		return this.useCommand(input$107(key, count));
+		return this.useCommand(input$110(key, count));
 	}
 	SINTERSTORE(destination, arg1, ...args_rest) {
-		return this.useCommand(input$106(destination, arg1, ...args_rest));
+		return this.useCommand(input$109(destination, arg1, ...args_rest));
 	}
 	SMISMEMBER(key, arg1, ...args_rest) {
-		return this.useCommand(input$105(key, arg1, ...args_rest));
+		return this.useCommand(input$108(key, arg1, ...args_rest));
 	}
 	SINTER(arg0, ...args_rest) {
-		return this.useCommand(input$104(arg0, ...args_rest));
+		return this.useCommand(input$107(arg0, ...args_rest));
 	}
 	SMEMBERS(key) {
-		return this.useCommand(input$103(key));
+		return this.useCommand(input$106(key));
 	}
 	SUNION(arg0, ...args_rest) {
-		return this.useCommand(input$102(arg0, ...args_rest));
+		return this.useCommand(input$105(arg0, ...args_rest));
 	}
 	SISMEMBER(key, member) {
-		return this.useCommand(input$101(key, member));
+		return this.useCommand(input$104(key, member));
 	}
 	SUNIONSTORE(destination, arg1, ...args_rest) {
-		return this.useCommand(input$100(destination, arg1, ...args_rest));
+		return this.useCommand(input$103(destination, arg1, ...args_rest));
 	}
 	SMOVE(source, destination, member) {
-		return this.useCommand(input$99(source, destination, member));
+		return this.useCommand(input$102(source, destination, member));
 	}
 	SDIFF(arg0, ...args_rest) {
-		return this.useCommand(input$98(arg0, ...args_rest));
+		return this.useCommand(input$101(arg0, ...args_rest));
 	}
 	SUNIONCARD(keys, options) {
-		return this.useCommand(input$97(keys, options));
+		return this.useCommand(input$100(keys, options));
 	}
 	SDIFFSTORE(destination, arg1, ...args_rest) {
-		return this.useCommand(input$96(destination, arg1, ...args_rest));
+		return this.useCommand(input$99(destination, arg1, ...args_rest));
 	}
 	SCARD(key) {
-		return this.useCommand(input$95(key));
+		return this.useCommand(input$98(key));
 	}
 	SDIFFCARD(keys, options) {
-		return this.useCommand(input$94(keys, options));
+		return this.useCommand(input$97(keys, options));
 	}
 	SADD(key, arg1, ...args_rest) {
-		return this.useCommand(input$93(key, arg1, ...args_rest));
+		return this.useCommand(input$96(key, arg1, ...args_rest));
 	}
 	MSETNX(pairs) {
-		return this.useCommand(input$92(pairs));
+		return this.useCommand(input$95(pairs));
 	}
 	SETNX(key, value) {
-		return this.useCommand(input$91(key, value));
+		return this.useCommand(input$94(key, value));
 	}
 	GET(key) {
-		return this.useCommand(input$90(key));
+		return this.useCommand(input$93(key));
 	}
 	SET(key, value, options) {
-		return this.useCommand(input$89(key, value, options));
+		return this.useCommand(input$92(key, value, options));
 	}
 	APPEND(key, value) {
-		return this.useCommand(input$88(key, value));
+		return this.useCommand(input$91(key, value));
 	}
 	INCR(key) {
-		return this.useCommand(input$87(key));
+		return this.useCommand(input$90(key));
 	}
 	INCRBYFLOAT(key, increment) {
-		return this.useCommand(input$86(key, increment));
+		return this.useCommand(input$89(key, increment));
 	}
 	MGET(...args) {
-		return this.useCommand(input$85(...args));
+		return this.useCommand(input$88(...args));
 	}
 	GETDEL(key) {
-		return this.useCommand(input$84(key));
+		return this.useCommand(input$87(key));
 	}
 	MSET(pairs) {
-		return this.useCommand(input$83(pairs));
+		return this.useCommand(input$86(pairs));
 	}
 	INCRBY(key, increment) {
-		return this.useCommand(input$82(key, increment));
+		return this.useCommand(input$85(key, increment));
 	}
 	SETRANGE(key, offset, value) {
-		return this.useCommand(input$81(key, offset, value));
+		return this.useCommand(input$84(key, offset, value));
 	}
 	SUBSTR(key, start, end) {
-		return this.useCommand(input$80(key, start, end));
+		return this.useCommand(input$83(key, start, end));
 	}
 	GETSET(key, value) {
-		return this.useCommand(input$79(key, value));
+		return this.useCommand(input$82(key, value));
 	}
 	DECRBY(key, decrement) {
-		return this.useCommand(input$78(key, decrement));
+		return this.useCommand(input$81(key, decrement));
 	}
 	GETRANGE(key, start, end) {
-		return this.useCommand(input$77(key, start, end));
+		return this.useCommand(input$80(key, start, end));
 	}
 	SETEX(key, seconds, value) {
-		return this.useCommand(input$76(key, seconds, value));
+		return this.useCommand(input$79(key, seconds, value));
 	}
 	GETEX(key, options) {
-		return this.useCommand(input$75(key, options));
+		return this.useCommand(input$78(key, options));
 	}
 	STRLEN(key) {
-		return this.useCommand(input$74(key));
+		return this.useCommand(input$77(key));
 	}
 	DECR(key) {
-		return this.useCommand(input$73(key));
+		return this.useCommand(input$76(key));
 	}
 	PSETEX(key, milliseconds, value) {
-		return this.useCommand(input$72(key, milliseconds, value));
+		return this.useCommand(input$75(key, milliseconds, value));
 	}
 	PEXPIRE(key, seconds, options) {
-		return this.useCommand(input$71(key, seconds, options));
+		return this.useCommand(input$74(key, seconds, options));
 	}
 	PTTL(key) {
-		return this.useCommand(input$70(key));
+		return this.useCommand(input$73(key));
 	}
 	TTL(key) {
-		return this.useCommand(input$69(key));
+		return this.useCommand(input$72(key));
 	}
 	EXPIRE(key, seconds, options) {
-		return this.useCommand(input$68(key, seconds, options));
+		return this.useCommand(input$71(key, seconds, options));
 	}
 	TYPE(key) {
-		return this.useCommand(input$67(key));
+		return this.useCommand(input$70(key));
 	}
 	KEYS(pattern) {
-		return this.useCommand(input$66(pattern));
+		return this.useCommand(input$69(pattern));
 	}
 	COPY(source, destination, options) {
-		return this.useCommand(input$65(source, destination, options));
+		return this.useCommand(input$68(source, destination, options));
 	}
 	EXPIREAT(key, timestamp, options) {
-		return this.useCommand(input$64(key, timestamp, options));
+		return this.useCommand(input$67(key, timestamp, options));
 	}
 	PEXPIREAT(key, timestamp, options) {
-		return this.useCommand(input$63(key, timestamp, options));
+		return this.useCommand(input$66(key, timestamp, options));
 	}
 	PERSIST(key) {
-		return this.useCommand(input$62(key));
+		return this.useCommand(input$65(key));
 	}
 	EXPIRETIME(key) {
-		return this.useCommand(input$61(key));
+		return this.useCommand(input$64(key));
 	}
 	RENAME(key, newkey) {
-		return this.useCommand(input$60(key, newkey));
+		return this.useCommand(input$63(key, newkey));
 	}
 	RENAMENX(key, newkey) {
-		return this.useCommand(input$59(key, newkey));
+		return this.useCommand(input$62(key, newkey));
 	}
 	PEXPIRETIME(key) {
-		return this.useCommand(input$58(key));
+		return this.useCommand(input$61(key));
 	}
 	DEL(arg0, ...args_rest) {
-		return this.useCommand(input$57(arg0, ...args_rest));
+		return this.useCommand(input$60(arg0, ...args_rest));
 	}
 	EXISTS(arg0, ...args_rest) {
-		return this.useCommand(input$56(arg0, ...args_rest));
+		return this.useCommand(input$59(arg0, ...args_rest));
 	}
 	RPUSH(key, ...elements) {
-		return this.useCommand(input$55(key, ...elements));
+		return this.useCommand(input$58(key, ...elements));
 	}
 	LPOP(key, count) {
-		return this.useCommand(input$54(key, count));
+		return this.useCommand(input$57(key, count));
 	}
 	RPOPLPUSH(source, destination) {
-		return this.useCommand(input$53(source, destination));
+		return this.useCommand(input$56(source, destination));
 	}
 	RPUSHX(key, ...elements) {
-		return this.useCommand(input$52(key, ...elements));
+		return this.useCommand(input$55(key, ...elements));
 	}
 	LSET(key, index, element) {
-		return this.useCommand(input$51(key, index, element));
+		return this.useCommand(input$54(key, index, element));
 	}
 	LREM(key, count, element) {
-		return this.useCommand(input$50(key, count, element));
+		return this.useCommand(input$53(key, count, element));
 	}
 	LPUSH(key, ...elements) {
-		return this.useCommand(input$49(key, ...elements));
+		return this.useCommand(input$52(key, ...elements));
 	}
 	LPUSHX(key, ...elements) {
-		return this.useCommand(input$48(key, ...elements));
+		return this.useCommand(input$51(key, ...elements));
 	}
 	RPOP(key, count) {
-		return this.useCommand(input$47(key, count));
+		return this.useCommand(input$50(key, count));
 	}
 	LRANGE(key, start, stop) {
-		return this.useCommand(input$46(key, start, stop));
+		return this.useCommand(input$49(key, start, stop));
 	}
 	LLEN(key) {
-		return this.useCommand(input$45(key));
+		return this.useCommand(input$48(key));
 	}
 	LINSERT(key, element, options) {
-		return this.useCommand(input$44(key, element, options));
+		return this.useCommand(input$47(key, element, options));
 	}
 	LTRIM(key, start, stop) {
-		return this.useCommand(input$43(key, start, stop));
+		return this.useCommand(input$46(key, start, stop));
 	}
 	LINDEX(key, index) {
-		return this.useCommand(input$42(key, index));
+		return this.useCommand(input$45(key, index));
 	}
 	XLEN(key) {
-		return this.useCommand(input$41(key));
+		return this.useCommand(input$44(key));
 	}
 	XDEL(key, ...ids) {
-		return this.useCommand(input$40(key, ...ids));
+		return this.useCommand(input$43(key, ...ids));
 	}
 	XREAD(arg0, arg1, arg2) {
-		return this.useCommand(input$39(arg0, arg1, arg2));
+		return this.useCommand(input$42(arg0, arg1, arg2));
 	}
 	XADD(key, id, pairs, options) {
-		return this.useCommand(input$38(key, id, pairs, options));
+		return this.useCommand(input$41(key, id, pairs, options));
 	}
 	XRANGE(key, start, end, options) {
-		return this.useCommand(input$37(key, start, end, options));
+		return this.useCommand(input$40(key, start, end, options));
 	}
 	XREVRANGE(key, end, start, options) {
-		return this.useCommand(input$36(key, end, start, options));
+		return this.useCommand(input$39(key, end, start, options));
 	}
 	XTRIM(key, strategy, threshold, options) {
-		return this.useCommand(input$35(key, strategy, threshold, options));
+		return this.useCommand(input$38(key, strategy, threshold, options));
 	}
 	ZREMRANGEBYRANK(key, start, stop) {
-		return this.useCommand(input$34(key, start, stop));
+		return this.useCommand(input$37(key, start, stop));
 	}
 	ZCARD(key) {
-		return this.useCommand(input$33(key));
+		return this.useCommand(input$36(key));
 	}
 	ZRANGEBYSCORE(key, min, max, options) {
-		return this.useCommand(input$32(key, min, max, options));
+		return this.useCommand(input$35(key, min, max, options));
 	}
 	ZREVRANGEBYLEX(key, max, min, options) {
-		return this.useCommand(input$31(key, max, min, options));
+		return this.useCommand(input$34(key, max, min, options));
 	}
 	ZREVRANGEBYSCORE(key, max, min, options) {
-		return this.useCommand(input$30(key, max, min, options));
+		return this.useCommand(input$33(key, max, min, options));
 	}
 	ZSCORE(key, member) {
-		return this.useCommand(input$29(key, member));
+		return this.useCommand(input$32(key, member));
 	}
 	ZCOUNT(key, min, max) {
-		return this.useCommand(input$28(key, min, max));
+		return this.useCommand(input$31(key, min, max));
 	}
 	ZADD(key, arg1, arg2, arg3) {
-		return this.useCommand(input$27(key, arg1, arg2, arg3));
+		return this.useCommand(input$30(key, arg1, arg2, arg3));
 	}
 	ZRANK(key, member, options) {
-		return this.useCommand(input$26(key, member, options));
+		return this.useCommand(input$29(key, member, options));
 	}
 	ZRANDMEMBER(key, count, options) {
-		return this.useCommand(input$25(key, count, options));
+		return this.useCommand(input$28(key, count, options));
 	}
 	ZREM(key, arg1, ...args_rest) {
-		return this.useCommand(input$24(key, arg1, ...args_rest));
+		return this.useCommand(input$27(key, arg1, ...args_rest));
 	}
 	ZREMRANGEBYSCORE(key, min, max) {
-		return this.useCommand(input$23(key, min, max));
+		return this.useCommand(input$26(key, min, max));
 	}
 	ZREVRANK(key, member, options) {
-		return this.useCommand(input$22(key, member, options));
+		return this.useCommand(input$25(key, member, options));
 	}
 	ZRANGE(key, start, stop, options) {
-		return this.useCommand(input$21(key, start, stop, options));
+		return this.useCommand(input$24(key, start, stop, options));
 	}
 	ZINCRBY(key, increment, member) {
-		return this.useCommand(input$20(key, increment, member));
+		return this.useCommand(input$23(key, increment, member));
 	}
 	ZREMRANGEBYLEX(key, min, max) {
-		return this.useCommand(input$19(key, min, max));
+		return this.useCommand(input$22(key, min, max));
 	}
 	ZINTERSTORE(destination, arg1, options) {
-		return this.useCommand(input$18(destination, arg1, options));
+		return this.useCommand(input$21(destination, arg1, options));
 	}
 	ZREVRANGE(key, start, stop, options) {
-		return this.useCommand(input$17(key, start, stop, options));
+		return this.useCommand(input$20(key, start, stop, options));
 	}
 	ZRANGEBYLEX(key, min, max, options) {
-		return this.useCommand(input$16(key, min, max, options));
+		return this.useCommand(input$19(key, min, max, options));
 	}
 	HVALS(key) {
-		return this.useCommand(input$15(key));
+		return this.useCommand(input$18(key));
 	}
 	HSET(key, arg1, arg2) {
-		return this.useCommand(input$14(key, arg1, arg2));
+		return this.useCommand(input$17(key, arg1, arg2));
 	}
 	HINCRBYFLOAT(key, field, increment) {
-		return this.useCommand(input$13(key, field, increment));
+		return this.useCommand(input$16(key, field, increment));
 	}
 	HGETALL(key) {
-		return this.useCommand(input$12(key));
+		return this.useCommand(input$15(key));
 	}
 	HGET(key, field) {
-		return this.useCommand(input$11(key, field));
+		return this.useCommand(input$14(key, field));
 	}
 	HMSET(key, arg1, arg2) {
-		return this.useCommand(input$10(key, arg1, arg2));
+		return this.useCommand(input$13(key, arg1, arg2));
 	}
 	HMGET(key, ...fields) {
-		return this.useCommand(input$9(key, ...fields));
+		return this.useCommand(input$12(key, ...fields));
 	}
 	HRANDFIELD(key, count, options) {
-		return this.useCommand(input$8(key, count, options));
+		return this.useCommand(input$11(key, count, options));
 	}
 	HLEN(key) {
-		return this.useCommand(input$7(key));
+		return this.useCommand(input$10(key));
 	}
 	HKEYS(key) {
-		return this.useCommand(input$6(key));
+		return this.useCommand(input$9(key));
 	}
 	HINCRBY(key, field, increment) {
-		return this.useCommand(input$5(key, field, increment));
+		return this.useCommand(input$8(key, field, increment));
 	}
 	HDEL(key, arg1, ...args_rest) {
-		return this.useCommand(input$4(key, arg1, ...args_rest));
+		return this.useCommand(input$7(key, arg1, ...args_rest));
 	}
 	HSTRLEN(key, field) {
-		return this.useCommand(input$3(key, field));
+		return this.useCommand(input$6(key, field));
 	}
 	HEXISTS(key, field) {
-		return this.useCommand(input$2(key, field));
+		return this.useCommand(input$5(key, field));
 	}
 	HSETNX(key, field, value) {
-		return this.useCommand(input$1(key, field, value));
+		return this.useCommand(input$4(key, field, value));
+	}
+	EVAL_RO(script, keys, args) {
+		return this.useCommand(input$3(script, keys, args));
 	}
 	EVAL(script, keys, args) {
-		return this.useCommand(input(script, keys, args));
+		return this.useCommand(input$2(script, keys, args));
+	}
+	EVALSHA(sha1, keys, args) {
+		return this.useCommand(input$1(sha1, keys, args));
+	}
+	EVALSHA_RO(sha1, keys, args) {
+		return this.useCommand(input(sha1, keys, args));
 	}
 };
 //#endregion
@@ -2076,337 +2130,346 @@ var RedisXTransaction = class {
 		return Object.assign(result, result_named);
 	}
 	SINTERCARD(keys, options) {
-		return this.useCommand(input$110(keys, options));
+		return this.useCommand(input$113(keys, options));
 	}
 	SREM(key, arg1, ...args_rest) {
-		return this.useCommand(input$109(key, arg1, ...args_rest));
+		return this.useCommand(input$112(key, arg1, ...args_rest));
 	}
 	SRANDMEMBER(key, count) {
-		return this.useCommand(input$108(key, count));
+		return this.useCommand(input$111(key, count));
 	}
 	SPOP(key, count) {
-		return this.useCommand(input$107(key, count));
+		return this.useCommand(input$110(key, count));
 	}
 	SINTERSTORE(destination, arg1, ...args_rest) {
-		return this.useCommand(input$106(destination, arg1, ...args_rest));
+		return this.useCommand(input$109(destination, arg1, ...args_rest));
 	}
 	SMISMEMBER(key, arg1, ...args_rest) {
-		return this.useCommand(input$105(key, arg1, ...args_rest));
+		return this.useCommand(input$108(key, arg1, ...args_rest));
 	}
 	SINTER(arg0, ...args_rest) {
-		return this.useCommand(input$104(arg0, ...args_rest));
+		return this.useCommand(input$107(arg0, ...args_rest));
 	}
 	SMEMBERS(key) {
-		return this.useCommand(input$103(key));
+		return this.useCommand(input$106(key));
 	}
 	SUNION(arg0, ...args_rest) {
-		return this.useCommand(input$102(arg0, ...args_rest));
+		return this.useCommand(input$105(arg0, ...args_rest));
 	}
 	SISMEMBER(key, member) {
-		return this.useCommand(input$101(key, member));
+		return this.useCommand(input$104(key, member));
 	}
 	SUNIONSTORE(destination, arg1, ...args_rest) {
-		return this.useCommand(input$100(destination, arg1, ...args_rest));
+		return this.useCommand(input$103(destination, arg1, ...args_rest));
 	}
 	SMOVE(source, destination, member) {
-		return this.useCommand(input$99(source, destination, member));
+		return this.useCommand(input$102(source, destination, member));
 	}
 	SDIFF(arg0, ...args_rest) {
-		return this.useCommand(input$98(arg0, ...args_rest));
+		return this.useCommand(input$101(arg0, ...args_rest));
 	}
 	SUNIONCARD(keys, options) {
-		return this.useCommand(input$97(keys, options));
+		return this.useCommand(input$100(keys, options));
 	}
 	SDIFFSTORE(destination, arg1, ...args_rest) {
-		return this.useCommand(input$96(destination, arg1, ...args_rest));
+		return this.useCommand(input$99(destination, arg1, ...args_rest));
 	}
 	SCARD(key) {
-		return this.useCommand(input$95(key));
+		return this.useCommand(input$98(key));
 	}
 	SDIFFCARD(keys, options) {
-		return this.useCommand(input$94(keys, options));
+		return this.useCommand(input$97(keys, options));
 	}
 	SADD(key, arg1, ...args_rest) {
-		return this.useCommand(input$93(key, arg1, ...args_rest));
+		return this.useCommand(input$96(key, arg1, ...args_rest));
 	}
 	MSETNX(pairs) {
-		return this.useCommand(input$92(pairs));
+		return this.useCommand(input$95(pairs));
 	}
 	SETNX(key, value) {
-		return this.useCommand(input$91(key, value));
+		return this.useCommand(input$94(key, value));
 	}
 	GET(key) {
-		return this.useCommand(input$90(key));
+		return this.useCommand(input$93(key));
 	}
 	SET(key, value, options) {
-		return this.useCommand(input$89(key, value, options));
+		return this.useCommand(input$92(key, value, options));
 	}
 	APPEND(key, value) {
-		return this.useCommand(input$88(key, value));
+		return this.useCommand(input$91(key, value));
 	}
 	INCR(key) {
-		return this.useCommand(input$87(key));
+		return this.useCommand(input$90(key));
 	}
 	INCRBYFLOAT(key, increment) {
-		return this.useCommand(input$86(key, increment));
+		return this.useCommand(input$89(key, increment));
 	}
 	MGET(...args) {
-		return this.useCommand(input$85(...args));
+		return this.useCommand(input$88(...args));
 	}
 	GETDEL(key) {
-		return this.useCommand(input$84(key));
+		return this.useCommand(input$87(key));
 	}
 	MSET(pairs) {
-		return this.useCommand(input$83(pairs));
+		return this.useCommand(input$86(pairs));
 	}
 	INCRBY(key, increment) {
-		return this.useCommand(input$82(key, increment));
+		return this.useCommand(input$85(key, increment));
 	}
 	SETRANGE(key, offset, value) {
-		return this.useCommand(input$81(key, offset, value));
+		return this.useCommand(input$84(key, offset, value));
 	}
 	SUBSTR(key, start, end) {
-		return this.useCommand(input$80(key, start, end));
+		return this.useCommand(input$83(key, start, end));
 	}
 	GETSET(key, value) {
-		return this.useCommand(input$79(key, value));
+		return this.useCommand(input$82(key, value));
 	}
 	DECRBY(key, decrement) {
-		return this.useCommand(input$78(key, decrement));
+		return this.useCommand(input$81(key, decrement));
 	}
 	GETRANGE(key, start, end) {
-		return this.useCommand(input$77(key, start, end));
+		return this.useCommand(input$80(key, start, end));
 	}
 	SETEX(key, seconds, value) {
-		return this.useCommand(input$76(key, seconds, value));
+		return this.useCommand(input$79(key, seconds, value));
 	}
 	GETEX(key, options) {
-		return this.useCommand(input$75(key, options));
+		return this.useCommand(input$78(key, options));
 	}
 	STRLEN(key) {
-		return this.useCommand(input$74(key));
+		return this.useCommand(input$77(key));
 	}
 	DECR(key) {
-		return this.useCommand(input$73(key));
+		return this.useCommand(input$76(key));
 	}
 	PSETEX(key, milliseconds, value) {
-		return this.useCommand(input$72(key, milliseconds, value));
+		return this.useCommand(input$75(key, milliseconds, value));
 	}
 	PEXPIRE(key, seconds, options) {
-		return this.useCommand(input$71(key, seconds, options));
+		return this.useCommand(input$74(key, seconds, options));
 	}
 	PTTL(key) {
-		return this.useCommand(input$70(key));
+		return this.useCommand(input$73(key));
 	}
 	TTL(key) {
-		return this.useCommand(input$69(key));
+		return this.useCommand(input$72(key));
 	}
 	EXPIRE(key, seconds, options) {
-		return this.useCommand(input$68(key, seconds, options));
+		return this.useCommand(input$71(key, seconds, options));
 	}
 	TYPE(key) {
-		return this.useCommand(input$67(key));
+		return this.useCommand(input$70(key));
 	}
 	KEYS(pattern) {
-		return this.useCommand(input$66(pattern));
+		return this.useCommand(input$69(pattern));
 	}
 	COPY(source, destination, options) {
-		return this.useCommand(input$65(source, destination, options));
+		return this.useCommand(input$68(source, destination, options));
 	}
 	EXPIREAT(key, timestamp, options) {
-		return this.useCommand(input$64(key, timestamp, options));
+		return this.useCommand(input$67(key, timestamp, options));
 	}
 	PEXPIREAT(key, timestamp, options) {
-		return this.useCommand(input$63(key, timestamp, options));
+		return this.useCommand(input$66(key, timestamp, options));
 	}
 	PERSIST(key) {
-		return this.useCommand(input$62(key));
+		return this.useCommand(input$65(key));
 	}
 	EXPIRETIME(key) {
-		return this.useCommand(input$61(key));
+		return this.useCommand(input$64(key));
 	}
 	RENAME(key, newkey) {
-		return this.useCommand(input$60(key, newkey));
+		return this.useCommand(input$63(key, newkey));
 	}
 	RENAMENX(key, newkey) {
-		return this.useCommand(input$59(key, newkey));
+		return this.useCommand(input$62(key, newkey));
 	}
 	PEXPIRETIME(key) {
-		return this.useCommand(input$58(key));
+		return this.useCommand(input$61(key));
 	}
 	DEL(arg0, ...args_rest) {
-		return this.useCommand(input$57(arg0, ...args_rest));
+		return this.useCommand(input$60(arg0, ...args_rest));
 	}
 	EXISTS(arg0, ...args_rest) {
-		return this.useCommand(input$56(arg0, ...args_rest));
+		return this.useCommand(input$59(arg0, ...args_rest));
 	}
 	RPUSH(key, ...elements) {
-		return this.useCommand(input$55(key, ...elements));
+		return this.useCommand(input$58(key, ...elements));
 	}
 	LPOP(key, count) {
-		return this.useCommand(input$54(key, count));
+		return this.useCommand(input$57(key, count));
 	}
 	RPOPLPUSH(source, destination) {
-		return this.useCommand(input$53(source, destination));
+		return this.useCommand(input$56(source, destination));
 	}
 	RPUSHX(key, ...elements) {
-		return this.useCommand(input$52(key, ...elements));
+		return this.useCommand(input$55(key, ...elements));
 	}
 	LSET(key, index, element) {
-		return this.useCommand(input$51(key, index, element));
+		return this.useCommand(input$54(key, index, element));
 	}
 	LREM(key, count, element) {
-		return this.useCommand(input$50(key, count, element));
+		return this.useCommand(input$53(key, count, element));
 	}
 	LPUSH(key, ...elements) {
-		return this.useCommand(input$49(key, ...elements));
+		return this.useCommand(input$52(key, ...elements));
 	}
 	LPUSHX(key, ...elements) {
-		return this.useCommand(input$48(key, ...elements));
+		return this.useCommand(input$51(key, ...elements));
 	}
 	RPOP(key, count) {
-		return this.useCommand(input$47(key, count));
+		return this.useCommand(input$50(key, count));
 	}
 	LRANGE(key, start, stop) {
-		return this.useCommand(input$46(key, start, stop));
+		return this.useCommand(input$49(key, start, stop));
 	}
 	LLEN(key) {
-		return this.useCommand(input$45(key));
+		return this.useCommand(input$48(key));
 	}
 	LINSERT(key, element, options) {
-		return this.useCommand(input$44(key, element, options));
+		return this.useCommand(input$47(key, element, options));
 	}
 	LTRIM(key, start, stop) {
-		return this.useCommand(input$43(key, start, stop));
+		return this.useCommand(input$46(key, start, stop));
 	}
 	LINDEX(key, index) {
-		return this.useCommand(input$42(key, index));
+		return this.useCommand(input$45(key, index));
 	}
 	XLEN(key) {
-		return this.useCommand(input$41(key));
+		return this.useCommand(input$44(key));
 	}
 	XDEL(key, ...ids) {
-		return this.useCommand(input$40(key, ...ids));
+		return this.useCommand(input$43(key, ...ids));
 	}
 	XREAD(arg0, arg1, arg2) {
-		return this.useCommand(input$39(arg0, arg1, arg2));
+		return this.useCommand(input$42(arg0, arg1, arg2));
 	}
 	XADD(key, id, pairs, options) {
-		return this.useCommand(input$38(key, id, pairs, options));
+		return this.useCommand(input$41(key, id, pairs, options));
 	}
 	XRANGE(key, start, end, options) {
-		return this.useCommand(input$37(key, start, end, options));
+		return this.useCommand(input$40(key, start, end, options));
 	}
 	XREVRANGE(key, end, start, options) {
-		return this.useCommand(input$36(key, end, start, options));
+		return this.useCommand(input$39(key, end, start, options));
 	}
 	XTRIM(key, strategy, threshold, options) {
-		return this.useCommand(input$35(key, strategy, threshold, options));
+		return this.useCommand(input$38(key, strategy, threshold, options));
 	}
 	ZREMRANGEBYRANK(key, start, stop) {
-		return this.useCommand(input$34(key, start, stop));
+		return this.useCommand(input$37(key, start, stop));
 	}
 	ZCARD(key) {
-		return this.useCommand(input$33(key));
+		return this.useCommand(input$36(key));
 	}
 	ZRANGEBYSCORE(key, min, max, options) {
-		return this.useCommand(input$32(key, min, max, options));
+		return this.useCommand(input$35(key, min, max, options));
 	}
 	ZREVRANGEBYLEX(key, max, min, options) {
-		return this.useCommand(input$31(key, max, min, options));
+		return this.useCommand(input$34(key, max, min, options));
 	}
 	ZREVRANGEBYSCORE(key, max, min, options) {
-		return this.useCommand(input$30(key, max, min, options));
+		return this.useCommand(input$33(key, max, min, options));
 	}
 	ZSCORE(key, member) {
-		return this.useCommand(input$29(key, member));
+		return this.useCommand(input$32(key, member));
 	}
 	ZCOUNT(key, min, max) {
-		return this.useCommand(input$28(key, min, max));
+		return this.useCommand(input$31(key, min, max));
 	}
 	ZADD(key, arg1, arg2, arg3) {
-		return this.useCommand(input$27(key, arg1, arg2, arg3));
+		return this.useCommand(input$30(key, arg1, arg2, arg3));
 	}
 	ZRANK(key, member, options) {
-		return this.useCommand(input$26(key, member, options));
+		return this.useCommand(input$29(key, member, options));
 	}
 	ZRANDMEMBER(key, count, options) {
-		return this.useCommand(input$25(key, count, options));
+		return this.useCommand(input$28(key, count, options));
 	}
 	ZREM(key, arg1, ...args_rest) {
-		return this.useCommand(input$24(key, arg1, ...args_rest));
+		return this.useCommand(input$27(key, arg1, ...args_rest));
 	}
 	ZREMRANGEBYSCORE(key, min, max) {
-		return this.useCommand(input$23(key, min, max));
+		return this.useCommand(input$26(key, min, max));
 	}
 	ZREVRANK(key, member, options) {
-		return this.useCommand(input$22(key, member, options));
+		return this.useCommand(input$25(key, member, options));
 	}
 	ZRANGE(key, start, stop, options) {
-		return this.useCommand(input$21(key, start, stop, options));
+		return this.useCommand(input$24(key, start, stop, options));
 	}
 	ZINCRBY(key, increment, member) {
-		return this.useCommand(input$20(key, increment, member));
+		return this.useCommand(input$23(key, increment, member));
 	}
 	ZREMRANGEBYLEX(key, min, max) {
-		return this.useCommand(input$19(key, min, max));
+		return this.useCommand(input$22(key, min, max));
 	}
 	ZINTERSTORE(destination, arg1, options) {
-		return this.useCommand(input$18(destination, arg1, options));
+		return this.useCommand(input$21(destination, arg1, options));
 	}
 	ZREVRANGE(key, start, stop, options) {
-		return this.useCommand(input$17(key, start, stop, options));
+		return this.useCommand(input$20(key, start, stop, options));
 	}
 	ZRANGEBYLEX(key, min, max, options) {
-		return this.useCommand(input$16(key, min, max, options));
+		return this.useCommand(input$19(key, min, max, options));
 	}
 	HVALS(key) {
-		return this.useCommand(input$15(key));
+		return this.useCommand(input$18(key));
 	}
 	HSET(key, arg1, arg2) {
-		return this.useCommand(input$14(key, arg1, arg2));
+		return this.useCommand(input$17(key, arg1, arg2));
 	}
 	HINCRBYFLOAT(key, field, increment) {
-		return this.useCommand(input$13(key, field, increment));
+		return this.useCommand(input$16(key, field, increment));
 	}
 	HGETALL(key) {
-		return this.useCommand(input$12(key));
+		return this.useCommand(input$15(key));
 	}
 	HGET(key, field) {
-		return this.useCommand(input$11(key, field));
+		return this.useCommand(input$14(key, field));
 	}
 	HMSET(key, arg1, arg2) {
-		return this.useCommand(input$10(key, arg1, arg2));
+		return this.useCommand(input$13(key, arg1, arg2));
 	}
 	HMGET(key, ...fields) {
-		return this.useCommand(input$9(key, ...fields));
+		return this.useCommand(input$12(key, ...fields));
 	}
 	HRANDFIELD(key, count, options) {
-		return this.useCommand(input$8(key, count, options));
+		return this.useCommand(input$11(key, count, options));
 	}
 	HLEN(key) {
-		return this.useCommand(input$7(key));
+		return this.useCommand(input$10(key));
 	}
 	HKEYS(key) {
-		return this.useCommand(input$6(key));
+		return this.useCommand(input$9(key));
 	}
 	HINCRBY(key, field, increment) {
-		return this.useCommand(input$5(key, field, increment));
+		return this.useCommand(input$8(key, field, increment));
 	}
 	HDEL(key, arg1, ...args_rest) {
-		return this.useCommand(input$4(key, arg1, ...args_rest));
+		return this.useCommand(input$7(key, arg1, ...args_rest));
 	}
 	HSTRLEN(key, field) {
-		return this.useCommand(input$3(key, field));
+		return this.useCommand(input$6(key, field));
 	}
 	HEXISTS(key, field) {
-		return this.useCommand(input$2(key, field));
+		return this.useCommand(input$5(key, field));
 	}
 	HSETNX(key, field, value) {
-		return this.useCommand(input$1(key, field, value));
+		return this.useCommand(input$4(key, field, value));
+	}
+	EVAL_RO(script, keys, args) {
+		return this.useCommand(input$3(script, keys, args));
 	}
 	EVAL(script, keys, args) {
-		return this.useCommand(input(script, keys, args));
+		return this.useCommand(input$2(script, keys, args));
+	}
+	EVALSHA(sha1, keys, args) {
+		return this.useCommand(input$1(sha1, keys, args));
+	}
+	EVALSHA_RO(sha1, keys, args) {
+		return this.useCommand(input(sha1, keys, args));
 	}
 };
 //#endregion
@@ -2439,337 +2502,346 @@ var RedisXClient = class {
 		return new RedisXScript(this.redisClient, options);
 	}
 	SINTERCARD(keys, options) {
-		return this.useCommand(input$110(keys, options));
+		return this.useCommand(input$113(keys, options));
 	}
 	SREM(key, arg1, ...args_rest) {
-		return this.useCommand(input$109(key, arg1, ...args_rest));
+		return this.useCommand(input$112(key, arg1, ...args_rest));
 	}
 	SRANDMEMBER(key, count) {
-		return this.useCommand(input$108(key, count));
+		return this.useCommand(input$111(key, count));
 	}
 	SPOP(key, count) {
-		return this.useCommand(input$107(key, count));
+		return this.useCommand(input$110(key, count));
 	}
 	SINTERSTORE(destination, arg1, ...args_rest) {
-		return this.useCommand(input$106(destination, arg1, ...args_rest));
+		return this.useCommand(input$109(destination, arg1, ...args_rest));
 	}
 	SMISMEMBER(key, arg1, ...args_rest) {
-		return this.useCommand(input$105(key, arg1, ...args_rest));
+		return this.useCommand(input$108(key, arg1, ...args_rest));
 	}
 	SINTER(arg0, ...args_rest) {
-		return this.useCommand(input$104(arg0, ...args_rest));
+		return this.useCommand(input$107(arg0, ...args_rest));
 	}
 	SMEMBERS(key) {
-		return this.useCommand(input$103(key));
+		return this.useCommand(input$106(key));
 	}
 	SUNION(arg0, ...args_rest) {
-		return this.useCommand(input$102(arg0, ...args_rest));
+		return this.useCommand(input$105(arg0, ...args_rest));
 	}
 	SISMEMBER(key, member) {
-		return this.useCommand(input$101(key, member));
+		return this.useCommand(input$104(key, member));
 	}
 	SUNIONSTORE(destination, arg1, ...args_rest) {
-		return this.useCommand(input$100(destination, arg1, ...args_rest));
+		return this.useCommand(input$103(destination, arg1, ...args_rest));
 	}
 	SMOVE(source, destination, member) {
-		return this.useCommand(input$99(source, destination, member));
+		return this.useCommand(input$102(source, destination, member));
 	}
 	SDIFF(arg0, ...args_rest) {
-		return this.useCommand(input$98(arg0, ...args_rest));
+		return this.useCommand(input$101(arg0, ...args_rest));
 	}
 	SUNIONCARD(keys, options) {
-		return this.useCommand(input$97(keys, options));
+		return this.useCommand(input$100(keys, options));
 	}
 	SDIFFSTORE(destination, arg1, ...args_rest) {
-		return this.useCommand(input$96(destination, arg1, ...args_rest));
+		return this.useCommand(input$99(destination, arg1, ...args_rest));
 	}
 	SCARD(key) {
-		return this.useCommand(input$95(key));
+		return this.useCommand(input$98(key));
 	}
 	SDIFFCARD(keys, options) {
-		return this.useCommand(input$94(keys, options));
+		return this.useCommand(input$97(keys, options));
 	}
 	SADD(key, arg1, ...args_rest) {
-		return this.useCommand(input$93(key, arg1, ...args_rest));
+		return this.useCommand(input$96(key, arg1, ...args_rest));
 	}
 	MSETNX(pairs) {
-		return this.useCommand(input$92(pairs));
+		return this.useCommand(input$95(pairs));
 	}
 	SETNX(key, value) {
-		return this.useCommand(input$91(key, value));
+		return this.useCommand(input$94(key, value));
 	}
 	GET(key) {
-		return this.useCommand(input$90(key));
+		return this.useCommand(input$93(key));
 	}
 	SET(key, value, options) {
-		return this.useCommand(input$89(key, value, options));
+		return this.useCommand(input$92(key, value, options));
 	}
 	APPEND(key, value) {
-		return this.useCommand(input$88(key, value));
+		return this.useCommand(input$91(key, value));
 	}
 	INCR(key) {
-		return this.useCommand(input$87(key));
+		return this.useCommand(input$90(key));
 	}
 	INCRBYFLOAT(key, increment) {
-		return this.useCommand(input$86(key, increment));
+		return this.useCommand(input$89(key, increment));
 	}
 	MGET(...args) {
-		return this.useCommand(input$85(...args));
+		return this.useCommand(input$88(...args));
 	}
 	GETDEL(key) {
-		return this.useCommand(input$84(key));
+		return this.useCommand(input$87(key));
 	}
 	MSET(pairs) {
-		return this.useCommand(input$83(pairs));
+		return this.useCommand(input$86(pairs));
 	}
 	INCRBY(key, increment) {
-		return this.useCommand(input$82(key, increment));
+		return this.useCommand(input$85(key, increment));
 	}
 	SETRANGE(key, offset, value) {
-		return this.useCommand(input$81(key, offset, value));
+		return this.useCommand(input$84(key, offset, value));
 	}
 	SUBSTR(key, start, end) {
-		return this.useCommand(input$80(key, start, end));
+		return this.useCommand(input$83(key, start, end));
 	}
 	GETSET(key, value) {
-		return this.useCommand(input$79(key, value));
+		return this.useCommand(input$82(key, value));
 	}
 	DECRBY(key, decrement) {
-		return this.useCommand(input$78(key, decrement));
+		return this.useCommand(input$81(key, decrement));
 	}
 	GETRANGE(key, start, end) {
-		return this.useCommand(input$77(key, start, end));
+		return this.useCommand(input$80(key, start, end));
 	}
 	SETEX(key, seconds, value) {
-		return this.useCommand(input$76(key, seconds, value));
+		return this.useCommand(input$79(key, seconds, value));
 	}
 	GETEX(key, options) {
-		return this.useCommand(input$75(key, options));
+		return this.useCommand(input$78(key, options));
 	}
 	STRLEN(key) {
-		return this.useCommand(input$74(key));
+		return this.useCommand(input$77(key));
 	}
 	DECR(key) {
-		return this.useCommand(input$73(key));
+		return this.useCommand(input$76(key));
 	}
 	PSETEX(key, milliseconds, value) {
-		return this.useCommand(input$72(key, milliseconds, value));
+		return this.useCommand(input$75(key, milliseconds, value));
 	}
 	PEXPIRE(key, seconds, options) {
-		return this.useCommand(input$71(key, seconds, options));
+		return this.useCommand(input$74(key, seconds, options));
 	}
 	PTTL(key) {
-		return this.useCommand(input$70(key));
+		return this.useCommand(input$73(key));
 	}
 	TTL(key) {
-		return this.useCommand(input$69(key));
+		return this.useCommand(input$72(key));
 	}
 	EXPIRE(key, seconds, options) {
-		return this.useCommand(input$68(key, seconds, options));
+		return this.useCommand(input$71(key, seconds, options));
 	}
 	TYPE(key) {
-		return this.useCommand(input$67(key));
+		return this.useCommand(input$70(key));
 	}
 	KEYS(pattern) {
-		return this.useCommand(input$66(pattern));
+		return this.useCommand(input$69(pattern));
 	}
 	COPY(source, destination, options) {
-		return this.useCommand(input$65(source, destination, options));
+		return this.useCommand(input$68(source, destination, options));
 	}
 	EXPIREAT(key, timestamp, options) {
-		return this.useCommand(input$64(key, timestamp, options));
+		return this.useCommand(input$67(key, timestamp, options));
 	}
 	PEXPIREAT(key, timestamp, options) {
-		return this.useCommand(input$63(key, timestamp, options));
+		return this.useCommand(input$66(key, timestamp, options));
 	}
 	PERSIST(key) {
-		return this.useCommand(input$62(key));
+		return this.useCommand(input$65(key));
 	}
 	EXPIRETIME(key) {
-		return this.useCommand(input$61(key));
+		return this.useCommand(input$64(key));
 	}
 	RENAME(key, newkey) {
-		return this.useCommand(input$60(key, newkey));
+		return this.useCommand(input$63(key, newkey));
 	}
 	RENAMENX(key, newkey) {
-		return this.useCommand(input$59(key, newkey));
+		return this.useCommand(input$62(key, newkey));
 	}
 	PEXPIRETIME(key) {
-		return this.useCommand(input$58(key));
+		return this.useCommand(input$61(key));
 	}
 	DEL(arg0, ...args_rest) {
-		return this.useCommand(input$57(arg0, ...args_rest));
+		return this.useCommand(input$60(arg0, ...args_rest));
 	}
 	EXISTS(arg0, ...args_rest) {
-		return this.useCommand(input$56(arg0, ...args_rest));
+		return this.useCommand(input$59(arg0, ...args_rest));
 	}
 	RPUSH(key, ...elements) {
-		return this.useCommand(input$55(key, ...elements));
+		return this.useCommand(input$58(key, ...elements));
 	}
 	LPOP(key, count) {
-		return this.useCommand(input$54(key, count));
+		return this.useCommand(input$57(key, count));
 	}
 	RPOPLPUSH(source, destination) {
-		return this.useCommand(input$53(source, destination));
+		return this.useCommand(input$56(source, destination));
 	}
 	RPUSHX(key, ...elements) {
-		return this.useCommand(input$52(key, ...elements));
+		return this.useCommand(input$55(key, ...elements));
 	}
 	LSET(key, index, element) {
-		return this.useCommand(input$51(key, index, element));
+		return this.useCommand(input$54(key, index, element));
 	}
 	LREM(key, count, element) {
-		return this.useCommand(input$50(key, count, element));
+		return this.useCommand(input$53(key, count, element));
 	}
 	LPUSH(key, ...elements) {
-		return this.useCommand(input$49(key, ...elements));
+		return this.useCommand(input$52(key, ...elements));
 	}
 	LPUSHX(key, ...elements) {
-		return this.useCommand(input$48(key, ...elements));
+		return this.useCommand(input$51(key, ...elements));
 	}
 	RPOP(key, count) {
-		return this.useCommand(input$47(key, count));
+		return this.useCommand(input$50(key, count));
 	}
 	LRANGE(key, start, stop) {
-		return this.useCommand(input$46(key, start, stop));
+		return this.useCommand(input$49(key, start, stop));
 	}
 	LLEN(key) {
-		return this.useCommand(input$45(key));
+		return this.useCommand(input$48(key));
 	}
 	LINSERT(key, element, options) {
-		return this.useCommand(input$44(key, element, options));
+		return this.useCommand(input$47(key, element, options));
 	}
 	LTRIM(key, start, stop) {
-		return this.useCommand(input$43(key, start, stop));
+		return this.useCommand(input$46(key, start, stop));
 	}
 	LINDEX(key, index) {
-		return this.useCommand(input$42(key, index));
+		return this.useCommand(input$45(key, index));
 	}
 	XLEN(key) {
-		return this.useCommand(input$41(key));
+		return this.useCommand(input$44(key));
 	}
 	XDEL(key, ...ids) {
-		return this.useCommand(input$40(key, ...ids));
+		return this.useCommand(input$43(key, ...ids));
 	}
 	XREAD(arg0, arg1, arg2) {
-		return this.useCommand(input$39(arg0, arg1, arg2));
+		return this.useCommand(input$42(arg0, arg1, arg2));
 	}
 	XADD(key, id, pairs, options) {
-		return this.useCommand(input$38(key, id, pairs, options));
+		return this.useCommand(input$41(key, id, pairs, options));
 	}
 	XRANGE(key, start, end, options) {
-		return this.useCommand(input$37(key, start, end, options));
+		return this.useCommand(input$40(key, start, end, options));
 	}
 	XREVRANGE(key, end, start, options) {
-		return this.useCommand(input$36(key, end, start, options));
+		return this.useCommand(input$39(key, end, start, options));
 	}
 	XTRIM(key, strategy, threshold, options) {
-		return this.useCommand(input$35(key, strategy, threshold, options));
+		return this.useCommand(input$38(key, strategy, threshold, options));
 	}
 	ZREMRANGEBYRANK(key, start, stop) {
-		return this.useCommand(input$34(key, start, stop));
+		return this.useCommand(input$37(key, start, stop));
 	}
 	ZCARD(key) {
-		return this.useCommand(input$33(key));
+		return this.useCommand(input$36(key));
 	}
 	ZRANGEBYSCORE(key, min, max, options) {
-		return this.useCommand(input$32(key, min, max, options));
+		return this.useCommand(input$35(key, min, max, options));
 	}
 	ZREVRANGEBYLEX(key, max, min, options) {
-		return this.useCommand(input$31(key, max, min, options));
+		return this.useCommand(input$34(key, max, min, options));
 	}
 	ZREVRANGEBYSCORE(key, max, min, options) {
-		return this.useCommand(input$30(key, max, min, options));
+		return this.useCommand(input$33(key, max, min, options));
 	}
 	ZSCORE(key, member) {
-		return this.useCommand(input$29(key, member));
+		return this.useCommand(input$32(key, member));
 	}
 	ZCOUNT(key, min, max) {
-		return this.useCommand(input$28(key, min, max));
+		return this.useCommand(input$31(key, min, max));
 	}
 	ZADD(key, arg1, arg2, arg3) {
-		return this.useCommand(input$27(key, arg1, arg2, arg3));
+		return this.useCommand(input$30(key, arg1, arg2, arg3));
 	}
 	ZRANK(key, member, options) {
-		return this.useCommand(input$26(key, member, options));
+		return this.useCommand(input$29(key, member, options));
 	}
 	ZRANDMEMBER(key, count, options) {
-		return this.useCommand(input$25(key, count, options));
+		return this.useCommand(input$28(key, count, options));
 	}
 	ZREM(key, arg1, ...args_rest) {
-		return this.useCommand(input$24(key, arg1, ...args_rest));
+		return this.useCommand(input$27(key, arg1, ...args_rest));
 	}
 	ZREMRANGEBYSCORE(key, min, max) {
-		return this.useCommand(input$23(key, min, max));
+		return this.useCommand(input$26(key, min, max));
 	}
 	ZREVRANK(key, member, options) {
-		return this.useCommand(input$22(key, member, options));
+		return this.useCommand(input$25(key, member, options));
 	}
 	ZRANGE(key, start, stop, options) {
-		return this.useCommand(input$21(key, start, stop, options));
+		return this.useCommand(input$24(key, start, stop, options));
 	}
 	ZINCRBY(key, increment, member) {
-		return this.useCommand(input$20(key, increment, member));
+		return this.useCommand(input$23(key, increment, member));
 	}
 	ZREMRANGEBYLEX(key, min, max) {
-		return this.useCommand(input$19(key, min, max));
+		return this.useCommand(input$22(key, min, max));
 	}
 	ZINTERSTORE(destination, arg1, options) {
-		return this.useCommand(input$18(destination, arg1, options));
+		return this.useCommand(input$21(destination, arg1, options));
 	}
 	ZREVRANGE(key, start, stop, options) {
-		return this.useCommand(input$17(key, start, stop, options));
+		return this.useCommand(input$20(key, start, stop, options));
 	}
 	ZRANGEBYLEX(key, min, max, options) {
-		return this.useCommand(input$16(key, min, max, options));
+		return this.useCommand(input$19(key, min, max, options));
 	}
 	HVALS(key) {
-		return this.useCommand(input$15(key));
+		return this.useCommand(input$18(key));
 	}
 	HSET(key, arg1, arg2) {
-		return this.useCommand(input$14(key, arg1, arg2));
+		return this.useCommand(input$17(key, arg1, arg2));
 	}
 	HINCRBYFLOAT(key, field, increment) {
-		return this.useCommand(input$13(key, field, increment));
+		return this.useCommand(input$16(key, field, increment));
 	}
 	HGETALL(key) {
-		return this.useCommand(input$12(key));
+		return this.useCommand(input$15(key));
 	}
 	HGET(key, field) {
-		return this.useCommand(input$11(key, field));
+		return this.useCommand(input$14(key, field));
 	}
 	HMSET(key, arg1, arg2) {
-		return this.useCommand(input$10(key, arg1, arg2));
+		return this.useCommand(input$13(key, arg1, arg2));
 	}
 	HMGET(key, ...fields) {
-		return this.useCommand(input$9(key, ...fields));
+		return this.useCommand(input$12(key, ...fields));
 	}
 	HRANDFIELD(key, count, options) {
-		return this.useCommand(input$8(key, count, options));
+		return this.useCommand(input$11(key, count, options));
 	}
 	HLEN(key) {
-		return this.useCommand(input$7(key));
+		return this.useCommand(input$10(key));
 	}
 	HKEYS(key) {
-		return this.useCommand(input$6(key));
+		return this.useCommand(input$9(key));
 	}
 	HINCRBY(key, field, increment) {
-		return this.useCommand(input$5(key, field, increment));
+		return this.useCommand(input$8(key, field, increment));
 	}
 	HDEL(key, arg1, ...args_rest) {
-		return this.useCommand(input$4(key, arg1, ...args_rest));
+		return this.useCommand(input$7(key, arg1, ...args_rest));
 	}
 	HSTRLEN(key, field) {
-		return this.useCommand(input$3(key, field));
+		return this.useCommand(input$6(key, field));
 	}
 	HEXISTS(key, field) {
-		return this.useCommand(input$2(key, field));
+		return this.useCommand(input$5(key, field));
 	}
 	HSETNX(key, field, value) {
-		return this.useCommand(input$1(key, field, value));
+		return this.useCommand(input$4(key, field, value));
+	}
+	EVAL_RO(script, keys, args) {
+		return this.useCommand(input$3(script, keys, args));
 	}
 	EVAL(script, keys, args) {
-		return this.useCommand(input(script, keys, args));
+		return this.useCommand(input$2(script, keys, args));
+	}
+	EVALSHA(sha1, keys, args) {
+		return this.useCommand(input$1(sha1, keys, args));
+	}
+	EVALSHA_RO(sha1, keys, args) {
+		return this.useCommand(input(sha1, keys, args));
 	}
 };
 //#endregion

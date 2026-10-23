@@ -2964,6 +2964,17 @@ declare class RedisXTransactionUse {
    */
   HSETNX(key: string, field: string, value: string | number): RedisXTransactionCommand<boolean>;
   /**
+   * Runs a read-only Lua script. Unlike `EVAL`, this command can't run commands that modify data.
+   * - Available since: 7.0.0.
+   * - Time complexity: Depends on the script that is executed.
+   * @param script - The Lua script to evaluate. It must not modify data.
+   * @param keys - The key names the script accesses, provided to it via the Lua `KEYS` global variable.
+   * @param args - Additional arguments provided to the script via the Lua `ARGV` variable.
+   * @returns The return value depends on the script that was executed.
+   * @see {@link https://redis.io/commands/eval_ro}
+   */
+  EVAL_RO(script: string, keys: (string | number)[], args?: (string | number)[]): RedisXTransactionCommand<unknown>;
+  /**
    * Invoke the execution of a server-side Lua script.
    * - Available since: 2.6.0.
    * - Time complexity: Depends on the script that is executed.
@@ -2974,6 +2985,31 @@ declare class RedisXTransactionUse {
    * @see {@link https://redis.io/commands/eval}
    */
   EVAL(script: string, keys: (string | number)[], args?: (string | number)[]): RedisXTransactionCommand<unknown>;
+  /**
+   * Evaluate a script from the server's cache by its SHA1 digest.
+   *
+   * The server caches scripts by using the `SCRIPT LOAD` command.
+   * The command is otherwise identical to `EVAL`.
+   * - Available since: 2.6.0.
+   * - Time complexity: Depends on the script that is executed.
+   * @param sha1 - The SHA1 digest of a script previously cached with `SCRIPT LOAD` or `EVAL`.
+   * @param keys - The key names the script accesses, provided to it via the Lua `KEYS` global variable.
+   * @param args - Additional arguments provided to the script via the Lua `ARGV` variable.
+   * @returns The return value depends on the script that was executed.
+   * @see {@link https://redis.io/commands/evalsha}
+   */
+  EVALSHA(sha1: string, keys: (string | number)[], args?: (string | number)[]): RedisXTransactionCommand<unknown>;
+  /**
+   * This is a read-only variant of the `EVALSHA` command that cannot execute commands that modify data.
+   * - Available since: 7.0.0.
+   * - Time complexity: Depends on the script that is executed.
+   * @param sha1 - The SHA1 digest of a read-only script previously cached with `SCRIPT LOAD` or `EVAL_RO`.
+   * @param keys - The key names the script accesses, provided to it via the Lua `KEYS` global variable.
+   * @param args - Additional arguments provided to the script via the Lua `ARGV` variable.
+   * @returns The return value depends on the script that was executed.
+   * @see {@link https://redis.io/commands/evalsha_ro}
+   */
+  EVALSHA_RO(sha1: string, keys: (string | number)[], args?: (string | number)[]): RedisXTransactionCommand<unknown>;
 }
 //#endregion
 //#region src/transaction.d.ts
@@ -5325,6 +5361,17 @@ declare class RedisXTransaction<L = [], C extends boolean = false, D = unknown> 
    */
   HSETNX(key: string, field: string, value: string | number): RedisXTransaction<AddToList<L, boolean>, C, D>;
   /**
+   * Runs a read-only Lua script. Unlike `EVAL`, this command can't run commands that modify data.
+   * - Available since: 7.0.0.
+   * - Time complexity: Depends on the script that is executed.
+   * @param script - The Lua script to evaluate. It must not modify data.
+   * @param keys - The key names the script accesses, provided to it via the Lua `KEYS` global variable.
+   * @param args - Additional arguments provided to the script via the Lua `ARGV` variable.
+   * @returns The return value depends on the script that was executed.
+   * @see {@link https://redis.io/commands/eval_ro}
+   */
+  EVAL_RO(script: string, keys: (string | number)[], args?: (string | number)[]): RedisXTransaction<AddToList<L, unknown>, C, D>;
+  /**
    * Invoke the execution of a server-side Lua script.
    * - Available since: 2.6.0.
    * - Time complexity: Depends on the script that is executed.
@@ -5335,6 +5382,31 @@ declare class RedisXTransaction<L = [], C extends boolean = false, D = unknown> 
    * @see {@link https://redis.io/commands/eval}
    */
   EVAL(script: string, keys: (string | number)[], args?: (string | number)[]): RedisXTransaction<AddToList<L, unknown>, C, D>;
+  /**
+   * Evaluate a script from the server's cache by its SHA1 digest.
+   *
+   * The server caches scripts by using the `SCRIPT LOAD` command.
+   * The command is otherwise identical to `EVAL`.
+   * - Available since: 2.6.0.
+   * - Time complexity: Depends on the script that is executed.
+   * @param sha1 - The SHA1 digest of a script previously cached with `SCRIPT LOAD` or `EVAL`.
+   * @param keys - The key names the script accesses, provided to it via the Lua `KEYS` global variable.
+   * @param args - Additional arguments provided to the script via the Lua `ARGV` variable.
+   * @returns The return value depends on the script that was executed.
+   * @see {@link https://redis.io/commands/evalsha}
+   */
+  EVALSHA(sha1: string, keys: (string | number)[], args?: (string | number)[]): RedisXTransaction<AddToList<L, unknown>, C, D>;
+  /**
+   * This is a read-only variant of the `EVALSHA` command that cannot execute commands that modify data.
+   * - Available since: 7.0.0.
+   * - Time complexity: Depends on the script that is executed.
+   * @param sha1 - The SHA1 digest of a read-only script previously cached with `SCRIPT LOAD` or `EVAL_RO`.
+   * @param keys - The key names the script accesses, provided to it via the Lua `KEYS` global variable.
+   * @param args - Additional arguments provided to the script via the Lua `ARGV` variable.
+   * @returns The return value depends on the script that was executed.
+   * @see {@link https://redis.io/commands/evalsha_ro}
+   */
+  EVALSHA_RO(sha1: string, keys: (string | number)[], args?: (string | number)[]): RedisXTransaction<AddToList<L, unknown>, C, D>;
 }
 //#endregion
 //#region src/client.d.ts
@@ -7677,6 +7749,17 @@ export declare class RedisXClient {
    */
   HSETNX(key: string, field: string, value: string | number): Promise<boolean>;
   /**
+   * Runs a read-only Lua script. Unlike `EVAL`, this command can't run commands that modify data.
+   * - Available since: 7.0.0.
+   * - Time complexity: Depends on the script that is executed.
+   * @param script - The Lua script to evaluate. It must not modify data.
+   * @param keys - The key names the script accesses, provided to it via the Lua `KEYS` global variable.
+   * @param args - Additional arguments provided to the script via the Lua `ARGV` variable.
+   * @returns The return value depends on the script that was executed.
+   * @see {@link https://redis.io/commands/eval_ro}
+   */
+  EVAL_RO(script: string, keys: (string | number)[], args?: (string | number)[]): Promise<unknown>;
+  /**
    * Invoke the execution of a server-side Lua script.
    * - Available since: 2.6.0.
    * - Time complexity: Depends on the script that is executed.
@@ -7687,6 +7770,31 @@ export declare class RedisXClient {
    * @see {@link https://redis.io/commands/eval}
    */
   EVAL(script: string, keys: (string | number)[], args?: (string | number)[]): Promise<unknown>;
+  /**
+   * Evaluate a script from the server's cache by its SHA1 digest.
+   *
+   * The server caches scripts by using the `SCRIPT LOAD` command.
+   * The command is otherwise identical to `EVAL`.
+   * - Available since: 2.6.0.
+   * - Time complexity: Depends on the script that is executed.
+   * @param sha1 - The SHA1 digest of a script previously cached with `SCRIPT LOAD` or `EVAL`.
+   * @param keys - The key names the script accesses, provided to it via the Lua `KEYS` global variable.
+   * @param args - Additional arguments provided to the script via the Lua `ARGV` variable.
+   * @returns The return value depends on the script that was executed.
+   * @see {@link https://redis.io/commands/evalsha}
+   */
+  EVALSHA(sha1: string, keys: (string | number)[], args?: (string | number)[]): Promise<unknown>;
+  /**
+   * This is a read-only variant of the `EVALSHA` command that cannot execute commands that modify data.
+   * - Available since: 7.0.0.
+   * - Time complexity: Depends on the script that is executed.
+   * @param sha1 - The SHA1 digest of a read-only script previously cached with `SCRIPT LOAD` or `EVAL_RO`.
+   * @param keys - The key names the script accesses, provided to it via the Lua `KEYS` global variable.
+   * @param args - Additional arguments provided to the script via the Lua `ARGV` variable.
+   * @returns The return value depends on the script that was executed.
+   * @see {@link https://redis.io/commands/evalsha_ro}
+   */
+  EVALSHA_RO(sha1: string, keys: (string | number)[], args?: (string | number)[]): Promise<unknown>;
 }
 //#endregion
 export type { RedisXScript, RedisXTransaction };

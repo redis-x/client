@@ -305,7 +305,7 @@ With input validation, you can transform function arguments from any complex obj
 
 The `redis-x` client is more a proof of concept than a complete implementation. It currently supports a subset of Redis commands, but the full support for all commands is planned.
 
-Totals use the [Redis command reference](https://redis.io/docs/latest/commands/) (checked October 10, 2026), counting each listed command or subcommand once, including deprecated entries.
+Totals use the [Redis 8.10 command reference](https://redis.io/docs/latest/commands/redis-8-10-commands/), counting each listed command or subcommand once, including deprecated entries.
 
 <!--
 7 blocks:
@@ -320,7 +320,7 @@ X / Y / (1/7)
 | [Generic](src/commands/generic)                   | 🟩🟩🟩🟨🟥🟥🟥 | **16** / 32 |
 | [Hash](src/commands/hash)                         | 🟩🟩🟩🟥🟥🟥🟥 | **15** / 33 |
 | [List](src/commands/list)                         | 🟩🟩🟩🟩🟥🟥🟥 | **14** / 24 |
-| [Scripting and Functions](src/commands/scripting) | 🟥🟥🟥🟥🟥🟥🟥 |  **1** / 19 |
+| [Scripting and Functions](src/commands/scripting) | 🟩🟥🟥🟥🟥🟥🟥 |  **4** / 19 |
 | [Set](src/commands/set)                           | 🟩🟩🟩🟩🟩🟩🟨 | **18** / 19 |
 | [Sorted Set](src/commands/sorted-set)             | 🟩🟩🟩🟨🟥🟥🟥 | **19** / 35 |
 | [Stream](src/commands/stream)                     | 🟩🟨🟥🟥🟥🟥🟥 |  **7** / 26 |
