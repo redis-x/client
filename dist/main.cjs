@@ -114,7 +114,7 @@ function input$88(key, arg1, ...args_rest) {
 	return {
 		kind: "#schema",
 		args,
-		replyTransform: replyTransform$1
+		replyTransform
 	};
 }
 /**
@@ -122,7 +122,7 @@ function input$88(key, arg1, ...args_rest) {
 * @param reply The array of numbers to convert.
 * @returns An array of booleans where 1 becomes true and 0 becomes false.
 */
-function replyTransform$1(reply) {
+function replyTransform(reply) {
 	return reply.map((value) => value === 1);
 }
 //#endregion
@@ -132,7 +132,7 @@ function replyTransform$1(reply) {
 * @param reply The array of strings to convert.
 * @returns A Set containing the unique strings from the array.
 */
-function replyTransform(reply) {
+function arrayToSet(reply) {
 	return new Set(reply);
 }
 //#endregion
@@ -150,7 +150,7 @@ function input$87(key) {
 	return {
 		kind: "#schema",
 		args: ["SMEMBERS", key],
-		replyTransform
+		replyTransform: arrayToSet
 	};
 }
 //#endregion
@@ -839,7 +839,7 @@ function input$57(pattern) {
 	return {
 		kind: "#schema",
 		args: ["KEYS", pattern],
-		replyTransform
+		replyTransform: arrayToSet
 	};
 }
 //#endregion
@@ -1997,7 +1997,7 @@ function input$6(key) {
 	return {
 		kind: "#schema",
 		args: ["HKEYS", key],
-		replyTransform
+		replyTransform: arrayToSet
 	};
 }
 //#endregion

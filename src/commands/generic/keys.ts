@@ -1,4 +1,4 @@
-import { replyTransform } from '../../reply-transformers/array-to-set.js';
+import { arrayToSet as replyTransform } from '../../reply-transformers/array-to-set.js';
 import type { Command } from '../../types.js';
 
 /**
