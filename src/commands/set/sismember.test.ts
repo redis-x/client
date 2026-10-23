@@ -7,3 +7,8 @@ test('command', () => {
 
 	expect(command.replyTransform).toBeTypeOf('function');
 });
+
+test('numeric member', () => {
+	const command = input('myset', 1);
+	expect(command.args).toStrictEqual(['SISMEMBER', 'myset', '1']);
+});

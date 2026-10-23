@@ -11,10 +11,10 @@ import type { Command } from '../../types.js';
  * @returns `true` if the member is a member of the set stored at key, `false` otherwise.
  * @see {@link https://redis.io/commands/sismember}
  */
-export function input(key: string, member: string): Command<boolean> {
+export function input(key: string, member: string | number): Command<boolean> {
 	return {
 		kind: '#schema',
-		args: ['SISMEMBER', key, member],
+		args: ['SISMEMBER', key, String(member)],
 		replyTransform,
 	};
 }

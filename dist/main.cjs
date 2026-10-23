@@ -76,7 +76,7 @@ function unwrapRedisTransactionCommand(target, result) {
 }
 //#endregion
 //#region src/commands/set/srem.ts
-function input$96(key, arg1, ...args_rest) {
+function input$99(key, arg1, ...args_rest) {
 	const args = ["SREM", key];
 	if (typeof arg1 === "string" || typeof arg1 === "number") args.push(String(arg1), ...args_rest.map(String));
 	else args.push(...collectionToStringArray(arg1));
@@ -87,7 +87,7 @@ function input$96(key, arg1, ...args_rest) {
 }
 //#endregion
 //#region src/commands/set/smismember.ts
-function input$95(key, arg1, ...args_rest) {
+function input$98(key, arg1, ...args_rest) {
 	const args = ["SMISMEMBER", key];
 	if (typeof arg1 === "string" || typeof arg1 === "number") args.push(String(arg1), ...args_rest.map(String));
 	else args.push(...collectionToStringArray(arg1));
@@ -107,10 +107,22 @@ function arrayToSet(reply) {
 }
 //#endregion
 //#region src/commands/set/smembers.ts
-function input$94(key) {
+function input$97(key) {
 	return {
 		kind: "#schema",
 		args: ["SMEMBERS", key],
+		replyTransform: arrayToSet
+	};
+}
+//#endregion
+//#region src/commands/set/sunion.ts
+function input$96(arg0, ...args_rest) {
+	const args = ["SUNION"];
+	if (typeof arg0 === "string") args.push(arg0, ...args_rest);
+	else args.push(...collectionToStringArray(arg0));
+	return {
+		kind: "#schema",
+		args,
 		replyTransform: arrayToSet
 	};
 }
@@ -121,15 +133,42 @@ function numberToBoolean(reply) {
 }
 //#endregion
 //#region src/commands/set/sismember.ts
-function input$93(key, member) {
+function input$95(key, member) {
 	return {
 		kind: "#schema",
 		args: [
 			"SISMEMBER",
 			key,
-			member
+			String(member)
 		],
 		replyTransform: numberToBoolean
+	};
+}
+//#endregion
+//#region src/commands/set/sunionstore.ts
+function input$94(destination, arg1, ...args_rest) {
+	const args = ["SUNIONSTORE", destination];
+	if (typeof arg1 === "string") args.push(arg1, ...args_rest);
+	else args.push(...collectionToStringArray(arg1));
+	return {
+		kind: "#schema",
+		args
+	};
+}
+//#endregion
+//#region src/commands/set/sunioncard.ts
+function input$93(keys, options) {
+	const key_list = collectionToStringArray(keys);
+	const args = [
+		"SUNIONCARD",
+		String(key_list.length),
+		...key_list
+	];
+	if (options === null || options === void 0 ? void 0 : options.APPROX) args.push("APPROX");
+	if ((options === null || options === void 0 ? void 0 : options.LIMIT) !== void 0) args.push("LIMIT", String(options.LIMIT));
+	return {
+		kind: "#schema",
+		args
 	};
 }
 //#endregion
@@ -1481,16 +1520,25 @@ var RedisXTransactionUse = class {
 		return redis_transaction_command;
 	}
 	SREM(key, arg1, ...args_rest) {
-		return this.useCommand(input$96(key, arg1, ...args_rest));
+		return this.useCommand(input$99(key, arg1, ...args_rest));
 	}
 	SMISMEMBER(key, arg1, ...args_rest) {
-		return this.useCommand(input$95(key, arg1, ...args_rest));
+		return this.useCommand(input$98(key, arg1, ...args_rest));
 	}
 	SMEMBERS(key) {
-		return this.useCommand(input$94(key));
+		return this.useCommand(input$97(key));
+	}
+	SUNION(arg0, ...args_rest) {
+		return this.useCommand(input$96(arg0, ...args_rest));
 	}
 	SISMEMBER(key, member) {
-		return this.useCommand(input$93(key, member));
+		return this.useCommand(input$95(key, member));
+	}
+	SUNIONSTORE(destination, arg1, ...args_rest) {
+		return this.useCommand(input$94(destination, arg1, ...args_rest));
+	}
+	SUNIONCARD(keys, options) {
+		return this.useCommand(input$93(keys, options));
 	}
 	SCARD(key) {
 		return this.useCommand(input$92(key));
@@ -1830,16 +1878,25 @@ var RedisXTransaction = class {
 		return Object.assign(result, result_named);
 	}
 	SREM(key, arg1, ...args_rest) {
-		return this.useCommand(input$96(key, arg1, ...args_rest));
+		return this.useCommand(input$99(key, arg1, ...args_rest));
 	}
 	SMISMEMBER(key, arg1, ...args_rest) {
-		return this.useCommand(input$95(key, arg1, ...args_rest));
+		return this.useCommand(input$98(key, arg1, ...args_rest));
 	}
 	SMEMBERS(key) {
-		return this.useCommand(input$94(key));
+		return this.useCommand(input$97(key));
+	}
+	SUNION(arg0, ...args_rest) {
+		return this.useCommand(input$96(arg0, ...args_rest));
 	}
 	SISMEMBER(key, member) {
-		return this.useCommand(input$93(key, member));
+		return this.useCommand(input$95(key, member));
+	}
+	SUNIONSTORE(destination, arg1, ...args_rest) {
+		return this.useCommand(input$94(destination, arg1, ...args_rest));
+	}
+	SUNIONCARD(keys, options) {
+		return this.useCommand(input$93(keys, options));
 	}
 	SCARD(key) {
 		return this.useCommand(input$92(key));
@@ -2151,16 +2208,25 @@ var RedisXClient = class {
 		return new RedisXScript(this.redisClient, options);
 	}
 	SREM(key, arg1, ...args_rest) {
-		return this.useCommand(input$96(key, arg1, ...args_rest));
+		return this.useCommand(input$99(key, arg1, ...args_rest));
 	}
 	SMISMEMBER(key, arg1, ...args_rest) {
-		return this.useCommand(input$95(key, arg1, ...args_rest));
+		return this.useCommand(input$98(key, arg1, ...args_rest));
 	}
 	SMEMBERS(key) {
-		return this.useCommand(input$94(key));
+		return this.useCommand(input$97(key));
+	}
+	SUNION(arg0, ...args_rest) {
+		return this.useCommand(input$96(arg0, ...args_rest));
 	}
 	SISMEMBER(key, member) {
-		return this.useCommand(input$93(key, member));
+		return this.useCommand(input$95(key, member));
+	}
+	SUNIONSTORE(destination, arg1, ...args_rest) {
+		return this.useCommand(input$94(destination, arg1, ...args_rest));
+	}
+	SUNIONCARD(keys, options) {
+		return this.useCommand(input$93(keys, options));
 	}
 	SCARD(key) {
 		return this.useCommand(input$92(key));

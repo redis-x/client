@@ -168,6 +168,36 @@ export class RedisXClient {
 	}
 
 	/**
+	 * Returns the members of the set resulting from the union of all the given sets.
+	 *
+	 * Keys that do not exist are considered to be empty sets.
+	 * - Available since: 1.0.0.
+	 * - Time complexity: O(N) where N is the total number of elements in all given sets.
+	 * @param keys - One or more set keys to union.
+	 * @returns Array reply: a list with members of the resulting set.
+	 * @see {@link https://redis.io/commands/sunion}
+	 */
+	SUNION(...keys: string[]): Promise<Set<string>>;
+	/**
+	 * Returns the members of the set resulting from the union of all the given sets.
+	 *
+	 * Keys that do not exist are considered to be empty sets.
+	 * - Available since: 1.0.0.
+	 * - Time complexity: O(N) where N is the total number of elements in all given sets.
+	 * @param keys - One or more set keys to union.
+	 * @returns Array reply: a list with members of the resulting set.
+	 * @see {@link https://redis.io/commands/sunion}
+	 */
+	SUNION(keys: Collection<string>): Promise<Set<string>>;
+
+	SUNION(
+		arg0: string | Collection<string>,
+		...args_rest: string[]
+	): Promise<Set<string>> {
+		return this.useCommand(input_sunion(arg0, ...args_rest));
+	}
+
+	/**
 	 * Returns if member is a member of the set stored at key.
 	 *
 	 * - Available since: 1.0.0.
@@ -177,8 +207,59 @@ export class RedisXClient {
 	 * @returns `true` if the member is a member of the set stored at key, `false` otherwise.
 	 * @see {@link https://redis.io/commands/sismember}
 	 */
-	SISMEMBER(key: string, member: string): Promise<boolean> {
+	SISMEMBER(key: string, member: string | number): Promise<boolean> {
 		return this.useCommand(input_sismember(key, member));
+	}
+
+	/**
+	 * This command is equal to `SUNION`, but instead of returning the resulting set, it is stored in `destination`.
+	 *
+	 * If `destination` already exists, it is overwritten.
+	 * - Available since: 1.0.0.
+	 * - Time complexity: O(N) where N is the total number of elements in all given sets.
+	 * @param destination - The key to store the resulting set in.
+	 * @param keys - One or more set keys to union.
+	 * @returns Integer reply: the number of elements in the resulting set.
+	 * @see {@link https://redis.io/commands/sunionstore}
+	 */
+	SUNIONSTORE(destination: string, ...keys: string[]): Promise<number>;
+	/**
+	 * This command is equal to `SUNION`, but instead of returning the resulting set, it is stored in `destination`.
+	 *
+	 * If `destination` already exists, it is overwritten.
+	 * - Available since: 1.0.0.
+	 * - Time complexity: O(N) where N is the total number of elements in all given sets.
+	 * @param destination - The key to store the resulting set in.
+	 * @param keys - One or more set keys to union.
+	 * @returns Integer reply: the number of elements in the resulting set.
+	 * @see {@link https://redis.io/commands/sunionstore}
+	 */
+	SUNIONSTORE(destination: string, keys: Collection<string>): Promise<number>;
+
+	SUNIONSTORE(
+		destination: string,
+		arg1: string | Collection<string>,
+		...args_rest: string[]
+	): Promise<number> {
+		return this.useCommand(input_sunionstore(destination, arg1, ...args_rest));
+	}
+
+	/**
+	 * Returns the cardinality of the union of the given sets. This is the count-only counterpart of `SUNION`: it returns just the number of distinct elements in the union, not the members themselves.
+	 *
+	 * Keys that do not exist are considered to be empty sets.
+	 * - Available since: 8.10.0.
+	 * - Time complexity: O(N) where N is the total number of elements in all given sets.
+	 * @param keys - One or more set keys to union.
+	 * @param options -
+	 * @returns Integer reply: the number of elements in the resulting union.
+	 * @see {@link https://redis.io/commands/sunioncard}
+	 */
+	SUNIONCARD(
+		keys: Collection<string>,
+		options?: SunioncardOptions,
+	): Promise<number> {
+		return this.useCommand(input_sunioncard(keys, options));
 	}
 
 	/**
@@ -2692,7 +2773,13 @@ export class RedisXClient {
 import { input as input_srem } from './commands/set/srem.js';
 import { input as input_smismember } from './commands/set/smismember.js';
 import { input as input_smembers } from './commands/set/smembers.js';
+import { input as input_sunion } from './commands/set/sunion.js';
 import { input as input_sismember } from './commands/set/sismember.js';
+import { input as input_sunionstore } from './commands/set/sunionstore.js';
+import {
+	type SunioncardOptions,
+	input as input_sunioncard,
+} from './commands/set/sunioncard.js';
 import { input as input_scard } from './commands/set/scard.js';
 import { input as input_sadd } from './commands/set/sadd.js';
 import { input as input_msetnx } from './commands/string/msetnx.js';

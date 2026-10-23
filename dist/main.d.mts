@@ -66,6 +66,20 @@ type UnwrapRedisXTransactionCommand<T> = T extends RedisXTransactionCommand<infe
 export declare function stringBulkToObject(values: string[]): Record<string, string>;
 type Collection<T> = readonly T[] | ReadonlySet<T> | IterableIterator<T>;
 //#endregion
+//#region src/commands/set/sunioncard.d.ts
+type SunioncardOptions = {
+  /**
+   * Return an approximate cardinality instead of an exact count.
+   * - Available since: 8.10.0.
+   */
+  APPROX?: boolean;
+  /**
+   * Stop counting once the cardinality reaches `limit`. `0` (the default) means no limit.
+   * - Available since: 8.10.0.
+   */
+  LIMIT?: number;
+};
+//#endregion
 //#region src/commands/string/set.d.ts
 type SetOptions = {
   /**
@@ -651,6 +665,28 @@ declare class RedisXTransactionUse {
    */
   SMEMBERS(key: string): RedisXTransactionCommand<Set<string>>;
   /**
+   * Returns the members of the set resulting from the union of all the given sets.
+   *
+   * Keys that do not exist are considered to be empty sets.
+   * - Available since: 1.0.0.
+   * - Time complexity: O(N) where N is the total number of elements in all given sets.
+   * @param keys - One or more set keys to union.
+   * @returns Array reply: a list with members of the resulting set.
+   * @see {@link https://redis.io/commands/sunion}
+   */
+  SUNION(...keys: string[]): RedisXTransactionCommand<Set<string>>;
+  /**
+   * Returns the members of the set resulting from the union of all the given sets.
+   *
+   * Keys that do not exist are considered to be empty sets.
+   * - Available since: 1.0.0.
+   * - Time complexity: O(N) where N is the total number of elements in all given sets.
+   * @param keys - One or more set keys to union.
+   * @returns Array reply: a list with members of the resulting set.
+   * @see {@link https://redis.io/commands/sunion}
+   */
+  SUNION(keys: Collection<string>): RedisXTransactionCommand<Set<string>>;
+  /**
    * Returns if member is a member of the set stored at key.
    *
    * - Available since: 1.0.0.
@@ -660,7 +696,43 @@ declare class RedisXTransactionUse {
    * @returns `true` if the member is a member of the set stored at key, `false` otherwise.
    * @see {@link https://redis.io/commands/sismember}
    */
-  SISMEMBER(key: string, member: string): RedisXTransactionCommand<boolean>;
+  SISMEMBER(key: string, member: string | number): RedisXTransactionCommand<boolean>;
+  /**
+   * This command is equal to `SUNION`, but instead of returning the resulting set, it is stored in `destination`.
+   *
+   * If `destination` already exists, it is overwritten.
+   * - Available since: 1.0.0.
+   * - Time complexity: O(N) where N is the total number of elements in all given sets.
+   * @param destination - The key to store the resulting set in.
+   * @param keys - One or more set keys to union.
+   * @returns Integer reply: the number of elements in the resulting set.
+   * @see {@link https://redis.io/commands/sunionstore}
+   */
+  SUNIONSTORE(destination: string, ...keys: string[]): RedisXTransactionCommand<number>;
+  /**
+   * This command is equal to `SUNION`, but instead of returning the resulting set, it is stored in `destination`.
+   *
+   * If `destination` already exists, it is overwritten.
+   * - Available since: 1.0.0.
+   * - Time complexity: O(N) where N is the total number of elements in all given sets.
+   * @param destination - The key to store the resulting set in.
+   * @param keys - One or more set keys to union.
+   * @returns Integer reply: the number of elements in the resulting set.
+   * @see {@link https://redis.io/commands/sunionstore}
+   */
+  SUNIONSTORE(destination: string, keys: Collection<string>): RedisXTransactionCommand<number>;
+  /**
+   * Returns the cardinality of the union of the given sets. This is the count-only counterpart of `SUNION`: it returns just the number of distinct elements in the union, not the members themselves.
+   *
+   * Keys that do not exist are considered to be empty sets.
+   * - Available since: 8.10.0.
+   * - Time complexity: O(N) where N is the total number of elements in all given sets.
+   * @param keys - One or more set keys to union.
+   * @param options -
+   * @returns Integer reply: the number of elements in the resulting union.
+   * @see {@link https://redis.io/commands/sunioncard}
+   */
+  SUNIONCARD(keys: Collection<string>, options?: SunioncardOptions): RedisXTransactionCommand<number>;
   /**
    * Returns the set cardinality (number of elements) of the set stored at key.
    *
@@ -2621,6 +2693,28 @@ declare class RedisXTransaction<L = [], C extends boolean = false, D = unknown> 
    */
   SMEMBERS(key: string): RedisXTransaction<AddToList<L, Set<string>>, C, D>;
   /**
+   * Returns the members of the set resulting from the union of all the given sets.
+   *
+   * Keys that do not exist are considered to be empty sets.
+   * - Available since: 1.0.0.
+   * - Time complexity: O(N) where N is the total number of elements in all given sets.
+   * @param keys - One or more set keys to union.
+   * @returns Array reply: a list with members of the resulting set.
+   * @see {@link https://redis.io/commands/sunion}
+   */
+  SUNION(...keys: string[]): RedisXTransaction<AddToList<L, Set<string>>, C, D>;
+  /**
+   * Returns the members of the set resulting from the union of all the given sets.
+   *
+   * Keys that do not exist are considered to be empty sets.
+   * - Available since: 1.0.0.
+   * - Time complexity: O(N) where N is the total number of elements in all given sets.
+   * @param keys - One or more set keys to union.
+   * @returns Array reply: a list with members of the resulting set.
+   * @see {@link https://redis.io/commands/sunion}
+   */
+  SUNION(keys: Collection<string>): RedisXTransaction<AddToList<L, Set<string>>, C, D>;
+  /**
    * Returns if member is a member of the set stored at key.
    *
    * - Available since: 1.0.0.
@@ -2630,7 +2724,43 @@ declare class RedisXTransaction<L = [], C extends boolean = false, D = unknown> 
    * @returns `true` if the member is a member of the set stored at key, `false` otherwise.
    * @see {@link https://redis.io/commands/sismember}
    */
-  SISMEMBER(key: string, member: string): RedisXTransaction<AddToList<L, boolean>, C, D>;
+  SISMEMBER(key: string, member: string | number): RedisXTransaction<AddToList<L, boolean>, C, D>;
+  /**
+   * This command is equal to `SUNION`, but instead of returning the resulting set, it is stored in `destination`.
+   *
+   * If `destination` already exists, it is overwritten.
+   * - Available since: 1.0.0.
+   * - Time complexity: O(N) where N is the total number of elements in all given sets.
+   * @param destination - The key to store the resulting set in.
+   * @param keys - One or more set keys to union.
+   * @returns Integer reply: the number of elements in the resulting set.
+   * @see {@link https://redis.io/commands/sunionstore}
+   */
+  SUNIONSTORE(destination: string, ...keys: string[]): RedisXTransaction<AddToList<L, number>, C, D>;
+  /**
+   * This command is equal to `SUNION`, but instead of returning the resulting set, it is stored in `destination`.
+   *
+   * If `destination` already exists, it is overwritten.
+   * - Available since: 1.0.0.
+   * - Time complexity: O(N) where N is the total number of elements in all given sets.
+   * @param destination - The key to store the resulting set in.
+   * @param keys - One or more set keys to union.
+   * @returns Integer reply: the number of elements in the resulting set.
+   * @see {@link https://redis.io/commands/sunionstore}
+   */
+  SUNIONSTORE(destination: string, keys: Collection<string>): RedisXTransaction<AddToList<L, number>, C, D>;
+  /**
+   * Returns the cardinality of the union of the given sets. This is the count-only counterpart of `SUNION`: it returns just the number of distinct elements in the union, not the members themselves.
+   *
+   * Keys that do not exist are considered to be empty sets.
+   * - Available since: 8.10.0.
+   * - Time complexity: O(N) where N is the total number of elements in all given sets.
+   * @param keys - One or more set keys to union.
+   * @param options -
+   * @returns Integer reply: the number of elements in the resulting union.
+   * @see {@link https://redis.io/commands/sunioncard}
+   */
+  SUNIONCARD(keys: Collection<string>, options?: SunioncardOptions): RedisXTransaction<AddToList<L, number>, C, D>;
   /**
    * Returns the set cardinality (number of elements) of the set stored at key.
    *
@@ -4582,6 +4712,28 @@ export declare class RedisXClient {
    */
   SMEMBERS(key: string): Promise<Set<string>>;
   /**
+   * Returns the members of the set resulting from the union of all the given sets.
+   *
+   * Keys that do not exist are considered to be empty sets.
+   * - Available since: 1.0.0.
+   * - Time complexity: O(N) where N is the total number of elements in all given sets.
+   * @param keys - One or more set keys to union.
+   * @returns Array reply: a list with members of the resulting set.
+   * @see {@link https://redis.io/commands/sunion}
+   */
+  SUNION(...keys: string[]): Promise<Set<string>>;
+  /**
+   * Returns the members of the set resulting from the union of all the given sets.
+   *
+   * Keys that do not exist are considered to be empty sets.
+   * - Available since: 1.0.0.
+   * - Time complexity: O(N) where N is the total number of elements in all given sets.
+   * @param keys - One or more set keys to union.
+   * @returns Array reply: a list with members of the resulting set.
+   * @see {@link https://redis.io/commands/sunion}
+   */
+  SUNION(keys: Collection<string>): Promise<Set<string>>;
+  /**
    * Returns if member is a member of the set stored at key.
    *
    * - Available since: 1.0.0.
@@ -4591,7 +4743,43 @@ export declare class RedisXClient {
    * @returns `true` if the member is a member of the set stored at key, `false` otherwise.
    * @see {@link https://redis.io/commands/sismember}
    */
-  SISMEMBER(key: string, member: string): Promise<boolean>;
+  SISMEMBER(key: string, member: string | number): Promise<boolean>;
+  /**
+   * This command is equal to `SUNION`, but instead of returning the resulting set, it is stored in `destination`.
+   *
+   * If `destination` already exists, it is overwritten.
+   * - Available since: 1.0.0.
+   * - Time complexity: O(N) where N is the total number of elements in all given sets.
+   * @param destination - The key to store the resulting set in.
+   * @param keys - One or more set keys to union.
+   * @returns Integer reply: the number of elements in the resulting set.
+   * @see {@link https://redis.io/commands/sunionstore}
+   */
+  SUNIONSTORE(destination: string, ...keys: string[]): Promise<number>;
+  /**
+   * This command is equal to `SUNION`, but instead of returning the resulting set, it is stored in `destination`.
+   *
+   * If `destination` already exists, it is overwritten.
+   * - Available since: 1.0.0.
+   * - Time complexity: O(N) where N is the total number of elements in all given sets.
+   * @param destination - The key to store the resulting set in.
+   * @param keys - One or more set keys to union.
+   * @returns Integer reply: the number of elements in the resulting set.
+   * @see {@link https://redis.io/commands/sunionstore}
+   */
+  SUNIONSTORE(destination: string, keys: Collection<string>): Promise<number>;
+  /**
+   * Returns the cardinality of the union of the given sets. This is the count-only counterpart of `SUNION`: it returns just the number of distinct elements in the union, not the members themselves.
+   *
+   * Keys that do not exist are considered to be empty sets.
+   * - Available since: 8.10.0.
+   * - Time complexity: O(N) where N is the total number of elements in all given sets.
+   * @param keys - One or more set keys to union.
+   * @param options -
+   * @returns Integer reply: the number of elements in the resulting union.
+   * @see {@link https://redis.io/commands/sunioncard}
+   */
+  SUNIONCARD(keys: Collection<string>, options?: SunioncardOptions): Promise<number>;
   /**
    * Returns the set cardinality (number of elements) of the set stored at key.
    *
