@@ -88,6 +88,8 @@ Tests for command are mandatory. Create test file with the same name as the comm
 
 However, we **do not** test the Redis server itself. Instead, we test **transformations**:
 
+- Keep only `command` and `reply` at the top level of a test file: `command` for the command call and `reply` for a local reply transformer. Use `test('command')` or `test('reply')` for a single test, and a `describe('command')` or `describe('reply')` block for several; do not wrap a single test in a `describe`.
+
 - Command call should be transformed to the correct Redis command with options.
   - Test every option given to command.
   - [Example](src/commands/string/set.test.ts)

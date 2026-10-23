@@ -24,13 +24,11 @@ describe('command', () => {
 	});
 });
 
-describe('reply', () => {
-	test('membership flags', () => {
-		const command = input('myset', 'member1', 'member2', 0);
-		expect(command.replyTransform?.([1, 0, 1])).toStrictEqual([
-			true,
-			false,
-			true,
-		]);
-	});
+test('reply', () => {
+	const command = input('myset', 'member1', 'member2', 0);
+	expect(command.replyTransform?.([1, 0, 1])).toStrictEqual([
+		true,
+		false,
+		true,
+	]);
 });

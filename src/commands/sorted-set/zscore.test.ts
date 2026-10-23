@@ -1,11 +1,9 @@
 import { describe, expect, test } from 'vitest';
 import { input } from './zscore.js';
 
-describe('command', () => {
-	test('arguments', () => {
-		const command = input('key', 'member');
-		expect(command.args).toStrictEqual(['ZSCORE', 'key', 'member']);
-	});
+test('command', () => {
+	const command = input('key', 'member');
+	expect(command.args).toStrictEqual(['ZSCORE', 'key', 'member']);
 });
 
 describe('reply', () => {

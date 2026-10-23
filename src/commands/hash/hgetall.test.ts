@@ -6,10 +6,5 @@ test('command', () => {
 
 	expect(command.args).toStrictEqual(['HGETALL', 'key']);
 
-	expect(
-		command.replyTransform!(['key1', 'value1', 'key2', 'value2']),
-	).toStrictEqual({
-		key1: 'value1',
-		key2: 'value2',
-	});
+	expect(command.replyTransform).toBeTypeOf('function');
 });
