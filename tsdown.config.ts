@@ -18,4 +18,7 @@ export default defineConfig({
 			peerDependencies: ['redis'],
 		},
 	},
+	outputOptions: {
+		comments: { jsdoc: false, legal: true, annotation: true },
+	},
 });
