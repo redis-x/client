@@ -1858,46 +1858,78 @@ export class RedisXTransactionUse {
 	}
 
 	/**
-	 * Returns the rank of member in the sorted set stored at key, with the scores ordered from low to high.
-	 * The rank (or index) is 0-based, which means that the member with the lowest score has rank 0.
-	 *
+	 * Returns the rank of `member` in the sorted set stored at `key`, with the scores ordered from low to high.
+	 * The rank (or index) is 0-based, which means that the member with the lowest score has rank `0`.
 	 * - Available since: 2.0.0.
 	 * - Time complexity: O(log(N)).
-	 * @param key Key of the sorted set.
-	 * @param member Member to get the rank for.
-	 * @returns The rank of member if member exists in the sorted set, or null if member does not exist in the sorted set or key does not exist.
+	 * @param key - The name of the key that holds the sorted set.
+	 * @param member - The member whose rank to return.
+	 * @param options -
+	 * @returns Any of the following:
+	 * - Nil reply: if the key does not exist or the member does not exist in the sorted set.
+	 * - Integer reply: the rank of the member when _WITHSCORE_ is not used.
 	 * @see {@link https://redis.io/commands/zrank}
 	 */
 	ZRANK(
 		key: string,
 		member: string | number,
+		options?: ZrankOptions & { WITHSCORE?: false },
 	): RedisXTransactionCommand<number | null>;
 	/**
-	 * Returns the rank of member in the sorted set stored at key, with the scores ordered from low to high.
-	 * The rank (or index) is 0-based, which means that the member with the lowest score has rank 0.
+	 * Returns the rank of `member` in the sorted set stored at `key`, with the scores ordered from low to high.
+	 * The rank (or index) is 0-based, which means that the member with the lowest score has rank `0`.
 	 *
+	 * The optional `WITHSCORE` argument supplements the command's reply with the score of the element returned.
 	 * - Available since: 2.0.0.
+	 * - Starting with Redis version 7.2.0: Added the optional `WITHSCORE` argument.
 	 * - Time complexity: O(log(N)).
-	 * @param key Key of the sorted set.
-	 * @param member Member to get the rank for.
-	 * @param options Command options.
-	 * @returns The rank and score of member if member exists in the sorted set, or null if member does not exist in the sorted set or key does not exist.
+	 * @param key - The name of the key that holds the sorted set.
+	 * @param member - The member whose rank to return.
+	 * @param options -
+	 * @returns Any of the following:
+	 * - Nil reply: if the key does not exist or the member does not exist in the sorted set.
+	 * - Array reply: the rank and score of the member when _WITHSCORE_ is used.
 	 * @see {@link https://redis.io/commands/zrank}
 	 */
 	ZRANK(
 		key: string,
 		member: string | number,
-		options: ZrankOptionsWithscore,
+		options: ZrankOptions & { WITHSCORE: true },
 	): RedisXTransactionCommand<{
 		rank: number;
 		score: number;
 	} | null>;
-
+	/**
+	 * Returns the rank of `member` in the sorted set stored at `key`, with the scores ordered from low to high.
+	 * The rank (or index) is 0-based, which means that the member with the lowest score has rank `0`.
+	 *
+	 * The optional `WITHSCORE` argument supplements the command's reply with the score of the element returned.
+	 * - Available since: 2.0.0.
+	 * - Starting with Redis version 7.2.0: Added the optional `WITHSCORE` argument.
+	 * - Time complexity: O(log(N)).
+	 * @param key - The name of the key that holds the sorted set.
+	 * @param member - The member whose rank to return.
+	 * @param options -
+	 * @returns Any of the following:
+	 * - Nil reply: if the key does not exist or the member does not exist in the sorted set.
+	 * - Integer reply: the rank of the member when _WITHSCORE_ is not used.
+	 * - Array reply: the rank and score of the member when _WITHSCORE_ is used.
+	 * @see {@link https://redis.io/commands/zrank}
+	 */
 	ZRANK(
 		key: string,
 		member: string | number,
-		options?: Partial<ZrankOptionsWithscore>,
-	) {
+		options?: ZrankOptions,
+	): RedisXTransactionCommand<
+		| number
+		| {
+				rank: number;
+				score: number;
+		  }
+		| null
+	>;
+
+	ZRANK(key: string, member: string | number, options?: ZrankOptions) {
 		return this.useCommand(input_zrank(key, member, options));
 	}
 
@@ -1934,6 +1966,100 @@ export class RedisXTransactionUse {
 		...args_rest: (string | number)[]
 	): RedisXTransactionCommand<number> {
 		return this.useCommand(input_zrem(key, arg1, ...args_rest));
+	}
+
+	/**
+	 * Removes all elements in the sorted set stored at `key` with a score between `min` and `max` (inclusive).
+	 * - Available since: 1.2.0.
+	 * - Time complexity: O(log(N)+M) with N being the number of elements in the sorted set and M the number of elements removed by the operation.
+	 * @param key - The name of the key that holds the sorted set.
+	 * @param min - The minimum score. The bound is inclusive unless prefixed with `(`. Use `-inf` for no lower bound.
+	 * @param max - The maximum score. The bound is inclusive unless prefixed with `(`. Use `+inf` for no upper bound.
+	 * @returns Integer reply: the number of members removed.
+	 * @see {@link https://redis.io/commands/zremrangebyscore}
+	 */
+	ZREMRANGEBYSCORE(
+		key: string,
+		min: number | `(${number}` | '-inf',
+		max: number | `(${number}` | '+inf',
+	): RedisXTransactionCommand<number> {
+		return this.useCommand(input_zremrangebyscore(key, min, max));
+	}
+
+	/**
+	 * Returns the rank of `member` in the sorted set stored at `key`, with the scores ordered from high to low.
+	 * The rank (or index) is 0-based, which means that the member with the highest score has rank `0`.
+	 * - Available since: 2.0.0.
+	 * - Time complexity: O(log(N)).
+	 * @param key - The name of the key that holds the sorted set.
+	 * @param member - The member whose rank to return.
+	 * @param options -
+	 * @returns Any of the following:
+	 * - Nil reply: if the key does not exist or the member does not exist in the sorted set.
+	 * - Integer reply: The rank of the member when _WITHSCORE_ is not used.
+	 * @see {@link https://redis.io/commands/zrevrank}
+	 */
+	ZREVRANK(
+		key: string,
+		member: string | number,
+		options?: ZrevrankOptions & { WITHSCORE?: false },
+	): RedisXTransactionCommand<number | null>;
+	/**
+	 * Returns the rank of `member` in the sorted set stored at `key`, with the scores ordered from high to low.
+	 * The rank (or index) is 0-based, which means that the member with the highest score has rank `0`.
+	 *
+	 * The optional `WITHSCORE` argument supplements the command's reply with the score of the element returned.
+	 * - Available since: 2.0.0.
+	 * - Starting with Redis version 7.2.0: Added the optional `WITHSCORE` argument.
+	 * - Time complexity: O(log(N)).
+	 * @param key - The name of the key that holds the sorted set.
+	 * @param member - The member whose rank to return.
+	 * @param options -
+	 * @returns Any of the following:
+	 * - Nil reply: if the key does not exist or the member does not exist in the sorted set.
+	 * - Array reply: The rank and score of the member when _WITHSCORE_ is used.
+	 * @see {@link https://redis.io/commands/zrevrank}
+	 */
+	ZREVRANK(
+		key: string,
+		member: string | number,
+		options: ZrevrankOptions & { WITHSCORE: true },
+	): RedisXTransactionCommand<{
+		rank: number;
+		score: number;
+	} | null>;
+	/**
+	 * Returns the rank of `member` in the sorted set stored at `key`, with the scores ordered from high to low.
+	 * The rank (or index) is 0-based, which means that the member with the highest score has rank `0`.
+	 *
+	 * The optional `WITHSCORE` argument supplements the command's reply with the score of the element returned.
+	 * - Available since: 2.0.0.
+	 * - Starting with Redis version 7.2.0: Added the optional `WITHSCORE` argument.
+	 * - Time complexity: O(log(N)).
+	 * @param key - The name of the key that holds the sorted set.
+	 * @param member - The member whose rank to return.
+	 * @param options -
+	 * @returns Any of the following:
+	 * - Nil reply: if the key does not exist or the member does not exist in the sorted set.
+	 * - Integer reply: The rank of the member when _WITHSCORE_ is not used.
+	 * - Array reply: The rank and score of the member when _WITHSCORE_ is used.
+	 * @see {@link https://redis.io/commands/zrevrank}
+	 */
+	ZREVRANK(
+		key: string,
+		member: string | number,
+		options?: ZrevrankOptions,
+	): RedisXTransactionCommand<
+		| number
+		| {
+				rank: number;
+				score: number;
+		  }
+		| null
+	>;
+
+	ZREVRANK(key: string, member: string | number, options?: ZrevrankOptions) {
+		return this.useCommand(input_zrevrank(key, member, options));
 	}
 
 	/**
@@ -2555,10 +2681,15 @@ import {
 	input as input_zadd,
 } from '../commands/sorted-set/zadd.js';
 import {
-	type ZrankOptionsWithscore,
+	type ZrankOptions,
 	input as input_zrank,
 } from '../commands/sorted-set/zrank.js';
 import { input as input_zrem } from '../commands/sorted-set/zrem.js';
+import { input as input_zremrangebyscore } from '../commands/sorted-set/zremrangebyscore.js';
+import {
+	type ZrevrankOptions,
+	input as input_zrevrank,
+} from '../commands/sorted-set/zrevrank.js';
 import {
 	type ZrangeOptions,
 	input as input_zrange,

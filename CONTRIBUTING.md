@@ -70,6 +70,7 @@ The structure for implementing Redis commands follows these rules:
 
 5. **Transformations**:
   - If you need to transform the Redis reply, implement a `replyTransform` function.
+  - Choose how to transform the reply from the request, such as the options passed to the command, not by inspecting the reply. Expect the reply Redis documents for that request and do not handle other shapes.
   - Use transformations to convert Redis responses to more developer-friendly structures.
   - **Prefer** `Set<T>` instead of arrays for unordered collections.
   - **Do not** use `Map<string, T>` instead of `Record<string, T>` for key-value pairs.

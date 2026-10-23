@@ -1,53 +1,92 @@
 import { doubleToNumber } from '../../reply-transformers/double-to-number.js';
 import type { Command } from '../../types.js';
 
-export type ZrankOptionsWithscore = {
+export type ZrankOptions = {
 	/**
-	 * Returns the rank with the score of member represented as a string.
+	 * Also return the member's score along with its rank.
 	 * - Available since: 7.2.0.
 	 */
-	WITHSCORE: true;
+	WITHSCORE?: boolean;
 };
 
 /**
- * Returns the rank of member in the sorted set stored at key, with the scores ordered from low to high.
- * The rank (or index) is 0-based, which means that the member with the lowest score has rank 0.
- *
+ * Returns the rank of `member` in the sorted set stored at `key`, with the scores ordered from low to high.
+ * The rank (or index) is 0-based, which means that the member with the lowest score has rank `0`.
  * - Available since: 2.0.0.
  * - Time complexity: O(log(N)).
- * @param key Key of the sorted set.
- * @param member Member to get the rank for.
- * @returns The rank of member if member exists in the sorted set, or null if member does not exist in the sorted set or key does not exist.
- * @see {@link https://redis.io/commands/zrank}
- */
-declare function _command(key: string, member: string | number): number | null;
-
-/**
- * Returns the rank of member in the sorted set stored at key, with the scores ordered from low to high.
- * The rank (or index) is 0-based, which means that the member with the lowest score has rank 0.
- *
- * - Available since: 2.0.0.
- * - Time complexity: O(log(N)).
- * @param key Key of the sorted set.
- * @param member Member to get the rank for.
- * @param options Command options.
- * @returns The rank and score of member if member exists in the sorted set, or null if member does not exist in the sorted set or key does not exist.
+ * @param key - The name of the key that holds the sorted set.
+ * @param member - The member whose rank to return.
+ * @param options -
+ * @returns Any of the following:
+ * - Nil reply: if the key does not exist or the member does not exist in the sorted set.
+ * - Integer reply: the rank of the member when _WITHSCORE_ is not used.
  * @see {@link https://redis.io/commands/zrank}
  */
 declare function _command(
 	key: string,
 	member: string | number,
-	options: ZrankOptionsWithscore,
+	options?: ZrankOptions & { WITHSCORE?: false },
+): number | null;
+
+/**
+ * Returns the rank of `member` in the sorted set stored at `key`, with the scores ordered from low to high.
+ * The rank (or index) is 0-based, which means that the member with the lowest score has rank `0`.
+ *
+ * The optional `WITHSCORE` argument supplements the command's reply with the score of the element returned.
+ * - Available since: 2.0.0.
+ * - Starting with Redis version 7.2.0: Added the optional `WITHSCORE` argument.
+ * - Time complexity: O(log(N)).
+ * @param key - The name of the key that holds the sorted set.
+ * @param member - The member whose rank to return.
+ * @param options -
+ * @returns Any of the following:
+ * - Nil reply: if the key does not exist or the member does not exist in the sorted set.
+ * - Array reply: the rank and score of the member when _WITHSCORE_ is used.
+ * @see {@link https://redis.io/commands/zrank}
+ */
+declare function _command(
+	key: string,
+	member: string | number,
+	options: ZrankOptions & { WITHSCORE: true },
 ): {
 	rank: number;
 	score: number;
 } | null;
 
+/**
+ * Returns the rank of `member` in the sorted set stored at `key`, with the scores ordered from low to high.
+ * The rank (or index) is 0-based, which means that the member with the lowest score has rank `0`.
+ *
+ * The optional `WITHSCORE` argument supplements the command's reply with the score of the element returned.
+ * - Available since: 2.0.0.
+ * - Starting with Redis version 7.2.0: Added the optional `WITHSCORE` argument.
+ * - Time complexity: O(log(N)).
+ * @param key - The name of the key that holds the sorted set.
+ * @param member - The member whose rank to return.
+ * @param options -
+ * @returns Any of the following:
+ * - Nil reply: if the key does not exist or the member does not exist in the sorted set.
+ * - Integer reply: the rank of the member when _WITHSCORE_ is not used.
+ * - Array reply: the rank and score of the member when _WITHSCORE_ is used.
+ * @see {@link https://redis.io/commands/zrank}
+ */
+declare function _command(
+	key: string,
+	member: string | number,
+	options?: ZrankOptions,
+):
+	| number
+	| {
+			rank: number;
+			score: number;
+	  }
+	| null;
+
 // eslint-disable-next-line jsdoc/require-jsdoc
 export function input(
 	key: string,
 	member: string | number,
-	options?: Partial<ZrankOptionsWithscore>,
+	options?: ZrankOptions,
 ): Command {
 	const args = ['ZRANK', key, String(member)];
 
@@ -58,7 +97,7 @@ export function input(
 	return {
 		kind: '#schema',
 		args,
-		replyTransform(result) {
+		replyTransform(result: number | [number, string] | null) {
 			if (result === null) {
 				return null;
 			}
