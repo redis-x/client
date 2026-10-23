@@ -440,6 +440,29 @@ type ZrangebyscoreOptions = {
   WITHSCORES?: boolean;
 };
 //#endregion
+//#region src/commands/sorted-set/zrevrangebylex.d.ts
+type ZrevrangebylexOptions = {
+  /**
+   * Skip `offset` matching members and return up to `count` of them. A negative `count` returns all remaining members.
+   * - Available since: 2.8.9.
+   */
+  LIMIT?: [number, number];
+};
+//#endregion
+//#region src/commands/sorted-set/zrevrangebyscore.d.ts
+type ZrevrangebyscoreOptions = {
+  /**
+   * Also return the score of each member.
+   * - Available since: 2.2.0.
+   */
+  WITHSCORES?: boolean;
+  /**
+   * Skip `offset` matching members and return up to `count` of them. A negative `count` returns all remaining members.
+   * - Available since: 2.2.0.
+   */
+  LIMIT?: [number, number];
+};
+//#endregion
 //#region src/commands/sorted-set/zadd.d.ts
 type ZaddOptions = {
   /**
@@ -533,6 +556,15 @@ type ZinterstoreOptions = {
    * @see {@link https://redis.io/docs/latest/commands/zunionstore/}
    */
   AGGREGATE?: "SUM" | "MIN" | "MAX" | "COUNT";
+};
+//#endregion
+//#region src/commands/sorted-set/zrevrange.d.ts
+type ZrevrangeOptions = {
+  /**
+   * Also return the score of each member.
+   * - Available since: 1.2.0.
+   */
+  WITHSCORES?: boolean;
 };
 //#endregion
 //#region src/commands/sorted-set/zrangebylex.d.ts
@@ -1771,6 +1803,85 @@ declare class RedisXTransactionUse {
     score: number;
   }[]>;
   /**
+   * When all the elements in a sorted set are inserted with the same score, in order to force lexicographical ordering, this command returns all the elements in the sorted set at `key` with a value between `max` and `min`.
+   *
+   * Apart from the reversed ordering, `ZREVRANGEBYLEX` is similar to `ZRANGEBYLEX`.
+   * - Available since: 2.8.9.
+   * - Time complexity: O(log(N)+M) with N being the number of elements in the sorted set and M the number of elements being returned. If M is constant (e.g. always asking for the first 10 elements with LIMIT), you can consider it O(log(N)).
+   * @deprecated As of Redis version 6.2.0, this command is regarded as deprecated. It can be replaced by ZRANGE with the REV and BYLEX arguments when migrating or writing new code.
+   * @param key - The name of the key that holds the sorted set.
+   * @param max - The maximum member, compared lexicographically. Prefix with `[` for an inclusive bound or `(` for an exclusive bound; use `+` for the highest possible value.
+   * @param min - The minimum member, compared lexicographically. Prefix with `[` for an inclusive bound or `(` for an exclusive bound; use `-` for the lowest possible value.
+   * @param options -
+   * @returns Array reply: a list of members in the specified lexicographical range.
+   * @see {@link https://redis.io/commands/zrevrangebylex}
+   */
+  ZREVRANGEBYLEX(key: string, max: `(${string}` | `[${string}` | "+", min: `(${string}` | `[${string}` | "-", options?: ZrevrangebylexOptions): RedisXTransactionCommand<string[]>;
+  /**
+   * Returns all the elements in the sorted set at `key` with a score between `max` and `min` (including elements with score equal to `max` or `min`).
+   * In contrary to the default ordering of sorted sets, for this command the elements are considered to be ordered from high to low scores.
+   *
+   * The elements having the same score are returned in reverse lexicographical order.
+   *
+   * Apart from the reversed ordering, `ZREVRANGEBYSCORE` is similar to `ZRANGEBYSCORE`.
+   * - Available since: 2.2.0.
+   * - Time complexity: O(log(N)+M) with N being the number of elements in the sorted set and M the number of elements being returned. If M is constant (e.g. always asking for the first 10 elements with LIMIT), you can consider it O(log(N)).
+   * @deprecated As of Redis version 6.2.0, this command is regarded as deprecated. It can be replaced by ZRANGE with the REV and BYSCORE arguments when migrating or writing new code.
+   * @param key - The name of the key that holds the sorted set.
+   * @param max - The maximum score. The bound is inclusive unless prefixed with `(`. Use `+inf` for no upper bound.
+   * @param min - The minimum score. The bound is inclusive unless prefixed with `(`. Use `-inf` for no lower bound.
+   * @param options -
+   * @returns Array reply: a list of the members and, optionally, their scores in the specified score range.
+   * @see {@link https://redis.io/commands/zrevrangebyscore}
+   */
+  ZREVRANGEBYSCORE(key: string, max: number | `(${number}` | "+inf", min: number | `(${number}` | "-inf", options?: ZrevrangebyscoreOptions & {
+    WITHSCORES?: false;
+  }): RedisXTransactionCommand<string[]>;
+  /**
+   * Returns all the elements in the sorted set at `key` with a score between `max` and `min` (including elements with score equal to `max` or `min`).
+   * In contrary to the default ordering of sorted sets, for this command the elements are considered to be ordered from high to low scores.
+   *
+   * The elements having the same score are returned in reverse lexicographical order.
+   *
+   * Apart from the reversed ordering, `ZREVRANGEBYSCORE` is similar to `ZRANGEBYSCORE`.
+   * - Available since: 2.2.0.
+   * - Time complexity: O(log(N)+M) with N being the number of elements in the sorted set and M the number of elements being returned. If M is constant (e.g. always asking for the first 10 elements with LIMIT), you can consider it O(log(N)).
+   * @deprecated As of Redis version 6.2.0, this command is regarded as deprecated. It can be replaced by ZRANGE with the REV and BYSCORE arguments when migrating or writing new code.
+   * @param key - The name of the key that holds the sorted set.
+   * @param max - The maximum score. The bound is inclusive unless prefixed with `(`. Use `+inf` for no upper bound.
+   * @param min - The minimum score. The bound is inclusive unless prefixed with `(`. Use `-inf` for no lower bound.
+   * @param options -
+   * @returns Array reply: a list of the members and, optionally, their scores in the specified score range.
+   * @see {@link https://redis.io/commands/zrevrangebyscore}
+   */
+  ZREVRANGEBYSCORE(key: string, max: number | `(${number}` | "+inf", min: number | `(${number}` | "-inf", options: ZrevrangebyscoreOptions & {
+    WITHSCORES: true;
+  }): RedisXTransactionCommand<{
+    member: string;
+    score: number;
+  }[]>;
+  /**
+   * Returns all the elements in the sorted set at `key` with a score between `max` and `min` (including elements with score equal to `max` or `min`).
+   * In contrary to the default ordering of sorted sets, for this command the elements are considered to be ordered from high to low scores.
+   *
+   * The elements having the same score are returned in reverse lexicographical order.
+   *
+   * Apart from the reversed ordering, `ZREVRANGEBYSCORE` is similar to `ZRANGEBYSCORE`.
+   * - Available since: 2.2.0.
+   * - Time complexity: O(log(N)+M) with N being the number of elements in the sorted set and M the number of elements being returned. If M is constant (e.g. always asking for the first 10 elements with LIMIT), you can consider it O(log(N)).
+   * @deprecated As of Redis version 6.2.0, this command is regarded as deprecated. It can be replaced by ZRANGE with the REV and BYSCORE arguments when migrating or writing new code.
+   * @param key - The name of the key that holds the sorted set.
+   * @param max - The maximum score. The bound is inclusive unless prefixed with `(`. Use `+inf` for no upper bound.
+   * @param min - The minimum score. The bound is inclusive unless prefixed with `(`. Use `-inf` for no lower bound.
+   * @param options -
+   * @returns Array reply: a list of the members and, optionally, their scores in the specified score range.
+   * @see {@link https://redis.io/commands/zrevrangebyscore}
+   */
+  ZREVRANGEBYSCORE(key: string, max: number | `(${number}` | "+inf", min: number | `(${number}` | "-inf", options?: ZrevrangebyscoreOptions): RedisXTransactionCommand<string[] | {
+    member: string;
+    score: number;
+  }[]>;
+  /**
    * Returns the score of member in the sorted set at key.
    * - Available since: 1.0.0.
    * - Time complexity: O(1).
@@ -2111,6 +2222,67 @@ declare class RedisXTransactionUse {
    * @see {@link https://redis.io/commands/zinterstore}
    */
   ZINTERSTORE(destination: string, keys_with_weights: Record<string, number>, options?: ZinterstoreOptions): RedisXTransactionCommand<number>;
+  /**
+   * Returns the specified range of elements in the sorted set stored at `key`.
+   * The elements are considered to be ordered from the highest to the lowest score.
+   * Descending lexicographical order is used for elements with equal score.
+   *
+   * Apart from the reversed ordering, `ZREVRANGE` is similar to `ZRANGE`.
+   * - Available since: 1.2.0.
+   * - Time complexity: O(log(N)+M) with N being the number of elements in the sorted set and M the number of elements returned.
+   * @deprecated As of Redis version 6.2.0, this command is regarded as deprecated. It can be replaced by ZRANGE with the REV argument when migrating or writing new code.
+   * @param key - The name of the key that holds the sorted set.
+   * @param start - The start index, zero-based. Negative values count from the end of the sorted set (`-1` is the member with the highest score).
+   * @param stop - The stop index, zero-based and inclusive. Negative values count from the end of the sorted set.
+   * @param options -
+   * @returns Array reply: a list of members in the specified range, optionally with their scores if _WITHSCORES_ was used.
+   * @see {@link https://redis.io/commands/zrevrange}
+   */
+  ZREVRANGE(key: string, start: number, stop: number, options?: ZrevrangeOptions & {
+    WITHSCORES?: false;
+  }): RedisXTransactionCommand<string[]>;
+  /**
+   * Returns the specified range of elements in the sorted set stored at `key`.
+   * The elements are considered to be ordered from the highest to the lowest score.
+   * Descending lexicographical order is used for elements with equal score.
+   *
+   * Apart from the reversed ordering, `ZREVRANGE` is similar to `ZRANGE`.
+   * - Available since: 1.2.0.
+   * - Time complexity: O(log(N)+M) with N being the number of elements in the sorted set and M the number of elements returned.
+   * @deprecated As of Redis version 6.2.0, this command is regarded as deprecated. It can be replaced by ZRANGE with the REV argument when migrating or writing new code.
+   * @param key - The name of the key that holds the sorted set.
+   * @param start - The start index, zero-based. Negative values count from the end of the sorted set (`-1` is the member with the highest score).
+   * @param stop - The stop index, zero-based and inclusive. Negative values count from the end of the sorted set.
+   * @param options -
+   * @returns Array reply: a list of members in the specified range, optionally with their scores if _WITHSCORES_ was used.
+   * @see {@link https://redis.io/commands/zrevrange}
+   */
+  ZREVRANGE(key: string, start: number, stop: number, options: ZrevrangeOptions & {
+    WITHSCORES: true;
+  }): RedisXTransactionCommand<{
+    member: string;
+    score: number;
+  }[]>;
+  /**
+   * Returns the specified range of elements in the sorted set stored at `key`.
+   * The elements are considered to be ordered from the highest to the lowest score.
+   * Descending lexicographical order is used for elements with equal score.
+   *
+   * Apart from the reversed ordering, `ZREVRANGE` is similar to `ZRANGE`.
+   * - Available since: 1.2.0.
+   * - Time complexity: O(log(N)+M) with N being the number of elements in the sorted set and M the number of elements returned.
+   * @deprecated As of Redis version 6.2.0, this command is regarded as deprecated. It can be replaced by ZRANGE with the REV argument when migrating or writing new code.
+   * @param key - The name of the key that holds the sorted set.
+   * @param start - The start index, zero-based. Negative values count from the end of the sorted set (`-1` is the member with the highest score).
+   * @param stop - The stop index, zero-based and inclusive. Negative values count from the end of the sorted set.
+   * @param options -
+   * @returns Array reply: a list of members in the specified range, optionally with their scores if _WITHSCORES_ was used.
+   * @see {@link https://redis.io/commands/zrevrange}
+   */
+  ZREVRANGE(key: string, start: number, stop: number, options?: ZrevrangeOptions): RedisXTransactionCommand<string[] | {
+    member: string;
+    score: number;
+  }[]>;
   /**
    * Returns all the elements in the sorted set at `key` with a value between `min` and `max`.
    *
@@ -3601,6 +3773,85 @@ declare class RedisXTransaction<L = [], C extends boolean = false, D = unknown> 
     score: number;
   }[]>, C, D>;
   /**
+   * When all the elements in a sorted set are inserted with the same score, in order to force lexicographical ordering, this command returns all the elements in the sorted set at `key` with a value between `max` and `min`.
+   *
+   * Apart from the reversed ordering, `ZREVRANGEBYLEX` is similar to `ZRANGEBYLEX`.
+   * - Available since: 2.8.9.
+   * - Time complexity: O(log(N)+M) with N being the number of elements in the sorted set and M the number of elements being returned. If M is constant (e.g. always asking for the first 10 elements with LIMIT), you can consider it O(log(N)).
+   * @deprecated As of Redis version 6.2.0, this command is regarded as deprecated. It can be replaced by ZRANGE with the REV and BYLEX arguments when migrating or writing new code.
+   * @param key - The name of the key that holds the sorted set.
+   * @param max - The maximum member, compared lexicographically. Prefix with `[` for an inclusive bound or `(` for an exclusive bound; use `+` for the highest possible value.
+   * @param min - The minimum member, compared lexicographically. Prefix with `[` for an inclusive bound or `(` for an exclusive bound; use `-` for the lowest possible value.
+   * @param options -
+   * @returns Array reply: a list of members in the specified lexicographical range.
+   * @see {@link https://redis.io/commands/zrevrangebylex}
+   */
+  ZREVRANGEBYLEX(key: string, max: `(${string}` | `[${string}` | "+", min: `(${string}` | `[${string}` | "-", options?: ZrevrangebylexOptions): RedisXTransaction<AddToList<L, string[]>, C, D>;
+  /**
+   * Returns all the elements in the sorted set at `key` with a score between `max` and `min` (including elements with score equal to `max` or `min`).
+   * In contrary to the default ordering of sorted sets, for this command the elements are considered to be ordered from high to low scores.
+   *
+   * The elements having the same score are returned in reverse lexicographical order.
+   *
+   * Apart from the reversed ordering, `ZREVRANGEBYSCORE` is similar to `ZRANGEBYSCORE`.
+   * - Available since: 2.2.0.
+   * - Time complexity: O(log(N)+M) with N being the number of elements in the sorted set and M the number of elements being returned. If M is constant (e.g. always asking for the first 10 elements with LIMIT), you can consider it O(log(N)).
+   * @deprecated As of Redis version 6.2.0, this command is regarded as deprecated. It can be replaced by ZRANGE with the REV and BYSCORE arguments when migrating or writing new code.
+   * @param key - The name of the key that holds the sorted set.
+   * @param max - The maximum score. The bound is inclusive unless prefixed with `(`. Use `+inf` for no upper bound.
+   * @param min - The minimum score. The bound is inclusive unless prefixed with `(`. Use `-inf` for no lower bound.
+   * @param options -
+   * @returns Array reply: a list of the members and, optionally, their scores in the specified score range.
+   * @see {@link https://redis.io/commands/zrevrangebyscore}
+   */
+  ZREVRANGEBYSCORE(key: string, max: number | `(${number}` | "+inf", min: number | `(${number}` | "-inf", options?: ZrevrangebyscoreOptions & {
+    WITHSCORES?: false;
+  }): RedisXTransaction<AddToList<L, string[]>, C, D>;
+  /**
+   * Returns all the elements in the sorted set at `key` with a score between `max` and `min` (including elements with score equal to `max` or `min`).
+   * In contrary to the default ordering of sorted sets, for this command the elements are considered to be ordered from high to low scores.
+   *
+   * The elements having the same score are returned in reverse lexicographical order.
+   *
+   * Apart from the reversed ordering, `ZREVRANGEBYSCORE` is similar to `ZRANGEBYSCORE`.
+   * - Available since: 2.2.0.
+   * - Time complexity: O(log(N)+M) with N being the number of elements in the sorted set and M the number of elements being returned. If M is constant (e.g. always asking for the first 10 elements with LIMIT), you can consider it O(log(N)).
+   * @deprecated As of Redis version 6.2.0, this command is regarded as deprecated. It can be replaced by ZRANGE with the REV and BYSCORE arguments when migrating or writing new code.
+   * @param key - The name of the key that holds the sorted set.
+   * @param max - The maximum score. The bound is inclusive unless prefixed with `(`. Use `+inf` for no upper bound.
+   * @param min - The minimum score. The bound is inclusive unless prefixed with `(`. Use `-inf` for no lower bound.
+   * @param options -
+   * @returns Array reply: a list of the members and, optionally, their scores in the specified score range.
+   * @see {@link https://redis.io/commands/zrevrangebyscore}
+   */
+  ZREVRANGEBYSCORE(key: string, max: number | `(${number}` | "+inf", min: number | `(${number}` | "-inf", options: ZrevrangebyscoreOptions & {
+    WITHSCORES: true;
+  }): RedisXTransaction<AddToList<L, {
+    member: string;
+    score: number;
+  }[]>, C, D>;
+  /**
+   * Returns all the elements in the sorted set at `key` with a score between `max` and `min` (including elements with score equal to `max` or `min`).
+   * In contrary to the default ordering of sorted sets, for this command the elements are considered to be ordered from high to low scores.
+   *
+   * The elements having the same score are returned in reverse lexicographical order.
+   *
+   * Apart from the reversed ordering, `ZREVRANGEBYSCORE` is similar to `ZRANGEBYSCORE`.
+   * - Available since: 2.2.0.
+   * - Time complexity: O(log(N)+M) with N being the number of elements in the sorted set and M the number of elements being returned. If M is constant (e.g. always asking for the first 10 elements with LIMIT), you can consider it O(log(N)).
+   * @deprecated As of Redis version 6.2.0, this command is regarded as deprecated. It can be replaced by ZRANGE with the REV and BYSCORE arguments when migrating or writing new code.
+   * @param key - The name of the key that holds the sorted set.
+   * @param max - The maximum score. The bound is inclusive unless prefixed with `(`. Use `+inf` for no upper bound.
+   * @param min - The minimum score. The bound is inclusive unless prefixed with `(`. Use `-inf` for no lower bound.
+   * @param options -
+   * @returns Array reply: a list of the members and, optionally, their scores in the specified score range.
+   * @see {@link https://redis.io/commands/zrevrangebyscore}
+   */
+  ZREVRANGEBYSCORE(key: string, max: number | `(${number}` | "+inf", min: number | `(${number}` | "-inf", options?: ZrevrangebyscoreOptions): RedisXTransaction<AddToList<L, string[] | {
+    member: string;
+    score: number;
+  }[]>, C, D>;
+  /**
    * Returns the score of member in the sorted set at key.
    * - Available since: 1.0.0.
    * - Time complexity: O(1).
@@ -3941,6 +4192,67 @@ declare class RedisXTransaction<L = [], C extends boolean = false, D = unknown> 
    * @see {@link https://redis.io/commands/zinterstore}
    */
   ZINTERSTORE(destination: string, keys_with_weights: Record<string, number>, options?: ZinterstoreOptions): RedisXTransaction<AddToList<L, number>, C, D>;
+  /**
+   * Returns the specified range of elements in the sorted set stored at `key`.
+   * The elements are considered to be ordered from the highest to the lowest score.
+   * Descending lexicographical order is used for elements with equal score.
+   *
+   * Apart from the reversed ordering, `ZREVRANGE` is similar to `ZRANGE`.
+   * - Available since: 1.2.0.
+   * - Time complexity: O(log(N)+M) with N being the number of elements in the sorted set and M the number of elements returned.
+   * @deprecated As of Redis version 6.2.0, this command is regarded as deprecated. It can be replaced by ZRANGE with the REV argument when migrating or writing new code.
+   * @param key - The name of the key that holds the sorted set.
+   * @param start - The start index, zero-based. Negative values count from the end of the sorted set (`-1` is the member with the highest score).
+   * @param stop - The stop index, zero-based and inclusive. Negative values count from the end of the sorted set.
+   * @param options -
+   * @returns Array reply: a list of members in the specified range, optionally with their scores if _WITHSCORES_ was used.
+   * @see {@link https://redis.io/commands/zrevrange}
+   */
+  ZREVRANGE(key: string, start: number, stop: number, options?: ZrevrangeOptions & {
+    WITHSCORES?: false;
+  }): RedisXTransaction<AddToList<L, string[]>, C, D>;
+  /**
+   * Returns the specified range of elements in the sorted set stored at `key`.
+   * The elements are considered to be ordered from the highest to the lowest score.
+   * Descending lexicographical order is used for elements with equal score.
+   *
+   * Apart from the reversed ordering, `ZREVRANGE` is similar to `ZRANGE`.
+   * - Available since: 1.2.0.
+   * - Time complexity: O(log(N)+M) with N being the number of elements in the sorted set and M the number of elements returned.
+   * @deprecated As of Redis version 6.2.0, this command is regarded as deprecated. It can be replaced by ZRANGE with the REV argument when migrating or writing new code.
+   * @param key - The name of the key that holds the sorted set.
+   * @param start - The start index, zero-based. Negative values count from the end of the sorted set (`-1` is the member with the highest score).
+   * @param stop - The stop index, zero-based and inclusive. Negative values count from the end of the sorted set.
+   * @param options -
+   * @returns Array reply: a list of members in the specified range, optionally with their scores if _WITHSCORES_ was used.
+   * @see {@link https://redis.io/commands/zrevrange}
+   */
+  ZREVRANGE(key: string, start: number, stop: number, options: ZrevrangeOptions & {
+    WITHSCORES: true;
+  }): RedisXTransaction<AddToList<L, {
+    member: string;
+    score: number;
+  }[]>, C, D>;
+  /**
+   * Returns the specified range of elements in the sorted set stored at `key`.
+   * The elements are considered to be ordered from the highest to the lowest score.
+   * Descending lexicographical order is used for elements with equal score.
+   *
+   * Apart from the reversed ordering, `ZREVRANGE` is similar to `ZRANGE`.
+   * - Available since: 1.2.0.
+   * - Time complexity: O(log(N)+M) with N being the number of elements in the sorted set and M the number of elements returned.
+   * @deprecated As of Redis version 6.2.0, this command is regarded as deprecated. It can be replaced by ZRANGE with the REV argument when migrating or writing new code.
+   * @param key - The name of the key that holds the sorted set.
+   * @param start - The start index, zero-based. Negative values count from the end of the sorted set (`-1` is the member with the highest score).
+   * @param stop - The stop index, zero-based and inclusive. Negative values count from the end of the sorted set.
+   * @param options -
+   * @returns Array reply: a list of members in the specified range, optionally with their scores if _WITHSCORES_ was used.
+   * @see {@link https://redis.io/commands/zrevrange}
+   */
+  ZREVRANGE(key: string, start: number, stop: number, options?: ZrevrangeOptions): RedisXTransaction<AddToList<L, string[] | {
+    member: string;
+    score: number;
+  }[]>, C, D>;
   /**
    * Returns all the elements in the sorted set at `key` with a value between `min` and `max`.
    *
@@ -5422,6 +5734,85 @@ export declare class RedisXClient {
     score: number;
   }[]>;
   /**
+   * When all the elements in a sorted set are inserted with the same score, in order to force lexicographical ordering, this command returns all the elements in the sorted set at `key` with a value between `max` and `min`.
+   *
+   * Apart from the reversed ordering, `ZREVRANGEBYLEX` is similar to `ZRANGEBYLEX`.
+   * - Available since: 2.8.9.
+   * - Time complexity: O(log(N)+M) with N being the number of elements in the sorted set and M the number of elements being returned. If M is constant (e.g. always asking for the first 10 elements with LIMIT), you can consider it O(log(N)).
+   * @deprecated As of Redis version 6.2.0, this command is regarded as deprecated. It can be replaced by ZRANGE with the REV and BYLEX arguments when migrating or writing new code.
+   * @param key - The name of the key that holds the sorted set.
+   * @param max - The maximum member, compared lexicographically. Prefix with `[` for an inclusive bound or `(` for an exclusive bound; use `+` for the highest possible value.
+   * @param min - The minimum member, compared lexicographically. Prefix with `[` for an inclusive bound or `(` for an exclusive bound; use `-` for the lowest possible value.
+   * @param options -
+   * @returns Array reply: a list of members in the specified lexicographical range.
+   * @see {@link https://redis.io/commands/zrevrangebylex}
+   */
+  ZREVRANGEBYLEX(key: string, max: `(${string}` | `[${string}` | "+", min: `(${string}` | `[${string}` | "-", options?: ZrevrangebylexOptions): Promise<string[]>;
+  /**
+   * Returns all the elements in the sorted set at `key` with a score between `max` and `min` (including elements with score equal to `max` or `min`).
+   * In contrary to the default ordering of sorted sets, for this command the elements are considered to be ordered from high to low scores.
+   *
+   * The elements having the same score are returned in reverse lexicographical order.
+   *
+   * Apart from the reversed ordering, `ZREVRANGEBYSCORE` is similar to `ZRANGEBYSCORE`.
+   * - Available since: 2.2.0.
+   * - Time complexity: O(log(N)+M) with N being the number of elements in the sorted set and M the number of elements being returned. If M is constant (e.g. always asking for the first 10 elements with LIMIT), you can consider it O(log(N)).
+   * @deprecated As of Redis version 6.2.0, this command is regarded as deprecated. It can be replaced by ZRANGE with the REV and BYSCORE arguments when migrating or writing new code.
+   * @param key - The name of the key that holds the sorted set.
+   * @param max - The maximum score. The bound is inclusive unless prefixed with `(`. Use `+inf` for no upper bound.
+   * @param min - The minimum score. The bound is inclusive unless prefixed with `(`. Use `-inf` for no lower bound.
+   * @param options -
+   * @returns Array reply: a list of the members and, optionally, their scores in the specified score range.
+   * @see {@link https://redis.io/commands/zrevrangebyscore}
+   */
+  ZREVRANGEBYSCORE(key: string, max: number | `(${number}` | "+inf", min: number | `(${number}` | "-inf", options?: ZrevrangebyscoreOptions & {
+    WITHSCORES?: false;
+  }): Promise<string[]>;
+  /**
+   * Returns all the elements in the sorted set at `key` with a score between `max` and `min` (including elements with score equal to `max` or `min`).
+   * In contrary to the default ordering of sorted sets, for this command the elements are considered to be ordered from high to low scores.
+   *
+   * The elements having the same score are returned in reverse lexicographical order.
+   *
+   * Apart from the reversed ordering, `ZREVRANGEBYSCORE` is similar to `ZRANGEBYSCORE`.
+   * - Available since: 2.2.0.
+   * - Time complexity: O(log(N)+M) with N being the number of elements in the sorted set and M the number of elements being returned. If M is constant (e.g. always asking for the first 10 elements with LIMIT), you can consider it O(log(N)).
+   * @deprecated As of Redis version 6.2.0, this command is regarded as deprecated. It can be replaced by ZRANGE with the REV and BYSCORE arguments when migrating or writing new code.
+   * @param key - The name of the key that holds the sorted set.
+   * @param max - The maximum score. The bound is inclusive unless prefixed with `(`. Use `+inf` for no upper bound.
+   * @param min - The minimum score. The bound is inclusive unless prefixed with `(`. Use `-inf` for no lower bound.
+   * @param options -
+   * @returns Array reply: a list of the members and, optionally, their scores in the specified score range.
+   * @see {@link https://redis.io/commands/zrevrangebyscore}
+   */
+  ZREVRANGEBYSCORE(key: string, max: number | `(${number}` | "+inf", min: number | `(${number}` | "-inf", options: ZrevrangebyscoreOptions & {
+    WITHSCORES: true;
+  }): Promise<{
+    member: string;
+    score: number;
+  }[]>;
+  /**
+   * Returns all the elements in the sorted set at `key` with a score between `max` and `min` (including elements with score equal to `max` or `min`).
+   * In contrary to the default ordering of sorted sets, for this command the elements are considered to be ordered from high to low scores.
+   *
+   * The elements having the same score are returned in reverse lexicographical order.
+   *
+   * Apart from the reversed ordering, `ZREVRANGEBYSCORE` is similar to `ZRANGEBYSCORE`.
+   * - Available since: 2.2.0.
+   * - Time complexity: O(log(N)+M) with N being the number of elements in the sorted set and M the number of elements being returned. If M is constant (e.g. always asking for the first 10 elements with LIMIT), you can consider it O(log(N)).
+   * @deprecated As of Redis version 6.2.0, this command is regarded as deprecated. It can be replaced by ZRANGE with the REV and BYSCORE arguments when migrating or writing new code.
+   * @param key - The name of the key that holds the sorted set.
+   * @param max - The maximum score. The bound is inclusive unless prefixed with `(`. Use `+inf` for no upper bound.
+   * @param min - The minimum score. The bound is inclusive unless prefixed with `(`. Use `-inf` for no lower bound.
+   * @param options -
+   * @returns Array reply: a list of the members and, optionally, their scores in the specified score range.
+   * @see {@link https://redis.io/commands/zrevrangebyscore}
+   */
+  ZREVRANGEBYSCORE(key: string, max: number | `(${number}` | "+inf", min: number | `(${number}` | "-inf", options?: ZrevrangebyscoreOptions): Promise<string[] | {
+    member: string;
+    score: number;
+  }[]>;
+  /**
    * Returns the score of member in the sorted set at key.
    * - Available since: 1.0.0.
    * - Time complexity: O(1).
@@ -5762,6 +6153,67 @@ export declare class RedisXClient {
    * @see {@link https://redis.io/commands/zinterstore}
    */
   ZINTERSTORE(destination: string, keys_with_weights: Record<string, number>, options?: ZinterstoreOptions): Promise<number>;
+  /**
+   * Returns the specified range of elements in the sorted set stored at `key`.
+   * The elements are considered to be ordered from the highest to the lowest score.
+   * Descending lexicographical order is used for elements with equal score.
+   *
+   * Apart from the reversed ordering, `ZREVRANGE` is similar to `ZRANGE`.
+   * - Available since: 1.2.0.
+   * - Time complexity: O(log(N)+M) with N being the number of elements in the sorted set and M the number of elements returned.
+   * @deprecated As of Redis version 6.2.0, this command is regarded as deprecated. It can be replaced by ZRANGE with the REV argument when migrating or writing new code.
+   * @param key - The name of the key that holds the sorted set.
+   * @param start - The start index, zero-based. Negative values count from the end of the sorted set (`-1` is the member with the highest score).
+   * @param stop - The stop index, zero-based and inclusive. Negative values count from the end of the sorted set.
+   * @param options -
+   * @returns Array reply: a list of members in the specified range, optionally with their scores if _WITHSCORES_ was used.
+   * @see {@link https://redis.io/commands/zrevrange}
+   */
+  ZREVRANGE(key: string, start: number, stop: number, options?: ZrevrangeOptions & {
+    WITHSCORES?: false;
+  }): Promise<string[]>;
+  /**
+   * Returns the specified range of elements in the sorted set stored at `key`.
+   * The elements are considered to be ordered from the highest to the lowest score.
+   * Descending lexicographical order is used for elements with equal score.
+   *
+   * Apart from the reversed ordering, `ZREVRANGE` is similar to `ZRANGE`.
+   * - Available since: 1.2.0.
+   * - Time complexity: O(log(N)+M) with N being the number of elements in the sorted set and M the number of elements returned.
+   * @deprecated As of Redis version 6.2.0, this command is regarded as deprecated. It can be replaced by ZRANGE with the REV argument when migrating or writing new code.
+   * @param key - The name of the key that holds the sorted set.
+   * @param start - The start index, zero-based. Negative values count from the end of the sorted set (`-1` is the member with the highest score).
+   * @param stop - The stop index, zero-based and inclusive. Negative values count from the end of the sorted set.
+   * @param options -
+   * @returns Array reply: a list of members in the specified range, optionally with their scores if _WITHSCORES_ was used.
+   * @see {@link https://redis.io/commands/zrevrange}
+   */
+  ZREVRANGE(key: string, start: number, stop: number, options: ZrevrangeOptions & {
+    WITHSCORES: true;
+  }): Promise<{
+    member: string;
+    score: number;
+  }[]>;
+  /**
+   * Returns the specified range of elements in the sorted set stored at `key`.
+   * The elements are considered to be ordered from the highest to the lowest score.
+   * Descending lexicographical order is used for elements with equal score.
+   *
+   * Apart from the reversed ordering, `ZREVRANGE` is similar to `ZRANGE`.
+   * - Available since: 1.2.0.
+   * - Time complexity: O(log(N)+M) with N being the number of elements in the sorted set and M the number of elements returned.
+   * @deprecated As of Redis version 6.2.0, this command is regarded as deprecated. It can be replaced by ZRANGE with the REV argument when migrating or writing new code.
+   * @param key - The name of the key that holds the sorted set.
+   * @param start - The start index, zero-based. Negative values count from the end of the sorted set (`-1` is the member with the highest score).
+   * @param stop - The stop index, zero-based and inclusive. Negative values count from the end of the sorted set.
+   * @param options -
+   * @returns Array reply: a list of members in the specified range, optionally with their scores if _WITHSCORES_ was used.
+   * @see {@link https://redis.io/commands/zrevrange}
+   */
+  ZREVRANGE(key: string, start: number, stop: number, options?: ZrevrangeOptions): Promise<string[] | {
+    member: string;
+    score: number;
+  }[]>;
   /**
    * Returns all the elements in the sorted set at `key` with a value between `min` and `max`.
    *
