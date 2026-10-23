@@ -113,7 +113,7 @@ function input$88(key, arg1, ...args_rest) {
 	return {
 		kind: "#schema",
 		args,
-		replyTransform: replyTransform$2
+		replyTransform: replyTransform$1
 	};
 }
 /**
@@ -121,7 +121,7 @@ function input$88(key, arg1, ...args_rest) {
 * @param reply The array of numbers to convert.
 * @returns An array of booleans where 1 becomes true and 0 becomes false.
 */
-function replyTransform$2(reply) {
+function replyTransform$1(reply) {
 	return reply.map((value) => value === 1);
 }
 //#endregion
@@ -131,7 +131,7 @@ function replyTransform$2(reply) {
 * @param reply The array of strings to convert.
 * @returns A Set containing the unique strings from the array.
 */
-function replyTransform$1(reply) {
+function replyTransform(reply) {
 	return new Set(reply);
 }
 //#endregion
@@ -149,7 +149,7 @@ function input$87(key) {
 	return {
 		kind: "#schema",
 		args: ["SMEMBERS", key],
-		replyTransform: replyTransform$1
+		replyTransform
 	};
 }
 //#endregion
@@ -159,7 +159,7 @@ function input$87(key) {
 * @param reply The number to convert (0 or 1).
 * @returns Returns true if the number is 1, false if it is 0.
 */
-function replyTransform(reply) {
+function numberToBoolean(reply) {
 	return reply === 1;
 }
 //#endregion
@@ -182,7 +182,7 @@ function input$86(key, member) {
 			key,
 			member
 		],
-		replyTransform
+		replyTransform: numberToBoolean
 	};
 }
 //#endregion
@@ -231,7 +231,7 @@ function input$83(pairs) {
 	return {
 		kind: "#schema",
 		args,
-		replyTransform
+		replyTransform: numberToBoolean
 	};
 }
 //#endregion
@@ -256,7 +256,7 @@ function input$82(key, value) {
 			key,
 			String(value)
 		],
-		replyTransform
+		replyTransform: numberToBoolean
 	};
 }
 //#endregion
@@ -724,7 +724,7 @@ function input$62(key, seconds, options) {
 			String(seconds),
 			...args_options
 		],
-		replyTransform
+		replyTransform: numberToBoolean
 	};
 }
 //#endregion
@@ -805,7 +805,7 @@ function input$59(key, seconds, options) {
 			String(seconds),
 			...args_options
 		],
-		replyTransform
+		replyTransform: numberToBoolean
 	};
 }
 //#endregion
@@ -838,7 +838,7 @@ function input$57(pattern) {
 	return {
 		kind: "#schema",
 		args: ["KEYS", pattern],
-		replyTransform: replyTransform$1
+		replyTransform
 	};
 }
 //#endregion
@@ -864,7 +864,7 @@ function input$56(source, destination, options) {
 	return {
 		kind: "#schema",
 		args,
-		replyTransform
+		replyTransform: numberToBoolean
 	};
 }
 //#endregion
@@ -898,7 +898,7 @@ function input$55(key, timestamp, options) {
 			String(timestamp),
 			...args_options
 		],
-		replyTransform
+		replyTransform: numberToBoolean
 	};
 }
 //#endregion
@@ -930,7 +930,7 @@ function input$54(key, timestamp, options) {
 			String(timestamp),
 			...args_options
 		],
-		replyTransform
+		replyTransform: numberToBoolean
 	};
 }
 //#endregion
@@ -948,7 +948,7 @@ function input$53(key) {
 	return {
 		kind: "#schema",
 		args: ["PERSIST", key],
-		replyTransform
+		replyTransform: numberToBoolean
 	};
 }
 //#endregion
@@ -1996,7 +1996,7 @@ function input$6(key) {
 	return {
 		kind: "#schema",
 		args: ["HKEYS", key],
-		replyTransform: replyTransform$1
+		replyTransform
 	};
 }
 //#endregion
@@ -2081,7 +2081,7 @@ function input$2(key, field) {
 			key,
 			String(field)
 		],
-		replyTransform
+		replyTransform: numberToBoolean
 	};
 }
 //#endregion
@@ -2108,7 +2108,7 @@ function input$1(key, field, value) {
 			field,
 			String(value)
 		],
-		replyTransform
+		replyTransform: numberToBoolean
 	};
 }
 //#endregion

@@ -1,4 +1,4 @@
-import { replyTransform } from '../../reply-transformers/number-to-boolean.js';
+import { numberToBoolean as replyTransform } from '../../reply-transformers/number-to-boolean.js';
 import type { Command } from '../../types.js';
 
 export type ExpireatOptions = {
