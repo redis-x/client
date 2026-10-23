@@ -66,6 +66,15 @@ type UnwrapRedisXTransactionCommand<T> = T extends RedisXTransactionCommand<infe
 export declare function stringBulkToObject(values: string[]): Record<string, string>;
 type Collection<T> = readonly T[] | ReadonlySet<T> | IterableIterator<T>;
 //#endregion
+//#region src/commands/set/sintercard.d.ts
+type SintercardOptions = {
+  /**
+   * Stop counting once the cardinality reaches `limit`. `0` (the default) means no limit.
+   * - Available since: 7.0.0.
+   */
+  LIMIT?: number;
+};
+//#endregion
 //#region src/commands/set/sunioncard.d.ts
 type SunioncardOptions = {
   /**
@@ -601,6 +610,20 @@ declare class RedisXTransactionUse {
   addCommand(command: string, ...args: (string | number)[]): RedisXTransactionCommand<unknown>;
   private useCommand;
   /**
+   * This command is similar to `SINTER`, but instead of returning the result set, it returns just the cardinality of the result.
+   * Returns the cardinality of the set which would result from the intersection of all the given sets.
+   *
+   * Keys that do not exist are considered to be empty sets.
+   * With one of the keys being an empty set, the resulting set is also empty (since set intersection with an empty set always results in an empty set).
+   * - Available since: 7.0.0.
+   * - Time complexity: O(N*M) worst case where N is the cardinality of the smallest set and M is the number of sets.
+   * @param keys - One or more set keys to intersect.
+   * @param options -
+   * @returns Integer reply: the number of elements in the resulting intersection.
+   * @see {@link https://redis.io/commands/sintercard}
+   */
+  SINTERCARD(keys: Collection<string>, options?: SintercardOptions): RedisXTransactionCommand<number>;
+  /**
    * Remove the specified members from the set stored at key.
    * Specified members that are not a member of this set are ignored.
    * If key does not exist, it is treated as an empty set and this command returns 0.
@@ -626,6 +649,30 @@ declare class RedisXTransactionUse {
    * @see {@link https://redis.io/commands/srem}
    */
   SREM(key: string, ...members: (string | number)[]): RedisXTransactionCommand<number>;
+  /**
+   * This command is equal to `SINTER`, but instead of returning the resulting set, it is stored in `destination`.
+   *
+   * If `destination` already exists, it is overwritten.
+   * - Available since: 1.0.0.
+   * - Time complexity: O(N*M) worst case where N is the cardinality of the smallest set and M is the number of sets.
+   * @param destination - The key to store the resulting set in.
+   * @param keys - One or more set keys to intersect.
+   * @returns Integer reply: the number of elements in the resulting set.
+   * @see {@link https://redis.io/commands/sinterstore}
+   */
+  SINTERSTORE(destination: string, ...keys: string[]): RedisXTransactionCommand<number>;
+  /**
+   * This command is equal to `SINTER`, but instead of returning the resulting set, it is stored in `destination`.
+   *
+   * If `destination` already exists, it is overwritten.
+   * - Available since: 1.0.0.
+   * - Time complexity: O(N*M) worst case where N is the cardinality of the smallest set and M is the number of sets.
+   * @param destination - The key to store the resulting set in.
+   * @param keys - One or more set keys to intersect.
+   * @returns Integer reply: the number of elements in the resulting set.
+   * @see {@link https://redis.io/commands/sinterstore}
+   */
+  SINTERSTORE(destination: string, keys: Collection<string>): RedisXTransactionCommand<number>;
   /**
    * Returns whether each member is a member of the set stored at key.
    *
@@ -654,6 +701,30 @@ declare class RedisXTransactionUse {
    * @see {@link https://redis.io/commands/smismember}
    */
   SMISMEMBER(key: string, members: Collection<string | number>): RedisXTransactionCommand<boolean[]>;
+  /**
+   * Returns the members of the set resulting from the intersection of all the given sets.
+   *
+   * Keys that do not exist are considered to be empty sets.
+   * With one of the keys being an empty set, the resulting set is also empty (since set intersection with an empty set always results in an empty set).
+   * - Available since: 1.0.0.
+   * - Time complexity: O(N*M) worst case where N is the cardinality of the smallest set and M is the number of sets.
+   * @param keys - One or more set keys to intersect.
+   * @returns Array reply: an array with the members of the resulting set.
+   * @see {@link https://redis.io/commands/sinter}
+   */
+  SINTER(...keys: string[]): RedisXTransactionCommand<Set<string>>;
+  /**
+   * Returns the members of the set resulting from the intersection of all the given sets.
+   *
+   * Keys that do not exist are considered to be empty sets.
+   * With one of the keys being an empty set, the resulting set is also empty (since set intersection with an empty set always results in an empty set).
+   * - Available since: 1.0.0.
+   * - Time complexity: O(N*M) worst case where N is the cardinality of the smallest set and M is the number of sets.
+   * @param keys - One or more set keys to intersect.
+   * @returns Array reply: an array with the members of the resulting set.
+   * @see {@link https://redis.io/commands/sinter}
+   */
+  SINTER(keys: Collection<string>): RedisXTransactionCommand<Set<string>>;
   /**
    * Returns all the members of the set value stored at key.
    *
@@ -2629,6 +2700,20 @@ declare class RedisXTransaction<L = [], C extends boolean = false, D = unknown> 
   use<const CB extends (transaction: RedisXTransactionUse) => Promisable<Record<string, any> | void>>(callback: CB): RedisXTransaction<[], true, Awaited<ReturnType<CB>> extends Record<string, any> ? UnwrapRedisXTransactionCommand<Awaited<ReturnType<CB>>> & D : D>;
   execute<RL = C extends true ? unknown : L extends [] ? unknown : L, R = unknown extends D ? unknown extends RL ? Record<string, never> : RL : RL & { [K in keyof D]: D[K]; }>(): Promise<R>;
   /**
+   * This command is similar to `SINTER`, but instead of returning the result set, it returns just the cardinality of the result.
+   * Returns the cardinality of the set which would result from the intersection of all the given sets.
+   *
+   * Keys that do not exist are considered to be empty sets.
+   * With one of the keys being an empty set, the resulting set is also empty (since set intersection with an empty set always results in an empty set).
+   * - Available since: 7.0.0.
+   * - Time complexity: O(N*M) worst case where N is the cardinality of the smallest set and M is the number of sets.
+   * @param keys - One or more set keys to intersect.
+   * @param options -
+   * @returns Integer reply: the number of elements in the resulting intersection.
+   * @see {@link https://redis.io/commands/sintercard}
+   */
+  SINTERCARD(keys: Collection<string>, options?: SintercardOptions): RedisXTransaction<AddToList<L, number>, C, D>;
+  /**
    * Remove the specified members from the set stored at key.
    * Specified members that are not a member of this set are ignored.
    * If key does not exist, it is treated as an empty set and this command returns 0.
@@ -2654,6 +2739,30 @@ declare class RedisXTransaction<L = [], C extends boolean = false, D = unknown> 
    * @see {@link https://redis.io/commands/srem}
    */
   SREM(key: string, ...members: (string | number)[]): RedisXTransaction<AddToList<L, number>, C, D>;
+  /**
+   * This command is equal to `SINTER`, but instead of returning the resulting set, it is stored in `destination`.
+   *
+   * If `destination` already exists, it is overwritten.
+   * - Available since: 1.0.0.
+   * - Time complexity: O(N*M) worst case where N is the cardinality of the smallest set and M is the number of sets.
+   * @param destination - The key to store the resulting set in.
+   * @param keys - One or more set keys to intersect.
+   * @returns Integer reply: the number of elements in the resulting set.
+   * @see {@link https://redis.io/commands/sinterstore}
+   */
+  SINTERSTORE(destination: string, ...keys: string[]): RedisXTransaction<AddToList<L, number>, C, D>;
+  /**
+   * This command is equal to `SINTER`, but instead of returning the resulting set, it is stored in `destination`.
+   *
+   * If `destination` already exists, it is overwritten.
+   * - Available since: 1.0.0.
+   * - Time complexity: O(N*M) worst case where N is the cardinality of the smallest set and M is the number of sets.
+   * @param destination - The key to store the resulting set in.
+   * @param keys - One or more set keys to intersect.
+   * @returns Integer reply: the number of elements in the resulting set.
+   * @see {@link https://redis.io/commands/sinterstore}
+   */
+  SINTERSTORE(destination: string, keys: Collection<string>): RedisXTransaction<AddToList<L, number>, C, D>;
   /**
    * Returns whether each member is a member of the set stored at key.
    *
@@ -2682,6 +2791,30 @@ declare class RedisXTransaction<L = [], C extends boolean = false, D = unknown> 
    * @see {@link https://redis.io/commands/smismember}
    */
   SMISMEMBER(key: string, members: Collection<string | number>): RedisXTransaction<AddToList<L, boolean[]>, C, D>;
+  /**
+   * Returns the members of the set resulting from the intersection of all the given sets.
+   *
+   * Keys that do not exist are considered to be empty sets.
+   * With one of the keys being an empty set, the resulting set is also empty (since set intersection with an empty set always results in an empty set).
+   * - Available since: 1.0.0.
+   * - Time complexity: O(N*M) worst case where N is the cardinality of the smallest set and M is the number of sets.
+   * @param keys - One or more set keys to intersect.
+   * @returns Array reply: an array with the members of the resulting set.
+   * @see {@link https://redis.io/commands/sinter}
+   */
+  SINTER(...keys: string[]): RedisXTransaction<AddToList<L, Set<string>>, C, D>;
+  /**
+   * Returns the members of the set resulting from the intersection of all the given sets.
+   *
+   * Keys that do not exist are considered to be empty sets.
+   * With one of the keys being an empty set, the resulting set is also empty (since set intersection with an empty set always results in an empty set).
+   * - Available since: 1.0.0.
+   * - Time complexity: O(N*M) worst case where N is the cardinality of the smallest set and M is the number of sets.
+   * @param keys - One or more set keys to intersect.
+   * @returns Array reply: an array with the members of the resulting set.
+   * @see {@link https://redis.io/commands/sinter}
+   */
+  SINTER(keys: Collection<string>): RedisXTransaction<AddToList<L, Set<string>>, C, D>;
   /**
    * Returns all the members of the set value stored at key.
    *
@@ -4648,6 +4781,20 @@ export declare class RedisXClient {
   createScript<O = unknown>(code: string, keys: string[], outputValidator: (value: unknown) => O): RedisXScript<string[], O>;
   createScript<I extends any[] = string[], O = unknown>(options: RedisXScriptOptions<I, O>): RedisXScript<I, O>;
   /**
+   * This command is similar to `SINTER`, but instead of returning the result set, it returns just the cardinality of the result.
+   * Returns the cardinality of the set which would result from the intersection of all the given sets.
+   *
+   * Keys that do not exist are considered to be empty sets.
+   * With one of the keys being an empty set, the resulting set is also empty (since set intersection with an empty set always results in an empty set).
+   * - Available since: 7.0.0.
+   * - Time complexity: O(N*M) worst case where N is the cardinality of the smallest set and M is the number of sets.
+   * @param keys - One or more set keys to intersect.
+   * @param options -
+   * @returns Integer reply: the number of elements in the resulting intersection.
+   * @see {@link https://redis.io/commands/sintercard}
+   */
+  SINTERCARD(keys: Collection<string>, options?: SintercardOptions): Promise<number>;
+  /**
    * Remove the specified members from the set stored at key.
    * Specified members that are not a member of this set are ignored.
    * If key does not exist, it is treated as an empty set and this command returns 0.
@@ -4673,6 +4820,30 @@ export declare class RedisXClient {
    * @see {@link https://redis.io/commands/srem}
    */
   SREM(key: string, ...members: (string | number)[]): Promise<number>;
+  /**
+   * This command is equal to `SINTER`, but instead of returning the resulting set, it is stored in `destination`.
+   *
+   * If `destination` already exists, it is overwritten.
+   * - Available since: 1.0.0.
+   * - Time complexity: O(N*M) worst case where N is the cardinality of the smallest set and M is the number of sets.
+   * @param destination - The key to store the resulting set in.
+   * @param keys - One or more set keys to intersect.
+   * @returns Integer reply: the number of elements in the resulting set.
+   * @see {@link https://redis.io/commands/sinterstore}
+   */
+  SINTERSTORE(destination: string, ...keys: string[]): Promise<number>;
+  /**
+   * This command is equal to `SINTER`, but instead of returning the resulting set, it is stored in `destination`.
+   *
+   * If `destination` already exists, it is overwritten.
+   * - Available since: 1.0.0.
+   * - Time complexity: O(N*M) worst case where N is the cardinality of the smallest set and M is the number of sets.
+   * @param destination - The key to store the resulting set in.
+   * @param keys - One or more set keys to intersect.
+   * @returns Integer reply: the number of elements in the resulting set.
+   * @see {@link https://redis.io/commands/sinterstore}
+   */
+  SINTERSTORE(destination: string, keys: Collection<string>): Promise<number>;
   /**
    * Returns whether each member is a member of the set stored at key.
    *
@@ -4701,6 +4872,30 @@ export declare class RedisXClient {
    * @see {@link https://redis.io/commands/smismember}
    */
   SMISMEMBER(key: string, members: Collection<string | number>): Promise<boolean[]>;
+  /**
+   * Returns the members of the set resulting from the intersection of all the given sets.
+   *
+   * Keys that do not exist are considered to be empty sets.
+   * With one of the keys being an empty set, the resulting set is also empty (since set intersection with an empty set always results in an empty set).
+   * - Available since: 1.0.0.
+   * - Time complexity: O(N*M) worst case where N is the cardinality of the smallest set and M is the number of sets.
+   * @param keys - One or more set keys to intersect.
+   * @returns Array reply: an array with the members of the resulting set.
+   * @see {@link https://redis.io/commands/sinter}
+   */
+  SINTER(...keys: string[]): Promise<Set<string>>;
+  /**
+   * Returns the members of the set resulting from the intersection of all the given sets.
+   *
+   * Keys that do not exist are considered to be empty sets.
+   * With one of the keys being an empty set, the resulting set is also empty (since set intersection with an empty set always results in an empty set).
+   * - Available since: 1.0.0.
+   * - Time complexity: O(N*M) worst case where N is the cardinality of the smallest set and M is the number of sets.
+   * @param keys - One or more set keys to intersect.
+   * @returns Array reply: an array with the members of the resulting set.
+   * @see {@link https://redis.io/commands/sinter}
+   */
+  SINTER(keys: Collection<string>): Promise<Set<string>>;
   /**
    * Returns all the members of the set value stored at key.
    *

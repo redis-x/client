@@ -74,8 +74,23 @@ function unwrapRedisTransactionCommand(target, result) {
 	return target;
 }
 //#endregion
+//#region src/commands/set/sintercard.ts
+function input$102(keys, options) {
+	const key_list = collectionToStringArray(keys);
+	const args = [
+		"SINTERCARD",
+		String(key_list.length),
+		...key_list
+	];
+	if ((options === null || options === void 0 ? void 0 : options.LIMIT) !== void 0) args.push("LIMIT", String(options.LIMIT));
+	return {
+		kind: "#schema",
+		args
+	};
+}
+//#endregion
 //#region src/commands/set/srem.ts
-function input$99(key, arg1, ...args_rest) {
+function input$101(key, arg1, ...args_rest) {
 	const args = ["SREM", key];
 	if (typeof arg1 === "string" || typeof arg1 === "number") args.push(String(arg1), ...args_rest.map(String));
 	else args.push(...collectionToStringArray(arg1));
@@ -85,8 +100,19 @@ function input$99(key, arg1, ...args_rest) {
 	};
 }
 //#endregion
+//#region src/commands/set/sinterstore.ts
+function input$100(destination, arg1, ...args_rest) {
+	const args = ["SINTERSTORE", destination];
+	if (typeof arg1 === "string") args.push(arg1, ...args_rest);
+	else args.push(...collectionToStringArray(arg1));
+	return {
+		kind: "#schema",
+		args
+	};
+}
+//#endregion
 //#region src/commands/set/smismember.ts
-function input$98(key, arg1, ...args_rest) {
+function input$99(key, arg1, ...args_rest) {
 	const args = ["SMISMEMBER", key];
 	if (typeof arg1 === "string" || typeof arg1 === "number") args.push(String(arg1), ...args_rest.map(String));
 	else args.push(...collectionToStringArray(arg1));
@@ -103,6 +129,18 @@ function replyTransform(reply) {
 //#region src/reply-transformers/array-to-set.ts
 function arrayToSet(reply) {
 	return new Set(reply);
+}
+//#endregion
+//#region src/commands/set/sinter.ts
+function input$98(arg0, ...args_rest) {
+	const args = ["SINTER"];
+	if (typeof arg0 === "string") args.push(arg0, ...args_rest);
+	else args.push(...collectionToStringArray(arg0));
+	return {
+		kind: "#schema",
+		args,
+		replyTransform: arrayToSet
+	};
 }
 //#endregion
 //#region src/commands/set/smembers.ts
@@ -1518,11 +1556,20 @@ var RedisXTransactionUse = class {
 		});
 		return redis_transaction_command;
 	}
+	SINTERCARD(keys, options) {
+		return this.useCommand(input$102(keys, options));
+	}
 	SREM(key, arg1, ...args_rest) {
-		return this.useCommand(input$99(key, arg1, ...args_rest));
+		return this.useCommand(input$101(key, arg1, ...args_rest));
+	}
+	SINTERSTORE(destination, arg1, ...args_rest) {
+		return this.useCommand(input$100(destination, arg1, ...args_rest));
 	}
 	SMISMEMBER(key, arg1, ...args_rest) {
-		return this.useCommand(input$98(key, arg1, ...args_rest));
+		return this.useCommand(input$99(key, arg1, ...args_rest));
+	}
+	SINTER(arg0, ...args_rest) {
+		return this.useCommand(input$98(arg0, ...args_rest));
 	}
 	SMEMBERS(key) {
 		return this.useCommand(input$97(key));
@@ -1876,11 +1923,20 @@ var RedisXTransaction = class {
 		if (this.return_no_array) return result_named;
 		return Object.assign(result, result_named);
 	}
+	SINTERCARD(keys, options) {
+		return this.useCommand(input$102(keys, options));
+	}
 	SREM(key, arg1, ...args_rest) {
-		return this.useCommand(input$99(key, arg1, ...args_rest));
+		return this.useCommand(input$101(key, arg1, ...args_rest));
+	}
+	SINTERSTORE(destination, arg1, ...args_rest) {
+		return this.useCommand(input$100(destination, arg1, ...args_rest));
 	}
 	SMISMEMBER(key, arg1, ...args_rest) {
-		return this.useCommand(input$98(key, arg1, ...args_rest));
+		return this.useCommand(input$99(key, arg1, ...args_rest));
+	}
+	SINTER(arg0, ...args_rest) {
+		return this.useCommand(input$98(arg0, ...args_rest));
 	}
 	SMEMBERS(key) {
 		return this.useCommand(input$97(key));
@@ -2206,11 +2262,20 @@ var RedisXClient = class {
 		} else options = arg_0;
 		return new RedisXScript(this.redisClient, options);
 	}
+	SINTERCARD(keys, options) {
+		return this.useCommand(input$102(keys, options));
+	}
 	SREM(key, arg1, ...args_rest) {
-		return this.useCommand(input$99(key, arg1, ...args_rest));
+		return this.useCommand(input$101(key, arg1, ...args_rest));
+	}
+	SINTERSTORE(destination, arg1, ...args_rest) {
+		return this.useCommand(input$100(destination, arg1, ...args_rest));
 	}
 	SMISMEMBER(key, arg1, ...args_rest) {
-		return this.useCommand(input$98(key, arg1, ...args_rest));
+		return this.useCommand(input$99(key, arg1, ...args_rest));
+	}
+	SINTER(arg0, ...args_rest) {
+		return this.useCommand(input$98(arg0, ...args_rest));
 	}
 	SMEMBERS(key) {
 		return this.useCommand(input$97(key));
