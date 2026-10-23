@@ -89,6 +89,15 @@ type SunioncardOptions = {
   LIMIT?: number;
 };
 //#endregion
+//#region src/commands/set/sdiffcard.d.ts
+type SdiffcardOptions = {
+  /**
+   * Stop counting once the cardinality reaches `limit`. `0` (the default) means no limit.
+   * - Available since: 8.10.0.
+   */
+  LIMIT?: number;
+};
+//#endregion
 //#region src/commands/string/set.d.ts
 type SetOptions = {
   /**
@@ -793,6 +802,28 @@ declare class RedisXTransactionUse {
    */
   SUNIONSTORE(destination: string, keys: Collection<string>): RedisXTransactionCommand<number>;
   /**
+   * Returns the members of the set resulting from the difference between the first set and all the successive sets.
+   *
+   * Keys that do not exist are considered to be empty sets.
+   * - Available since: 1.0.0.
+   * - Time complexity: O(N) where N is the total number of elements in all given sets.
+   * @param keys - One or more set keys. The result is the members of the first set that are not present in any of the subsequent sets.
+   * @returns Array reply: a list with members of the resulting set.
+   * @see {@link https://redis.io/commands/sdiff}
+   */
+  SDIFF(...keys: string[]): RedisXTransactionCommand<Set<string>>;
+  /**
+   * Returns the members of the set resulting from the difference between the first set and all the successive sets.
+   *
+   * Keys that do not exist are considered to be empty sets.
+   * - Available since: 1.0.0.
+   * - Time complexity: O(N) where N is the total number of elements in all given sets.
+   * @param keys - One or more set keys. The result is the members of the first set that are not present in any of the subsequent sets.
+   * @returns Array reply: a list with members of the resulting set.
+   * @see {@link https://redis.io/commands/sdiff}
+   */
+  SDIFF(keys: Collection<string>): RedisXTransactionCommand<Set<string>>;
+  /**
    * Returns the cardinality of the union of the given sets. This is the count-only counterpart of `SUNION`: it returns just the number of distinct elements in the union, not the members themselves.
    *
    * Keys that do not exist are considered to be empty sets.
@@ -805,6 +836,30 @@ declare class RedisXTransactionUse {
    */
   SUNIONCARD(keys: Collection<string>, options?: SunioncardOptions): RedisXTransactionCommand<number>;
   /**
+   * This command is equal to `SDIFF`, but instead of returning the resulting set, it is stored in `destination`.
+   *
+   * If `destination` already exists, it is overwritten.
+   * - Available since: 1.0.0.
+   * - Time complexity: O(N) where N is the total number of elements in all given sets.
+   * @param destination - The key to store the resulting set in.
+   * @param keys - One or more set keys. The difference is the members of the first set that are not present in any of the subsequent sets.
+   * @returns Integer reply: the number of elements in the resulting set.
+   * @see {@link https://redis.io/commands/sdiffstore}
+   */
+  SDIFFSTORE(destination: string, ...keys: string[]): RedisXTransactionCommand<number>;
+  /**
+   * This command is equal to `SDIFF`, but instead of returning the resulting set, it is stored in `destination`.
+   *
+   * If `destination` already exists, it is overwritten.
+   * - Available since: 1.0.0.
+   * - Time complexity: O(N) where N is the total number of elements in all given sets.
+   * @param destination - The key to store the resulting set in.
+   * @param keys - One or more set keys. The difference is the members of the first set that are not present in any of the subsequent sets.
+   * @returns Integer reply: the number of elements in the resulting set.
+   * @see {@link https://redis.io/commands/sdiffstore}
+   */
+  SDIFFSTORE(destination: string, keys: Collection<string>): RedisXTransactionCommand<number>;
+  /**
    * Returns the set cardinality (number of elements) of the set stored at key.
    *
    * - Available since: 1.0.0.
@@ -814,6 +869,18 @@ declare class RedisXTransactionUse {
    * @see {@link https://redis.io/commands/scard}
    */
   SCARD(key: string): RedisXTransactionCommand<number>;
+  /**
+   * Returns the cardinality of the difference between the first set and all the successive sets. This is the count-only counterpart of `SDIFF`: it returns just the number of elements in the difference, not the members themselves.
+   *
+   * Keys that do not exist are considered to be empty sets.
+   * - Available since: 8.10.0.
+   * - Time complexity: O(N) where N is the total number of elements in all given sets.
+   * @param keys - One or more set keys. The result counts the members of the first set that are not present in any of the subsequent sets.
+   * @param options -
+   * @returns Integer reply: the number of elements in the resulting difference.
+   * @see {@link https://redis.io/commands/sdiffcard}
+   */
+  SDIFFCARD(keys: Collection<string>, options?: SdiffcardOptions): RedisXTransactionCommand<number>;
   /**
    * Add the specified members to the set stored at key.
    * Specified members that are already a member of this set are ignored.
@@ -2883,6 +2950,28 @@ declare class RedisXTransaction<L = [], C extends boolean = false, D = unknown> 
    */
   SUNIONSTORE(destination: string, keys: Collection<string>): RedisXTransaction<AddToList<L, number>, C, D>;
   /**
+   * Returns the members of the set resulting from the difference between the first set and all the successive sets.
+   *
+   * Keys that do not exist are considered to be empty sets.
+   * - Available since: 1.0.0.
+   * - Time complexity: O(N) where N is the total number of elements in all given sets.
+   * @param keys - One or more set keys. The result is the members of the first set that are not present in any of the subsequent sets.
+   * @returns Array reply: a list with members of the resulting set.
+   * @see {@link https://redis.io/commands/sdiff}
+   */
+  SDIFF(...keys: string[]): RedisXTransaction<AddToList<L, Set<string>>, C, D>;
+  /**
+   * Returns the members of the set resulting from the difference between the first set and all the successive sets.
+   *
+   * Keys that do not exist are considered to be empty sets.
+   * - Available since: 1.0.0.
+   * - Time complexity: O(N) where N is the total number of elements in all given sets.
+   * @param keys - One or more set keys. The result is the members of the first set that are not present in any of the subsequent sets.
+   * @returns Array reply: a list with members of the resulting set.
+   * @see {@link https://redis.io/commands/sdiff}
+   */
+  SDIFF(keys: Collection<string>): RedisXTransaction<AddToList<L, Set<string>>, C, D>;
+  /**
    * Returns the cardinality of the union of the given sets. This is the count-only counterpart of `SUNION`: it returns just the number of distinct elements in the union, not the members themselves.
    *
    * Keys that do not exist are considered to be empty sets.
@@ -2895,6 +2984,30 @@ declare class RedisXTransaction<L = [], C extends boolean = false, D = unknown> 
    */
   SUNIONCARD(keys: Collection<string>, options?: SunioncardOptions): RedisXTransaction<AddToList<L, number>, C, D>;
   /**
+   * This command is equal to `SDIFF`, but instead of returning the resulting set, it is stored in `destination`.
+   *
+   * If `destination` already exists, it is overwritten.
+   * - Available since: 1.0.0.
+   * - Time complexity: O(N) where N is the total number of elements in all given sets.
+   * @param destination - The key to store the resulting set in.
+   * @param keys - One or more set keys. The difference is the members of the first set that are not present in any of the subsequent sets.
+   * @returns Integer reply: the number of elements in the resulting set.
+   * @see {@link https://redis.io/commands/sdiffstore}
+   */
+  SDIFFSTORE(destination: string, ...keys: string[]): RedisXTransaction<AddToList<L, number>, C, D>;
+  /**
+   * This command is equal to `SDIFF`, but instead of returning the resulting set, it is stored in `destination`.
+   *
+   * If `destination` already exists, it is overwritten.
+   * - Available since: 1.0.0.
+   * - Time complexity: O(N) where N is the total number of elements in all given sets.
+   * @param destination - The key to store the resulting set in.
+   * @param keys - One or more set keys. The difference is the members of the first set that are not present in any of the subsequent sets.
+   * @returns Integer reply: the number of elements in the resulting set.
+   * @see {@link https://redis.io/commands/sdiffstore}
+   */
+  SDIFFSTORE(destination: string, keys: Collection<string>): RedisXTransaction<AddToList<L, number>, C, D>;
+  /**
    * Returns the set cardinality (number of elements) of the set stored at key.
    *
    * - Available since: 1.0.0.
@@ -2904,6 +3017,18 @@ declare class RedisXTransaction<L = [], C extends boolean = false, D = unknown> 
    * @see {@link https://redis.io/commands/scard}
    */
   SCARD(key: string): RedisXTransaction<AddToList<L, number>, C, D>;
+  /**
+   * Returns the cardinality of the difference between the first set and all the successive sets. This is the count-only counterpart of `SDIFF`: it returns just the number of elements in the difference, not the members themselves.
+   *
+   * Keys that do not exist are considered to be empty sets.
+   * - Available since: 8.10.0.
+   * - Time complexity: O(N) where N is the total number of elements in all given sets.
+   * @param keys - One or more set keys. The result counts the members of the first set that are not present in any of the subsequent sets.
+   * @param options -
+   * @returns Integer reply: the number of elements in the resulting difference.
+   * @see {@link https://redis.io/commands/sdiffcard}
+   */
+  SDIFFCARD(keys: Collection<string>, options?: SdiffcardOptions): RedisXTransaction<AddToList<L, number>, C, D>;
   /**
    * Add the specified members to the set stored at key.
    * Specified members that are already a member of this set are ignored.
@@ -4964,6 +5089,28 @@ export declare class RedisXClient {
    */
   SUNIONSTORE(destination: string, keys: Collection<string>): Promise<number>;
   /**
+   * Returns the members of the set resulting from the difference between the first set and all the successive sets.
+   *
+   * Keys that do not exist are considered to be empty sets.
+   * - Available since: 1.0.0.
+   * - Time complexity: O(N) where N is the total number of elements in all given sets.
+   * @param keys - One or more set keys. The result is the members of the first set that are not present in any of the subsequent sets.
+   * @returns Array reply: a list with members of the resulting set.
+   * @see {@link https://redis.io/commands/sdiff}
+   */
+  SDIFF(...keys: string[]): Promise<Set<string>>;
+  /**
+   * Returns the members of the set resulting from the difference between the first set and all the successive sets.
+   *
+   * Keys that do not exist are considered to be empty sets.
+   * - Available since: 1.0.0.
+   * - Time complexity: O(N) where N is the total number of elements in all given sets.
+   * @param keys - One or more set keys. The result is the members of the first set that are not present in any of the subsequent sets.
+   * @returns Array reply: a list with members of the resulting set.
+   * @see {@link https://redis.io/commands/sdiff}
+   */
+  SDIFF(keys: Collection<string>): Promise<Set<string>>;
+  /**
    * Returns the cardinality of the union of the given sets. This is the count-only counterpart of `SUNION`: it returns just the number of distinct elements in the union, not the members themselves.
    *
    * Keys that do not exist are considered to be empty sets.
@@ -4976,6 +5123,30 @@ export declare class RedisXClient {
    */
   SUNIONCARD(keys: Collection<string>, options?: SunioncardOptions): Promise<number>;
   /**
+   * This command is equal to `SDIFF`, but instead of returning the resulting set, it is stored in `destination`.
+   *
+   * If `destination` already exists, it is overwritten.
+   * - Available since: 1.0.0.
+   * - Time complexity: O(N) where N is the total number of elements in all given sets.
+   * @param destination - The key to store the resulting set in.
+   * @param keys - One or more set keys. The difference is the members of the first set that are not present in any of the subsequent sets.
+   * @returns Integer reply: the number of elements in the resulting set.
+   * @see {@link https://redis.io/commands/sdiffstore}
+   */
+  SDIFFSTORE(destination: string, ...keys: string[]): Promise<number>;
+  /**
+   * This command is equal to `SDIFF`, but instead of returning the resulting set, it is stored in `destination`.
+   *
+   * If `destination` already exists, it is overwritten.
+   * - Available since: 1.0.0.
+   * - Time complexity: O(N) where N is the total number of elements in all given sets.
+   * @param destination - The key to store the resulting set in.
+   * @param keys - One or more set keys. The difference is the members of the first set that are not present in any of the subsequent sets.
+   * @returns Integer reply: the number of elements in the resulting set.
+   * @see {@link https://redis.io/commands/sdiffstore}
+   */
+  SDIFFSTORE(destination: string, keys: Collection<string>): Promise<number>;
+  /**
    * Returns the set cardinality (number of elements) of the set stored at key.
    *
    * - Available since: 1.0.0.
@@ -4985,6 +5156,18 @@ export declare class RedisXClient {
    * @see {@link https://redis.io/commands/scard}
    */
   SCARD(key: string): Promise<number>;
+  /**
+   * Returns the cardinality of the difference between the first set and all the successive sets. This is the count-only counterpart of `SDIFF`: it returns just the number of elements in the difference, not the members themselves.
+   *
+   * Keys that do not exist are considered to be empty sets.
+   * - Available since: 8.10.0.
+   * - Time complexity: O(N) where N is the total number of elements in all given sets.
+   * @param keys - One or more set keys. The result counts the members of the first set that are not present in any of the subsequent sets.
+   * @param options -
+   * @returns Integer reply: the number of elements in the resulting difference.
+   * @see {@link https://redis.io/commands/sdiffcard}
+   */
+  SDIFFCARD(keys: Collection<string>, options?: SdiffcardOptions): Promise<number>;
   /**
    * Add the specified members to the set stored at key.
    * Specified members that are already a member of this set are ignored.
