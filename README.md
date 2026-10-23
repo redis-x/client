@@ -1,6 +1,7 @@
 # redis-x
 
 [![npm version](https://img.shields.io/npm/v/@redis-x/client.svg)](https://www.npmjs.com/package/@redis-x/client)
+[![Open on npmx.dev](https://npmx.dev/api/registry/badge/version/@redis-x/client?style=shieldsio&label=npmx.dev)](https://npmx.dev/package/@redis-x/client)
 [![license](https://img.shields.io/npm/l/@redis-x/client.svg?color=blue)](https://github.com/redis-x/client/blob/main/LICENSE)
 
 A strongly-typed Redis client built on top of the standard "redis" package, providing improved TypeScript support, intuitive transaction handling, and automatic data transformations.
