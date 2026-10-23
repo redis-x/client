@@ -321,7 +321,7 @@ X / Y / (1/7)
 | [Hash](src/commands/hash)                         | 🟩🟩🟨🟥🟥🟥🟥 | **14** / 33 |
 | [List](src/commands/list)                         | 🟩🟩🟩🟩🟥🟥🟥 | **14** / 24 |
 | [Scripting and Functions](src/commands/scripting) | 🟥🟥🟥🟥🟥🟥🟥 |  **1** / 19 |
-| [Set](src/commands/set)                           | 🟩🟩🟩🟩🟩🟨🟥 | **15** / 19 |
+| [Set](src/commands/set)                           | 🟩🟩🟩🟩🟩🟩🟨 | **18** / 19 |
 | [Sorted Set](src/commands/sorted-set)             | 🟩🟩🟩🟨🟥🟥🟥 | **18** / 35 |
 | [Stream](src/commands/stream)                     | 🟩🟨🟥🟥🟥🟥🟥 |  **7** / 26 |
 | [String](src/commands/string)                     | 🟩🟩🟩🟩🟩🟨🟥 | **21** / 26 |

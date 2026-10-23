@@ -75,7 +75,7 @@ function unwrapRedisTransactionCommand(target, result) {
 }
 //#endregion
 //#region src/commands/set/sintercard.ts
-function input$105(keys, options) {
+function input$108(keys, options) {
 	const key_list = collectionToStringArray(keys);
 	const args = [
 		"SINTERCARD",
@@ -90,7 +90,7 @@ function input$105(keys, options) {
 }
 //#endregion
 //#region src/commands/set/srem.ts
-function input$104(key, arg1, ...args_rest) {
+function input$107(key, arg1, ...args_rest) {
 	const args = ["SREM", key];
 	if (typeof arg1 === "string" || typeof arg1 === "number") args.push(String(arg1), ...args_rest.map(String));
 	else args.push(...collectionToStringArray(arg1));
@@ -100,8 +100,40 @@ function input$104(key, arg1, ...args_rest) {
 	};
 }
 //#endregion
+//#region src/commands/set/srandmember.ts
+function input$106(key, count) {
+	const args = ["SRANDMEMBER", key];
+	if (count !== void 0) args.push(String(count));
+	return {
+		kind: "#schema",
+		args
+	};
+}
+//#endregion
+//#region src/reply-transformers/array-to-set.ts
+function arrayToSet(reply) {
+	return new Set(reply);
+}
+//#endregion
+//#region src/commands/set/spop.ts
+function input$105(key, count) {
+	if (count === void 0) return {
+		kind: "#schema",
+		args: ["SPOP", key]
+	};
+	return {
+		kind: "#schema",
+		args: [
+			"SPOP",
+			key,
+			String(count)
+		],
+		replyTransform: arrayToSet
+	};
+}
+//#endregion
 //#region src/commands/set/sinterstore.ts
-function input$103(destination, arg1, ...args_rest) {
+function input$104(destination, arg1, ...args_rest) {
 	const args = ["SINTERSTORE", destination];
 	if (typeof arg1 === "string") args.push(arg1, ...args_rest);
 	else args.push(...collectionToStringArray(arg1));
@@ -112,7 +144,7 @@ function input$103(destination, arg1, ...args_rest) {
 }
 //#endregion
 //#region src/commands/set/smismember.ts
-function input$102(key, arg1, ...args_rest) {
+function input$103(key, arg1, ...args_rest) {
 	const args = ["SMISMEMBER", key];
 	if (typeof arg1 === "string" || typeof arg1 === "number") args.push(String(arg1), ...args_rest.map(String));
 	else args.push(...collectionToStringArray(arg1));
@@ -126,13 +158,8 @@ function replyTransform(reply) {
 	return reply.map((value) => value === 1);
 }
 //#endregion
-//#region src/reply-transformers/array-to-set.ts
-function arrayToSet(reply) {
-	return new Set(reply);
-}
-//#endregion
 //#region src/commands/set/sinter.ts
-function input$101(arg0, ...args_rest) {
+function input$102(arg0, ...args_rest) {
 	const args = ["SINTER"];
 	if (typeof arg0 === "string") args.push(arg0, ...args_rest);
 	else args.push(...collectionToStringArray(arg0));
@@ -144,7 +171,7 @@ function input$101(arg0, ...args_rest) {
 }
 //#endregion
 //#region src/commands/set/smembers.ts
-function input$100(key) {
+function input$101(key) {
 	return {
 		kind: "#schema",
 		args: ["SMEMBERS", key],
@@ -153,7 +180,7 @@ function input$100(key) {
 }
 //#endregion
 //#region src/commands/set/sunion.ts
-function input$99(arg0, ...args_rest) {
+function input$100(arg0, ...args_rest) {
 	const args = ["SUNION"];
 	if (typeof arg0 === "string") args.push(arg0, ...args_rest);
 	else args.push(...collectionToStringArray(arg0));
@@ -170,7 +197,7 @@ function numberToBoolean(reply) {
 }
 //#endregion
 //#region src/commands/set/sismember.ts
-function input$98(key, member) {
+function input$99(key, member) {
 	return {
 		kind: "#schema",
 		args: [
@@ -183,13 +210,27 @@ function input$98(key, member) {
 }
 //#endregion
 //#region src/commands/set/sunionstore.ts
-function input$97(destination, arg1, ...args_rest) {
+function input$98(destination, arg1, ...args_rest) {
 	const args = ["SUNIONSTORE", destination];
 	if (typeof arg1 === "string") args.push(arg1, ...args_rest);
 	else args.push(...collectionToStringArray(arg1));
 	return {
 		kind: "#schema",
 		args
+	};
+}
+//#endregion
+//#region src/commands/set/smove.ts
+function input$97(source, destination, member) {
+	return {
+		kind: "#schema",
+		args: [
+			"SMOVE",
+			source,
+			destination,
+			String(member)
+		],
+		replyTransform: numberToBoolean
 	};
 }
 //#endregion
@@ -1595,31 +1636,40 @@ var RedisXTransactionUse = class {
 		return redis_transaction_command;
 	}
 	SINTERCARD(keys, options) {
-		return this.useCommand(input$105(keys, options));
+		return this.useCommand(input$108(keys, options));
 	}
 	SREM(key, arg1, ...args_rest) {
-		return this.useCommand(input$104(key, arg1, ...args_rest));
+		return this.useCommand(input$107(key, arg1, ...args_rest));
+	}
+	SRANDMEMBER(key, count) {
+		return this.useCommand(input$106(key, count));
+	}
+	SPOP(key, count) {
+		return this.useCommand(input$105(key, count));
 	}
 	SINTERSTORE(destination, arg1, ...args_rest) {
-		return this.useCommand(input$103(destination, arg1, ...args_rest));
+		return this.useCommand(input$104(destination, arg1, ...args_rest));
 	}
 	SMISMEMBER(key, arg1, ...args_rest) {
-		return this.useCommand(input$102(key, arg1, ...args_rest));
+		return this.useCommand(input$103(key, arg1, ...args_rest));
 	}
 	SINTER(arg0, ...args_rest) {
-		return this.useCommand(input$101(arg0, ...args_rest));
+		return this.useCommand(input$102(arg0, ...args_rest));
 	}
 	SMEMBERS(key) {
-		return this.useCommand(input$100(key));
+		return this.useCommand(input$101(key));
 	}
 	SUNION(arg0, ...args_rest) {
-		return this.useCommand(input$99(arg0, ...args_rest));
+		return this.useCommand(input$100(arg0, ...args_rest));
 	}
 	SISMEMBER(key, member) {
-		return this.useCommand(input$98(key, member));
+		return this.useCommand(input$99(key, member));
 	}
 	SUNIONSTORE(destination, arg1, ...args_rest) {
-		return this.useCommand(input$97(destination, arg1, ...args_rest));
+		return this.useCommand(input$98(destination, arg1, ...args_rest));
+	}
+	SMOVE(source, destination, member) {
+		return this.useCommand(input$97(source, destination, member));
 	}
 	SDIFF(arg0, ...args_rest) {
 		return this.useCommand(input$96(arg0, ...args_rest));
@@ -1971,31 +2021,40 @@ var RedisXTransaction = class {
 		return Object.assign(result, result_named);
 	}
 	SINTERCARD(keys, options) {
-		return this.useCommand(input$105(keys, options));
+		return this.useCommand(input$108(keys, options));
 	}
 	SREM(key, arg1, ...args_rest) {
-		return this.useCommand(input$104(key, arg1, ...args_rest));
+		return this.useCommand(input$107(key, arg1, ...args_rest));
+	}
+	SRANDMEMBER(key, count) {
+		return this.useCommand(input$106(key, count));
+	}
+	SPOP(key, count) {
+		return this.useCommand(input$105(key, count));
 	}
 	SINTERSTORE(destination, arg1, ...args_rest) {
-		return this.useCommand(input$103(destination, arg1, ...args_rest));
+		return this.useCommand(input$104(destination, arg1, ...args_rest));
 	}
 	SMISMEMBER(key, arg1, ...args_rest) {
-		return this.useCommand(input$102(key, arg1, ...args_rest));
+		return this.useCommand(input$103(key, arg1, ...args_rest));
 	}
 	SINTER(arg0, ...args_rest) {
-		return this.useCommand(input$101(arg0, ...args_rest));
+		return this.useCommand(input$102(arg0, ...args_rest));
 	}
 	SMEMBERS(key) {
-		return this.useCommand(input$100(key));
+		return this.useCommand(input$101(key));
 	}
 	SUNION(arg0, ...args_rest) {
-		return this.useCommand(input$99(arg0, ...args_rest));
+		return this.useCommand(input$100(arg0, ...args_rest));
 	}
 	SISMEMBER(key, member) {
-		return this.useCommand(input$98(key, member));
+		return this.useCommand(input$99(key, member));
 	}
 	SUNIONSTORE(destination, arg1, ...args_rest) {
-		return this.useCommand(input$97(destination, arg1, ...args_rest));
+		return this.useCommand(input$98(destination, arg1, ...args_rest));
+	}
+	SMOVE(source, destination, member) {
+		return this.useCommand(input$97(source, destination, member));
 	}
 	SDIFF(arg0, ...args_rest) {
 		return this.useCommand(input$96(arg0, ...args_rest));
@@ -2319,31 +2378,40 @@ var RedisXClient = class {
 		return new RedisXScript(this.redisClient, options);
 	}
 	SINTERCARD(keys, options) {
-		return this.useCommand(input$105(keys, options));
+		return this.useCommand(input$108(keys, options));
 	}
 	SREM(key, arg1, ...args_rest) {
-		return this.useCommand(input$104(key, arg1, ...args_rest));
+		return this.useCommand(input$107(key, arg1, ...args_rest));
+	}
+	SRANDMEMBER(key, count) {
+		return this.useCommand(input$106(key, count));
+	}
+	SPOP(key, count) {
+		return this.useCommand(input$105(key, count));
 	}
 	SINTERSTORE(destination, arg1, ...args_rest) {
-		return this.useCommand(input$103(destination, arg1, ...args_rest));
+		return this.useCommand(input$104(destination, arg1, ...args_rest));
 	}
 	SMISMEMBER(key, arg1, ...args_rest) {
-		return this.useCommand(input$102(key, arg1, ...args_rest));
+		return this.useCommand(input$103(key, arg1, ...args_rest));
 	}
 	SINTER(arg0, ...args_rest) {
-		return this.useCommand(input$101(arg0, ...args_rest));
+		return this.useCommand(input$102(arg0, ...args_rest));
 	}
 	SMEMBERS(key) {
-		return this.useCommand(input$100(key));
+		return this.useCommand(input$101(key));
 	}
 	SUNION(arg0, ...args_rest) {
-		return this.useCommand(input$99(arg0, ...args_rest));
+		return this.useCommand(input$100(arg0, ...args_rest));
 	}
 	SISMEMBER(key, member) {
-		return this.useCommand(input$98(key, member));
+		return this.useCommand(input$99(key, member));
 	}
 	SUNIONSTORE(destination, arg1, ...args_rest) {
-		return this.useCommand(input$97(destination, arg1, ...args_rest));
+		return this.useCommand(input$98(destination, arg1, ...args_rest));
+	}
+	SMOVE(source, destination, member) {
+		return this.useCommand(input$97(source, destination, member));
 	}
 	SDIFF(arg0, ...args_rest) {
 		return this.useCommand(input$96(arg0, ...args_rest));

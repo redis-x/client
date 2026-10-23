@@ -135,6 +135,70 @@ export class RedisXClient {
 	}
 
 	/**
+	 * When called with just the `key` argument, return a random element from the set value stored at `key`.
+	 * - Available since: 1.0.0.
+	 * - Time complexity: Without the count argument O(1), otherwise O(N) where N is the absolute value of the passed count.
+	 * @param key - The name of the key that holds the set.
+	 * @returns Bulk string reply: without the additional _count_ argument, the command returns a randomly selected member, or a Nil reply when _key_ doesn't exist.
+	 * @see {@link https://redis.io/commands/srandmember}
+	 */
+	SRANDMEMBER(key: string): Promise<string | null>;
+	/**
+	 * If the provided `count` argument is positive, return an array of **distinct elements**.
+	 * The array's length is either `count` or the set's cardinality (`SCARD`), whichever is lower.
+	 *
+	 * If called with a negative `count`, the behavior changes and the command is allowed to return the **same element multiple times**.
+	 * In this case, the number of returned elements is the absolute value of the specified `count`.
+	 * - Available since: 1.0.0.
+	 * - Starting with Redis version 2.6.0: Added the optional `count` argument.
+	 * - Time complexity: Without the count argument O(1), otherwise O(N) where N is the absolute value of the passed count.
+	 * @param key - The name of the key that holds the set.
+	 * @param count - The number of members to return. A positive `count` returns up to that many distinct members; a negative `count` returns exactly `|count|` members and may repeat them.
+	 * @returns Array reply: when the optional _count_ argument is passed, the command returns an array of members, or an empty array when _key_ doesn't exist.
+	 * @see {@link https://redis.io/commands/srandmember}
+	 */
+	SRANDMEMBER(key: string, count: number): Promise<string[]>;
+
+	SRANDMEMBER(key: string, count?: number) {
+		return this.useCommand(input_srandmember(key, count));
+	}
+
+	/**
+	 * Removes and returns one or more random members from the set value store at `key`.
+	 *
+	 * This operation is similar to `SRANDMEMBER`, that returns one or more random elements from a set but does not remove it.
+	 *
+	 * By default, the command pops a single member from the set.
+	 * - Available since: 1.0.0.
+	 * - Time complexity: Without the count argument O(1), otherwise O(N) where N is the value of the passed count.
+	 * @param key - The name of the key that holds the set.
+	 * @returns Any of the following:
+	 * - Nil reply: if the key does not exist.
+	 * - Bulk string reply: when called without the _count_ argument, the removed member.
+	 * @see {@link https://redis.io/commands/spop}
+	 */
+	SPOP(key: string): Promise<string | null>;
+	/**
+	 * Removes and returns one or more random members from the set value store at `key`.
+	 *
+	 * This operation is similar to `SRANDMEMBER`, that returns one or more random elements from a set but does not remove it.
+	 *
+	 * When provided with the optional `count` argument, the reply will consist of up to `count` members, depending on the set's cardinality.
+	 * - Available since: 1.0.0.
+	 * - Starting with Redis version 3.2.0: Added the optional `count` argument.
+	 * - Time complexity: Without the count argument O(1), otherwise O(N) where N is the value of the passed count.
+	 * @param key - The name of the key that holds the set.
+	 * @param count - The number of members to pop. Without it, a single member is popped.
+	 * @returns Array reply: when called with the _count_ argument, a list of the removed members.
+	 * @see {@link https://redis.io/commands/spop}
+	 */
+	SPOP(key: string, count: number): Promise<Set<string>>;
+
+	SPOP(key: string, count?: number) {
+		return this.useCommand(input_spop(key, count));
+	}
+
+	/**
 	 * This command is equal to `SINTER`, but instead of returning the resulting set, it is stored in `destination`.
 	 *
 	 * If `destination` already exists, it is overwritten.
@@ -327,6 +391,32 @@ export class RedisXClient {
 		...args_rest: string[]
 	): Promise<number> {
 		return this.useCommand(input_sunionstore(destination, arg1, ...args_rest));
+	}
+
+	/**
+	 * Move `member` from the set at `source` to the set at `destination`.
+	 * This operation is atomic.
+	 * In every given moment the element will appear to be a member of `source` **or** `destination` for other clients.
+	 *
+	 * If the source set does not exist or does not contain the specified element, no operation is performed and `0` is returned.
+	 * Otherwise, the element is removed from the source set and added to the destination set.
+	 * When the specified element already exists in the destination set, it is only removed from the source set.
+	 * - Available since: 1.0.0.
+	 * - Time complexity: O(1).
+	 * @param source - The key of the source set.
+	 * @param destination - The key of the destination set.
+	 * @param member - The member to move from the source set to the destination set.
+	 * @returns Any of the following:
+	 * - Integer reply: `1` if the element is moved.
+	 * - Integer reply: `0` if the element is not a member of _source_ and no operation was performed.
+	 * @see {@link https://redis.io/commands/smove}
+	 */
+	SMOVE(
+		source: string,
+		destination: string,
+		member: string | number,
+	): Promise<boolean> {
+		return this.useCommand(input_smove(source, destination, member));
 	}
 
 	/**
@@ -2941,6 +3031,8 @@ import {
 	input as input_sintercard,
 } from './commands/set/sintercard.js';
 import { input as input_srem } from './commands/set/srem.js';
+import { input as input_srandmember } from './commands/set/srandmember.js';
+import { input as input_spop } from './commands/set/spop.js';
 import { input as input_sinterstore } from './commands/set/sinterstore.js';
 import { input as input_smismember } from './commands/set/smismember.js';
 import { input as input_sinter } from './commands/set/sinter.js';
@@ -2948,6 +3040,7 @@ import { input as input_smembers } from './commands/set/smembers.js';
 import { input as input_sunion } from './commands/set/sunion.js';
 import { input as input_sismember } from './commands/set/sismember.js';
 import { input as input_sunionstore } from './commands/set/sunionstore.js';
+import { input as input_smove } from './commands/set/smove.js';
 import { input as input_sdiff } from './commands/set/sdiff.js';
 import {
 	type SunioncardOptions,

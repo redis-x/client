@@ -659,6 +659,60 @@ declare class RedisXTransactionUse {
    */
   SREM(key: string, ...members: (string | number)[]): RedisXTransactionCommand<number>;
   /**
+   * When called with just the `key` argument, return a random element from the set value stored at `key`.
+   * - Available since: 1.0.0.
+   * - Time complexity: Without the count argument O(1), otherwise O(N) where N is the absolute value of the passed count.
+   * @param key - The name of the key that holds the set.
+   * @returns Bulk string reply: without the additional _count_ argument, the command returns a randomly selected member, or a Nil reply when _key_ doesn't exist.
+   * @see {@link https://redis.io/commands/srandmember}
+   */
+  SRANDMEMBER(key: string): RedisXTransactionCommand<string | null>;
+  /**
+   * If the provided `count` argument is positive, return an array of **distinct elements**.
+   * The array's length is either `count` or the set's cardinality (`SCARD`), whichever is lower.
+   *
+   * If called with a negative `count`, the behavior changes and the command is allowed to return the **same element multiple times**.
+   * In this case, the number of returned elements is the absolute value of the specified `count`.
+   * - Available since: 1.0.0.
+   * - Starting with Redis version 2.6.0: Added the optional `count` argument.
+   * - Time complexity: Without the count argument O(1), otherwise O(N) where N is the absolute value of the passed count.
+   * @param key - The name of the key that holds the set.
+   * @param count - The number of members to return. A positive `count` returns up to that many distinct members; a negative `count` returns exactly `|count|` members and may repeat them.
+   * @returns Array reply: when the optional _count_ argument is passed, the command returns an array of members, or an empty array when _key_ doesn't exist.
+   * @see {@link https://redis.io/commands/srandmember}
+   */
+  SRANDMEMBER(key: string, count: number): RedisXTransactionCommand<string[]>;
+  /**
+   * Removes and returns one or more random members from the set value store at `key`.
+   *
+   * This operation is similar to `SRANDMEMBER`, that returns one or more random elements from a set but does not remove it.
+   *
+   * By default, the command pops a single member from the set.
+   * - Available since: 1.0.0.
+   * - Time complexity: Without the count argument O(1), otherwise O(N) where N is the value of the passed count.
+   * @param key - The name of the key that holds the set.
+   * @returns Any of the following:
+   * - Nil reply: if the key does not exist.
+   * - Bulk string reply: when called without the _count_ argument, the removed member.
+   * @see {@link https://redis.io/commands/spop}
+   */
+  SPOP(key: string): RedisXTransactionCommand<string | null>;
+  /**
+   * Removes and returns one or more random members from the set value store at `key`.
+   *
+   * This operation is similar to `SRANDMEMBER`, that returns one or more random elements from a set but does not remove it.
+   *
+   * When provided with the optional `count` argument, the reply will consist of up to `count` members, depending on the set's cardinality.
+   * - Available since: 1.0.0.
+   * - Starting with Redis version 3.2.0: Added the optional `count` argument.
+   * - Time complexity: Without the count argument O(1), otherwise O(N) where N is the value of the passed count.
+   * @param key - The name of the key that holds the set.
+   * @param count - The number of members to pop. Without it, a single member is popped.
+   * @returns Array reply: when called with the _count_ argument, a list of the removed members.
+   * @see {@link https://redis.io/commands/spop}
+   */
+  SPOP(key: string, count: number): RedisXTransactionCommand<Set<string>>;
+  /**
    * This command is equal to `SINTER`, but instead of returning the resulting set, it is stored in `destination`.
    *
    * If `destination` already exists, it is overwritten.
@@ -801,6 +855,25 @@ declare class RedisXTransactionUse {
    * @see {@link https://redis.io/commands/sunionstore}
    */
   SUNIONSTORE(destination: string, keys: Collection<string>): RedisXTransactionCommand<number>;
+  /**
+   * Move `member` from the set at `source` to the set at `destination`.
+   * This operation is atomic.
+   * In every given moment the element will appear to be a member of `source` **or** `destination` for other clients.
+   *
+   * If the source set does not exist or does not contain the specified element, no operation is performed and `0` is returned.
+   * Otherwise, the element is removed from the source set and added to the destination set.
+   * When the specified element already exists in the destination set, it is only removed from the source set.
+   * - Available since: 1.0.0.
+   * - Time complexity: O(1).
+   * @param source - The key of the source set.
+   * @param destination - The key of the destination set.
+   * @param member - The member to move from the source set to the destination set.
+   * @returns Any of the following:
+   * - Integer reply: `1` if the element is moved.
+   * - Integer reply: `0` if the element is not a member of _source_ and no operation was performed.
+   * @see {@link https://redis.io/commands/smove}
+   */
+  SMOVE(source: string, destination: string, member: string | number): RedisXTransactionCommand<boolean>;
   /**
    * Returns the members of the set resulting from the difference between the first set and all the successive sets.
    *
@@ -2807,6 +2880,60 @@ declare class RedisXTransaction<L = [], C extends boolean = false, D = unknown> 
    */
   SREM(key: string, ...members: (string | number)[]): RedisXTransaction<AddToList<L, number>, C, D>;
   /**
+   * When called with just the `key` argument, return a random element from the set value stored at `key`.
+   * - Available since: 1.0.0.
+   * - Time complexity: Without the count argument O(1), otherwise O(N) where N is the absolute value of the passed count.
+   * @param key - The name of the key that holds the set.
+   * @returns Bulk string reply: without the additional _count_ argument, the command returns a randomly selected member, or a Nil reply when _key_ doesn't exist.
+   * @see {@link https://redis.io/commands/srandmember}
+   */
+  SRANDMEMBER(key: string): RedisXTransaction<AddToList<L, string | null>, C, D>;
+  /**
+   * If the provided `count` argument is positive, return an array of **distinct elements**.
+   * The array's length is either `count` or the set's cardinality (`SCARD`), whichever is lower.
+   *
+   * If called with a negative `count`, the behavior changes and the command is allowed to return the **same element multiple times**.
+   * In this case, the number of returned elements is the absolute value of the specified `count`.
+   * - Available since: 1.0.0.
+   * - Starting with Redis version 2.6.0: Added the optional `count` argument.
+   * - Time complexity: Without the count argument O(1), otherwise O(N) where N is the absolute value of the passed count.
+   * @param key - The name of the key that holds the set.
+   * @param count - The number of members to return. A positive `count` returns up to that many distinct members; a negative `count` returns exactly `|count|` members and may repeat them.
+   * @returns Array reply: when the optional _count_ argument is passed, the command returns an array of members, or an empty array when _key_ doesn't exist.
+   * @see {@link https://redis.io/commands/srandmember}
+   */
+  SRANDMEMBER(key: string, count: number): RedisXTransaction<AddToList<L, string[]>, C, D>;
+  /**
+   * Removes and returns one or more random members from the set value store at `key`.
+   *
+   * This operation is similar to `SRANDMEMBER`, that returns one or more random elements from a set but does not remove it.
+   *
+   * By default, the command pops a single member from the set.
+   * - Available since: 1.0.0.
+   * - Time complexity: Without the count argument O(1), otherwise O(N) where N is the value of the passed count.
+   * @param key - The name of the key that holds the set.
+   * @returns Any of the following:
+   * - Nil reply: if the key does not exist.
+   * - Bulk string reply: when called without the _count_ argument, the removed member.
+   * @see {@link https://redis.io/commands/spop}
+   */
+  SPOP(key: string): RedisXTransaction<AddToList<L, string | null>, C, D>;
+  /**
+   * Removes and returns one or more random members from the set value store at `key`.
+   *
+   * This operation is similar to `SRANDMEMBER`, that returns one or more random elements from a set but does not remove it.
+   *
+   * When provided with the optional `count` argument, the reply will consist of up to `count` members, depending on the set's cardinality.
+   * - Available since: 1.0.0.
+   * - Starting with Redis version 3.2.0: Added the optional `count` argument.
+   * - Time complexity: Without the count argument O(1), otherwise O(N) where N is the value of the passed count.
+   * @param key - The name of the key that holds the set.
+   * @param count - The number of members to pop. Without it, a single member is popped.
+   * @returns Array reply: when called with the _count_ argument, a list of the removed members.
+   * @see {@link https://redis.io/commands/spop}
+   */
+  SPOP(key: string, count: number): RedisXTransaction<AddToList<L, Set<string>>, C, D>;
+  /**
    * This command is equal to `SINTER`, but instead of returning the resulting set, it is stored in `destination`.
    *
    * If `destination` already exists, it is overwritten.
@@ -2949,6 +3076,25 @@ declare class RedisXTransaction<L = [], C extends boolean = false, D = unknown> 
    * @see {@link https://redis.io/commands/sunionstore}
    */
   SUNIONSTORE(destination: string, keys: Collection<string>): RedisXTransaction<AddToList<L, number>, C, D>;
+  /**
+   * Move `member` from the set at `source` to the set at `destination`.
+   * This operation is atomic.
+   * In every given moment the element will appear to be a member of `source` **or** `destination` for other clients.
+   *
+   * If the source set does not exist or does not contain the specified element, no operation is performed and `0` is returned.
+   * Otherwise, the element is removed from the source set and added to the destination set.
+   * When the specified element already exists in the destination set, it is only removed from the source set.
+   * - Available since: 1.0.0.
+   * - Time complexity: O(1).
+   * @param source - The key of the source set.
+   * @param destination - The key of the destination set.
+   * @param member - The member to move from the source set to the destination set.
+   * @returns Any of the following:
+   * - Integer reply: `1` if the element is moved.
+   * - Integer reply: `0` if the element is not a member of _source_ and no operation was performed.
+   * @see {@link https://redis.io/commands/smove}
+   */
+  SMOVE(source: string, destination: string, member: string | number): RedisXTransaction<AddToList<L, boolean>, C, D>;
   /**
    * Returns the members of the set resulting from the difference between the first set and all the successive sets.
    *
@@ -4946,6 +5092,60 @@ export declare class RedisXClient {
    */
   SREM(key: string, ...members: (string | number)[]): Promise<number>;
   /**
+   * When called with just the `key` argument, return a random element from the set value stored at `key`.
+   * - Available since: 1.0.0.
+   * - Time complexity: Without the count argument O(1), otherwise O(N) where N is the absolute value of the passed count.
+   * @param key - The name of the key that holds the set.
+   * @returns Bulk string reply: without the additional _count_ argument, the command returns a randomly selected member, or a Nil reply when _key_ doesn't exist.
+   * @see {@link https://redis.io/commands/srandmember}
+   */
+  SRANDMEMBER(key: string): Promise<string | null>;
+  /**
+   * If the provided `count` argument is positive, return an array of **distinct elements**.
+   * The array's length is either `count` or the set's cardinality (`SCARD`), whichever is lower.
+   *
+   * If called with a negative `count`, the behavior changes and the command is allowed to return the **same element multiple times**.
+   * In this case, the number of returned elements is the absolute value of the specified `count`.
+   * - Available since: 1.0.0.
+   * - Starting with Redis version 2.6.0: Added the optional `count` argument.
+   * - Time complexity: Without the count argument O(1), otherwise O(N) where N is the absolute value of the passed count.
+   * @param key - The name of the key that holds the set.
+   * @param count - The number of members to return. A positive `count` returns up to that many distinct members; a negative `count` returns exactly `|count|` members and may repeat them.
+   * @returns Array reply: when the optional _count_ argument is passed, the command returns an array of members, or an empty array when _key_ doesn't exist.
+   * @see {@link https://redis.io/commands/srandmember}
+   */
+  SRANDMEMBER(key: string, count: number): Promise<string[]>;
+  /**
+   * Removes and returns one or more random members from the set value store at `key`.
+   *
+   * This operation is similar to `SRANDMEMBER`, that returns one or more random elements from a set but does not remove it.
+   *
+   * By default, the command pops a single member from the set.
+   * - Available since: 1.0.0.
+   * - Time complexity: Without the count argument O(1), otherwise O(N) where N is the value of the passed count.
+   * @param key - The name of the key that holds the set.
+   * @returns Any of the following:
+   * - Nil reply: if the key does not exist.
+   * - Bulk string reply: when called without the _count_ argument, the removed member.
+   * @see {@link https://redis.io/commands/spop}
+   */
+  SPOP(key: string): Promise<string | null>;
+  /**
+   * Removes and returns one or more random members from the set value store at `key`.
+   *
+   * This operation is similar to `SRANDMEMBER`, that returns one or more random elements from a set but does not remove it.
+   *
+   * When provided with the optional `count` argument, the reply will consist of up to `count` members, depending on the set's cardinality.
+   * - Available since: 1.0.0.
+   * - Starting with Redis version 3.2.0: Added the optional `count` argument.
+   * - Time complexity: Without the count argument O(1), otherwise O(N) where N is the value of the passed count.
+   * @param key - The name of the key that holds the set.
+   * @param count - The number of members to pop. Without it, a single member is popped.
+   * @returns Array reply: when called with the _count_ argument, a list of the removed members.
+   * @see {@link https://redis.io/commands/spop}
+   */
+  SPOP(key: string, count: number): Promise<Set<string>>;
+  /**
    * This command is equal to `SINTER`, but instead of returning the resulting set, it is stored in `destination`.
    *
    * If `destination` already exists, it is overwritten.
@@ -5088,6 +5288,25 @@ export declare class RedisXClient {
    * @see {@link https://redis.io/commands/sunionstore}
    */
   SUNIONSTORE(destination: string, keys: Collection<string>): Promise<number>;
+  /**
+   * Move `member` from the set at `source` to the set at `destination`.
+   * This operation is atomic.
+   * In every given moment the element will appear to be a member of `source` **or** `destination` for other clients.
+   *
+   * If the source set does not exist or does not contain the specified element, no operation is performed and `0` is returned.
+   * Otherwise, the element is removed from the source set and added to the destination set.
+   * When the specified element already exists in the destination set, it is only removed from the source set.
+   * - Available since: 1.0.0.
+   * - Time complexity: O(1).
+   * @param source - The key of the source set.
+   * @param destination - The key of the destination set.
+   * @param member - The member to move from the source set to the destination set.
+   * @returns Any of the following:
+   * - Integer reply: `1` if the element is moved.
+   * - Integer reply: `0` if the element is not a member of _source_ and no operation was performed.
+   * @see {@link https://redis.io/commands/smove}
+   */
+  SMOVE(source: string, destination: string, member: string | number): Promise<boolean>;
   /**
    * Returns the members of the set resulting from the difference between the first set and all the successive sets.
    *
