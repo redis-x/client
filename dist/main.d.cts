@@ -2840,6 +2840,19 @@ declare class RedisXTransactionUse {
    */
   HGETALL(key: string): RedisXTransactionCommand<Record<string, string>>;
   /**
+   * Like `HTTL`, this command returns the remaining TTL (time to live) of a field that has an expiration set, but in milliseconds instead of seconds.
+   * - Available since: 7.4.0.
+   * - Time complexity: O(N) where N is the number of specified fields.
+   * @param key - The name of the key that holds the hash.
+   * @param fields - The hash fields to retrieve the remaining time to live for.
+   * @returns Array reply. For each field:
+   * - Integer reply: `-2` if no such field exists in the provided hash key, or the provided key does not exist.
+   * - Integer reply: `-1` if the field exists but has no associated expiration set.
+   * - Integer reply: the TTL in milliseconds.
+   * @see {@link https://redis.io/commands/hpttl}
+   */
+  HPTTL(key: string, fields: Collection<string | number>): RedisXTransactionCommand<number[]>;
+  /**
    * Returns the value associated with field in the hash stored at key.
    * - Available since: 2.0.0.
    * - Time complexity: O(1)
@@ -2865,6 +2878,22 @@ declare class RedisXTransactionUse {
    * @see {@link https://redis.io/commands/hpexpire}
    */
   HPEXPIRE(key: string, milliseconds: number, fields: Collection<string | number>, options?: HpexpireOptions): RedisXTransactionCommand<number[]>;
+  /**
+   * Returns the remaining TTL (time to live) of a hash key's field(s) that have a set expiration.
+   * This introspection capability allows you to check how many seconds a given hash field will continue to be part of the hash key.
+   *
+   * See also the `HPTTL` command that returns the same information with millisecond resolution.
+   * - Available since: 7.4.0.
+   * - Time complexity: O(N) where N is the number of specified fields.
+   * @param key - The name of the key that holds the hash.
+   * @param fields - The hash fields to retrieve the remaining time to live for.
+   * @returns Array reply. For each field:
+   * - Integer reply: `-2` if no such field exists in the provided hash key, or the provided key does not exist.
+   * - Integer reply: `-1` if the field exists but has no associated expiration set.
+   * - Integer reply: the TTL in seconds.
+   * @see {@link https://redis.io/commands/httl}
+   */
+  HTTL(key: string, fields: Collection<string | number>): RedisXTransactionCommand<number[]>;
   /**
    * Set an expiration (TTL or time to live) on one or more fields of a given hash key. You must specify at least one field.
    * Field(s) will automatically be deleted from the hash key when their TTLs expire.
@@ -3149,6 +3178,19 @@ declare class RedisXTransactionUse {
    * @see {@link https://redis.io/commands/hpexpireat}
    */
   HPEXPIREAT(key: string, timestamp: number, fields: Collection<string | number>, options?: HpexpireatOptions): RedisXTransactionCommand<number[]>;
+  /**
+   * Remove the existing expiration on a hash key's field(s), turning the field(s) from _volatile_ (a field with expiration set) to _persistent_ (a field that will never expire as no TTL (time to live) is associated).
+   * - Available since: 7.4.0.
+   * - Time complexity: O(N) where N is the number of specified fields.
+   * @param key - The name of the key that holds the hash.
+   * @param fields - The hash fields to remove the expiration from.
+   * @returns Array reply. For each field:
+   * - Integer reply: `-2` if no such field exists in the provided hash key, or the provided key does not exist.
+   * - Integer reply: `-1` if the field exists but has no associated expiration set.
+   * - Integer reply: `1` the expiration was removed.
+   * @see {@link https://redis.io/commands/hpersist}
+   */
+  HPERSIST(key: string, fields: Collection<string | number>): RedisXTransactionCommand<number[]>;
   /**
    * Sets field in the hash stored at key to value, only if field does not yet exist.
    * If key does not exist, a new key holding a hash is created.
@@ -5340,6 +5382,19 @@ declare class RedisXTransaction<L = [], C extends boolean = false, D = unknown> 
    */
   HGETALL(key: string): RedisXTransaction<AddToList<L, Record<string, string>>, C, D>;
   /**
+   * Like `HTTL`, this command returns the remaining TTL (time to live) of a field that has an expiration set, but in milliseconds instead of seconds.
+   * - Available since: 7.4.0.
+   * - Time complexity: O(N) where N is the number of specified fields.
+   * @param key - The name of the key that holds the hash.
+   * @param fields - The hash fields to retrieve the remaining time to live for.
+   * @returns Array reply. For each field:
+   * - Integer reply: `-2` if no such field exists in the provided hash key, or the provided key does not exist.
+   * - Integer reply: `-1` if the field exists but has no associated expiration set.
+   * - Integer reply: the TTL in milliseconds.
+   * @see {@link https://redis.io/commands/hpttl}
+   */
+  HPTTL(key: string, fields: Collection<string | number>): RedisXTransaction<AddToList<L, number[]>, C, D>;
+  /**
    * Returns the value associated with field in the hash stored at key.
    * - Available since: 2.0.0.
    * - Time complexity: O(1)
@@ -5365,6 +5420,22 @@ declare class RedisXTransaction<L = [], C extends boolean = false, D = unknown> 
    * @see {@link https://redis.io/commands/hpexpire}
    */
   HPEXPIRE(key: string, milliseconds: number, fields: Collection<string | number>, options?: HpexpireOptions): RedisXTransaction<AddToList<L, number[]>, C, D>;
+  /**
+   * Returns the remaining TTL (time to live) of a hash key's field(s) that have a set expiration.
+   * This introspection capability allows you to check how many seconds a given hash field will continue to be part of the hash key.
+   *
+   * See also the `HPTTL` command that returns the same information with millisecond resolution.
+   * - Available since: 7.4.0.
+   * - Time complexity: O(N) where N is the number of specified fields.
+   * @param key - The name of the key that holds the hash.
+   * @param fields - The hash fields to retrieve the remaining time to live for.
+   * @returns Array reply. For each field:
+   * - Integer reply: `-2` if no such field exists in the provided hash key, or the provided key does not exist.
+   * - Integer reply: `-1` if the field exists but has no associated expiration set.
+   * - Integer reply: the TTL in seconds.
+   * @see {@link https://redis.io/commands/httl}
+   */
+  HTTL(key: string, fields: Collection<string | number>): RedisXTransaction<AddToList<L, number[]>, C, D>;
   /**
    * Set an expiration (TTL or time to live) on one or more fields of a given hash key. You must specify at least one field.
    * Field(s) will automatically be deleted from the hash key when their TTLs expire.
@@ -5649,6 +5720,19 @@ declare class RedisXTransaction<L = [], C extends boolean = false, D = unknown> 
    * @see {@link https://redis.io/commands/hpexpireat}
    */
   HPEXPIREAT(key: string, timestamp: number, fields: Collection<string | number>, options?: HpexpireatOptions): RedisXTransaction<AddToList<L, number[]>, C, D>;
+  /**
+   * Remove the existing expiration on a hash key's field(s), turning the field(s) from _volatile_ (a field with expiration set) to _persistent_ (a field that will never expire as no TTL (time to live) is associated).
+   * - Available since: 7.4.0.
+   * - Time complexity: O(N) where N is the number of specified fields.
+   * @param key - The name of the key that holds the hash.
+   * @param fields - The hash fields to remove the expiration from.
+   * @returns Array reply. For each field:
+   * - Integer reply: `-2` if no such field exists in the provided hash key, or the provided key does not exist.
+   * - Integer reply: `-1` if the field exists but has no associated expiration set.
+   * - Integer reply: `1` the expiration was removed.
+   * @see {@link https://redis.io/commands/hpersist}
+   */
+  HPERSIST(key: string, fields: Collection<string | number>): RedisXTransaction<AddToList<L, number[]>, C, D>;
   /**
    * Sets field in the hash stored at key to value, only if field does not yet exist.
    * If key does not exist, a new key holding a hash is created.
@@ -7831,6 +7915,19 @@ export declare class RedisXClient {
    */
   HGETALL(key: string): Promise<Record<string, string>>;
   /**
+   * Like `HTTL`, this command returns the remaining TTL (time to live) of a field that has an expiration set, but in milliseconds instead of seconds.
+   * - Available since: 7.4.0.
+   * - Time complexity: O(N) where N is the number of specified fields.
+   * @param key - The name of the key that holds the hash.
+   * @param fields - The hash fields to retrieve the remaining time to live for.
+   * @returns Array reply. For each field:
+   * - Integer reply: `-2` if no such field exists in the provided hash key, or the provided key does not exist.
+   * - Integer reply: `-1` if the field exists but has no associated expiration set.
+   * - Integer reply: the TTL in milliseconds.
+   * @see {@link https://redis.io/commands/hpttl}
+   */
+  HPTTL(key: string, fields: Collection<string | number>): Promise<number[]>;
+  /**
    * Returns the value associated with field in the hash stored at key.
    * - Available since: 2.0.0.
    * - Time complexity: O(1)
@@ -7856,6 +7953,22 @@ export declare class RedisXClient {
    * @see {@link https://redis.io/commands/hpexpire}
    */
   HPEXPIRE(key: string, milliseconds: number, fields: Collection<string | number>, options?: HpexpireOptions): Promise<number[]>;
+  /**
+   * Returns the remaining TTL (time to live) of a hash key's field(s) that have a set expiration.
+   * This introspection capability allows you to check how many seconds a given hash field will continue to be part of the hash key.
+   *
+   * See also the `HPTTL` command that returns the same information with millisecond resolution.
+   * - Available since: 7.4.0.
+   * - Time complexity: O(N) where N is the number of specified fields.
+   * @param key - The name of the key that holds the hash.
+   * @param fields - The hash fields to retrieve the remaining time to live for.
+   * @returns Array reply. For each field:
+   * - Integer reply: `-2` if no such field exists in the provided hash key, or the provided key does not exist.
+   * - Integer reply: `-1` if the field exists but has no associated expiration set.
+   * - Integer reply: the TTL in seconds.
+   * @see {@link https://redis.io/commands/httl}
+   */
+  HTTL(key: string, fields: Collection<string | number>): Promise<number[]>;
   /**
    * Set an expiration (TTL or time to live) on one or more fields of a given hash key. You must specify at least one field.
    * Field(s) will automatically be deleted from the hash key when their TTLs expire.
@@ -8140,6 +8253,19 @@ export declare class RedisXClient {
    * @see {@link https://redis.io/commands/hpexpireat}
    */
   HPEXPIREAT(key: string, timestamp: number, fields: Collection<string | number>, options?: HpexpireatOptions): Promise<number[]>;
+  /**
+   * Remove the existing expiration on a hash key's field(s), turning the field(s) from _volatile_ (a field with expiration set) to _persistent_ (a field that will never expire as no TTL (time to live) is associated).
+   * - Available since: 7.4.0.
+   * - Time complexity: O(N) where N is the number of specified fields.
+   * @param key - The name of the key that holds the hash.
+   * @param fields - The hash fields to remove the expiration from.
+   * @returns Array reply. For each field:
+   * - Integer reply: `-2` if no such field exists in the provided hash key, or the provided key does not exist.
+   * - Integer reply: `-1` if the field exists but has no associated expiration set.
+   * - Integer reply: `1` the expiration was removed.
+   * @see {@link https://redis.io/commands/hpersist}
+   */
+  HPERSIST(key: string, fields: Collection<string | number>): Promise<number[]>;
   /**
    * Sets field in the hash stored at key to value, only if field does not yet exist.
    * If key does not exist, a new key holding a hash is created.

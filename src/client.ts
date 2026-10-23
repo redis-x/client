@@ -2869,6 +2869,22 @@ export class RedisXClient {
 	}
 
 	/**
+	 * Like `HTTL`, this command returns the remaining TTL (time to live) of a field that has an expiration set, but in milliseconds instead of seconds.
+	 * - Available since: 7.4.0.
+	 * - Time complexity: O(N) where N is the number of specified fields.
+	 * @param key - The name of the key that holds the hash.
+	 * @param fields - The hash fields to retrieve the remaining time to live for.
+	 * @returns Array reply. For each field:
+	 * - Integer reply: `-2` if no such field exists in the provided hash key, or the provided key does not exist.
+	 * - Integer reply: `-1` if the field exists but has no associated expiration set.
+	 * - Integer reply: the TTL in milliseconds.
+	 * @see {@link https://redis.io/commands/hpttl}
+	 */
+	HPTTL(key: string, fields: Collection<string | number>): Promise<number[]> {
+		return this.useCommand(input_hpttl(key, fields));
+	}
+
+	/**
 	 * Returns the value associated with field in the hash stored at key.
 	 * - Available since: 2.0.0.
 	 * - Time complexity: O(1)
@@ -2903,6 +2919,25 @@ export class RedisXClient {
 		options?: HpexpireOptions,
 	): Promise<number[]> {
 		return this.useCommand(input_hpexpire(key, milliseconds, fields, options));
+	}
+
+	/**
+	 * Returns the remaining TTL (time to live) of a hash key's field(s) that have a set expiration.
+	 * This introspection capability allows you to check how many seconds a given hash field will continue to be part of the hash key.
+	 *
+	 * See also the `HPTTL` command that returns the same information with millisecond resolution.
+	 * - Available since: 7.4.0.
+	 * - Time complexity: O(N) where N is the number of specified fields.
+	 * @param key - The name of the key that holds the hash.
+	 * @param fields - The hash fields to retrieve the remaining time to live for.
+	 * @returns Array reply. For each field:
+	 * - Integer reply: `-2` if no such field exists in the provided hash key, or the provided key does not exist.
+	 * - Integer reply: `-1` if the field exists but has no associated expiration set.
+	 * - Integer reply: the TTL in seconds.
+	 * @see {@link https://redis.io/commands/httl}
+	 */
+	HTTL(key: string, fields: Collection<string | number>): Promise<number[]> {
+		return this.useCommand(input_httl(key, fields));
 	}
 
 	/**
@@ -3277,6 +3312,25 @@ export class RedisXClient {
 	}
 
 	/**
+	 * Remove the existing expiration on a hash key's field(s), turning the field(s) from _volatile_ (a field with expiration set) to _persistent_ (a field that will never expire as no TTL (time to live) is associated).
+	 * - Available since: 7.4.0.
+	 * - Time complexity: O(N) where N is the number of specified fields.
+	 * @param key - The name of the key that holds the hash.
+	 * @param fields - The hash fields to remove the expiration from.
+	 * @returns Array reply. For each field:
+	 * - Integer reply: `-2` if no such field exists in the provided hash key, or the provided key does not exist.
+	 * - Integer reply: `-1` if the field exists but has no associated expiration set.
+	 * - Integer reply: `1` the expiration was removed.
+	 * @see {@link https://redis.io/commands/hpersist}
+	 */
+	HPERSIST(
+		key: string,
+		fields: Collection<string | number>,
+	): Promise<number[]> {
+		return this.useCommand(input_hpersist(key, fields));
+	}
+
+	/**
 	 * Sets field in the hash stored at key to value, only if field does not yet exist.
 	 * If key does not exist, a new key holding a hash is created.
 	 * If field already exists, this operation has no effect.
@@ -3575,11 +3629,13 @@ import { input as input_hvals } from './commands/hash/hvals.js';
 import { input as input_hset } from './commands/hash/hset.js';
 import { input as input_hincrbyfloat } from './commands/hash/hincrbyfloat.js';
 import { input as input_hgetall } from './commands/hash/hgetall.js';
+import { input as input_hpttl } from './commands/hash/hpttl.js';
 import { input as input_hget } from './commands/hash/hget.js';
 import {
 	type HpexpireOptions,
 	input as input_hpexpire,
 } from './commands/hash/hpexpire.js';
+import { input as input_httl } from './commands/hash/httl.js';
 import {
 	type HexpireOptions,
 	input as input_hexpire,
@@ -3605,6 +3661,7 @@ import {
 	type HpexpireatOptions,
 	input as input_hpexpireat,
 } from './commands/hash/hpexpireat.js';
+import { input as input_hpersist } from './commands/hash/hpersist.js';
 import { input as input_hsetnx } from './commands/hash/hsetnx.js';
 import { input as input_hexpiretime } from './commands/hash/hexpiretime.js';
 import { input as input_eval_ro } from './commands/scripting/eval_ro.js';
