@@ -1,20 +1,12 @@
 import { describe, expect, test } from 'vitest';
-import { stringCollectionCases } from '../../../test/collection-cases.js';
 import { input } from './sintercard.js';
 
-test.each(stringCollectionCases)(
-	'%s arguments',
-	(_name, createValues, expected) => {
-		const command = input(createValues());
-		expect(command.args).toStrictEqual([
-			'SINTERCARD',
-			String(expected.length),
-			...expected,
-		]);
-	},
-);
-
 describe('command', () => {
+	test('one-shot iterator argument', () => {
+		const command = input(['key1', 'key2'].values());
+		expect(command.args).toStrictEqual(['SINTERCARD', '2', 'key1', 'key2']);
+	});
+
 	test('keys', () => {
 		const command = input(['key1', 'key2']);
 		expect(command.args).toStrictEqual(['SINTERCARD', '2', 'key1', 'key2']);

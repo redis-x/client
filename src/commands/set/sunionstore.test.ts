@@ -1,27 +1,26 @@
-import { expect, test } from 'vitest';
-import { stringCollectionCases } from '../../../test/collection-cases.js';
+import { describe, expect, test } from 'vitest';
 import { input } from './sunionstore.js';
 
-test.each(stringCollectionCases)(
-	'%s arguments',
-	(_name, createValues, expected) => {
-		const command = input('destination', createValues());
+describe('command', () => {
+	test('rest arguments', () => {
+		const command = input('destination', 'key1', 'key2');
 		expect(command.args).toStrictEqual([
 			'SUNIONSTORE',
 			'destination',
-			...expected,
+			'key1',
+			'key2',
 		]);
-	},
-);
 
-test('command', () => {
-	const command = input('destination', 'key1', 'key2');
-	expect(command.args).toStrictEqual([
-		'SUNIONSTORE',
-		'destination',
-		'key1',
-		'key2',
-	]);
+		expect(command.replyTransform).toBeUndefined();
+	});
 
-	expect(command.replyTransform).toBeUndefined();
+	test('collection argument', () => {
+		const command = input('destination', ['key1', 'key2']);
+		expect(command.args).toStrictEqual([
+			'SUNIONSTORE',
+			'destination',
+			'key1',
+			'key2',
+		]);
+	});
 });

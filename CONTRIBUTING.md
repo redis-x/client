@@ -92,7 +92,8 @@ However, we **do not** test the Redis server itself. Instead, we test **transfor
   - Test every option given to command.
   - [Example](src/commands/string/set.test.ts)
 - The reply should be transformed to the correct type **only if** there is `replyTransform` defined as a local function. Do not re-test it if it is imported.
-  - [Example](src/commands/set/smismember.test.ts#L17)
+  - [Example](src/commands/set/smismember.test.ts#L30)
+- Shared argument helpers, such as `collectionToStringArray`, are tested in their own modules. Do not re-test them in command tests: cover a collection argument once to check the command's own dispatch and argument order, not every collection type.
 
 #### Step 4. Generate the client code
 

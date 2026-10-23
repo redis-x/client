@@ -1,18 +1,12 @@
 import { describe, expect, test } from 'vitest';
-import { mixedCollectionCases } from '../../../test/collection-cases.js';
 import { input } from './zrem.js';
 
-test.each(mixedCollectionCases)(
-	'%s arguments',
-	(_name, createValues, expected) => {
-		const command = input('key', createValues());
-		expect(command.args).toStrictEqual(['ZREM', 'key', ...expected]);
-
-		expect(command.replyTransform).toBeUndefined();
-	},
-);
-
 describe('command', () => {
+	test('collection argument', () => {
+		const command = input('key', ['member1', 2]);
+		expect(command.args).toStrictEqual(['ZREM', 'key', 'member1', '2']);
+	});
+
 	test('single member', () => {
 		const command = input('key', 'member');
 
