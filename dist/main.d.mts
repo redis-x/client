@@ -1,0 +1,8800 @@
+import { RedisClientType, RedisFunctions, RedisModules, RedisScripts } from "redis";
+//#region src/types.d.ts
+type RedisClient = RedisClientType<RedisModules, RedisFunctions, RedisScripts>;
+type Command<T = unknown> = {
+  kind: "#schema";
+  args: string[];
+  replyTransform?: (result: any) => T;
+};
+//#endregion
+//#region src/script.d.ts
+type RedisXScriptOptions<I = string[], O = unknown> = {
+  code: string;
+  keys?: string[];
+  inputValidator?: (value: I) => (string | number)[];
+  outputValidator?: (value: unknown) => O;
+};
+declare class RedisXScript<I extends any[] = string[], O = unknown> {
+  #private;
+  constructor(redisClient: RedisClient, options: RedisXScriptOptions<I, O>);
+  private load;
+  execute(...args: I): Promise<O>;
+  executeWithKeys(keys: string[], ...args: I): Promise<O>;
+}
+//#endregion
+//#region node_modules/type-fest/source/promisable.d.ts
+/**
+Create a type that represents either the value or the value wrapped in `PromiseLike`.
+
+Use-cases:
+- A function accepts a callback that may either return a value synchronously or may return a promised value.
+- This type could be the return type of `Promise#then()`, `Promise#catch()`, and `Promise#finally()` callbacks.
+
+Please upvote [this issue](https://github.com/microsoft/TypeScript/issues/31394) if you want to have this type as a built-in in TypeScript.
+
+@example
+```
+import type {Promisable} from 'type-fest';
+
+async function logger(getLogEntry: () => Promisable<string>): Promise<void> {
+	const entry = await getLogEntry();
+	console.log(entry);
+}
+
+await logger(() => 'foo');
+await logger(() => Promise.resolve('bar'));
+```
+
+@category Async
+*/
+type Promisable<T> = T | PromiseLike<T>;
+//#endregion
+//#region src/transaction/command.d.ts
+declare class RedisXTransactionCommand<T> {
+  index: number;
+  private _type;
+  constructor(index: number);
+}
+type UnwrapRedisXTransactionCommand<T> = T extends RedisXTransactionCommand<infer A> ? A : T extends (infer U)[] ? UnwrapRedisXTransactionCommand<U>[] : T extends Record<string, any> ? { [K in keyof T]: UnwrapRedisXTransactionCommand<T[K]>; } : T;
+//#endregion
+//#region src/utils.d.ts
+/**
+ * Converts a string array to an object.
+ * @param values A flat array containing the keys and the values.
+ * @returns Object with keys and values.
+ */
+export declare function stringBulkToObject(values: string[]): Record<string, string>;
+type Collection<T> = readonly T[] | ReadonlySet<T> | IterableIterator<T>;
+//#endregion
+//#region src/commands/set/sintercard.d.ts
+type SintercardOptions = {
+  /**
+   * Stop counting once the cardinality reaches `limit`. `0` (the default) means no limit.
+   * - Available since: 7.0.0.
+   */
+  LIMIT?: number;
+};
+//#endregion
+//#region src/commands/set/sscan.d.ts
+type SscanOptions = {
+  /**
+   * Only return members matching the given glob-style pattern.
+   * - Available since: 2.8.0.
+   */
+  MATCH?: string;
+  /**
+   * A hint for the number of members to return per iteration. The default is 10.
+   * - Available since: 2.8.0.
+   */
+  COUNT?: number;
+};
+//#endregion
+//#region src/commands/set/sunioncard.d.ts
+type SunioncardOptions = {
+  /**
+   * Return an approximate cardinality instead of an exact count.
+   * - Available since: 8.10.0.
+   */
+  APPROX?: boolean;
+  /**
+   * Stop counting once the cardinality reaches `limit`. `0` (the default) means no limit.
+   * - Available since: 8.10.0.
+   */
+  LIMIT?: number;
+};
+//#endregion
+//#region src/commands/set/sdiffcard.d.ts
+type SdiffcardOptions = {
+  /**
+   * Stop counting once the cardinality reaches `limit`. `0` (the default) means no limit.
+   * - Available since: 8.10.0.
+   */
+  LIMIT?: number;
+};
+//#endregion
+//#region src/commands/string/set.d.ts
+type SetOptions = {
+  /**
+   * Only set the key if it does not already exist.
+   * The condition options (`NX`, `XX`, `IFEQ`, `IFNE`, `IFDEQ`, `IFDNE`) are mutually exclusive.
+   * - Incompatible with option `GET` before 7.0.0.
+   * - Available since: 2.6.12.
+   */
+  NX?: boolean;
+  /**
+   * Only set the key if it already exists.
+   * The condition options (`NX`, `XX`, `IFEQ`, `IFNE`, `IFDEQ`, `IFDNE`) are mutually exclusive.
+   * - Available since: 2.6.12.
+   */
+  XX?: boolean;
+  /**
+   * Set the key's value and expiration only if its current value is equal to `ifeq-value`.
+   * If the key doesn't exist, it won't be created.
+   * The condition options (`NX`, `XX`, `IFEQ`, `IFNE`, `IFDEQ`, `IFDNE`) are mutually exclusive.
+   * - Available since: 8.4.0.
+   */
+  IFEQ?: string | number;
+  /**
+   * Set the key's value and expiration only if its current value is not equal to `ifne-value`.
+   * If the key doesn't exist, it will be created.
+   * The condition options (`NX`, `XX`, `IFEQ`, `IFNE`, `IFDEQ`, `IFDNE`) are mutually exclusive.
+   * - Available since: 8.4.0.
+   */
+  IFNE?: string | number;
+  /**
+   * Set the key's value and expiration only if the hash digest of its current value is equal to `ifdeq-digest`.
+   * If the key doesn't exist, it won't be created.
+   * The condition options (`NX`, `XX`, `IFEQ`, `IFNE`, `IFDEQ`, `IFDNE`) are mutually exclusive.
+   * - Available since: 8.4.0.
+   * @see {@link https://redis.io/docs/latest/commands/set/#hash-digest}
+   */
+  IFDEQ?: string;
+  /**
+   * Set the key's value and expiration only if the hash digest of its current value is not equal to `ifdne-digest`.
+   * If the key doesn't exist, it will be created.
+   * The condition options (`NX`, `XX`, `IFEQ`, `IFNE`, `IFDEQ`, `IFDNE`) are mutually exclusive.
+   * - Available since: 8.4.0.
+   * @see {@link https://redis.io/docs/latest/commands/set/#hash-digest}
+   */
+  IFDNE?: string;
+  /**
+   * Set the specified expire time, in *seconds*.
+   * - Incompatible with options `PX`, `EXAT`, `PXAT` and `KEEPTTL`.
+   * - Available since: 2.6.12.
+   */
+  EX?: number;
+  /**
+   * Set the specified expire time, in *milliseconds*.
+   * - Incompatible with options `EX`, `EXAT`, `PXAT` and `KEEPTTL`.
+   * - Available since: 2.6.12.
+   */
+  PX?: number;
+  /**
+   * Set the specified expire time, in *seconds*.
+   * - Incompatible with options `EX`, `PX`, `PXAT` and `KEEPTTL`.
+   * - Available since: 6.2.0.
+   */
+  EXAT?: number;
+  /**
+   * Set the specified expire time, in *milliseconds*.
+   * - Incompatible with options `EX`, `PX`, `EXAT` and `KEEPTTL`.
+   * - Available since: 6.2.0.
+   */
+  PXAT?: number;
+  /**
+   * Retain the time to live associated with the key.
+   * - Incompatible with options `EX`, `PX`, `EXAT` and `PXAT`.
+   * - Available since: 6.0.0.
+   */
+  KEEPTTL?: boolean;
+  /**
+   * Return the old string stored at the key, or nil if the key did not exist.
+   * An error is returned and `SET` is aborted if the value stored at the key is not a string.
+   * - Incompatible with option `NX` before 7.0.0.
+   * - Available since: 6.2.0.
+   */
+  GET?: boolean;
+};
+//#endregion
+//#region src/commands/string/getex.d.ts
+type GetexOptions = {
+  /**
+   * Set the specified expire time, in *seconds*.
+   * - Incompatible with options `PX`, `EXAT`, `PXAT` and `PERSIST`.
+   * - Available since: 6.2.0.
+   */
+  EX?: number;
+  /**
+   * Set the specified expire time, in *milliseconds*.
+   * - Incompatible with options `EX`, `EXAT`, `PXAT` and `PERSIST`.
+   * - Available since: 6.2.0.
+   */
+  PX?: number;
+  /**
+   * Set the specified Unix time at which the key will expire, in *seconds*.
+   * - Incompatible with options `EX`, `PX`, `PXAT` and `PERSIST`.
+   * - Available since: 6.2.0.
+   */
+  EXAT?: number;
+  /**
+   * Set the specified Unix time at which the key will expire, in *milliseconds*.
+   * - Incompatible with options `EX`, `PX`, `EXAT` and `PERSIST`.
+   * - Available since: 6.2.0.
+   */
+  PXAT?: number;
+  /**
+   * Remove the time to live associated with the key.
+   * - Incompatible with options `EX`, `PX`, `EXAT` and `PXAT`.
+   * - Available since: 6.2.0.
+   */
+  PERSIST?: boolean;
+};
+//#endregion
+//#region src/commands/generic/pexpire.d.ts
+type PexpireOptions = {
+  /**
+   * Set expiry only when the key has no expiry.
+   * - Incompatible with options `XX`, `GT` and `LT`.
+   * - Available since: 7.0.0.
+   */
+  NX?: boolean;
+  /**
+   * Set expiry only when the key has an existing expiry.
+   * - Incompatible with options `NX`, `GT` and `LT`.
+   * - Available since: 7.0.0.
+   */
+  XX?: boolean;
+  /**
+   * Set expiry only when the new expiry is greater than current one. A non-volatile key is treated as an infinite TTL.
+   * - Incompatible with options `NX`, `XX` and `LT`.
+   * - Available since: 7.0.0.
+   */
+  GT?: boolean;
+  /**
+   * Set expiry only when the new expiry is less than current one. A non-volatile key is treated as an infinite TTL.
+   * - Incompatible with options `NX`, `XX` and `GT`.
+   * - Available since: 7.0.0.
+   */
+  LT?: boolean;
+};
+//#endregion
+//#region src/commands/generic/scan.d.ts
+type ScanOptions = {
+  /**
+   * Only return keys matching the given glob-style pattern.
+   * - Available since: 2.8.0.
+   */
+  MATCH?: string;
+  /**
+   * A hint for the number of keys to return per iteration. The default is 10.
+   * - Available since: 2.8.0.
+   */
+  COUNT?: number;
+  /**
+   * Only return keys of the given type, such as `string`, `list`, or `set`.
+   * - Available since: 6.0.0.
+   */
+  TYPE?: string;
+};
+//#endregion
+//#region src/commands/generic/expire.d.ts
+type ExpireOptions = {
+  /**
+   * Set expiry only when the key has no expiry.
+   * - Incompatible with options `XX`, `GT` and `LT`.
+   * - Available since: 7.0.0.
+   */
+  NX?: boolean;
+  /**
+   * Set expiry only when the key has an existing expiry.
+   * - Incompatible with options `NX`, `GT` and `LT`.
+   * - Available since: 7.0.0.
+   */
+  XX?: boolean;
+  /**
+   * Set expiry only when the new expiry is greater than current one. A non-volatile key is treated as an infinite TTL.
+   * - Incompatible with options `NX`, `XX` and `LT`.
+   * - Available since: 7.0.0.
+   */
+  GT?: boolean;
+  /**
+   * Set expiry only when the new expiry is less than current one. A non-volatile key is treated as an infinite TTL.
+   * - Incompatible with options `NX`, `XX` and `GT`.
+   * - Available since: 7.0.0.
+   */
+  LT?: boolean;
+};
+//#endregion
+//#region src/commands/generic/copy.d.ts
+type CopyOptions = {
+  /**
+   * Logical database index for the destination key.
+   * - Available since: 6.2.0.
+   */
+  DB?: number;
+  /**
+   * If true, will replace the destination key if it already exists.
+   * - Available since: 6.2.0.
+   */
+  REPLACE?: boolean;
+};
+//#endregion
+//#region src/commands/generic/expireat.d.ts
+type ExpireatOptions = {
+  /**
+   * Set expiry only when the key has no expiry.
+   * - Incompatible with options `XX`, `GT` and `LT`.
+   * - Available since: 7.0.0.
+   */
+  NX?: boolean;
+  /**
+   * Set expiry only when the key has an existing expiry.
+   * - Incompatible with options `NX`, `GT` and `LT`.
+   * - Available since: 7.0.0.
+   */
+  XX?: boolean;
+  /**
+   * Set expiry only when the new expiry is greater than current one. A non-volatile key is treated as an infinite TTL.
+   * - Incompatible with options `NX`, `XX` and `LT`.
+   * - Available since: 7.0.0.
+   */
+  GT?: boolean;
+  /**
+   * Set expiry only when the new expiry is less than current one. A non-volatile key is treated as an infinite TTL.
+   * - Incompatible with options `NX`, `XX` and `GT`.
+   * - Available since: 7.0.0.
+   */
+  LT?: boolean;
+};
+//#endregion
+//#region src/commands/generic/pexpireat.d.ts
+type PexpireatOptions = {
+  /**
+   * Set expiry only when the key has no expiry.
+   * - Incompatible with options `XX`, `GT` and `LT`.
+   * - Available since: 7.0.0.
+   */
+  NX?: boolean;
+  /**
+   * Set expiry only when the key has an existing expiry.
+   * - Incompatible with options `NX`, `GT` and `LT`.
+   * - Available since: 7.0.0.
+   */
+  XX?: boolean;
+  /**
+   * Set expiry only when the new expiry is greater than current one. A non-volatile key is treated as an infinite TTL.
+   * - Incompatible with options `NX`, `XX` and `LT`.
+   * - Available since: 7.0.0.
+   */
+  GT?: boolean;
+  /**
+   * Set expiry only when the new expiry is less than current one. A non-volatile key is treated as an infinite TTL.
+   * - Incompatible with options `NX`, `XX` and `GT`.
+   * - Available since: 7.0.0.
+   */
+  LT?: boolean;
+};
+//#endregion
+//#region src/commands/list/linsert.d.ts
+type LinsertOptions = {
+  /**
+   * Insert `element` before `pivot`, the existing element to insert relative to.
+   * - Incompatible with option `AFTER`.
+   * - Available since: 2.2.0.
+   */
+  BEFORE?: string | number;
+  /**
+   * Insert `element` after `pivot`, the existing element to insert relative to.
+   * - Incompatible with option `BEFORE`.
+   * - Available since: 2.2.0.
+   */
+  AFTER?: string | number;
+};
+//#endregion
+//#region src/commands/stream/xread.d.ts
+type XreadId = "$" | "+" | (string & {});
+type XreadOptions = {
+  /**
+   * Maximum number of entries to return per stream.
+   * - Available since: 5.0.0.
+   */
+  COUNT?: number;
+  /**
+   * Block for the specified amount of time in milliseconds if no entries are available.
+   * If not specified, the command will return immediately.
+   * - Available since: 5.0.0.
+   */
+  BLOCK?: number;
+};
+type XStreamEntry = {
+  id: string;
+  data: Record<string, string>;
+};
+//#endregion
+//#region src/commands/stream/xadd.d.ts
+type XaddId = "*" | (string & {});
+type XaddPairs = Record<string, string | number | undefined>;
+type XaddOptions = {
+  /**
+   * Prevents the creation of a new stream if the key does not exist.
+   * - Available since: 6.2.0.
+   */
+  NOMKSTREAM?: boolean;
+  /**
+   * Trims the stream to maintain a specific size or remove old entries.
+   * - Available since: 5.0.0.
+   */
+  trim?: {
+    /**
+     * When specified, limits the stream to the specified threshold.
+     * With MAXLEN, the stream is limited by the number of entries.
+     * With MINID, the stream is limited by the minimum ID.
+     * - Available since: 5.0.0 for MAXLEN, 6.2.0 for MINID.
+     */
+    strategy: "MAXLEN" | "MINID";
+    /**
+     * Exact trimming or almost exact trimming.
+     * When `~` is specified, the trimming will be performed in a more efficient way, but may
+     * leave a few more items than the specified threshold.
+     * When `=` is specified (or when not specified at all), the trimming will be exact.
+     * - Available since: 5.0.0.
+     */
+    operator?: "~" | "=";
+    /**
+     * The threshold used for trimming. With MAXLEN, it represents the maximum number of
+     * entries. With MINID, it represents the minimum ID.
+     * - Available since: 5.0.0.
+     */
+    threshold: string | number;
+    /**
+     * Limits the number of entries to examine during trimming.
+     * When not specified, Redis uses a default value of 100 * the number of entries in a macro node.
+     * Specifying 0 disables the limiting mechanism entirely.
+     * - Available since: 6.2.0.
+     */
+    LIMIT?: number;
+  };
+};
+//#endregion
+//#region src/commands/stream/xrange.d.ts
+type XrangeOptions = {
+  /**
+   * Maximum number of entries to return.
+   * - Available since: 5.0.0.
+   */
+  COUNT?: number;
+};
+//#endregion
+//#region src/commands/stream/xrevrange.d.ts
+type XrevrangeOptions = {
+  /**
+   * Maximum number of entries to return.
+   * - Available since: 5.0.0.
+   */
+  COUNT?: number;
+};
+//#endregion
+//#region src/commands/stream/xtrim.d.ts
+type XtrimOptions = {
+  /**
+   * When specified, Redis will stop trimming early when performance can be gained.
+   * The stream may have few tens of additional entries over the threshold.
+   * - Available since: 5.0.0.
+   */
+  trimOperator?: "~" | "=";
+  /**
+   * Specifies the maximal count of entries that will be evicted.
+   * When not specified, the default value of 100 * the number of entries in a macro node will be implicitly used.
+   * Specifying the value 0 disables the limiting mechanism entirely.
+   * - Available since: 6.2.0.
+   */
+  LIMIT?: number;
+};
+//#endregion
+//#region src/commands/sorted-set/zrangebyscore.d.ts
+type ZrangebyscoreOptions = {
+  /**
+   * Returns only a specified range of elements. Start and count are zero-based indexes, inclusive.
+   * - Available since: 1.0.5.
+   */
+  LIMIT?: [number, number];
+  /**
+   * Specifies if the scores should also be returned.
+   * - Available since: 2.0.0.
+   */
+  WITHSCORES?: boolean;
+};
+//#endregion
+//#region src/commands/sorted-set/zscan.d.ts
+type ZscanOptions = {
+  /**
+   * Only return members matching the given glob-style pattern.
+   * - Available since: 2.8.0.
+   */
+  MATCH?: string;
+  /**
+   * A hint for the number of members to return per iteration. The default is 10.
+   * - Available since: 2.8.0.
+   */
+  COUNT?: number;
+};
+//#endregion
+//#region src/commands/sorted-set/zrevrangebylex.d.ts
+type ZrevrangebylexOptions = {
+  /**
+   * Skip `offset` matching members and return up to `count` of them. A negative `count` returns all remaining members.
+   * - Available since: 2.8.9.
+   */
+  LIMIT?: [number, number];
+};
+//#endregion
+//#region src/commands/sorted-set/zrevrangebyscore.d.ts
+type ZrevrangebyscoreOptions = {
+  /**
+   * Also return the score of each member.
+   * - Available since: 2.2.0.
+   */
+  WITHSCORES?: boolean;
+  /**
+   * Skip `offset` matching members and return up to `count` of them. A negative `count` returns all remaining members.
+   * - Available since: 2.2.0.
+   */
+  LIMIT?: [number, number];
+};
+//#endregion
+//#region src/commands/sorted-set/zadd.d.ts
+type ZaddOptions = {
+  /**
+   * Only add new members; do not update existing members.
+   * `NX` and `XX` are mutually exclusive, as are `GT` and `LT`.
+   * - Available since: 3.0.2.
+   */
+  NX?: boolean;
+  /**
+   * Only update existing members; do not add new members.
+   * `NX` and `XX` are mutually exclusive, as are `GT` and `LT`.
+   * - Available since: 3.0.2.
+   */
+  XX?: boolean;
+  /**
+   * Only update an existing member if the new score is greater than the current score. Does not prevent adding new members.
+   * `NX` and `XX` are mutually exclusive, as are `GT` and `LT`.
+   * - Available since: 6.2.0.
+   */
+  GT?: boolean;
+  /**
+   * Only update an existing member if the new score is less than the current score. Does not prevent adding new members.
+   * `NX` and `XX` are mutually exclusive, as are `GT` and `LT`.
+   * - Available since: 6.2.0.
+   */
+  LT?: boolean;
+  /**
+   * Change the return value from the number of added members to the number of changed members (added plus updated).
+   * - Available since: 3.0.2.
+   */
+  CH?: boolean;
+  /**
+   * Increment the member's score by `score` instead of setting it, behaving like `ZINCRBY`. Only one score-member pair may be given.
+   * - Available since: 3.0.2.
+   */
+  INCR?: boolean;
+};
+//#endregion
+//#region src/commands/sorted-set/zrank.d.ts
+type ZrankOptions = {
+  /**
+   * Also return the member's score along with its rank.
+   * - Available since: 7.2.0.
+   */
+  WITHSCORE?: boolean;
+};
+//#endregion
+//#region src/commands/sorted-set/zrandmember.d.ts
+type ZrandmemberOptions = {
+  /**
+   * Also return the score of each returned member. Can only be used together with `count`.
+   * - Available since: 6.2.0.
+   */
+  WITHSCORES?: boolean;
+};
+//#endregion
+//#region src/commands/sorted-set/zrevrank.d.ts
+type ZrevrankOptions = {
+  /**
+   * Also return the member's score along with its rank.
+   * - Available since: 7.2.0.
+   */
+  WITHSCORE?: boolean;
+};
+//#endregion
+//#region src/commands/sorted-set/zrange.d.ts
+type ZrangeOptions = {
+  /**
+   * Returns the range of elements from the sorted set having scores equal or between `<start>` and `<stop>`.
+   * - Available since: 6.2.0.
+   */
+  BY?: "SCORE" | "LEX";
+  /**
+   * Reverses the ordering, so elements are ordered from highest to lowest score, and score ties are resolved by reverse lexicographical ordering.
+   * - Available since: 6.2.0.
+   */
+  REV?: boolean;
+  /**
+   * Obtains a sub-range from the matching elements (similar to SELECT LIMIT offset, count in SQL). A negative `<count>` returns all elements from the `<offset>`.
+   * - Available since: 6.2.0.
+   */
+  LIMIT?: [number, number];
+  /**
+   * Supplements the command's reply with the scores of elements returned.
+   */
+  WITHSCORES?: boolean;
+};
+//#endregion
+//#region src/commands/sorted-set/zinterstore.d.ts
+type ZinterstoreOptions = {
+  /**
+   * How to combine the scores of members that exist in multiple sets: `SUM` (the default), `MIN`, `MAX`, or `COUNT`.
+   *
+   * When `AGGREGATE COUNT` is specified, the original element scores are ignored entirely.
+   * The resulting score for each element is determined by which input sets contain it, optionally scaled by `WEIGHTS`:
+   * - Without `WEIGHTS`, each input set containing the element contributes `1` to its score — effectively counting set membership.
+   * - With `WEIGHTS`, each input set containing the element contributes its corresponding weight, so the score becomes the sum of those weights.
+   *
+   * Starting with Redis version 8.8.0: Added `COUNT` aggregate option.
+   * @see {@link https://redis.io/docs/latest/commands/zunionstore/}
+   */
+  AGGREGATE?: "SUM" | "MIN" | "MAX" | "COUNT";
+};
+//#endregion
+//#region src/commands/sorted-set/zrevrange.d.ts
+type ZrevrangeOptions = {
+  /**
+   * Also return the score of each member.
+   * - Available since: 1.2.0.
+   */
+  WITHSCORES?: boolean;
+};
+//#endregion
+//#region src/commands/sorted-set/zrangebylex.d.ts
+type ZrangebylexOptions = {
+  /**
+   * Obtains a sub-range from the matching elements (similar to SELECT LIMIT offset, count in SQL). A negative `<count>` returns all elements from the `<offset>`.
+   * - Available since: 2.8.9.
+   */
+  LIMIT?: [number, number];
+};
+//#endregion
+//#region src/commands/hash/hpexpire.d.ts
+type HpexpireOptions = {
+  /**
+   * For each specified field, set expiration only when the field has no expiration.
+   * - Incompatible with options `XX`, `GT` and `LT`.
+   * - Available since: 7.4.0.
+   */
+  NX?: boolean;
+  /**
+   * For each specified field, set expiration only when the field has an existing expiration.
+   * - Incompatible with options `NX`, `GT` and `LT`.
+   * - Available since: 7.4.0.
+   */
+  XX?: boolean;
+  /**
+   * For each specified field, set expiration only when the new expiration is greater than the current one. A non-volatile field is treated as an infinite TTL for the purposes of `GT`.
+   * - Incompatible with options `NX`, `XX` and `LT`.
+   * - Available since: 7.4.0.
+   */
+  GT?: boolean;
+  /**
+   * For each specified field, set expiration only when the new expiration is less than the current one. A non-volatile field is treated as an infinite TTL for the purposes of `LT`.
+   * - Incompatible with options `NX`, `XX` and `GT`.
+   * - Available since: 7.4.0.
+   */
+  LT?: boolean;
+};
+//#endregion
+//#region src/commands/hash/hexpire.d.ts
+type HexpireOptions = {
+  /**
+   * For each specified field, set expiration only when the field has no expiration.
+   * - Incompatible with options `XX`, `GT` and `LT`.
+   * - Available since: 7.4.0.
+   */
+  NX?: boolean;
+  /**
+   * For each specified field, set expiration only when the field has an existing expiration.
+   * - Incompatible with options `NX`, `GT` and `LT`.
+   * - Available since: 7.4.0.
+   */
+  XX?: boolean;
+  /**
+   * For each specified field, set expiration only when the new expiration is greater than the current one. A non-volatile field is treated as an infinite TTL for the purposes of `GT`.
+   * - Incompatible with options `NX`, `XX` and `LT`.
+   * - Available since: 7.4.0.
+   */
+  GT?: boolean;
+  /**
+   * For each specified field, set expiration only when the new expiration is less than the current one. A non-volatile field is treated as an infinite TTL for the purposes of `LT`.
+   * - Incompatible with options `NX`, `XX` and `GT`.
+   * - Available since: 7.4.0.
+   */
+  LT?: boolean;
+};
+//#endregion
+//#region src/commands/hash/hexpireat.d.ts
+type HexpireatOptions = {
+  /**
+   * For each specified field, set expiration only when the field has no expiration.
+   * - Incompatible with options `XX`, `GT` and `LT`.
+   * - Available since: 7.4.0.
+   */
+  NX?: boolean;
+  /**
+   * For each specified field, set expiration only when the field has an existing expiration.
+   * - Incompatible with options `NX`, `GT` and `LT`.
+   * - Available since: 7.4.0.
+   */
+  XX?: boolean;
+  /**
+   * For each specified field, set expiration only when the new expiration is greater than the current one. A non-volatile field is treated as an infinite TTL for the purposes of `GT`.
+   * - Incompatible with options `NX`, `XX` and `LT`.
+   * - Available since: 7.4.0.
+   */
+  GT?: boolean;
+  /**
+   * For each specified field, set expiration only when the new expiration is less than the current one. A non-volatile field is treated as an infinite TTL for the purposes of `LT`.
+   * - Incompatible with options `NX`, `XX` and `GT`.
+   * - Available since: 7.4.0.
+   */
+  LT?: boolean;
+};
+//#endregion
+//#region src/commands/hash/hscan.d.ts
+type HscanOptions = {
+  /**
+   * Only return fields whose names match the given glob-style pattern.
+   * - Available since: 2.8.0.
+   */
+  MATCH?: string;
+  /**
+   * A hint for the number of fields to return per iteration. The default is 10.
+   * - Available since: 2.8.0.
+   */
+  COUNT?: number;
+  /**
+   * Return only the field names, without their values.
+   * - Available since: 7.4.0.
+   */
+  NOVALUES?: boolean;
+};
+//#endregion
+//#region src/commands/hash/hrandfield.d.ts
+type HrandfieldOptions = {
+  /**
+   * Also return the value of each selected field. Can only be used together with `count`.
+   * - Available since: 6.2.0.
+   */
+  WITHVALUES?: boolean;
+};
+//#endregion
+//#region src/commands/hash/hpexpireat.d.ts
+type HpexpireatOptions = {
+  /**
+   * For each specified field, set expiration only when the field has no expiration.
+   * - Incompatible with options `XX`, `GT` and `LT`.
+   * - Available since: 7.4.0.
+   */
+  NX?: boolean;
+  /**
+   * For each specified field, set expiration only when the field has an existing expiration.
+   * - Incompatible with options `NX`, `GT` and `LT`.
+   * - Available since: 7.4.0.
+   */
+  XX?: boolean;
+  /**
+   * For each specified field, set expiration only when the new expiration is greater than the current one. A non-volatile field is treated as an infinite TTL for the purposes of `GT`.
+   * - Incompatible with options `NX`, `XX` and `LT`.
+   * - Available since: 7.4.0.
+   */
+  GT?: boolean;
+  /**
+   * For each specified field, set expiration only when the new expiration is less than the current one. A non-volatile field is treated as an infinite TTL for the purposes of `LT`.
+   * - Incompatible with options `NX`, `XX` and `GT`.
+   * - Available since: 7.4.0.
+   */
+  LT?: boolean;
+};
+//#endregion
+//#region src/transaction/use.d.ts
+declare class RedisXTransactionUse {
+  private transaction;
+  queue: {
+    command: Command;
+    redis_transaction_command: RedisXTransactionCommand<any>;
+  }[];
+  constructor(transaction: RedisXTransaction<any, any, any>);
+  addCommand(command: string, ...args: (string | number)[]): RedisXTransactionCommand<unknown>;
+  private useCommand;
+  /**
+   * This command is similar to `SINTER`, but instead of returning the result set, it returns just the cardinality of the result.
+   * Returns the cardinality of the set which would result from the intersection of all the given sets.
+   *
+   * Keys that do not exist are considered to be empty sets.
+   * With one of the keys being an empty set, the resulting set is also empty (since set intersection with an empty set always results in an empty set).
+   * - Available since: 7.0.0.
+   * - Time complexity: O(N*M) worst case where N is the cardinality of the smallest set and M is the number of sets.
+   * @param keys - One or more set keys to intersect.
+   * @param options -
+   * @returns Integer reply: the number of elements in the resulting intersection.
+   * @see {@link https://redis.io/commands/sintercard}
+   */
+  SINTERCARD(keys: Collection<string>, options?: SintercardOptions): RedisXTransactionCommand<number>;
+  /**
+   * Remove the specified members from the set stored at key.
+   * Specified members that are not a member of this set are ignored.
+   * If key does not exist, it is treated as an empty set and this command returns 0.
+   *
+   * - Available since: 1.0.0. Multiple members support added in 2.4.0.
+   * - Time complexity: O(N) where N is the number of members to be removed.
+   * @param key Key of the set.
+   * @param members One or more members to remove from the set.
+   * @returns The number of members that were removed from the set, not including non existing members.
+   * @see {@link https://redis.io/commands/srem}
+   */
+  SREM(key: string, members: Collection<string | number>): RedisXTransactionCommand<number>;
+  /**
+   * Remove the specified members from the set stored at key.
+   * Specified members that are not a member of this set are ignored.
+   * If key does not exist, it is treated as an empty set and this command returns 0.
+   *
+   * - Available since: 1.0.0. Multiple members support added in 2.4.0.
+   * - Time complexity: O(N) where N is the number of members to be removed.
+   * @param key Key of the set.
+   * @param members Members to remove from the set.
+   * @returns The number of members that were removed from the set, not including non existing members.
+   * @see {@link https://redis.io/commands/srem}
+   */
+  SREM(key: string, ...members: (string | number)[]): RedisXTransactionCommand<number>;
+  /**
+   * When called with just the `key` argument, return a random element from the set value stored at `key`.
+   * - Available since: 1.0.0.
+   * - Time complexity: Without the count argument O(1), otherwise O(N) where N is the absolute value of the passed count.
+   * @param key - The name of the key that holds the set.
+   * @returns Bulk string reply: without the additional _count_ argument, the command returns a randomly selected member, or a Nil reply when _key_ doesn't exist.
+   * @see {@link https://redis.io/commands/srandmember}
+   */
+  SRANDMEMBER(key: string): RedisXTransactionCommand<string | null>;
+  /**
+   * If the provided `count` argument is positive, return an array of **distinct elements**.
+   * The array's length is either `count` or the set's cardinality (`SCARD`), whichever is lower.
+   *
+   * If called with a negative `count`, the behavior changes and the command is allowed to return the **same element multiple times**.
+   * In this case, the number of returned elements is the absolute value of the specified `count`.
+   * - Available since: 1.0.0.
+   * - Starting with Redis version 2.6.0: Added the optional `count` argument.
+   * - Time complexity: Without the count argument O(1), otherwise O(N) where N is the absolute value of the passed count.
+   * @param key - The name of the key that holds the set.
+   * @param count - The number of members to return. A positive `count` returns up to that many distinct members; a negative `count` returns exactly `|count|` members and may repeat them.
+   * @returns Array reply: when the optional _count_ argument is passed, the command returns an array of members, or an empty array when _key_ doesn't exist.
+   * @see {@link https://redis.io/commands/srandmember}
+   */
+  SRANDMEMBER(key: string, count: number): RedisXTransactionCommand<string[]>;
+  /**
+   * Removes and returns one or more random members from the set value store at `key`.
+   *
+   * This operation is similar to `SRANDMEMBER`, that returns one or more random elements from a set but does not remove it.
+   *
+   * By default, the command pops a single member from the set.
+   * - Available since: 1.0.0.
+   * - Time complexity: Without the count argument O(1), otherwise O(N) where N is the value of the passed count.
+   * @param key - The name of the key that holds the set.
+   * @returns Any of the following:
+   * - Nil reply: if the key does not exist.
+   * - Bulk string reply: when called without the _count_ argument, the removed member.
+   * @see {@link https://redis.io/commands/spop}
+   */
+  SPOP(key: string): RedisXTransactionCommand<string | null>;
+  /**
+   * Removes and returns one or more random members from the set value store at `key`.
+   *
+   * This operation is similar to `SRANDMEMBER`, that returns one or more random elements from a set but does not remove it.
+   *
+   * When provided with the optional `count` argument, the reply will consist of up to `count` members, depending on the set's cardinality.
+   * - Available since: 1.0.0.
+   * - Starting with Redis version 3.2.0: Added the optional `count` argument.
+   * - Time complexity: Without the count argument O(1), otherwise O(N) where N is the value of the passed count.
+   * @param key - The name of the key that holds the set.
+   * @param count - The number of members to pop. Without it, a single member is popped.
+   * @returns Array reply: when called with the _count_ argument, a list of the removed members.
+   * @see {@link https://redis.io/commands/spop}
+   */
+  SPOP(key: string, count: number): RedisXTransactionCommand<Set<string>>;
+  /**
+   * This command is equal to `SINTER`, but instead of returning the resulting set, it is stored in `destination`.
+   *
+   * If `destination` already exists, it is overwritten.
+   * - Available since: 1.0.0.
+   * - Time complexity: O(N*M) worst case where N is the cardinality of the smallest set and M is the number of sets.
+   * @param destination - The key to store the resulting set in.
+   * @param keys - One or more set keys to intersect.
+   * @returns Integer reply: the number of elements in the resulting set.
+   * @see {@link https://redis.io/commands/sinterstore}
+   */
+  SINTERSTORE(destination: string, ...keys: string[]): RedisXTransactionCommand<number>;
+  /**
+   * This command is equal to `SINTER`, but instead of returning the resulting set, it is stored in `destination`.
+   *
+   * If `destination` already exists, it is overwritten.
+   * - Available since: 1.0.0.
+   * - Time complexity: O(N*M) worst case where N is the cardinality of the smallest set and M is the number of sets.
+   * @param destination - The key to store the resulting set in.
+   * @param keys - One or more set keys to intersect.
+   * @returns Integer reply: the number of elements in the resulting set.
+   * @see {@link https://redis.io/commands/sinterstore}
+   */
+  SINTERSTORE(destination: string, keys: Collection<string>): RedisXTransactionCommand<number>;
+  /**
+   * Returns whether each member is a member of the set stored at key.
+   *
+   * For every member, 1 is returned if the value is a member of the set,
+   * or 0 if the element is not a member of the set or if key does not exist.
+   *
+   * - Available since: 6.2.0.
+   * - Time complexity: O(N) where N is the number of elements being checked for membership.
+   * @param key The key of the set.
+   * @param members The members to check.
+   * @returns A list representing the membership of the given elements, in the same order as they are requested.
+   * @see {@link https://redis.io/commands/smismember}
+   */
+  SMISMEMBER(key: string, ...members: (string | number)[]): RedisXTransactionCommand<boolean[]>;
+  /**
+   * Returns whether each member is a member of the set stored at key.
+   *
+   * For every member, 1 is returned if the value is a member of the set,
+   * or 0 if the element is not a member of the set or if key does not exist.
+   *
+   * - Available since: 6.2.0.
+   * - Time complexity: O(N) where N is the number of elements being checked for membership.
+   * @param key The name of the key that holds the set.
+   * @param members One or more members to check for.
+   * @returns A list representing the membership of the given elements, in the same order as they are requested.
+   * @see {@link https://redis.io/commands/smismember}
+   */
+  SMISMEMBER(key: string, members: Collection<string | number>): RedisXTransactionCommand<boolean[]>;
+  /**
+   * Returns the members of the set resulting from the intersection of all the given sets.
+   *
+   * Keys that do not exist are considered to be empty sets.
+   * With one of the keys being an empty set, the resulting set is also empty (since set intersection with an empty set always results in an empty set).
+   * - Available since: 1.0.0.
+   * - Time complexity: O(N*M) worst case where N is the cardinality of the smallest set and M is the number of sets.
+   * @param keys - One or more set keys to intersect.
+   * @returns Array reply: an array with the members of the resulting set.
+   * @see {@link https://redis.io/commands/sinter}
+   */
+  SINTER(...keys: string[]): RedisXTransactionCommand<Set<string>>;
+  /**
+   * Returns the members of the set resulting from the intersection of all the given sets.
+   *
+   * Keys that do not exist are considered to be empty sets.
+   * With one of the keys being an empty set, the resulting set is also empty (since set intersection with an empty set always results in an empty set).
+   * - Available since: 1.0.0.
+   * - Time complexity: O(N*M) worst case where N is the cardinality of the smallest set and M is the number of sets.
+   * @param keys - One or more set keys to intersect.
+   * @returns Array reply: an array with the members of the resulting set.
+   * @see {@link https://redis.io/commands/sinter}
+   */
+  SINTER(keys: Collection<string>): RedisXTransactionCommand<Set<string>>;
+  /**
+   * Returns all the members of the set value stored at key.
+   *
+   * - Available since: 1.0.0.
+   * - Time complexity: O(N) where N is the set cardinality.
+   * @param key The key of the set.
+   * @returns A set with all the members of the set.
+   * @see {@link https://redis.io/commands/smembers}
+   */
+  SMEMBERS(key: string): RedisXTransactionCommand<Set<string>>;
+  /**
+   * Returns the members of the set resulting from the union of all the given sets.
+   *
+   * Keys that do not exist are considered to be empty sets.
+   * - Available since: 1.0.0.
+   * - Time complexity: O(N) where N is the total number of elements in all given sets.
+   * @param keys - One or more set keys to union.
+   * @returns Array reply: a list with members of the resulting set.
+   * @see {@link https://redis.io/commands/sunion}
+   */
+  SUNION(...keys: string[]): RedisXTransactionCommand<Set<string>>;
+  /**
+   * Returns the members of the set resulting from the union of all the given sets.
+   *
+   * Keys that do not exist are considered to be empty sets.
+   * - Available since: 1.0.0.
+   * - Time complexity: O(N) where N is the total number of elements in all given sets.
+   * @param keys - One or more set keys to union.
+   * @returns Array reply: a list with members of the resulting set.
+   * @see {@link https://redis.io/commands/sunion}
+   */
+  SUNION(keys: Collection<string>): RedisXTransactionCommand<Set<string>>;
+  /**
+   * Returns if member is a member of the set stored at key.
+   *
+   * - Available since: 1.0.0.
+   * - Time complexity: O(1).
+   * @param key The key of the set.
+   * @param member The member to check.
+   * @returns `true` if the member is a member of the set stored at key, `false` otherwise.
+   * @see {@link https://redis.io/commands/sismember}
+   */
+  SISMEMBER(key: string, member: string | number): RedisXTransactionCommand<boolean>;
+  /**
+   * This command is equal to `SUNION`, but instead of returning the resulting set, it is stored in `destination`.
+   *
+   * If `destination` already exists, it is overwritten.
+   * - Available since: 1.0.0.
+   * - Time complexity: O(N) where N is the total number of elements in all given sets.
+   * @param destination - The key to store the resulting set in.
+   * @param keys - One or more set keys to union.
+   * @returns Integer reply: the number of elements in the resulting set.
+   * @see {@link https://redis.io/commands/sunionstore}
+   */
+  SUNIONSTORE(destination: string, ...keys: string[]): RedisXTransactionCommand<number>;
+  /**
+   * This command is equal to `SUNION`, but instead of returning the resulting set, it is stored in `destination`.
+   *
+   * If `destination` already exists, it is overwritten.
+   * - Available since: 1.0.0.
+   * - Time complexity: O(N) where N is the total number of elements in all given sets.
+   * @param destination - The key to store the resulting set in.
+   * @param keys - One or more set keys to union.
+   * @returns Integer reply: the number of elements in the resulting set.
+   * @see {@link https://redis.io/commands/sunionstore}
+   */
+  SUNIONSTORE(destination: string, keys: Collection<string>): RedisXTransactionCommand<number>;
+  /**
+   * Move `member` from the set at `source` to the set at `destination`.
+   * This operation is atomic.
+   * In every given moment the element will appear to be a member of `source` **or** `destination` for other clients.
+   *
+   * If the source set does not exist or does not contain the specified element, no operation is performed and `0` is returned.
+   * Otherwise, the element is removed from the source set and added to the destination set.
+   * When the specified element already exists in the destination set, it is only removed from the source set.
+   * - Available since: 1.0.0.
+   * - Time complexity: O(1).
+   * @param source - The key of the source set.
+   * @param destination - The key of the destination set.
+   * @param member - The member to move from the source set to the destination set.
+   * @returns Any of the following:
+   * - Integer reply: `1` if the element is moved.
+   * - Integer reply: `0` if the element is not a member of _source_ and no operation was performed.
+   * @see {@link https://redis.io/commands/smove}
+   */
+  SMOVE(source: string, destination: string, member: string | number): RedisXTransactionCommand<boolean>;
+  /**
+   * Returns the members of the set resulting from the difference between the first set and all the successive sets.
+   *
+   * Keys that do not exist are considered to be empty sets.
+   * - Available since: 1.0.0.
+   * - Time complexity: O(N) where N is the total number of elements in all given sets.
+   * @param keys - One or more set keys. The result is the members of the first set that are not present in any of the subsequent sets.
+   * @returns Array reply: a list with members of the resulting set.
+   * @see {@link https://redis.io/commands/sdiff}
+   */
+  SDIFF(...keys: string[]): RedisXTransactionCommand<Set<string>>;
+  /**
+   * Returns the members of the set resulting from the difference between the first set and all the successive sets.
+   *
+   * Keys that do not exist are considered to be empty sets.
+   * - Available since: 1.0.0.
+   * - Time complexity: O(N) where N is the total number of elements in all given sets.
+   * @param keys - One or more set keys. The result is the members of the first set that are not present in any of the subsequent sets.
+   * @returns Array reply: a list with members of the resulting set.
+   * @see {@link https://redis.io/commands/sdiff}
+   */
+  SDIFF(keys: Collection<string>): RedisXTransactionCommand<Set<string>>;
+  /**
+   * Iterates over members of a set.
+   *
+   * `SSCAN` is a cursor based iterator. This means that at every call of the command, the server returns an updated cursor that the user needs to use as the cursor argument in the next call.
+   * An iteration starts when the cursor is set to 0, and terminates when the cursor returned by the server is 0.
+   *
+   * A given element may be returned multiple times. It is up to the application to handle the case of duplicated elements, for example only using the returned elements in order to perform operations that are safe when re-applied multiple times.
+   * - Available since: 2.8.0.
+   * - Time complexity: O(1) for every call. O(N) for a complete iteration, including enough command calls for the cursor to return back to 0. N is the number of elements inside the collection.
+   * @param key - The name of the key that holds the set.
+   * @param cursor - The cursor value. Start an iteration with `0`, then use the cursor returned by each call as the argument to the next call.
+   * @param options -
+   * @returns Array reply: specifically, an array with two elements.
+   * - The first element is a Bulk string reply that represents an unsigned 64-bit number, the cursor.
+   * - The second element is an Array reply with the names of scanned members.
+   * @see {@link https://redis.io/commands/sscan}
+   */
+  SSCAN(key: string, cursor: string | number, options?: SscanOptions): RedisXTransactionCommand<{
+    cursor: string;
+    members: Set<string>;
+  }>;
+  /**
+   * Returns the cardinality of the union of the given sets. This is the count-only counterpart of `SUNION`: it returns just the number of distinct elements in the union, not the members themselves.
+   *
+   * Keys that do not exist are considered to be empty sets.
+   * - Available since: 8.10.0.
+   * - Time complexity: O(N) where N is the total number of elements in all given sets.
+   * @param keys - One or more set keys to union.
+   * @param options -
+   * @returns Integer reply: the number of elements in the resulting union.
+   * @see {@link https://redis.io/commands/sunioncard}
+   */
+  SUNIONCARD(keys: Collection<string>, options?: SunioncardOptions): RedisXTransactionCommand<number>;
+  /**
+   * This command is equal to `SDIFF`, but instead of returning the resulting set, it is stored in `destination`.
+   *
+   * If `destination` already exists, it is overwritten.
+   * - Available since: 1.0.0.
+   * - Time complexity: O(N) where N is the total number of elements in all given sets.
+   * @param destination - The key to store the resulting set in.
+   * @param keys - One or more set keys. The difference is the members of the first set that are not present in any of the subsequent sets.
+   * @returns Integer reply: the number of elements in the resulting set.
+   * @see {@link https://redis.io/commands/sdiffstore}
+   */
+  SDIFFSTORE(destination: string, ...keys: string[]): RedisXTransactionCommand<number>;
+  /**
+   * This command is equal to `SDIFF`, but instead of returning the resulting set, it is stored in `destination`.
+   *
+   * If `destination` already exists, it is overwritten.
+   * - Available since: 1.0.0.
+   * - Time complexity: O(N) where N is the total number of elements in all given sets.
+   * @param destination - The key to store the resulting set in.
+   * @param keys - One or more set keys. The difference is the members of the first set that are not present in any of the subsequent sets.
+   * @returns Integer reply: the number of elements in the resulting set.
+   * @see {@link https://redis.io/commands/sdiffstore}
+   */
+  SDIFFSTORE(destination: string, keys: Collection<string>): RedisXTransactionCommand<number>;
+  /**
+   * Returns the set cardinality (number of elements) of the set stored at key.
+   *
+   * - Available since: 1.0.0.
+   * - Time complexity: O(1).
+   * @param key The key of the set.
+   * @returns The cardinality (number of elements) of the set, or `0` if the key does not exist.
+   * @see {@link https://redis.io/commands/scard}
+   */
+  SCARD(key: string): RedisXTransactionCommand<number>;
+  /**
+   * Returns the cardinality of the difference between the first set and all the successive sets. This is the count-only counterpart of `SDIFF`: it returns just the number of elements in the difference, not the members themselves.
+   *
+   * Keys that do not exist are considered to be empty sets.
+   * - Available since: 8.10.0.
+   * - Time complexity: O(N) where N is the total number of elements in all given sets.
+   * @param keys - One or more set keys. The result counts the members of the first set that are not present in any of the subsequent sets.
+   * @param options -
+   * @returns Integer reply: the number of elements in the resulting difference.
+   * @see {@link https://redis.io/commands/sdiffcard}
+   */
+  SDIFFCARD(keys: Collection<string>, options?: SdiffcardOptions): RedisXTransactionCommand<number>;
+  /**
+   * Add the specified members to the set stored at key.
+   * Specified members that are already a member of this set are ignored.
+   * If key does not exist, a new set is created before adding the specified members.
+   *
+   * An error is returned when the value stored at key is not a set.
+   *
+   * - Available since: 1.0.0. Multiple members support added in 2.4.0.
+   * - Time complexity: O(1) for each element added.
+   * @param key Key of the set.
+   * @param members One or more members to add to the set.
+   * @returns The number of elements that were added to the set, not including all the elements already present in the set.
+   * @see {@link https://redis.io/commands/sadd}
+   */
+  SADD(key: string, members: Collection<string | number>): RedisXTransactionCommand<number>;
+  /**
+   * Add the specified members to the set stored at key.
+   * Specified members that are already a member of this set are ignored.
+   * If key does not exist, a new set is created before adding the specified members.
+   *
+   * An error is returned when the value stored at key is not a set.
+   *
+   * - Available since: 1.0.0. Multiple members support added in 2.4.0.
+   * - Time complexity: O(1) for each element added.
+   * @param key Key of the set.
+   * @param members Members to add to the set.
+   * @returns The number of elements that were added to the set, not including all the elements already present in the set.
+   * @see {@link https://redis.io/commands/sadd}
+   */
+  SADD(key: string, ...members: (string | number)[]): RedisXTransactionCommand<number>;
+  /**
+   * Sets the given keys to their respective values. MSETNX will not perform
+   * any operation at all even if just a single key already exists.
+   *
+   * - Available since: 1.0.1.
+   * - Time complexity: O(N) where N is the number of keys to set.
+   * @param pairs A record of key-value pairs.
+   * @returns `true` if all the keys were set, `false` if no key was set (at least one key already existed).
+   * @see {@link https://redis.io/commands/msetnx}
+   */
+  MSETNX(pairs: Record<string, string | number>): RedisXTransactionCommand<boolean>;
+  /**
+   * Set key to hold string value if key does not exist. In that case, it is equal to SET.
+   * When key already holds a value, no operation is performed. SETNX is short for "SET if Not eXists".
+   *
+   * - Available since: 1.0.0.
+   * - Time complexity: O(1).
+   * @deprecated As of Redis version 2.6.12, this command is regarded as deprecated. It can be replaced by SET with the NX argument when migrating or writing new code.
+   * @param key Key to set.
+   * @param value Value to set.
+   * @returns Integer reply: 1 if the key was set, 0 if the key was not set.
+   * @see {@link https://redis.io/commands/setnx}
+   */
+  SETNX(key: string, value: string | number): RedisXTransactionCommand<boolean>;
+  /**
+   * Get the value of key.
+   *
+   * If the key does not exist `null` is returned.
+   *
+   * An error is returned if the value stored at key is not a string, because GET only handles string values.
+   * - Available since: 1.0.0.
+   * - Time complexity: O(1).
+   * @param key Key to get.
+   * @returns The value of key, or `null` when key does not exist.
+   * @see {@link https://redis.io/commands/get}
+   */
+  GET(key: string): RedisXTransactionCommand<string | null>;
+  /**
+   * Set `key` to hold the string `value`.
+   * - Available since: 1.0.0.
+   * - Time complexity: O(1).
+   * @param key The name of the key.
+   * @param value The string value to set.
+   * @param options Command options.
+   * @returns
+   * - Simple string reply: `OK`: The key was set.
+   * - Null bulk string reply in the following two cases.
+   *   - The key doesn’t exist and `XX/IFEQ/IFDEQ` was specified. The key was not created.
+   *   - The key exists, and `NX` was specified or a specified `IFEQ/IFNE/IFDEQ/IFDNE` condition is false. The key was not set.
+   * @see {@link https://redis.io/commands/set}
+   */
+  SET(key: string, value: string | number, options?: SetOptions & {
+    GET?: false;
+  }): RedisXTransactionCommand<"OK" | null>;
+  /**
+   * Set `key` to hold the string `value`.
+   * - Available since: 1.0.0.
+   * - Time complexity: O(1).
+   * @param key The name of the key.
+   * @param value The string value to set.
+   * @param options Command options.
+   * @returns
+   * - Null bulk string reply: The key didn't exist before the `SET` operation, whether the key was created of not.
+   * - Bulk string reply: The previous value of the key, whether the key was set or not.
+   * @see {@link https://redis.io/commands/set}
+   */
+  SET(key: string, value: string | number, options: SetOptions & {
+    GET: true;
+  }): RedisXTransactionCommand<string | null>;
+  /**
+   * Set `key` to hold the string `value`.
+   * - Available since: 1.0.0.
+   * - Time complexity: O(1).
+   * @param key The name of the key.
+   * @param value The string value to set.
+   * @param options Command options.
+   * @returns
+   * - If `GET` was not specified, one of the following:
+   *   - Simple string reply: `OK`: The key was set.
+   *   - Null bulk string reply in the following two cases.
+   *     - The key doesn’t exist and `XX/IFEQ/IFDEQ` was specified. The key was not created.
+   *     - The key exists, and `NX` was specified or a specified `IFEQ/IFNE/IFDEQ/IFDNE` condition is false. The key was not set.
+   * - If `GET` was specified, one of the following:
+   *   - Null bulk string reply: The key didn't exist before the `SET` operation, whether the key was created of not.
+   *   - Bulk string reply: The previous value of the key, whether the key was set or not.
+   * @see {@link https://redis.io/commands/set}
+   */
+  SET(key: string, value: string | number, options?: SetOptions): RedisXTransactionCommand<string | null>;
+  /**
+   * Append a value to a key.
+   *
+   * If key already exists and is a string, this command appends the value at the end of the string.
+   * If key does not exist it is created and set as an empty string, so APPEND will be similar to SET in this special case.
+   * - Available since: 2.0.0.
+   * - Time complexity: O(1). The amortized time complexity is O(1) assuming the appended value is small and the already present value is of any size, since the dynamic string library used by Redis will double the free space available on every reallocation.
+   * @param key Key to append to.
+   * @param value Value to append.
+   * @returns The length of the string after the append operation.
+   * @see {@link https://redis.io/commands/append}
+   */
+  APPEND(key: string, value: string): RedisXTransactionCommand<number>;
+  /**
+   * Increments the number stored at key by one. If the key does not exist,
+   * it is set to 0 before performing the operation. An error is returned if the
+   * key contains a value of the wrong type or contains a string that can not
+   * be represented as integer. This operation is limited to 64 bit signed integers.
+   * - Available since: 1.0.0.
+   * - Time complexity: O(1).
+   * @param key Key to increment.
+   * @returns The value of the key after incrementing it.
+   * @see {@link https://redis.io/commands/incr}
+   */
+  INCR(key: string): RedisXTransactionCommand<number>;
+  /**
+   * Increment the string representing a floating point number stored at key by the specified increment.
+   * By using a negative increment value, the result is that the value stored at the key is decremented.
+   * If the key does not exist, it is set to 0 before performing the operation.
+   *
+   * - Available since: 2.6.0.
+   * - Time complexity: O(1).
+   * @param key Key to increment.
+   * @param increment Value to increment by.
+   * @returns The value of key after the increment.
+   * @see {@link https://redis.io/commands/incrbyfloat}
+   */
+  INCRBYFLOAT(key: string, increment: number): RedisXTransactionCommand<string>;
+  /**
+   * Returns the values of all specified keys. For every key that does not hold a
+   * string value or does not exist, the special value `null` is returned.
+   * Because of this, the operation never fails.
+   *
+   * - Available since: 1.0.0.
+   * - Time complexity: O(N) where N is the number of keys to retrieve.
+   * @param keys The keys to get.
+   * @returns Array reply: a list of values at the specified keys.
+   * @see {@link https://redis.io/commands/mget}
+   */
+  MGET<const K extends string[]>(keys: K): RedisXTransactionCommand<{ [I in keyof K]: string | null; }>;
+  /**
+   * Returns the values of all specified keys. For every key that does not hold a
+   * string value or does not exist, the special value `null` is returned.
+   * Because of this, the operation never fails.
+   *
+   * - Available since: 1.0.0.
+   * - Time complexity: O(N) where N is the number of keys to retrieve.
+   * @param keys The keys to get.
+   * @returns Array reply: a list of values at the specified keys.
+   * @see {@link https://redis.io/commands/mget}
+   */
+  MGET<const K extends string[]>(...keys: K): RedisXTransactionCommand<{ [I in keyof K]: string | null; }>;
+  /**
+   * Get the value of key and delete the key. This command is similar to GET, except for the fact
+   * that it also deletes the key on success (if and only if the key's value type is a string).
+   *
+   * - Available since: 6.2.0.
+   * - Time complexity: O(1).
+   * @param key Key to get and delete.
+   * @returns The value of key, or `null` when key does not exist or its value is not a string.
+   * @see {@link https://redis.io/commands/getdel}
+   */
+  GETDEL(key: string): RedisXTransactionCommand<string | null>;
+  /**
+   * Sets the given keys to their respective values. MSET replaces existing values with new values, just as regular SET.
+   * MSET is atomic, so all given keys are set at once. It is not possible for clients to see that some of the keys were updated while others are unchanged.
+   * - Available since: 1.0.1.
+   * - Time complexity: O(N) where N is the number of keys to set.
+   * @param pairs A record of key-value pairs.
+   * @returns "OK"
+   * @see {@link https://redis.io/commands/mset}
+   */
+  MSET(pairs: Record<string, string | number>): RedisXTransactionCommand<"OK">;
+  /**
+   * Increments the number stored at key by increment. If the key does not exist, it is set to 0 before performing the operation.
+   * An error is returned if the key contains a value of the wrong type or contains a string that cannot be represented as integer.
+   * This operation is limited to 64 bit signed integers.
+   *
+   * - Available since: 1.0.0.
+   * - Time complexity: O(1).
+   * @param key Key to increment.
+   * @param increment Amount to increment by.
+   * @returns The value of the key after the increment.
+   * @see {@link https://redis.io/commands/incrby}
+   */
+  INCRBY(key: string, increment: number): RedisXTransactionCommand<number>;
+  /**
+   * Overwrites part of the string stored at key, starting at the specified offset, for the entire length of value.
+   * If the offset is larger than the current length of the string at key, the string is padded with zero-bytes to make offset fit.
+   * Non-existing keys are considered as empty strings, so this command will make sure it holds a string large enough to be able to set value at offset.
+   *
+   * Note that the maximum offset that you can set is `2^29-1` (536870911), as Redis Strings are limited to 512 megabytes.
+   *
+   * - Available since: 2.2.0.
+   * - Time complexity: O(1), not counting the time taken to copy the new string in place. Usually, this string is very small so the amortized complexity is O(1). Otherwise, complexity is O(M) with M being the length of the value argument.
+   * @param key Key to modify.
+   * @param offset Position at which the overwrite should begin.
+   * @param value String that will be written to the key, starting at the specified offset.
+   * @returns The length of the string after it was modified by the command.
+   * @see {@link https://redis.io/commands/setrange}
+   */
+  SETRANGE(key: string, offset: number, value: string): RedisXTransactionCommand<number>;
+  /**
+   * Returns the substring of the string value stored at key, determined by the offsets start and end (both are inclusive).
+   * Negative offsets can be used in order to provide an offset starting from the end of the string.
+   * So -1 means the last character, -2 the penultimate and so forth.
+   * - Available since: 1.0.0.
+   * - Time complexity: O(N) where N is the length of the returned string. The complexity is ultimately determined by the returned length, but because creating a substring from an existing string is very cheap, it can be considered O(1) for small strings.
+   * @deprecated As of Redis version 2.0.0, this command is regarded as deprecated. It can be replaced by GETRANGE when migrating or writing new code.
+   * @param key Key to get the substring from.
+   * @param start Start offset (inclusive).
+   * @param end End offset (inclusive).
+   * @returns The substring of the string value stored at key.
+   * @see {@link https://redis.io/commands/substr}
+   */
+  SUBSTR(key: string, start: number, end: number): RedisXTransactionCommand<string>;
+  /**
+   * Atomically sets key to value and returns the old value stored at key.
+   * Returns an error when key exists but does not hold a string value.
+   * Any previous time to live associated with the key is discarded on successful SET operation.
+   *
+   * - Available since: 1.0.0.
+   * - Time complexity: O(1).
+   * @deprecated As of Redis version 6.2.0, this command is regarded as deprecated. It can be replaced by SET with the GET argument when migrating or writing new code.
+   * @param key Key to set.
+   * @param value Value to set.
+   * @returns The old value stored at key, or `null` if key did not exist.
+   * @see {@link https://redis.io/commands/getset}
+   */
+  GETSET(key: string, value: string | number): RedisXTransactionCommand<string | null>;
+  /**
+   * Reduces the value stored at the specified key by the specified decrement.
+   * If the key does not exist, it is initialized with a value of 0 before performing the operation.
+   * If the key's value is not of the correct type or cannot be represented as an integer, an error is returned.
+   * This operation is limited to 64-bit signed integers.
+   *
+   * - Available since: 1.0.0.
+   * - Time complexity: O(1).
+   * @param key Key to decrement.
+   * @param decrement The value to decrement by.
+   * @returns The value of the key after decrementing it.
+   * @see {@link https://redis.io/commands/decrby}
+   */
+  DECRBY(key: string, decrement: number): RedisXTransactionCommand<number>;
+  /**
+   * Returns the substring of the string value stored at key, determined by the offsets start and end (both are inclusive).
+   * Negative offsets can be used in order to provide an offset starting from the end of the string.
+   * So -1 means the last character, -2 the penultimate and so forth.
+   *
+   * The function handles out of range requests by limiting the resulting range to the actual length of the string.
+   * - Available since: 2.4.0.
+   * - Time complexity: O(N) where N is the length of the returned string. The complexity is ultimately determined by the returned length, but because creating a substring from an existing string is very cheap, it can be considered O(1) for small strings.
+   * @param key The key holding the string value.
+   * @param start The starting offset. Can be negative to count from the end of the string.
+   * @param end The ending offset (inclusive). Can be negative to count from the end of the string.
+   * @returns The substring.
+   * @see {@link https://redis.io/commands/getrange}
+   */
+  GETRANGE(key: string, start: number, end: number): RedisXTransactionCommand<string>;
+  /**
+   * Set key to hold the string value and set key to timeout after a given number of seconds.
+   * This command is equivalent to SET key value EX seconds.
+   *
+   * - Available since: 2.0.0.
+   * - Time complexity: O(1).
+   * @deprecated As of Redis version 2.6.12, this command is regarded as deprecated. It can be replaced by SET with the EX argument when migrating or writing new code.
+   * @param key Key to set.
+   * @param seconds Timeout in seconds.
+   * @param value Value to set.
+   * @returns Simple string reply: OK.
+   * @see {@link https://redis.io/commands/setex}
+   */
+  SETEX(key: string, seconds: number, value: string | number): RedisXTransactionCommand<"OK">;
+  /**
+   * Get the value of key and optionally set its expiration.
+   * GETEX is similar to GET, but is a write command with additional options.
+   *
+   * An error is returned if the value stored at key is not a string, because GETEX only handles string values.
+   * - Available since: 6.2.0.
+   * - Time complexity: O(1).
+   * @param key Key to get.
+   * @param options Command options.
+   * @returns The value of key, or `null` when key does not exist.
+   * @see {@link https://redis.io/commands/getex}
+   */
+  GETEX(key: string, options?: GetexOptions): RedisXTransactionCommand<string | null>;
+  /**
+   * Returns the length of the string value stored at key.
+   * An error is returned when key holds a non-string value.
+   *
+   * - Available since: 2.2.0.
+   * - Time complexity: O(1).
+   * @param key Key to get length of.
+   * @returns The length of the string stored at key, or 0 when the key does not exist.
+   * @see {@link https://redis.io/commands/strlen}
+   */
+  STRLEN(key: string): RedisXTransactionCommand<number>;
+  /**
+   * Decrements the number stored at key by one. If the key does not exist,
+   * it is set to 0 before performing the operation. An error is returned if the
+   * key contains a value of the wrong type or contains a string that can not
+   * be represented as integer. This operation is limited to 64 bit signed integers.
+   * - Available since: 1.0.0.
+   * - Time complexity: O(1).
+   * @param key Key to decrement.
+   * @returns The value of the key after decrementing it.
+   * @see {@link https://redis.io/commands/decr}
+   */
+  DECR(key: string): RedisXTransactionCommand<number>;
+  /**
+   * Set key to hold the string value and set key to timeout after a given number of milliseconds.
+   * This command is similar to SETEX, except that the expiration time is specified in milliseconds instead of seconds.
+   *
+   * - Available since: 2.6.0.
+   * - Time complexity: O(1).
+   * @deprecated As of Redis version 2.6.12, this command is regarded as deprecated. It can be replaced by SET with the PX argument when migrating or writing new code.
+   * @param key Key to set.
+   * @param milliseconds Expiration time in milliseconds.
+   * @param value Value to set.
+   * @returns "OK" if the command was executed successfully.
+   * @see {@link https://redis.io/commands/psetex}
+   */
+  PSETEX(key: string, milliseconds: number, value: string | number): RedisXTransactionCommand<"OK">;
+  /**
+   * This command works exactly like EXPIRE but the time to live of the key is specified in milliseconds instead of seconds.
+   * - Available since: 2.6.0.
+   * - Time complexity: O(1).
+   * @param key Key to set the timeout on.
+   * @param seconds Time to live in milliseconds.
+   * @param options Command options.
+   * @returns Returns `true` if the timeout was set. Returns `false` if the timeout was not set; for example, the key doesn't exist, or the operation was skipped because of the provided arguments.
+   * @see {@link https://redis.io/commands/pexpire}
+   * @see {@link https://redis.io/commands/expire}
+   */
+  PEXPIRE(key: string, seconds: number, options?: PexpireOptions): RedisXTransactionCommand<boolean>;
+  /**
+   * Returns the remaining time to live of a key that has a timeout, in milliseconds.
+   *
+   * Like TTL this command returns the remaining time to live of a key that has an
+   * expire set, with the sole difference that TTL returns the amount of remaining
+   * time in seconds while PTTL returns it in milliseconds.
+   *
+   * - Available since: 2.6.0.
+   * - Time complexity: O(1).
+   * @param key The key to check.
+   * @returns One of the following:
+   * - A positive integer: TTL in milliseconds.
+   * - `-1`: if the key exists but has no associated expiration.
+   * - `-2`: if the key does not exist.
+   * @see {@link https://redis.io/commands/pttl}
+   * @see {@link https://redis.io/commands/ttl}
+   */
+  PTTL(key: string): RedisXTransactionCommand<number>;
+  /**
+   * Iterates over the key names in the database.
+   *
+   * `SCAN` is a cursor based iterator. This means that at every call of the command, the server returns an updated cursor that the user needs to use as the cursor argument in the next call.
+   * An iteration starts when the cursor is set to 0, and terminates when the cursor returned by the server is 0.
+   *
+   * A given element may be returned multiple times. It is up to the application to handle the case of duplicated elements, for example only using the returned elements in order to perform operations that are safe when re-applied multiple times.
+   * - Available since: 2.8.0.
+   * - Time complexity: O(1) for every call. O(N) for a complete iteration, including enough command calls for the cursor to return back to 0. N is the number of elements inside the collection.
+   * @param cursor - The cursor value. Start an iteration with `0`, then use the cursor returned by each call as the argument to the next call.
+   * @param options -
+   * @returns Array reply: specifically, an array with two elements.
+   * - The first element is a Bulk string reply that represents an unsigned 64-bit number, the cursor.
+   * - The second element is an Array reply with the names of scanned keys.
+   * @see {@link https://redis.io/commands/scan}
+   */
+  SCAN(cursor: string | number, options?: ScanOptions): RedisXTransactionCommand<{
+    cursor: string;
+    keys: Set<string>;
+  }>;
+  /**
+   * Returns the remaining time to live of a key that has a timeout.
+   *
+   * This introspection capability allows a Redis client to check how many seconds
+   * a given key will continue to be part of the dataset.
+   *
+   * - Available since: 1.0.0.
+   * - Time complexity: O(1).
+   * @param key The key to check.
+   * @returns One of the following:
+   * - A positive integer: TTL in seconds.
+   * - `-1`: if the key exists but has no associated expiration.
+   * - `-2`: if the key does not exist.
+   * @see {@link https://redis.io/commands/ttl}
+   */
+  TTL(key: string): RedisXTransactionCommand<number>;
+  /**
+   * Set a timeout on key.
+   *
+   * After the timeout has expired, the key will automatically be deleted.
+   * - Available since: 1.0.0.
+   * - Time complexity: O(1).
+   * @param key Key to set the timeout on.
+   * @param seconds Time to live in seconds.
+   * @param options Command options.
+   * @returns Returns `true` if the timeout was set. Returns `false` if the timeout was not set; for example, the key doesn't exist, or the operation was skipped because of the provided arguments.
+   * @see {@link https://redis.io/commands/expire}
+   */
+  EXPIRE(key: string, seconds: number, options?: ExpireOptions): RedisXTransactionCommand<boolean>;
+  /**
+   * Returns the string representation of the type of the value stored at `key`.
+   * - Available since: 1.0.0.
+   * - Time complexity: O(1).
+   * @param key The key to check.
+   * @returns The type of the value stored at the key, or `"none"` if the key does not exist.
+   * @see {@link https://redis.io/commands/type}
+   */
+  TYPE(key: string): RedisXTransactionCommand<"none" | "string" | "list" | "set" | "zset" | "hash" | "stream" | "vectorset">;
+  /**
+   * Returns all keys matching pattern.
+   * - Available since: 1.0.0.
+   * - Time complexity: O(N) with N being the number of keys in the database.
+   * @param pattern Pattern to match.
+   * @returns A set of keys matching pattern.
+   * @see {@link https://redis.io/commands/keys}
+   */
+  KEYS(pattern: string): RedisXTransactionCommand<Set<string>>;
+  /**
+   * Copy the value stored at the source key to the destination key.
+   * - Available since: 6.2.0.
+   * - Time complexity: O(N) worst case for collections, where N is the number of nested items. O(1) for string values.
+   * @param source The source key.
+   * @param destination The destination key.
+   * @param options Command options.
+   * @returns Whether the copy was successful.
+   * @see {@link https://redis.io/commands/copy}
+   */
+  COPY(source: string, destination: string, options?: CopyOptions): RedisXTransactionCommand<boolean>;
+  /**
+   * This command has the same effect and semantic as EXPIRE, but instead of specifying the number of seconds representing the TTL (time to live), it takes an absolute Unix timestamp (seconds since January 1, 1970).
+   *
+   * A timestamp in the past will delete the key immediately.
+   * - Available since: 1.2.0.
+   * - Time complexity: O(1).
+   * @param key Key to set the timeout on.
+   * @param timestamp Unix timestamp in seconds.
+   * @param options Command options.
+   * @returns Returns `true` if the timeout was set. Returns `false` if the timeout was not set; for example, the key doesn't exist, or the operation was skipped because of the provided arguments.
+   * @see {@link https://redis.io/commands/expireat}
+   * @see {@link https://redis.io/commands/expire}
+   */
+  EXPIREAT(key: string, timestamp: number, options?: ExpireatOptions): RedisXTransactionCommand<boolean>;
+  /**
+   * This command has the same effect and semantic as EXPIREAT, but the Unix time at which the key will expire is specified in milliseconds instead of seconds.
+   * - Available since: 2.6.0.
+   * - Time complexity: O(1).
+   * @param key Key to set the timeout on.
+   * @param timestamp Unix timestamp in milliseconds.
+   * @param options Command options.
+   * @returns Returns `true` if the timeout was set. Returns `false` if the timeout was not set; for example, the key doesn't exist, or the operation was skipped because of the provided arguments.
+   * @see {@link https://redis.io/commands/pexpireat}
+   * @see {@link https://redis.io/commands/expireat}
+   */
+  PEXPIREAT(key: string, timestamp: number, options?: PexpireatOptions): RedisXTransactionCommand<boolean>;
+  /**
+   * Remove the existing timeout on key, turning the key from volatile (a key with an expire set) to persistent (a key that will never expire as no timeout is associated).
+   *
+   * - Available since: 2.2.0.
+   * - Time complexity: O(1).
+   * @param key The key to persist.
+   * @returns Returns `true` if the timeout was removed. Returns `false` if the key does not exist or does not have an associated timeout.
+   * @see {@link https://redis.io/commands/persist}
+   */
+  PERSIST(key: string): RedisXTransactionCommand<boolean>;
+  /**
+   * Returns the absolute Unix timestamp (since January 1, 1970) in seconds at which the given key will expire.
+   * - Available since: 7.0.0.
+   * - Time complexity: O(1).
+   * @param key Key to get expiration time for.
+   * @returns One of the following:
+   * - A number representing the expiration Unix timestamp in seconds.
+   * - `-1` if the key exists but has no associated expiration time.
+   * - `-2` if the key does not exist.
+   * @see {@link https://redis.io/commands/expiretime}
+   */
+  EXPIRETIME(key: string): RedisXTransactionCommand<number>;
+  /**
+   * Renames `key` to `newkey`. It returns an error when `key` does not exist. If `newkey` already exists it is overwritten.
+   *
+   * - Available since: 1.0.0.
+   * - Time complexity: O(1).
+   * @param key The key to rename.
+   * @param newkey The new key name.
+   * @returns "OK".
+   * @see {@link https://redis.io/commands/rename}
+   */
+  RENAME(key: string, newkey: string): RedisXTransactionCommand<"OK">;
+  /**
+   * Renames `key` to `newkey` if `newkey` does not yet exist. It returns an error when `key` does not exist.
+   *
+   * - Available since: 1.0.0.
+   * - Time complexity: O(1).
+   * @param key The key to rename.
+   * @param newkey The new key name.
+   * @returns `1` if the key was renamed, or `0` if the destination key already exists.
+   * @see {@link https://redis.io/commands/renamenx}
+   */
+  RENAMENX(key: string, newkey: string): RedisXTransactionCommand<0 | 1>;
+  /**
+   * PEXPIRETIME has the same semantic as EXPIRETIME, but returns the absolute Unix expiration timestamp in milliseconds instead of seconds.
+   * - Available since: 7.0.0.
+   * - Time complexity: O(1).
+   * @param key Key to get expiration time for.
+   * @returns One of the following:
+   * - A number representing the expiration Unix timestamp in milliseconds.
+   * - `-1` if the key exists but has no associated expiration time.
+   * - `-2` if the key does not exist.
+   * @see {@link https://redis.io/commands/pexpiretime}
+   * @see {@link https://redis.io/commands/expiretime}
+   */
+  PEXPIRETIME(key: string): RedisXTransactionCommand<number>;
+  /**
+   * Removes the specified keys.
+   *
+   * A key is ignored if it does not exist.
+   * - Available since: 1.0.0.
+   * - Time complexity: O(N) where N is the number of keys that will be removed. When a key to remove holds a value other than a string, the individual complexity for this key is O(M) where M is the number of elements in the list, set, sorted set or hash.
+   * @param keys Keys to delete.
+   * @returns The number of keys that were removed.
+   * @see {@link https://redis.io/commands/del}
+   */
+  DEL(...keys: string[]): RedisXTransactionCommand<number>;
+  /**
+   * Removes the specified keys.
+   *
+   * A key is ignored if it does not exist.
+   * - Available since: 1.0.0.
+   * - Time complexity: O(N) where N is the number of keys that will be removed. When a key to remove holds a value other than a string, the individual complexity for this key is O(M) where M is the number of elements in the list, set, sorted set or hash.
+   * @param keys One or more keys to delete.
+   * @returns The number of keys that were removed.
+   * @see {@link https://redis.io/commands/del}
+   */
+  DEL(keys: Collection<string>): RedisXTransactionCommand<number>;
+  /**
+   * Returns the number of keys that exist.
+   *
+   * If you specify the same existing key multiple times, EXISTS counts it each time. For example, if somekey exists, EXISTS somekey somekey returns 2.
+   * - Available since: 1.0.0.
+   * - Time complexity: O(N) where N is the number of keys to check.
+   * @param keys Keys to check.
+   * @returns The number of keys existing among the ones specified as arguments.
+   * @see {@link https://redis.io/commands/exists}
+   */
+  EXISTS(...keys: string[]): RedisXTransactionCommand<number>;
+  /**
+   * Returns the number of keys that exist.
+   *
+   * If you specify the same existing key multiple times, EXISTS counts it each time. For example, if somekey exists, EXISTS somekey somekey returns 2.
+   * - Available since: 1.0.0.
+   * - Time complexity: O(N) where N is the number of keys to check.
+   * @param keys One or more keys to check for existence. A repeated key is counted once per occurrence.
+   * @returns The number of keys existing among the ones specified as arguments.
+   * @see {@link https://redis.io/commands/exists}
+   */
+  EXISTS(keys: Collection<string>): RedisXTransactionCommand<number>;
+  /**
+   * Insert all the specified values at the tail of the list stored at key.
+   *
+   * If key does not exist, it is created as empty list before performing the push operation.
+   * When key holds a value that is not a list, an error is returned.
+   * - Available since: 1.0.0.
+   * - Multiple elements are available since Redis 2.4.0.
+   * - Time complexity: O(1) for each element added, so O(N) to add N elements when the command is called with multiple arguments.
+   * @param key Key to push values to.
+   * @param elements An array of elements to add to the list.
+   * @returns The length of the list after the push operation.
+   * @see {@link https://redis.io/commands/rpush}
+   */
+  RPUSH(key: string, elements: (string | number)[]): RedisXTransactionCommand<number>;
+  /**
+   * Insert all the specified values at the tail of the list stored at key.
+   *
+   * If key does not exist, it is created as empty list before performing the push operation.
+   * When key holds a value that is not a list, an error is returned.
+   * - Available since: 1.0.0.
+   * - Multiple elements are available since Redis 2.4.0.
+   * - Time complexity: O(1) for each element added, so O(N) to add N elements when the command is called with multiple arguments.
+   * @param key Key to push values to.
+   * @param elements Elements to add to the list.
+   * @returns The length of the list after the push operation.
+   * @see {@link https://redis.io/commands/rpush}
+   */
+  RPUSH(key: string, ...elements: (string | number)[]): RedisXTransactionCommand<number>;
+  /**
+   * Removes and returns the first elements of the list stored at key.
+   *
+   * By default, the command pops a single element from the beginning of the list. When provided
+   * with the optional count argument, the reply will consist of up to count elements, depending
+   * on the list's length.
+   *
+   * - Available since: 1.0.0.
+   * - Time complexity: O(N) where N is the number of elements returned.
+   * @param key The key of the list.
+   * @returns The value of the first element, or `null` when key does not exist.
+   * @see {@link https://redis.io/commands/lpop}
+   */
+  LPOP(key: string): RedisXTransactionCommand<string | null>;
+  /**
+   * Removes and returns the first elements of the list stored at key.
+   *
+   * By default, the command pops a single element from the beginning of the list. When provided
+   * with the optional count argument, the reply will consist of up to count elements, depending
+   * on the list's length.
+   *
+   * - Available since: 6.2.0 (for the count argument).
+   * - Time complexity: O(N) where N is the number of elements returned.
+   * @param key The key of the list.
+   * @param count The number of elements to pop.
+   * @returns An array of popped elements, or `null` when key does not exist.
+   * @see {@link https://redis.io/commands/lpop}
+   */
+  LPOP(key: string, count: number): RedisXTransactionCommand<string[] | null>;
+  /**
+   * Atomically returns and removes the last element (tail) of the list stored at source,
+   * and pushes the element at the first element (head) of the list stored at destination.
+   *
+   * For example: consider source holding the list a,b,c, and destination holding the list x,y,z.
+   * Executing RPOPLPUSH results in source holding a,b and destination holding c,x,y,z.
+   *
+   * If source does not exist, the value nil is returned and no operation is performed.
+   * If source and destination are the same, the operation is equivalent to removing the
+   * last element from the list and pushing it as first element of the list, so it can be
+   * considered as a list rotation command.
+   *
+   * - Available since: 1.2.0.
+   * - Time complexity: O(1).
+   * @deprecated As of Redis version 6.2.0, this command is regarded as deprecated. It can be replaced by LMOVE with the RIGHT and LEFT arguments when migrating or writing new code.
+   * @param source Source list key.
+   * @param destination Destination list key.
+   * @returns The element being popped and pushed, or `null` if the source list is empty.
+   * @see {@link https://redis.io/commands/rpoplpush}
+   */
+  RPOPLPUSH(source: string, destination: string): RedisXTransactionCommand<string | null>;
+  /**
+   * Insert all the specified values at the tail of the list stored at key, only if key already exists and holds a list.
+   * In contrary to RPUSH, no operation will be performed when key does not yet exist.
+   *
+   * - Available since: 2.2.0.
+   * - Multiple elements are available since Redis 4.0.0.
+   * - Time complexity: O(1) for each element added, so O(N) to add N elements when the command is called with multiple arguments.
+   * @param key Key to push values to.
+   * @param elements An array of elements to add to the list.
+   * @returns The length of the list after the push operation.
+   * @see {@link https://redis.io/commands/rpushx}
+   */
+  RPUSHX(key: string, elements: (string | number)[]): RedisXTransactionCommand<number>;
+  /**
+   * Insert all the specified values at the tail of the list stored at key, only if key already exists and holds a list.
+   * In contrary to RPUSH, no operation will be performed when key does not yet exist.
+   *
+   * - Available since: 2.2.0.
+   * - Multiple elements are available since Redis 4.0.0.
+   * - Time complexity: O(1) for each element added, so O(N) to add N elements when the command is called with multiple arguments.
+   * @param key Key to push values to.
+   * @param elements Elements to add to the list.
+   * @returns The length of the list after the push operation.
+   * @see {@link https://redis.io/commands/rpushx}
+   */
+  RPUSHX(key: string, ...elements: (string | number)[]): RedisXTransactionCommand<number>;
+  /**
+   * Sets the list element at index to element. For more information on the index argument, see LINDEX.
+   *
+   * An error is returned for out of range indexes.
+   *
+   * - Available since: 1.0.0.
+   * - Time complexity: O(N) where N is the length of the list. Setting either the first or the last element of the list is O(1).
+   * @param key The key of the list.
+   * @param index The index of the element to set. Can be negative to count from the end of the list.
+   * @param element The new value to set.
+   * @returns "OK" if successful.
+   * @see {@link https://redis.io/commands/lset}
+   */
+  LSET(key: string, index: number, element: string | number): RedisXTransactionCommand<"OK">;
+  /**
+   * Removes the first count occurrences of elements equal to element from the list stored at key.
+   * The count argument influences the operation in the following ways:
+   * - count > 0: Remove elements equal to element moving from head to tail.
+   * - count < 0: Remove elements equal to element moving from tail to head.
+   * - count = 0: Remove all elements equal to element.
+   *
+   * - Available since: 1.0.0.
+   * - Time complexity: O(N+M) where N is the length of the list and M is the number of elements removed.
+   * @param key The key of the list.
+   * @param count The number of occurrences to remove. Use negative values to start from the tail.
+   * @param element The element to remove from the list.
+   * @returns The number of removed elements.
+   * @see {@link https://redis.io/commands/lrem}
+   */
+  LREM(key: string, count: number, element: string | number): RedisXTransactionCommand<number>;
+  /**
+   * Insert all the specified elements at the head of the list stored at key.
+   *
+   * If key does not exist, it is created as empty list before performing the push operations.
+   * - Available since: 1.0.0.
+   * - Multiple field/value pairs are available since Redis 2.4.0.
+   * - Time complexity: O(1) for each element added.
+   * @param key Key of the list.
+   * @param elements An array of elements to add to the list.
+   * @returns The length of the list after the push operation.
+   * @see {@link https://redis.io/commands/lpush}
+   */
+  LPUSH(key: string, elements: (string | number)[]): RedisXTransactionCommand<number>;
+  /**
+   * Insert all the specified elements at the head of the list stored at key.
+   *
+   * If key does not exist, it is created as empty list before performing the push operations.
+   * - Available since: 1.0.0.
+   * - Multiple field/value pairs are available since Redis 2.4.0.
+   * - Time complexity: O(1) for each element added.
+   * @param key Key of the list.
+   * @param elements Elements to add to the list.
+   * @returns The length of the list after the push operation.
+   * @see {@link https://redis.io/commands/lpush}
+   */
+  LPUSH(key: string, ...elements: (string | number)[]): RedisXTransactionCommand<number>;
+  /**
+   * Inserts specified values at the head of the list stored at key, only if key already exists and holds a list.
+   * In contrary to LPUSH, no operation will be performed when key does not yet exist.
+   *
+   * - Available since: 2.2.0.
+   * - Time complexity: O(1) for each element added, so O(N) to add N elements when the command is called with multiple arguments.
+   * @param key Key of the list.
+   * @param elements Element or array of elements to push to the list.
+   * @returns The length of the list after the push operation.
+   * @see {@link https://redis.io/commands/lpushx}
+   */
+  LPUSHX(key: string, elements: (string | number)[]): RedisXTransactionCommand<number>;
+  /**
+   * Inserts specified values at the head of the list stored at key, only if key already exists and holds a list.
+   * In contrary to LPUSH, no operation will be performed when key does not yet exist.
+   *
+   * - Available since: 2.2.0.
+   * - Time complexity: O(1) for each element added, so O(N) to add N elements when the command is called with multiple arguments.
+   * @param key Key of the list.
+   * @param elements One or more elements to push to the list.
+   * @returns The length of the list after the push operation.
+   * @see {@link https://redis.io/commands/lpushx}
+   */
+  LPUSHX(key: string, ...elements: (string | number)[]): RedisXTransactionCommand<number>;
+  /**
+   * Removes and returns the last elements of the list stored at key.
+   *
+   * By default, the command pops a single element from the end of the list.
+   * When provided with the optional count argument, the reply will consist
+   * of up to count elements, depending on the list's length.
+   *
+   * - Available since: 1.0.0.
+   * - Time complexity: O(N) where N is the number of elements returned.
+   * @param key The key of the list.
+   * @returns The value of the last element, or `null` when key does not exist.
+   * @see {@link https://redis.io/commands/rpop}
+   */
+  RPOP(key: string): RedisXTransactionCommand<string | null>;
+  /**
+   * Removes and returns the last elements of the list stored at key.
+   *
+   * By default, the command pops a single element from the end of the list.
+   * When provided with the optional count argument, the reply will consist
+   * of up to count elements, depending on the list's length.
+   *
+   * - Available since: 6.2.0 (for the count argument).
+   * - Time complexity: O(N) where N is the number of elements returned.
+   * @param key The key of the list.
+   * @param count The number of elements to pop.
+   * @returns Array of popped elements, or `null` when key does not exist.
+   * @see {@link https://redis.io/commands/rpop}
+   */
+  RPOP(key: string, count: number): RedisXTransactionCommand<string[] | null>;
+  /**
+   * Returns the specified elements of the list stored at key. The offsets start and stop
+   * are zero-based indexes, with 0 being the first element of the list (the head of the list),
+   * 1 being the next element and so on.
+   *
+   * These offsets can also be negative numbers indicating offsets starting at the end of the list.
+   * For example, -1 is the last element of the list, -2 the penultimate, and so on.
+   *
+   * Out of range indexes will not produce an error. If start is larger than the end of the list,
+   * an empty list is returned. If stop is larger than the actual end of the list, Redis will
+   * treat it like the last element of the list.
+   *
+   * - Available since: 1.0.0.
+   * - Time complexity: O(S+N) where S is the distance of start offset from HEAD for small lists,
+   *   from nearest end (HEAD or TAIL) for large lists; and N is the number of elements in the specified range.
+   * @param key The key of the list.
+   * @param start The starting position (inclusive, 0-based index).
+   * @param stop The ending position (inclusive, 0-based index).
+   * @returns Array of elements in the specified range, or an empty array if the key doesn't exist.
+   * @see {@link https://redis.io/commands/lrange}
+   */
+  LRANGE(key: string, start: number, stop: number): RedisXTransactionCommand<string[]>;
+  /**
+   * Returns the length of the list stored at key. If key does not exist, it is interpreted as an empty list and 0 is returned.
+   * An error is returned when the value stored at key is not a list.
+   *
+   * - Available since: 1.0.0.
+   * - Time complexity: O(1).
+   * @param key Key to get the length of the list for.
+   * @returns The length of the list at key.
+   * @see {@link https://redis.io/commands/llen}
+   */
+  LLEN(key: string): RedisXTransactionCommand<number>;
+  /**
+   * Inserts `element` in the list stored at `key` either before or after the reference value `pivot`.
+   *
+   * When `key` does not exist, it is considered an empty list and no operation is performed.
+   *
+   * An error is returned when `key` exists but does not hold a list value.
+   * - Available since: 2.2.0.
+   * - Time complexity: O(N) where N is the number of elements to traverse before seeing the value pivot. This means that inserting somewhere on the left end on the list (head) can be considered O(1) and inserting somewhere on the right end (tail) is O(N).
+   * @param key - The name of the key that holds the list.
+   * @param element - The value to insert.
+   * @param options -
+   * @returns Any of the following:
+   * - Integer reply: the list length after a successful insert operation.
+   * - Integer reply: `0` when the key doesn't exist.
+   * - Integer reply: `-1` when the pivot wasn't found.
+   * @see {@link https://redis.io/commands/linsert}
+   */
+  LINSERT(key: string, element: string | number, options: LinsertOptions): RedisXTransactionCommand<number>;
+  /**
+   * Trim an existing list so that it will contain only the specified range of elements specified.
+   * Both `start` and `stop` are zero-based indexes, where 0 is the first element of the list (the head),
+   * 1 the next element and so on.
+   *
+   * `start` and `stop` can also be negative numbers indicating offsets from the end of the list,
+   * where -1 is the last element of the list, -2 the penultimate element and so on.
+   *
+   * Out of range indexes will not produce an error: if `start` is larger than the end of the list,
+   * or `start` > `stop`, the result will be an empty list (which causes key to be removed).
+   * If `stop` is larger than the end of the list, Redis will treat it like the last element of the list.
+   *
+   * - Available since: 1.0.0.
+   * - Time complexity: O(N) where N is the number of elements to be removed by the operation.
+   * @param key The key of the list to trim.
+   * @param start Zero-based index of the first element to keep.
+   * @param stop Zero-based index of the last element to keep.
+   * @returns "OK"
+   * @see {@link https://redis.io/commands/ltrim}
+   */
+  LTRIM(key: string, start: number, stop: number): RedisXTransactionCommand<"OK">;
+  /**
+   * Returns the element at index in the list stored at key.
+   * The index is zero-based, so 0 means the first element, 1 the second element and so on.
+   * Negative indices can be used to designate elements starting at the tail of the list.
+   *
+   * - Available since: 1.0.0.
+   * - Time complexity: O(N) where N is the number of elements to traverse to get to the element at index. This makes asking for the first or the last element of the list O(1).
+   * @param key Key of the list.
+   * @param index Zero-based index of the element to return.
+   * @returns The requested element, or `null` when index is out of range.
+   * @see {@link https://redis.io/commands/lindex}
+   */
+  LINDEX(key: string, index: number): RedisXTransactionCommand<string | null>;
+  /**
+   * Returns the number of entries inside a stream. If the specified key does not exist
+   * the command returns zero, as if the stream was empty. However note that unlike other
+   * Redis types, zero-length streams are possible, so you should call TYPE or EXISTS in
+   * order to check if a key exists or not.
+   *
+   * Streams are not auto-deleted once they have no entries inside (for instance after an
+   * XDEL call), because the stream may have consumer groups associated with it.
+   *
+   * - Available since: 5.0.0.
+   * - Time complexity: O(1).
+   * @param key The key of the stream.
+   * @returns The number of entries of the stream at key.
+   * @see {@link https://redis.io/commands/xlen}
+   */
+  XLEN(key: string): RedisXTransactionCommand<number>;
+  /**
+   * Removes the specified entries from a stream, and returns the number of entries deleted.
+   * This number may be less than the number of IDs passed to the command in the case where
+   * some of the specified IDs do not exist in the stream.
+   *
+   * - Available since: 5.0.0.
+   * - Time complexity: O(1) for each single item to delete in the stream, regardless of the stream size.
+   * @param key The key of the stream.
+   * @param ids The IDs of the entries to remove.
+   * @returns The number of entries actually deleted.
+   * @see {@link https://redis.io/commands/xdel}
+   */
+  XDEL(key: string, ids: string[]): RedisXTransactionCommand<number>;
+  /**
+   * Removes the specified entries from a stream, and returns the number of entries deleted.
+   * This number may be less than the number of IDs passed to the command in the case where
+   * some of the specified IDs do not exist in the stream.
+   *
+   * - Available since: 5.0.0.
+   * - Time complexity: O(1) for each single item to delete in the stream, regardless of the stream size.
+   * @param key The key of the stream.
+   * @param ids The IDs of the entries to remove.
+   * @returns The number of entries actually deleted.
+   * @see {@link https://redis.io/commands/xdel}
+   */
+  XDEL(key: string, ...ids: string[]): RedisXTransactionCommand<number>;
+  /**
+   * Read data from one or multiple streams, only returning entries with an ID greater than the last received ID reported by the caller.
+   *
+   * - Available since: 5.0.0.
+   * - Time complexity: O(N) where N is the number of entries returned.
+   * @param key The name of the stream to read from.
+   * @param id The last ID received from the stream.
+   * @param options Command options.
+   * @returns An array of stream entries or `null` if no entries are available.
+   * @see {@link https://redis.io/commands/xread}
+   */
+  XREAD(key: string, id: XreadId, options?: XreadOptions): RedisXTransactionCommand<XStreamEntry[]>;
+  /**
+   * Read data from one or multiple streams, only returning entries with an ID greater than the last received ID reported by the caller.
+   *
+   * - Available since: 5.0.0.
+   * - Time complexity: O(N) where N is the number of entries returned.
+   * @param streams Object where keys are stream names and values are the last IDs received from those streams.
+   * @param options Command options.
+   * @returns An object where keys are stream names and values are arrays of stream entries or `null` if no entries are available.
+   * @see {@link https://redis.io/commands/xread}
+   */
+  XREAD<const S extends Record<string, XreadId>>(streams: S, options?: XreadOptions): RedisXTransactionCommand<{ [K in keyof S]: XStreamEntry[]; }>;
+  /**
+   * Appends the specified stream entry to the stream at the specified `key`.
+   * If the key does not exist, `XADD` will create a new key with the given stream value as a side effect of running this command.
+   * You can turn off key creation with the `NOMKSTREAM` option.
+   * - Available since: 5.0.0.
+   * - Time complexity: O(1) when adding a new entry, O(N) when trimming where N being the number of entries evicted.
+   * @param key The name of the stream key.
+   * @param id The stream entry ID. Use `*` to auto-generate a unique ID, or specify a well-formed ID in the format `<ms>-<seq>` (for example, `1526919030474-55`).
+   * @param pairs One or more field-value pairs that make up the stream entry. You must provide at least one field-value pair.
+   * @param options Command options.
+   * @returns Bulk string reply: The ID of the added entry.
+   * @see {@link https://redis.io/commands/xadd}
+   */
+  XADD(key: string, id: XaddId, pairs: XaddPairs, options?: XaddOptions & {
+    NOMKSTREAM?: false;
+  }): RedisXTransactionCommand<string>;
+  /**
+   * Appends the specified stream entry to the stream at the specified `key`.
+   * If the key does not exist, `XADD` will create a new key with the given stream value as a side effect of running this command.
+   * You can turn off key creation with the `NOMKSTREAM` option.
+   * - Available since: 5.0.0.
+   * - Time complexity: O(1) when adding a new entry, O(N) when trimming where N being the number of entries evicted.
+   * @param key The name of the stream key.
+   * @param id The stream entry ID. Use `*` to auto-generate a unique ID, or specify a well-formed ID in the format `<ms>-<seq>` (for example, `1526919030474-55`).
+   * @param pairs One or more field-value pairs that make up the stream entry. You must provide at least one field-value pair.
+   * @param options Command options.
+   * @returns
+   * - Bulk string reply: The ID of the added entry.
+   * - Nil reply: if the NOMKSTREAM option is given and the key doesn't exist.
+   * @see {@link https://redis.io/commands/xadd}
+   */
+  XADD(key: string, id: XaddId, pairs: XaddPairs, options: XaddOptions & {
+    NOMKSTREAM: true;
+  }): RedisXTransactionCommand<string | null>;
+  /**
+   * Appends the specified stream entry to the stream at the specified `key`.
+   * If the key does not exist, `XADD` will create a new key with the given stream value as a side effect of running this command.
+   * You can turn off key creation with the `NOMKSTREAM` option.
+   * - Available since: 5.0.0.
+   * - Time complexity: O(1) when adding a new entry, O(N) when trimming where N being the number of entries evicted.
+   * @param key The name of the stream key.
+   * @param id The stream entry ID. Use `*` to auto-generate a unique ID, or specify a well-formed ID in the format `<ms>-<seq>` (for example, `1526919030474-55`).
+   * @param pairs One or more field-value pairs that make up the stream entry. You must provide at least one field-value pair.
+   * @param options Command options.
+   * @returns
+   * - Bulk string reply: The ID of the added entry.
+   * - Nil reply: if the NOMKSTREAM option is given and the key doesn't exist.
+   * @see {@link https://redis.io/commands/xadd}
+   */
+  XADD(key: string, id: XaddId, pairs: XaddPairs, options?: XaddOptions): RedisXTransactionCommand<string | null>;
+  /**
+   * Returns the stream entries matching a given range of IDs.
+   *
+   * The range is specified by a minimum and maximum ID. All the entries having an ID
+   * between the two specified or exactly one of the two IDs specified (closed interval)
+   * are returned.
+   *
+   * Special IDs `-` and `+` mean respectively the minimum ID possible and the maximum
+   * ID possible inside a stream.
+   *
+   * Exclusive ranges can be specified by prefixing the ID with `(`.
+   *
+   * - Available since: 5.0.0.
+   * - Time complexity: O(N) with N being the number of elements being returned. If N is constant (e.g. always asking for the first 10 elements with COUNT), you can consider it O(1).
+   * @param key Key that contains the stream.
+   * @param start Start ID for the range query. Use `-` for the minimum ID possible or prefix with `(` for exclusive range.
+   * @param end End ID for the range query. Use `+` for the maximum ID possible or prefix with `(` for exclusive range.
+   * @param options Command options.
+   * @returns An array of stream entries matching the range.
+   * @see {@link https://redis.io/commands/xrange}
+   */
+  XRANGE(key: string, start: "-" | (string & {}), end: "+" | (string & {}), options?: XrangeOptions): RedisXTransactionCommand<XStreamEntry[]>;
+  /**
+   * This command is exactly like XRANGE, but with the notable difference of returning the entries in reverse order,
+   * and also taking the start-end range in reverse order:
+   * in XREVRANGE you need to state the end ID and later the start ID,
+   * and the command will produce all the element between (or exactly like) the two IDs, starting from the end side.
+   *
+   * - Available since: 5.0.0.
+   * - Time complexity: O(N) with N being the number of elements being returned. If N is constant (e.g. always asking for the first 10 elements with COUNT), you can consider it O(1).
+   * @param key Key that contains the stream.
+   * @param end End ID for the range query. Use `+` for the maximum ID possible or prefix with `(` for exclusive range.
+   * @param start Start ID for the range query. Use `-` for the minimum ID possible or prefix with `(` for exclusive range.
+   * @param options Command options.
+   * @returns An array of stream entries matching the range.
+   * @see {@link https://redis.io/commands/xrange}
+   */
+  XREVRANGE(key: string, end: "+" | (string & {}), start: "-" | (string & {}), options?: XrevrangeOptions): RedisXTransactionCommand<XStreamEntry[]>;
+  /**
+   * Trims the stream by evicting older entries (entries with lower IDs) if needed.
+   *
+   * Using MAXLEN strategy which evicts entries as long as the stream's length exceeds the specified threshold.
+   *
+   * - Available since: 5.0.0.
+   * - Time complexity: O(N), with N being the number of evicted entries.
+   * @param key The key of the stream.
+   * @param strategy The MAXLEN trimming strategy.
+   * @param threshold A positive integer representing the max length.
+   * @param options Additional options.
+   * @returns The number of entries deleted from the stream.
+   * @see {@link https://redis.io/commands/xtrim}
+   */
+  XTRIM(key: string, strategy: "MAXLEN", threshold: number, options?: XtrimOptions): RedisXTransactionCommand<number>;
+  /**
+   * Trims the stream by evicting older entries (entries with lower IDs) if needed.
+   *
+   * Using MINID strategy which evicts entries with IDs lower than threshold.
+   *
+   * - Available since: 6.2.0.
+   * - Time complexity: O(N), with N being the number of evicted entries.
+   * @param key The key of the stream.
+   * @param strategy The MINID trimming strategy.
+   * @param threshold A stream ID threshold in the format of "timestamp-sequence" or "timestamp".
+   * @param options Additional options.
+   * @returns The number of entries deleted from the stream.
+   * @see {@link https://redis.io/commands/xtrim}
+   */
+  XTRIM(key: string, strategy: "MINID", threshold: string, options?: XtrimOptions): RedisXTransactionCommand<number>;
+  /**
+   * Removes all elements in the sorted set stored at `key` with rank between `start` and `stop`.
+   * Both `start` and `stop` are `0` -based indexes with `0` being the element with the lowest score.
+   * These indexes can be negative numbers, where they indicate offsets starting at the element with the highest score.
+   * For example: `-1` is the element with the highest score, `-2` the element with the second highest score and so forth.
+   * - Available since: 2.0.0.
+   * - Time complexity: O(log(N)+M) with N being the number of elements in the sorted set and M the number of elements removed by the operation.
+   * @param key - The name of the key that holds the sorted set.
+   * @param start - The start index, zero-based. Negative values count from the end of the sorted set (`-1` is the member with the highest score).
+   * @param stop - The stop index, zero-based and inclusive. Negative values count from the end of the sorted set.
+   * @returns Integer reply: the number of members removed.
+   * @see {@link https://redis.io/commands/zremrangebyrank}
+   */
+  ZREMRANGEBYRANK(key: string, start: number, stop: number): RedisXTransactionCommand<number>;
+  /**
+   * Returns the sorted set cardinality (number of elements) of the sorted set stored at key.
+   * - Available since: 1.2.0.
+   * - Time complexity: O(1).
+   * @param key Key holds a sorted set.
+   * @returns The cardinality (number of members) of the sorted set, or 0 if the key doesn't exist.
+   * @see {@link https://redis.io/commands/zcard}
+   */
+  ZCARD(key: string): RedisXTransactionCommand<number>;
+  /**
+   * Returns all the elements in the sorted set at key with a score between min and max (including elements with score equal to min or max).
+   * The elements are considered to be ordered from low to high scores.
+   *
+   * The elements having the same score are returned in lexicographical order.
+   *
+   * - Available since: 1.0.5.
+   * - Time complexity: O(log(N)+M) with N being the number of elements in the sorted set and M the number of elements being returned. If M is constant (e.g. always asking for the first 10 elements with LIMIT), you can consider it O(log(N)).
+   * @deprecated As of Redis version 6.2.0, this command is regarded as deprecated. It can be replaced by ZRANGE with the BYSCORE argument when migrating or writing new code.
+   * @param key The key of the sorted set.
+   * @param min The minimum score to consider.
+   * @param max The maximum score to consider.
+   * @param options Additional options for the command.
+   * @returns Array of elements in the specified score range.
+   * @see {@link https://redis.io/commands/zrangebyscore}
+   */
+  ZRANGEBYSCORE(key: string, min: number | `(${number}` | "-inf", max: number | `(${number}` | "+inf", options?: ZrangebyscoreOptions & {
+    WITHSCORES?: false;
+  }): RedisXTransactionCommand<string[]>;
+  /**
+   * Returns all the elements in the sorted set at key with a score between min and max (including elements with score equal to min or max).
+   * The elements are considered to be ordered from low to high scores.
+   *
+   * The elements having the same score are returned in lexicographical order.
+   *
+   * - Available since: 1.0.5.
+   * - Time complexity: O(log(N)+M) with N being the number of elements in the sorted set and M the number of elements being returned. If M is constant (e.g. always asking for the first 10 elements with LIMIT), you can consider it O(log(N)).
+   * @deprecated As of Redis version 6.2.0, this command is regarded as deprecated. It can be replaced by ZRANGE with the BYSCORE argument when migrating or writing new code.
+   * @param key The key of the sorted set.
+   * @param min The minimum score to consider.
+   * @param max The maximum score to consider.
+   * @param options Additional options for the command with WITHSCORES set to true.
+   * @returns Array of elements with their scores in the specified score range.
+   * @see {@link https://redis.io/commands/zrangebyscore}
+   */
+  ZRANGEBYSCORE(key: string, min: number | `(${number}` | "-inf", max: number | `(${number}` | "+inf", options: ZrangebyscoreOptions & {
+    WITHSCORES: true;
+  }): RedisXTransactionCommand<{
+    member: string;
+    score: number;
+  }[]>;
+  /**
+   * Returns all the elements in the sorted set at key with a score between min and max (including elements with score equal to min or max).
+   * The elements are considered to be ordered from low to high scores.
+   *
+   * The elements having the same score are returned in lexicographical order.
+   *
+   * - Available since: 1.0.5.
+   * - Time complexity: O(log(N)+M) with N being the number of elements in the sorted set and M the number of elements being returned. If M is constant (e.g. always asking for the first 10 elements with LIMIT), you can consider it O(log(N)).
+   * @deprecated As of Redis version 6.2.0, this command is regarded as deprecated. It can be replaced by ZRANGE with the BYSCORE argument when migrating or writing new code.
+   * @param key The key of the sorted set.
+   * @param min The minimum score to consider.
+   * @param max The maximum score to consider.
+   * @param options Additional options for the command.
+   * @returns Array of elements, with their scores when requested.
+   * @see {@link https://redis.io/commands/zrangebyscore}
+   */
+  ZRANGEBYSCORE(key: string, min: number | `(${number}` | "-inf", max: number | `(${number}` | "+inf", options?: ZrangebyscoreOptions): RedisXTransactionCommand<string[] | {
+    member: string;
+    score: number;
+  }[]>;
+  /**
+   * Iterates over members and scores of a sorted set.
+   *
+   * `ZSCAN` is a cursor based iterator. This means that at every call of the command, the server returns an updated cursor that the user needs to use as the cursor argument in the next call.
+   * An iteration starts when the cursor is set to 0, and terminates when the cursor returned by the server is 0.
+   *
+   * A given element may be returned multiple times. It is up to the application to handle the case of duplicated elements, for example only using the returned elements in order to perform operations that are safe when re-applied multiple times.
+   * - Available since: 2.8.0.
+   * - Time complexity: O(1) for every call. O(N) for a complete iteration, including enough command calls for the cursor to return back to 0. N is the number of elements inside the collection.
+   * @param key - The name of the key that holds the sorted set.
+   * @param cursor - The cursor value. Start an iteration with `0`, then use the cursor returned by each call as the argument to the next call.
+   * @param options -
+   * @returns Array reply: cursor and scan response in array form.
+   * - The first element is a Bulk string reply that represents an unsigned 64-bit number, the cursor.
+   * - The second element is an Array reply that contains two elements, a member and its associated score, for every returned element of the sorted set.
+   * @see {@link https://redis.io/commands/zscan}
+   */
+  ZSCAN(key: string, cursor: string | number, options?: ZscanOptions): RedisXTransactionCommand<{
+    cursor: string;
+    members: Record<string, number>;
+  }>;
+  /**
+   * When all the elements in a sorted set are inserted with the same score, in order to force lexicographical ordering, this command returns all the elements in the sorted set at `key` with a value between `max` and `min`.
+   *
+   * Apart from the reversed ordering, `ZREVRANGEBYLEX` is similar to `ZRANGEBYLEX`.
+   * - Available since: 2.8.9.
+   * - Time complexity: O(log(N)+M) with N being the number of elements in the sorted set and M the number of elements being returned. If M is constant (e.g. always asking for the first 10 elements with LIMIT), you can consider it O(log(N)).
+   * @deprecated As of Redis version 6.2.0, this command is regarded as deprecated. It can be replaced by ZRANGE with the REV and BYLEX arguments when migrating or writing new code.
+   * @param key - The name of the key that holds the sorted set.
+   * @param max - The maximum member, compared lexicographically. Prefix with `[` for an inclusive bound or `(` for an exclusive bound; use `+` for the highest possible value.
+   * @param min - The minimum member, compared lexicographically. Prefix with `[` for an inclusive bound or `(` for an exclusive bound; use `-` for the lowest possible value.
+   * @param options -
+   * @returns Array reply: a list of members in the specified lexicographical range.
+   * @see {@link https://redis.io/commands/zrevrangebylex}
+   */
+  ZREVRANGEBYLEX(key: string, max: `(${string}` | `[${string}` | "+", min: `(${string}` | `[${string}` | "-", options?: ZrevrangebylexOptions): RedisXTransactionCommand<string[]>;
+  /**
+   * Returns all the elements in the sorted set at `key` with a score between `max` and `min` (including elements with score equal to `max` or `min`).
+   * In contrary to the default ordering of sorted sets, for this command the elements are considered to be ordered from high to low scores.
+   *
+   * The elements having the same score are returned in reverse lexicographical order.
+   *
+   * Apart from the reversed ordering, `ZREVRANGEBYSCORE` is similar to `ZRANGEBYSCORE`.
+   * - Available since: 2.2.0.
+   * - Time complexity: O(log(N)+M) with N being the number of elements in the sorted set and M the number of elements being returned. If M is constant (e.g. always asking for the first 10 elements with LIMIT), you can consider it O(log(N)).
+   * @deprecated As of Redis version 6.2.0, this command is regarded as deprecated. It can be replaced by ZRANGE with the REV and BYSCORE arguments when migrating or writing new code.
+   * @param key - The name of the key that holds the sorted set.
+   * @param max - The maximum score. The bound is inclusive unless prefixed with `(`. Use `+inf` for no upper bound.
+   * @param min - The minimum score. The bound is inclusive unless prefixed with `(`. Use `-inf` for no lower bound.
+   * @param options -
+   * @returns Array reply: a list of the members and, optionally, their scores in the specified score range.
+   * @see {@link https://redis.io/commands/zrevrangebyscore}
+   */
+  ZREVRANGEBYSCORE(key: string, max: number | `(${number}` | "+inf", min: number | `(${number}` | "-inf", options?: ZrevrangebyscoreOptions & {
+    WITHSCORES?: false;
+  }): RedisXTransactionCommand<string[]>;
+  /**
+   * Returns all the elements in the sorted set at `key` with a score between `max` and `min` (including elements with score equal to `max` or `min`).
+   * In contrary to the default ordering of sorted sets, for this command the elements are considered to be ordered from high to low scores.
+   *
+   * The elements having the same score are returned in reverse lexicographical order.
+   *
+   * Apart from the reversed ordering, `ZREVRANGEBYSCORE` is similar to `ZRANGEBYSCORE`.
+   * - Available since: 2.2.0.
+   * - Time complexity: O(log(N)+M) with N being the number of elements in the sorted set and M the number of elements being returned. If M is constant (e.g. always asking for the first 10 elements with LIMIT), you can consider it O(log(N)).
+   * @deprecated As of Redis version 6.2.0, this command is regarded as deprecated. It can be replaced by ZRANGE with the REV and BYSCORE arguments when migrating or writing new code.
+   * @param key - The name of the key that holds the sorted set.
+   * @param max - The maximum score. The bound is inclusive unless prefixed with `(`. Use `+inf` for no upper bound.
+   * @param min - The minimum score. The bound is inclusive unless prefixed with `(`. Use `-inf` for no lower bound.
+   * @param options -
+   * @returns Array reply: a list of the members and, optionally, their scores in the specified score range.
+   * @see {@link https://redis.io/commands/zrevrangebyscore}
+   */
+  ZREVRANGEBYSCORE(key: string, max: number | `(${number}` | "+inf", min: number | `(${number}` | "-inf", options: ZrevrangebyscoreOptions & {
+    WITHSCORES: true;
+  }): RedisXTransactionCommand<{
+    member: string;
+    score: number;
+  }[]>;
+  /**
+   * Returns all the elements in the sorted set at `key` with a score between `max` and `min` (including elements with score equal to `max` or `min`).
+   * In contrary to the default ordering of sorted sets, for this command the elements are considered to be ordered from high to low scores.
+   *
+   * The elements having the same score are returned in reverse lexicographical order.
+   *
+   * Apart from the reversed ordering, `ZREVRANGEBYSCORE` is similar to `ZRANGEBYSCORE`.
+   * - Available since: 2.2.0.
+   * - Time complexity: O(log(N)+M) with N being the number of elements in the sorted set and M the number of elements being returned. If M is constant (e.g. always asking for the first 10 elements with LIMIT), you can consider it O(log(N)).
+   * @deprecated As of Redis version 6.2.0, this command is regarded as deprecated. It can be replaced by ZRANGE with the REV and BYSCORE arguments when migrating or writing new code.
+   * @param key - The name of the key that holds the sorted set.
+   * @param max - The maximum score. The bound is inclusive unless prefixed with `(`. Use `+inf` for no upper bound.
+   * @param min - The minimum score. The bound is inclusive unless prefixed with `(`. Use `-inf` for no lower bound.
+   * @param options -
+   * @returns Array reply: a list of the members and, optionally, their scores in the specified score range.
+   * @see {@link https://redis.io/commands/zrevrangebyscore}
+   */
+  ZREVRANGEBYSCORE(key: string, max: number | `(${number}` | "+inf", min: number | `(${number}` | "-inf", options?: ZrevrangebyscoreOptions): RedisXTransactionCommand<string[] | {
+    member: string;
+    score: number;
+  }[]>;
+  /**
+   * Returns the score of member in the sorted set at key.
+   * - Available since: 1.0.0.
+   * - Time complexity: O(1).
+   * @param key Key holds a sorted set.
+   * @param member Member in the sorted set.
+   * @returns The score of the member (a double-precision floating point number), represented as a string, or `null` if member does not exist in the sorted set, or the key does not exist.
+   * @see {@link https://redis.io/commands/zscore}
+   */
+  ZSCORE(key: string, member: string | number): RedisXTransactionCommand<number | null>;
+  /**
+   * Returns the number of elements in the sorted set at key with a score between min and max.
+   *
+   * The min and max arguments have the same semantic as described for ZRANGEBYSCORE.
+   *
+   * Note: the command has a complexity of just O(log(N)) because it uses elements ranks (see ZRANK) to get an idea of the range.
+   * Because of this there is no need to do a work proportional to the size of the range.
+   * - Available since: 2.0.0.
+   * - Time complexity: O(log(N)) with N being the number of elements in the sorted set.
+   * @param key The key of the sorted set.
+   * @param min The minimum score to include in the count. Can be "-inf" for negative infinity, or a number prefixed with "(" to exclude that value.
+   * @param max The maximum score to include in the count. Can be "+inf" for positive infinity, or a number prefixed with "(" to exclude that value.
+   * @returns The number of elements in the specified score range.
+   * @see {@link https://redis.io/commands/zcount}
+   */
+  ZCOUNT(key: string, min: number | `(${number}` | "-inf", max: number | `(${number}` | "+inf"): RedisXTransactionCommand<number>;
+  /**
+   * Adds all the specified members with the specified scores to the sorted set stored at `key`.
+   * - Available since: 1.2.0
+   * - Starting with Redis version 2.4.0: Accepts multiple elements.
+   * - Time complexity: O(log(N)) for each item added, where N is the number of elements in the sorted set.
+   * @param key - The name of the key that holds the sorted set.
+   * @param score - `score` is a double-precision floating-point number.
+   * @param member -
+   * @param options -
+   * @returns Any of the following:
+   * - Integer reply: the number of new members when the CH option is not used.
+   * - Integer reply: the number of new or updated members when the CH option is used.
+   * @see {@link https://redis.io/commands/zadd}
+   */
+  ZADD(key: string, score: number, member: string | number, options?: ZaddOptions & {
+    INCR?: false;
+  }): RedisXTransactionCommand<number>;
+  /**
+   * Adds all the specified members with the specified scores to the sorted set stored at `key`.
+   * - Available since: 1.2.0
+   * - Starting with Redis version 3.0.2: Added the `XX`, `NX`, `CH` and `INCR` options.
+   * - Time complexity: O(log(N)) for each item added, where N is the number of elements in the sorted set.
+   * @param key - The name of the key that holds the sorted set.
+   * @param score - `score` is a double-precision floating-point number.
+   * @param member -
+   * @param options -
+   * @returns Any of the following:
+   * - Nil reply: if the operation was aborted because of a conflict with one of the XX/NX/LT/GT options.
+   * - Bulk string reply: the updated score of the member when the INCR option is used.
+   * @see {@link https://redis.io/commands/zadd}
+   */
+  ZADD(key: string, score: number, member: string | number, options: ZaddOptions & {
+    INCR: true;
+  }): RedisXTransactionCommand<number | null>;
+  /**
+   * Adds all the specified members with the specified scores to the sorted set stored at `key`.
+   * - Available since: 1.2.0
+   * - Starting with Redis version 2.4.0: Accepts multiple elements.
+   * - Time complexity: O(log(N)) for each item added, where N is the number of elements in the sorted set.
+   * @param key - The name of the key that holds the sorted set.
+   * @param pairs - One or more score-member pairs to add or update.
+   * @param options -
+   * @returns Any of the following:
+   * - Integer reply: the number of new members when the CH option is not used.
+   * - Integer reply: the number of new or updated members when the CH option is used.
+   * @see {@link https://redis.io/commands/zadd}
+   */
+  ZADD(key: string, pairs: Record<string, number>, options?: ZaddOptions & {
+    INCR?: false;
+  }): RedisXTransactionCommand<number>;
+  /**
+   * Adds all the specified members with the specified scores to the sorted set stored at `key`.
+   * - Available since: 1.2.0
+   * - Starting with Redis version 3.0.2: Added the `XX`, `NX`, `CH` and `INCR` options.
+   * - Time complexity: O(log(N)) for each item added, where N is the number of elements in the sorted set.
+   * @param key - The name of the key that holds the sorted set.
+   * @param score - `score` is a double-precision floating-point number.
+   * @param member -
+   * @param options -
+   * @returns Any of the following:
+   * - Nil reply: if the operation was aborted because of a conflict with one of the XX/NX/LT/GT options.
+   * - Integer reply: the number of new members when the CH option is not used.
+   * - Integer reply: the number of new or updated members when the CH option is used.
+   * - Bulk string reply: the updated score of the member when the INCR option is used.
+   * @see {@link https://redis.io/commands/zadd}
+   */
+  ZADD(key: string, score: number, member: string | number, options?: ZaddOptions): RedisXTransactionCommand<number | null>;
+  /**
+   * Returns the rank of `member` in the sorted set stored at `key`, with the scores ordered from low to high.
+   * The rank (or index) is 0-based, which means that the member with the lowest score has rank `0`.
+   * - Available since: 2.0.0.
+   * - Time complexity: O(log(N)).
+   * @param key - The name of the key that holds the sorted set.
+   * @param member - The member whose rank to return.
+   * @param options -
+   * @returns Any of the following:
+   * - Nil reply: if the key does not exist or the member does not exist in the sorted set.
+   * - Integer reply: the rank of the member when _WITHSCORE_ is not used.
+   * @see {@link https://redis.io/commands/zrank}
+   */
+  ZRANK(key: string, member: string | number, options?: ZrankOptions & {
+    WITHSCORE?: false;
+  }): RedisXTransactionCommand<number | null>;
+  /**
+   * Returns the rank of `member` in the sorted set stored at `key`, with the scores ordered from low to high.
+   * The rank (or index) is 0-based, which means that the member with the lowest score has rank `0`.
+   *
+   * The optional `WITHSCORE` argument supplements the command's reply with the score of the element returned.
+   * - Available since: 2.0.0.
+   * - Starting with Redis version 7.2.0: Added the optional `WITHSCORE` argument.
+   * - Time complexity: O(log(N)).
+   * @param key - The name of the key that holds the sorted set.
+   * @param member - The member whose rank to return.
+   * @param options -
+   * @returns Any of the following:
+   * - Nil reply: if the key does not exist or the member does not exist in the sorted set.
+   * - Array reply: the rank and score of the member when _WITHSCORE_ is used.
+   * @see {@link https://redis.io/commands/zrank}
+   */
+  ZRANK(key: string, member: string | number, options: ZrankOptions & {
+    WITHSCORE: true;
+  }): RedisXTransactionCommand<{
+    rank: number;
+    score: number;
+  } | null>;
+  /**
+   * Returns the rank of `member` in the sorted set stored at `key`, with the scores ordered from low to high.
+   * The rank (or index) is 0-based, which means that the member with the lowest score has rank `0`.
+   *
+   * The optional `WITHSCORE` argument supplements the command's reply with the score of the element returned.
+   * - Available since: 2.0.0.
+   * - Starting with Redis version 7.2.0: Added the optional `WITHSCORE` argument.
+   * - Time complexity: O(log(N)).
+   * @param key - The name of the key that holds the sorted set.
+   * @param member - The member whose rank to return.
+   * @param options -
+   * @returns Any of the following:
+   * - Nil reply: if the key does not exist or the member does not exist in the sorted set.
+   * - Integer reply: the rank of the member when _WITHSCORE_ is not used.
+   * - Array reply: the rank and score of the member when _WITHSCORE_ is used.
+   * @see {@link https://redis.io/commands/zrank}
+   */
+  ZRANK(key: string, member: string | number, options?: ZrankOptions): RedisXTransactionCommand<number | {
+    rank: number;
+    score: number;
+  } | null>;
+  /**
+   * When called with just the `key` argument, return a random element from the sorted set value stored at `key`.
+   * - Available since: 6.2.0.
+   * - Time complexity: O(N) where N is the number of members returned.
+   * @param key - The name of the key that holds the sorted set.
+   * @returns Bulk string reply: without the additional _count_ argument, the command returns a randomly selected member, or Nil reply when _key_ doesn't exist.
+   * @see {@link https://redis.io/commands/zrandmember}
+   */
+  ZRANDMEMBER(key: string): RedisXTransactionCommand<string | null>;
+  /**
+   * If the provided `count` argument is positive, return an array of distinct elements.
+   * The array's length is either `count` or the sorted set's cardinality (`ZCARD`), whichever is lower.
+   *
+   * If called with a negative `count`, the behavior changes and the command is allowed to return the same element multiple times.
+   * In this case, the number of returned elements is the absolute value of the specified `count`.
+   * - Available since: 6.2.0.
+   * - Time complexity: O(N) where N is the number of members returned.
+   * @param key - The name of the key that holds the sorted set.
+   * @param count - The number of members to return. A positive `count` returns up to that many distinct members; a negative `count` returns exactly `|count|` members and may repeat them.
+   * @param options -
+   * @returns Array reply: when the additional _count_ argument is passed, the command returns an array of members, or an empty array when _key_ doesn't exist.
+   * @see {@link https://redis.io/commands/zrandmember}
+   */
+  ZRANDMEMBER(key: string, count: number, options?: ZrandmemberOptions & {
+    WITHSCORES?: false;
+  }): RedisXTransactionCommand<string[]>;
+  /**
+   * If the provided `count` argument is positive, return an array of distinct elements.
+   * The array's length is either `count` or the sorted set's cardinality (`ZCARD`), whichever is lower.
+   *
+   * If called with a negative `count`, the behavior changes and the command is allowed to return the same element multiple times.
+   * In this case, the number of returned elements is the absolute value of the specified `count`.
+   *
+   * The optional `WITHSCORES` modifier changes the reply so it includes the respective scores of the randomly selected elements from the sorted set.
+   * - Available since: 6.2.0.
+   * - Time complexity: O(N) where N is the number of members returned.
+   * @param key - The name of the key that holds the sorted set.
+   * @param count - The number of members to return. A positive `count` returns up to that many distinct members; a negative `count` returns exactly `|count|` members and may repeat them.
+   * @param options -
+   * @returns Array reply: when the additional _count_ argument is passed, the command returns an array of members, or an empty array when _key_ doesn't exist. If the _WITHSCORES_ modifier is used, the reply is a list of members and their scores from the sorted set.
+   * @see {@link https://redis.io/commands/zrandmember}
+   */
+  ZRANDMEMBER(key: string, count: number, options: ZrandmemberOptions & {
+    WITHSCORES: true;
+  }): RedisXTransactionCommand<{
+    member: string;
+    score: number;
+  }[]>;
+  /**
+   * If the provided `count` argument is positive, return an array of distinct elements.
+   * The array's length is either `count` or the sorted set's cardinality (`ZCARD`), whichever is lower.
+   *
+   * If called with a negative `count`, the behavior changes and the command is allowed to return the same element multiple times.
+   * In this case, the number of returned elements is the absolute value of the specified `count`.
+   *
+   * The optional `WITHSCORES` modifier changes the reply so it includes the respective scores of the randomly selected elements from the sorted set.
+   * - Available since: 6.2.0.
+   * - Time complexity: O(N) where N is the number of members returned.
+   * @param key - The name of the key that holds the sorted set.
+   * @param count - The number of members to return. A positive `count` returns up to that many distinct members; a negative `count` returns exactly `|count|` members and may repeat them.
+   * @param options -
+   * @returns Array reply: when the additional _count_ argument is passed, the command returns an array of members, or an empty array when _key_ doesn't exist. If the _WITHSCORES_ modifier is used, the reply is a list of members and their scores from the sorted set.
+   * @see {@link https://redis.io/commands/zrandmember}
+   */
+  ZRANDMEMBER(key: string, count: number, options?: ZrandmemberOptions): RedisXTransactionCommand<string[] | {
+    member: string;
+    score: number;
+  }[]>;
+  /**
+   * Removes the specified members from the sorted set stored at key. Non existing members are ignored.
+   * - Available since: 1.2.0
+   * - Time complexity: O(M*log(N)) with N being the number of elements in the sorted set and M the number of elements to be removed.
+   * @param key Key holds a sorted set.
+   * @param members Members to remove.
+   * @returns The number of members removed from the sorted set, not including non-existing members.
+   * @see {@link https://redis.io/commands/zrem}
+   */
+  ZREM(key: string, ...members: (string | number)[]): RedisXTransactionCommand<number>;
+  /**
+   * Removes the specified members from the sorted set stored at key. Non existing members are ignored.
+   * - Available since: 1.2.0
+   * - Time complexity: O(M*log(N)) with N being the number of elements in the sorted set and M the number of elements to be removed.
+   * @param key Key holds a sorted set.
+   * @param members Members to remove.
+   * @returns The number of members removed from the sorted set, not including non-existing members.
+   * @see {@link https://redis.io/commands/zrem}
+   */
+  ZREM(key: string, members: Collection<string | number>): RedisXTransactionCommand<number>;
+  /**
+   * Removes all elements in the sorted set stored at `key` with a score between `min` and `max` (inclusive).
+   * - Available since: 1.2.0.
+   * - Time complexity: O(log(N)+M) with N being the number of elements in the sorted set and M the number of elements removed by the operation.
+   * @param key - The name of the key that holds the sorted set.
+   * @param min - The minimum score. The bound is inclusive unless prefixed with `(`. Use `-inf` for no lower bound.
+   * @param max - The maximum score. The bound is inclusive unless prefixed with `(`. Use `+inf` for no upper bound.
+   * @returns Integer reply: the number of members removed.
+   * @see {@link https://redis.io/commands/zremrangebyscore}
+   */
+  ZREMRANGEBYSCORE(key: string, min: number | `(${number}` | "-inf", max: number | `(${number}` | "+inf"): RedisXTransactionCommand<number>;
+  /**
+   * Returns the rank of `member` in the sorted set stored at `key`, with the scores ordered from high to low.
+   * The rank (or index) is 0-based, which means that the member with the highest score has rank `0`.
+   * - Available since: 2.0.0.
+   * - Time complexity: O(log(N)).
+   * @param key - The name of the key that holds the sorted set.
+   * @param member - The member whose rank to return.
+   * @param options -
+   * @returns Any of the following:
+   * - Nil reply: if the key does not exist or the member does not exist in the sorted set.
+   * - Integer reply: The rank of the member when _WITHSCORE_ is not used.
+   * @see {@link https://redis.io/commands/zrevrank}
+   */
+  ZREVRANK(key: string, member: string | number, options?: ZrevrankOptions & {
+    WITHSCORE?: false;
+  }): RedisXTransactionCommand<number | null>;
+  /**
+   * Returns the rank of `member` in the sorted set stored at `key`, with the scores ordered from high to low.
+   * The rank (or index) is 0-based, which means that the member with the highest score has rank `0`.
+   *
+   * The optional `WITHSCORE` argument supplements the command's reply with the score of the element returned.
+   * - Available since: 2.0.0.
+   * - Starting with Redis version 7.2.0: Added the optional `WITHSCORE` argument.
+   * - Time complexity: O(log(N)).
+   * @param key - The name of the key that holds the sorted set.
+   * @param member - The member whose rank to return.
+   * @param options -
+   * @returns Any of the following:
+   * - Nil reply: if the key does not exist or the member does not exist in the sorted set.
+   * - Array reply: The rank and score of the member when _WITHSCORE_ is used.
+   * @see {@link https://redis.io/commands/zrevrank}
+   */
+  ZREVRANK(key: string, member: string | number, options: ZrevrankOptions & {
+    WITHSCORE: true;
+  }): RedisXTransactionCommand<{
+    rank: number;
+    score: number;
+  } | null>;
+  /**
+   * Returns the rank of `member` in the sorted set stored at `key`, with the scores ordered from high to low.
+   * The rank (or index) is 0-based, which means that the member with the highest score has rank `0`.
+   *
+   * The optional `WITHSCORE` argument supplements the command's reply with the score of the element returned.
+   * - Available since: 2.0.0.
+   * - Starting with Redis version 7.2.0: Added the optional `WITHSCORE` argument.
+   * - Time complexity: O(log(N)).
+   * @param key - The name of the key that holds the sorted set.
+   * @param member - The member whose rank to return.
+   * @param options -
+   * @returns Any of the following:
+   * - Nil reply: if the key does not exist or the member does not exist in the sorted set.
+   * - Integer reply: The rank of the member when _WITHSCORE_ is not used.
+   * - Array reply: The rank and score of the member when _WITHSCORE_ is used.
+   * @see {@link https://redis.io/commands/zrevrank}
+   */
+  ZREVRANK(key: string, member: string | number, options?: ZrevrankOptions): RedisXTransactionCommand<number | {
+    rank: number;
+    score: number;
+  } | null>;
+  /**
+   * Returns the specified range of elements in the sorted set stored at key.
+   * - Available since: 1.2.0
+   * - Time complexity: O(log(N)+M) with N being the number of elements in the sorted set and M the number of elements returned.
+   * @param key - Key that contains the hash.
+   * @param start - Start index by default, minimum score if BY is `SCORE` or minimum lexicographical string if BY is `LEX`.
+   * @param stop - Stop index by default, minimum score if BY is `SCORE` or minimum lexicographical string if BY is `LEX`.
+   * @param options -
+   * @returns List of members in the specified range.
+   * @see {@link https://redis.io/commands/zrange}
+   */
+  ZRANGE(key: string, start: string | number, stop: string | number, options?: ZrangeOptions & {
+    WITHSCORES?: false;
+  }): RedisXTransactionCommand<string[]>;
+  /**
+   * Returns the specified range of elements in the sorted set stored at key.
+   * - Available since: 1.2.0
+   * - Time complexity: O(log(N)+M) with N being the number of elements in the sorted set and M the number of elements returned.
+   * @param key - Key that contains the hash.
+   * @param start - Start index by default, minimum score if BY is `SCORE` or minimum lexicographical string if BY is `LEX`.
+   * @param stop - Stop index by default, minimum score if BY is `SCORE` or minimum lexicographical string if BY is `LEX`.
+   * @param options -
+   * @returns List of members in the specified range with their scores.
+   * @see {@link https://redis.io/commands/zrange}
+   */
+  ZRANGE(key: string, start: string | number, stop: string | number, options: ZrangeOptions & {
+    WITHSCORES: true;
+  }): RedisXTransactionCommand<{
+    member: string;
+    score: number;
+  }[]>;
+  /**
+   * Returns the specified range of elements in the sorted set stored at key.
+   * - Available since: 1.2.0
+   * - Time complexity: O(log(N)+M) with N being the number of elements in the sorted set and M the number of elements returned.
+   * @param key - Key that contains the sorted set.
+   * @param start - Start index by default, minimum score if BY is `SCORE` or minimum lexicographical string if BY is `LEX`.
+   * @param stop - Stop index by default, maximum score if BY is `SCORE` or maximum lexicographical string if BY is `LEX`.
+   * @param options - Additional options for the command.
+   * @returns List of members, with their scores when requested.
+   * @see {@link https://redis.io/commands/zrange}
+   */
+  ZRANGE(key: string, start: string | number, stop: string | number, options?: ZrangeOptions): RedisXTransactionCommand<string[] | {
+    member: string;
+    score: number;
+  }[]>;
+  /**
+   * Increments the score of `member` in the sorted set stored at `key` by `increment`.
+   * If `member` does not exist in the sorted set, it is added with `increment` as its score (as if its previous score was `0.0`).
+   * If `key` does not exist, a new sorted set with the specified `member` as its sole member is created.
+   *
+   * An error is returned when `key` exists but does not hold a sorted set.
+   *
+   * The `score` value should be the string representation of a numeric value, and accepts double precision floating point numbers.
+   * It is possible to provide a negative value to decrement the score.
+   * - Available since: 1.2.0.
+   * - Time complexity: O(log(N)) where N is the number of elements in the sorted set.
+   * @param key - The name of the key that holds the sorted set.
+   * @param increment - The amount to add to the member's current score.
+   * @param member - The member whose score to increment. It is added with the increment as its score if it does not exist.
+   * @returns Bulk string reply: the new score of `member` as a double precision floating point number.
+   * @see {@link https://redis.io/commands/zincrby}
+   */
+  ZINCRBY(key: string, increment: number, member: string | number): RedisXTransactionCommand<number>;
+  /**
+   * When all the elements in a sorted set are inserted with the same score, in order to force lexicographical ordering, this command removes all elements in the sorted set stored at `key` between the lexicographical range specified by `min` and `max`.
+   *
+   * The meaning of `min` and `max` are the same of the `ZRANGEBYLEX` command. Similarly, this command actually removes the same elements that `ZRANGEBYLEX` would return if called with the same `min` and `max` arguments.
+   * - Available since: 2.8.9.
+   * - Time complexity: O(log(N)+M) with N being the number of elements in the sorted set and M the number of elements removed by the operation.
+   * @param key - The name of the key that holds the sorted set.
+   * @param min - The minimum member, compared lexicographically. Prefix with `[` for an inclusive bound or `(` for an exclusive bound; use `-` for the lowest possible value.
+   * @param max - The maximum member, compared lexicographically. Prefix with `[` for an inclusive bound or `(` for an exclusive bound; use `+` for the highest possible value.
+   * @returns Integer reply: the number of members removed.
+   * @see {@link https://redis.io/commands/zremrangebylex}
+   */
+  ZREMRANGEBYLEX(key: string, min: `(${string}` | `[${string}` | "-", max: `(${string}` | `[${string}` | "+"): RedisXTransactionCommand<number>;
+  /**
+   * Computes the intersection of sorted sets given by the specified keys, and stores the result in destination. It is mandatory to provide the number of input keys (numkeys) before passing the input keys and the other (optional) arguments.
+   * - Available since: 2.0.0.
+   * - Time complexity: O(N*K)+O(M*log(M)).
+   * @param destination Destination key where the resulting sorted set should be stored.
+   * @param keys List of keys that holds sorted sets.
+   * @param options -
+   * @returns The number of members in the resulting sorted set at the destination.
+   * @see {@link https://redis.io/commands/zinterstore}
+   */
+  ZINTERSTORE(destination: string, keys: (string | number)[], options?: ZinterstoreOptions): RedisXTransactionCommand<number>;
+  /**
+   * Computes the intersection of sorted sets given by the specified keys, and stores the result in destination. It is mandatory to provide the number of input keys (numkeys) before passing the input keys and the other (optional) arguments.
+   * - Available since: 2.0.0.
+   * - Time complexity: O(N*K)+O(M*log(M)).
+   * @param destination Destination key where the resulting sorted set should be stored.
+   * @param keys_with_weights Record where keys are the keys that holds sorted sets and values are the weights to apply to the sorted sets.
+   * @param options -
+   * @returns The number of members in the resulting sorted set at the destination.
+   * @see {@link https://redis.io/commands/zinterstore}
+   */
+  ZINTERSTORE(destination: string, keys_with_weights: Record<string, number>, options?: ZinterstoreOptions): RedisXTransactionCommand<number>;
+  /**
+   * Returns the specified range of elements in the sorted set stored at `key`.
+   * The elements are considered to be ordered from the highest to the lowest score.
+   * Descending lexicographical order is used for elements with equal score.
+   *
+   * Apart from the reversed ordering, `ZREVRANGE` is similar to `ZRANGE`.
+   * - Available since: 1.2.0.
+   * - Time complexity: O(log(N)+M) with N being the number of elements in the sorted set and M the number of elements returned.
+   * @deprecated As of Redis version 6.2.0, this command is regarded as deprecated. It can be replaced by ZRANGE with the REV argument when migrating or writing new code.
+   * @param key - The name of the key that holds the sorted set.
+   * @param start - The start index, zero-based. Negative values count from the end of the sorted set (`-1` is the member with the highest score).
+   * @param stop - The stop index, zero-based and inclusive. Negative values count from the end of the sorted set.
+   * @param options -
+   * @returns Array reply: a list of members in the specified range, optionally with their scores if _WITHSCORES_ was used.
+   * @see {@link https://redis.io/commands/zrevrange}
+   */
+  ZREVRANGE(key: string, start: number, stop: number, options?: ZrevrangeOptions & {
+    WITHSCORES?: false;
+  }): RedisXTransactionCommand<string[]>;
+  /**
+   * Returns the specified range of elements in the sorted set stored at `key`.
+   * The elements are considered to be ordered from the highest to the lowest score.
+   * Descending lexicographical order is used for elements with equal score.
+   *
+   * Apart from the reversed ordering, `ZREVRANGE` is similar to `ZRANGE`.
+   * - Available since: 1.2.0.
+   * - Time complexity: O(log(N)+M) with N being the number of elements in the sorted set and M the number of elements returned.
+   * @deprecated As of Redis version 6.2.0, this command is regarded as deprecated. It can be replaced by ZRANGE with the REV argument when migrating or writing new code.
+   * @param key - The name of the key that holds the sorted set.
+   * @param start - The start index, zero-based. Negative values count from the end of the sorted set (`-1` is the member with the highest score).
+   * @param stop - The stop index, zero-based and inclusive. Negative values count from the end of the sorted set.
+   * @param options -
+   * @returns Array reply: a list of members in the specified range, optionally with their scores if _WITHSCORES_ was used.
+   * @see {@link https://redis.io/commands/zrevrange}
+   */
+  ZREVRANGE(key: string, start: number, stop: number, options: ZrevrangeOptions & {
+    WITHSCORES: true;
+  }): RedisXTransactionCommand<{
+    member: string;
+    score: number;
+  }[]>;
+  /**
+   * Returns the specified range of elements in the sorted set stored at `key`.
+   * The elements are considered to be ordered from the highest to the lowest score.
+   * Descending lexicographical order is used for elements with equal score.
+   *
+   * Apart from the reversed ordering, `ZREVRANGE` is similar to `ZRANGE`.
+   * - Available since: 1.2.0.
+   * - Time complexity: O(log(N)+M) with N being the number of elements in the sorted set and M the number of elements returned.
+   * @deprecated As of Redis version 6.2.0, this command is regarded as deprecated. It can be replaced by ZRANGE with the REV argument when migrating or writing new code.
+   * @param key - The name of the key that holds the sorted set.
+   * @param start - The start index, zero-based. Negative values count from the end of the sorted set (`-1` is the member with the highest score).
+   * @param stop - The stop index, zero-based and inclusive. Negative values count from the end of the sorted set.
+   * @param options -
+   * @returns Array reply: a list of members in the specified range, optionally with their scores if _WITHSCORES_ was used.
+   * @see {@link https://redis.io/commands/zrevrange}
+   */
+  ZREVRANGE(key: string, start: number, stop: number, options?: ZrevrangeOptions): RedisXTransactionCommand<string[] | {
+    member: string;
+    score: number;
+  }[]>;
+  /**
+   * Returns all the elements in the sorted set at `key` with a value between `min` and `max`.
+   *
+   * The elements are considered to be ordered from lower to higher strings as compared byte-by-byte using the `memcmp()` C function.
+   * Longer strings are considered greater than shorter strings if the common part is identical.
+   *
+   * Valid `min` and `max` must start with `(` or `[`, in order to specify if the range item is respectively exclusive or inclusive.
+   * The special values of `+` or `-` for `min` and `max` have the special meaning or positively infinite and negatively infinite strings.
+   *
+   * - Available since: 2.8.9.
+   * - Time complexity: O(log(N)+M) with N being the number of elements in the sorted set and M the number of elements being returned. If M is constant (e.g. always asking for the first 10 elements with LIMIT), you can consider it O(log(N)).
+   * @deprecated As of Redis version 6.2.0, this command is regarded as deprecated. It can be replaced by ZRANGE with the BYLEX argument when migrating or writing new code.
+   * @param key The key of the sorted set.
+   * @param min Minimum value of the range.
+   * @param max Maximum value of the range.
+   * @param options Command options.
+   * @returns List of elements in the specified range.
+   * @see {@link https://redis.io/commands/zrangebylex}
+   */
+  ZRANGEBYLEX(key: string, min: `(${string}` | `[${string}` | "-", max: `(${string}` | `[${string}` | "+", options?: ZrangebylexOptions): RedisXTransactionCommand<string[]>;
+  /**
+   * Returns all values in the hash stored at key.
+   * - Available since: 2.0.0.
+   * - Time complexity: O(N) where N is the size of the hash.
+   * @param key The key of the hash.
+   * @returns An array of values in the hash, preserving duplicates, or an empty array when the key does not exist.
+   * @see {@link https://redis.io/commands/hvals}
+   */
+  HVALS(key: string): RedisXTransactionCommand<string[]>;
+  /**
+   * Sets the specified fields to their respective values in the hash stored at key.
+   * - Available since: 2.0.0.
+   * - Multiple field/value pairs are available since Redis 4.0.0.
+   * - Time complexity: O(1) for each field/value pair added.
+   * @param key Key that contains the hash.
+   * @param field Field to set.
+   * @param value Value to set.
+   * @returns The number of fields that were added.
+   * @see {@link https://redis.io/commands/hset}
+   */
+  HSET(key: string, field: string, value: string | number): RedisXTransactionCommand<number>;
+  /**
+   * Sets the specified fields to their respective values in the hash stored at key.
+   * - Available since: 2.0.0.
+   * - Multiple field/value pairs are available since Redis 4.0.0.
+   * - Time complexity: O(1) for each field/value pair added.
+   * @param key Key that contains the hash.
+   * @param pairs Object containing field/value pairs to set.
+   * @returns The number of fields that were added.
+   * @see {@link https://redis.io/commands/hset}
+   */
+  HSET(key: string, pairs: Record<string, string | number>): RedisXTransactionCommand<number>;
+  /**
+   * Increment the specified field of a hash stored at key, and representing a floating point number, by the specified increment.
+   * If the increment value is negative, the result is to have the hash field value decremented instead of incremented.
+   * If the field does not exist, it is set to 0 before performing the operation.
+   *
+   * - Available since: 2.6.0.
+   * - Time complexity: O(1).
+   * @param key Key of the hash.
+   * @param field Field in the hash to increment.
+   * @param increment The increment value (can be negative for decrementing).
+   * @returns The value of the field after the increment operation as a string representing the floating point value.
+   * @see {@link https://redis.io/commands/hincrbyfloat}
+   */
+  HINCRBYFLOAT(key: string, field: string | number, increment: number): RedisXTransactionCommand<string>;
+  /**
+   * Returns all fields and values of the hash stored at key.
+   * - Available since: 2.0.0.
+   * - Time complexity: O(N) where N is the size of the hash.
+   * @param key -
+   * @returns A record of fields and their values stored in the hash.
+   * @see {@link https://redis.io/commands/hgetall}
+   */
+  HGETALL(key: string): RedisXTransactionCommand<Record<string, string>>;
+  /**
+   * Like `HTTL`, this command returns the remaining TTL (time to live) of a field that has an expiration set, but in milliseconds instead of seconds.
+   * - Available since: 7.4.0.
+   * - Time complexity: O(N) where N is the number of specified fields.
+   * @param key - The name of the key that holds the hash.
+   * @param fields - The hash fields to retrieve the remaining time to live for.
+   * @returns Array reply. For each field:
+   * - Integer reply: `-2` if no such field exists in the provided hash key, or the provided key does not exist.
+   * - Integer reply: `-1` if the field exists but has no associated expiration set.
+   * - Integer reply: the TTL in milliseconds.
+   * @see {@link https://redis.io/commands/hpttl}
+   */
+  HPTTL(key: string, fields: Collection<string | number>): RedisXTransactionCommand<number[]>;
+  /**
+   * Returns the value associated with field in the hash stored at key.
+   * - Available since: 2.0.0.
+   * - Time complexity: O(1)
+   * @param key -
+   * @param field -
+   * @returns The value associated with field in the hash stored at key or null.
+   * @see {@link https://redis.io/commands/hget}
+   */
+  HGET(key: string, field: string): RedisXTransactionCommand<string | null>;
+  /**
+   * This command works like `HEXPIRE`, but the expiration of a field is specified in milliseconds instead of seconds.
+   * - Available since: 7.4.0.
+   * - Time complexity: O(N) where N is the number of specified fields.
+   * @param key - The name of the key that holds the hash.
+   * @param milliseconds - The timeout, in milliseconds.
+   * @param fields - The hash fields to operate on.
+   * @param options -
+   * @returns Array reply. For each field:
+   * - Integer reply: `-2` if no such field exists in the provided hash key, or the provided key does not exist.
+   * - Integer reply: `0` if the specified NX | XX | GT | LT condition has not been met.
+   * - Integer reply: `1` if the expiration time was set/updated.
+   * - Integer reply: `2` when `HEXPIRE`/`HPEXPIRE` is called with 0 seconds/milliseconds or when `HEXPIREAT`/`HPEXPIREAT` is called with a past Unix time in seconds/milliseconds.
+   * @see {@link https://redis.io/commands/hpexpire}
+   */
+  HPEXPIRE(key: string, milliseconds: number, fields: Collection<string | number>, options?: HpexpireOptions): RedisXTransactionCommand<number[]>;
+  /**
+   * Returns the remaining TTL (time to live) of a hash key's field(s) that have a set expiration.
+   * This introspection capability allows you to check how many seconds a given hash field will continue to be part of the hash key.
+   *
+   * See also the `HPTTL` command that returns the same information with millisecond resolution.
+   * - Available since: 7.4.0.
+   * - Time complexity: O(N) where N is the number of specified fields.
+   * @param key - The name of the key that holds the hash.
+   * @param fields - The hash fields to retrieve the remaining time to live for.
+   * @returns Array reply. For each field:
+   * - Integer reply: `-2` if no such field exists in the provided hash key, or the provided key does not exist.
+   * - Integer reply: `-1` if the field exists but has no associated expiration set.
+   * - Integer reply: the TTL in seconds.
+   * @see {@link https://redis.io/commands/httl}
+   */
+  HTTL(key: string, fields: Collection<string | number>): RedisXTransactionCommand<number[]>;
+  /**
+   * Set an expiration (TTL or time to live) on one or more fields of a given hash key. You must specify at least one field.
+   * Field(s) will automatically be deleted from the hash key when their TTLs expire.
+   *
+   * Field expirations will only be cleared by commands that delete or overwrite the contents of the hash fields, including `HDEL` and `HSET` commands.
+   * This means that all the operations that conceptually _alter_ the value stored at a hash key's field without replacing it with a new one will leave the TTL untouched.
+   *
+   * You can clear the TTL using the `HPERSIST` command, which turns the hash field back into a persistent field.
+   *
+   * Note that calling `HEXPIRE`/`HPEXPIRE` with a zero TTL or `HEXPIREAT`/`HPEXPIREAT` with a time in the past will result in the hash field being deleted.
+   * - Available since: 7.4.0.
+   * - Time complexity: O(N) where N is the number of specified fields.
+   * @param key - The name of the key that holds the hash.
+   * @param seconds - The time to live, in seconds. Each specified field is deleted after this many seconds.
+   * @param fields - The hash fields to set expiration for.
+   * @param options -
+   * @returns Array reply. For each field:
+   * - Integer reply: `-2` if no such field exists in the provided hash key, or the provided key does not exist.
+   * - Integer reply: `0` if the specified NX | XX | GT | LT condition has not been met.
+   * - Integer reply: `1` if the expiration time was set/updated.
+   * - Integer reply: `2` when `HEXPIRE`/`HPEXPIRE` is called with 0 seconds/milliseconds or when `HEXPIREAT`/`HPEXPIREAT` is called with a past Unix time in seconds/milliseconds.
+   * @see {@link https://redis.io/commands/hexpire}
+   */
+  HEXPIRE(key: string, seconds: number, fields: Collection<string | number>, options?: HexpireOptions): RedisXTransactionCommand<number[]>;
+  /**
+   * Sets the specified fields to their respective values in the hash stored at key.
+   * This command overwrites any specified fields already existing in the hash.
+   * If key does not exist, a new key holding a hash is created.
+   *
+   * - Available since: 2.0.0.
+   * - Time complexity: O(N) where N is the number of fields being set.
+   * @deprecated As of Redis version 4.0.0, this command is regarded as deprecated. It can be replaced by HSET with multiple field-value pairs when migrating or writing new code.
+   * @param key Key that contains the hash.
+   * @param field Field to set.
+   * @param value Value to set.
+   * @returns Simple string reply: "OK".
+   * @see {@link https://redis.io/commands/hmset}
+   */
+  HMSET(key: string, field: string, value: string | number): RedisXTransactionCommand<"OK">;
+  /**
+   * Sets the specified fields to their respective values in the hash stored at key.
+   * This command overwrites any specified fields already existing in the hash.
+   * If key does not exist, a new key holding a hash is created.
+   *
+   * - Available since: 2.0.0.
+   * - Time complexity: O(N) where N is the number of fields being set.
+   * @deprecated As of Redis version 4.0.0, this command is regarded as deprecated. It can be replaced by HSET with multiple field-value pairs when migrating or writing new code.
+   * @param key Key that contains the hash.
+   * @param pairs Object containing field/value pairs to set.
+   * @returns Simple string reply: "OK".
+   * @see {@link https://redis.io/commands/hmset}
+   */
+  HMSET(key: string, pairs: Record<string, string | number>): RedisXTransactionCommand<"OK">;
+  /**
+   * Returns the values associated with the specified fields in the hash stored at key.
+   *
+   * For every field that does not exist in the hash, a nil value is returned.
+   * Because non-existing keys are treated as empty hashes, running HMGET against a non-existing key will return a list of nil values.
+   *
+   * - Available since: 2.0.0.
+   * - Time complexity: O(N) where N is the number of fields being requested.
+   * @param key Key holding the hash.
+   * @param fields Fields to get.
+   * @returns Array of values associated with the given fields, in the same order as they are requested.
+   * @see {@link https://redis.io/commands/hmget}
+   */
+  HMGET(key: string, fields: string[]): RedisXTransactionCommand<(string | null)[]>;
+  /**
+   * Returns the values associated with the specified fields in the hash stored at key.
+   *
+   * For every field that does not exist in the hash, a nil value is returned.
+   * Because non-existing keys are treated as empty hashes, running HMGET against a non-existing key will return a list of nil values.
+   *
+   * - Available since: 2.0.0.
+   * - Time complexity: O(N) where N is the number of fields being requested.
+   * @param key Key holding the hash.
+   * @param fields Fields to get.
+   * @returns Array of values associated with the given fields, in the same order as they are requested.
+   * @see {@link https://redis.io/commands/hmget}
+   */
+  HMGET(key: string, ...fields: string[]): RedisXTransactionCommand<(string | null)[]>;
+  /**
+   * `HEXPIREAT` has the same effect and semantics as `HEXPIRE`, but instead of specifying the number of seconds for the TTL (time to live), it takes an absolute Unix timestamp in seconds since Unix epoch.
+   * A timestamp in the past will delete the field immediately.
+   *
+   * For the specific semantics of the command, see `HEXPIRE`.
+   * - Available since: 7.4.0.
+   * - Time complexity: O(N) where N is the number of specified fields.
+   * @param key - The name of the key that holds the hash.
+   * @param timestamp - The absolute Unix expiration timestamp, in seconds since Unix epoch. A timestamp in the past deletes the field immediately.
+   * @param fields - The hash fields to set expiration for.
+   * @param options -
+   * @returns Array reply. For each field:
+   * - Integer reply: `-2` if no such field exists in the provided hash key, or the provided key does not exist.
+   * - Integer reply: `0` if the specified NX | XX | GT | LT condition has not been met.
+   * - Integer reply: `1` if the expiration time was set/updated.
+   * - Integer reply: `2` when `HEXPIRE`/`HPEXPIRE` is called with 0 seconds/milliseconds or when `HEXPIREAT`/`HPEXPIREAT` is called with a past Unix time in seconds/milliseconds.
+   * @see {@link https://redis.io/commands/hexpireat}
+   */
+  HEXPIREAT(key: string, timestamp: number, fields: Collection<string | number>, options?: HexpireatOptions): RedisXTransactionCommand<number[]>;
+  /**
+   * Iterates over fields and values of a hash.
+   *
+   * `HSCAN` is a cursor based iterator. This means that at every call of the command, the server returns an updated cursor that the user needs to use as the cursor argument in the next call.
+   * An iteration starts when the cursor is set to 0, and terminates when the cursor returned by the server is 0.
+   *
+   * A given element may be returned multiple times. It is up to the application to handle the case of duplicated elements, for example only using the returned elements in order to perform operations that are safe when re-applied multiple times.
+   * - Available since: 2.8.0.
+   * - Time complexity: O(1) for every call. O(N) for a complete iteration, including enough command calls for the cursor to return back to 0. N is the number of elements inside the collection.
+   * @param key - The name of the key that holds the hash.
+   * @param cursor - The cursor value. Start an iteration with `0`, then use the cursor returned by each call as the argument to the next call.
+   * @param options -
+   * @returns Array reply: a two-element array.
+   * - The first element is a Bulk string reply that represents an unsigned 64-bit number, the cursor.
+   * - The second element is an Array reply of field/value pairs that were scanned.
+   * @see {@link https://redis.io/commands/hscan}
+   */
+  HSCAN(key: string, cursor: string | number, options?: HscanOptions & {
+    NOVALUES?: false;
+  }): RedisXTransactionCommand<{
+    cursor: string;
+    fields: Record<string, string>;
+  }>;
+  /**
+   * Iterates over fields and values of a hash.
+   *
+   * `HSCAN` is a cursor based iterator. This means that at every call of the command, the server returns an updated cursor that the user needs to use as the cursor argument in the next call.
+   * An iteration starts when the cursor is set to 0, and terminates when the cursor returned by the server is 0.
+   *
+   * A given element may be returned multiple times. It is up to the application to handle the case of duplicated elements, for example only using the returned elements in order to perform operations that are safe when re-applied multiple times.
+   * - Available since: 2.8.0.
+   * - Time complexity: O(1) for every call. O(N) for a complete iteration, including enough command calls for the cursor to return back to 0. N is the number of elements inside the collection.
+   * @param key - The name of the key that holds the hash.
+   * @param cursor - The cursor value. Start an iteration with `0`, then use the cursor returned by each call as the argument to the next call.
+   * @param options -
+   * @returns Array reply: a two-element array.
+   * - The first element is a Bulk string reply that represents an unsigned 64-bit number, the cursor.
+   * - The second element is an Array reply: when the `NOVALUES` flag is used, only the field names are returned.
+   * @see {@link https://redis.io/commands/hscan}
+   */
+  HSCAN(key: string, cursor: string | number, options: HscanOptions & {
+    NOVALUES: true;
+  }): RedisXTransactionCommand<{
+    cursor: string;
+    fields: Set<string>;
+  }>;
+  /**
+   * Iterates over fields and values of a hash.
+   *
+   * `HSCAN` is a cursor based iterator. This means that at every call of the command, the server returns an updated cursor that the user needs to use as the cursor argument in the next call.
+   * An iteration starts when the cursor is set to 0, and terminates when the cursor returned by the server is 0.
+   *
+   * A given element may be returned multiple times. It is up to the application to handle the case of duplicated elements, for example only using the returned elements in order to perform operations that are safe when re-applied multiple times.
+   * - Available since: 2.8.0.
+   * - Time complexity: O(1) for every call. O(N) for a complete iteration, including enough command calls for the cursor to return back to 0. N is the number of elements inside the collection.
+   * @param key - The name of the key that holds the hash.
+   * @param cursor - The cursor value. Start an iteration with `0`, then use the cursor returned by each call as the argument to the next call.
+   * @param options -
+   * @returns Array reply: a two-element array.
+   * - The first element is a Bulk string reply that represents an unsigned 64-bit number, the cursor.
+   * - The second element is an Array reply of field/value pairs that were scanned. When the `NOVALUES` flag is used, only the field names are returned.
+   * @see {@link https://redis.io/commands/hscan}
+   */
+  HSCAN(key: string, cursor: string | number, options?: HscanOptions): RedisXTransactionCommand<{
+    cursor: string;
+    fields: Record<string, string> | Set<string>;
+  }>;
+  /**
+   * When called with just the `key` argument, return a random field from the hash value stored at `key`.
+   * - Available since: 6.2.0.
+   * - Time complexity: O(N) where N is the number of fields returned.
+   * @param key - The name of the key that holds the hash.
+   * @returns Any of the following:
+   * - Nil reply: if the key doesn't exist
+   * - Bulk string reply: a single, randomly selected field when the `count` option is not used
+   * @see {@link https://redis.io/commands/hrandfield}
+   */
+  HRANDFIELD(key: string): RedisXTransactionCommand<string | null>;
+  /**
+   * If the provided `count` argument is positive, return an array of **distinct fields**.
+   * The array's length is either `count` or the hash's number of fields (`HLEN`), whichever is lower.
+   *
+   * If called with a negative `count`, the behavior changes and the command is allowed to return the **same field multiple times**.
+   * In this case, the number of returned fields is the absolute value of the specified `count`.
+   * - Available since: 6.2.0.
+   * - Time complexity: O(N) where N is the number of fields returned.
+   * @param key - The name of the key that holds the hash.
+   * @param count - The number of fields to return. A positive `count` returns up to that many distinct fields; a negative `count` returns exactly `|count|` fields and may repeat fields.
+   * @param options -
+   * @returns Array reply: a list containing `count` fields when the `count` option is used, or an empty array if the key does not exists.
+   * @see {@link https://redis.io/commands/hrandfield}
+   */
+  HRANDFIELD(key: string, count: number, options?: HrandfieldOptions & {
+    WITHVALUES?: false;
+  }): RedisXTransactionCommand<string[]>;
+  /**
+   * If the provided `count` argument is positive, return an array of **distinct fields**.
+   * The array's length is either `count` or the hash's number of fields (`HLEN`), whichever is lower.
+   *
+   * If called with a negative `count`, the behavior changes and the command is allowed to return the **same field multiple times**.
+   * In this case, the number of returned fields is the absolute value of the specified `count`.
+   *
+   * The optional `WITHVALUES` modifier changes the reply so it includes the respective values of the randomly selected hash fields.
+   * - Available since: 6.2.0.
+   * - Time complexity: O(N) where N is the number of fields returned.
+   * @param key - The name of the key that holds the hash.
+   * @param count - The number of fields to return. A positive `count` returns up to that many distinct fields; a negative `count` returns exactly `|count|` fields and may repeat fields.
+   * @param options -
+   * @returns Array reply: a list of fields and their values when `count` and `WITHVALUES` were both used.
+   * @see {@link https://redis.io/commands/hrandfield}
+   */
+  HRANDFIELD(key: string, count: number, options: HrandfieldOptions & {
+    WITHVALUES: true;
+  }): RedisXTransactionCommand<{
+    field: string;
+    value: string;
+  }[]>;
+  /**
+   * If the provided `count` argument is positive, return an array of **distinct fields**.
+   * The array's length is either `count` or the hash's number of fields (`HLEN`), whichever is lower.
+   *
+   * If called with a negative `count`, the behavior changes and the command is allowed to return the **same field multiple times**.
+   * In this case, the number of returned fields is the absolute value of the specified `count`.
+   *
+   * The optional `WITHVALUES` modifier changes the reply so it includes the respective values of the randomly selected hash fields.
+   * - Available since: 6.2.0.
+   * - Time complexity: O(N) where N is the number of fields returned.
+   * @param key - The name of the key that holds the hash.
+   * @param count - The number of fields to return. A positive `count` returns up to that many distinct fields; a negative `count` returns exactly `|count|` fields and may repeat fields.
+   * @param options -
+   * @returns Any of the following:
+   * - Array reply: a list containing `count` fields when the `count` option is used, or an empty array if the key does not exists.
+   * - Array reply: a list of fields and their values when `count` and `WITHVALUES` were both used.
+   * @see {@link https://redis.io/commands/hrandfield}
+   */
+  HRANDFIELD(key: string, count: number, options?: HrandfieldOptions): RedisXTransactionCommand<string[] | {
+    field: string;
+    value: string;
+  }[]>;
+  /**
+   * Returns the number of fields contained in the hash stored at key.
+   *
+   * - Available since: 2.0.0.
+   * - Time complexity: O(1).
+   * @param key Key to get hash length.
+   * @returns The number of fields in the hash, or 0 when the key does not exist.
+   * @see {@link https://redis.io/commands/hlen}
+   */
+  HLEN(key: string): RedisXTransactionCommand<number>;
+  /**
+   * Returns all field names in the hash stored at key.
+   *
+   * - Available since: 2.0.0.
+   * - Time complexity: O(N) where N is the size of the hash.
+   * @param key The key of the hash.
+   * @returns A set of fields in the hash, or an empty set when the key does not exist.
+   * @see {@link https://redis.io/commands/hkeys}
+   */
+  HKEYS(key: string): RedisXTransactionCommand<Set<string>>;
+  /**
+   * Increments the number stored at field in the hash stored at key by increment.
+   * If key does not exist, a new key holding a hash is created. If field does not
+   * exist the value is set to 0 before the operation is performed.
+   *
+   * The range of values supported by HINCRBY is limited to 64 bit signed integers.
+   *
+   * - Available since: 2.0.0.
+   * - Time complexity: O(1).
+   * @param key Key of the hash.
+   * @param field Field in the hash to increment.
+   * @param increment The increment value (can be negative for decrementing).
+   * @returns The value of the field after the increment operation.
+   * @see {@link https://redis.io/commands/hincrby}
+   */
+  HINCRBY(key: string, field: string | number, increment: number): RedisXTransactionCommand<number>;
+  /**
+   * Removes the specified fields from the hash stored at key. Specified fields that do not exist within this hash are ignored.
+   * Deletes the hash if no fields remain. If key does not exist, it is treated as an empty hash and this command returns 0.
+   *
+   * - Available since: 2.0.0. Multiple field arguments support added in 2.4.0.
+   * - Time complexity: O(N) where N is the number of fields to be removed.
+   * @param key Key of the hash.
+   * @param fields One or more fields to delete from the hash.
+   * @returns The number of fields that were removed from the hash, excluding specified but non-existing fields.
+   * @see {@link https://redis.io/commands/hdel}
+   */
+  HDEL(key: string, fields: Collection<string | number>): RedisXTransactionCommand<number>;
+  /**
+   * Removes the specified fields from the hash stored at key. Specified fields that do not exist within this hash are ignored.
+   * Deletes the hash if no fields remain. If key does not exist, it is treated as an empty hash and this command returns 0.
+   *
+   * - Available since: 2.0.0. Multiple field arguments support added in 2.4.0.
+   * - Time complexity: O(N) where N is the number of fields to be removed.
+   * @param key Key of the hash.
+   * @param fields Fields to remove from the hash.
+   * @returns The number of fields that were removed from the hash, excluding specified but non-existing fields.
+   * @see {@link https://redis.io/commands/hdel}
+   */
+  HDEL(key: string, ...fields: (string | number)[]): RedisXTransactionCommand<number>;
+  /**
+   * Returns the string length of the value associated with field in the hash stored at key.
+   * If the key or the field do not exist, 0 is returned.
+   *
+   * - Available since: 3.2.0.
+   * - Time complexity: O(1).
+   * @param key The key of the hash.
+   * @param field The field in the hash.
+   * @returns The string length of the value associated with the field, or zero when the field isn't present in the hash or the key doesn't exist at all.
+   * @see {@link https://redis.io/commands/hstrlen}
+   */
+  HSTRLEN(key: string, field: string): RedisXTransactionCommand<number>;
+  /**
+   * `HPEXPIRETIME` has the same semantics as `HEXPIRETIME`, but returns the absolute Unix expiration timestamp in milliseconds since Unix epoch instead of seconds.
+   * - Available since: 7.4.0.
+   * - Time complexity: O(N) where N is the number of specified fields.
+   * @param key - The name of the key that holds the hash.
+   * @param fields - The hash fields to retrieve the expiration time for.
+   * @returns Array reply. For each field:
+   * - Integer reply: `-2` if no such field exists in the provided hash key, or the provided key does not exist.
+   * - Integer reply: `-1` if the field exists but has no associated expiration set.
+   * - Integer reply: the expiration (Unix timestamp) in milliseconds.
+   * @see {@link https://redis.io/commands/hpexpiretime}
+   */
+  HPEXPIRETIME(key: string, fields: Collection<string | number>): RedisXTransactionCommand<number[]>;
+  /**
+   * Returns if field is an existing field in the hash stored at key.
+   *
+   * - Available since: 2.0.0.
+   * - Time complexity: O(1).
+   * @param key Key of the hash.
+   * @param field Field to check in the hash.
+   * @returns Returns `true` if the hash contains the field. Returns `false` if the hash does not contain the field, or the key does not exist.
+   * @see {@link https://redis.io/commands/hexists}
+   */
+  HEXISTS(key: string, field: string | number): RedisXTransactionCommand<boolean>;
+  /**
+   * `HPEXPIREAT` has the same effect and semantics as `HEXPIREAT`, but the Unix time at which the field will expire is specified in milliseconds since Unix epoch instead of seconds.
+   * - Available since: 7.4.0.
+   * - Time complexity: O(N) where N is the number of specified fields.
+   * @param key - The name of the key that holds the hash.
+   * @param timestamp - The absolute Unix expiration timestamp, in milliseconds since Unix epoch. A timestamp in the past deletes the field immediately.
+   * @param fields - The hash fields to operate on.
+   * @param options -
+   * @returns Array reply. For each field:
+   * - Integer reply: `-2` if no such field exists in the provided hash key, or the provided key does not exist.
+   * - Integer reply: `0` if the specified NX | XX | GT | LT condition has not been met.
+   * - Integer reply: `1` if the expiration time was set/updated.
+   * - Integer reply: `2` when `HEXPIRE`/`HPEXPIRE` is called with 0 seconds/milliseconds or when `HEXPIREAT`/`HPEXPIREAT` is called with a past Unix time in seconds/milliseconds.
+   * @see {@link https://redis.io/commands/hpexpireat}
+   */
+  HPEXPIREAT(key: string, timestamp: number, fields: Collection<string | number>, options?: HpexpireatOptions): RedisXTransactionCommand<number[]>;
+  /**
+   * Remove the existing expiration on a hash key's field(s), turning the field(s) from _volatile_ (a field with expiration set) to _persistent_ (a field that will never expire as no TTL (time to live) is associated).
+   * - Available since: 7.4.0.
+   * - Time complexity: O(N) where N is the number of specified fields.
+   * @param key - The name of the key that holds the hash.
+   * @param fields - The hash fields to remove the expiration from.
+   * @returns Array reply. For each field:
+   * - Integer reply: `-2` if no such field exists in the provided hash key, or the provided key does not exist.
+   * - Integer reply: `-1` if the field exists but has no associated expiration set.
+   * - Integer reply: `1` the expiration was removed.
+   * @see {@link https://redis.io/commands/hpersist}
+   */
+  HPERSIST(key: string, fields: Collection<string | number>): RedisXTransactionCommand<number[]>;
+  /**
+   * Sets field in the hash stored at key to value, only if field does not yet exist.
+   * If key does not exist, a new key holding a hash is created.
+   * If field already exists, this operation has no effect.
+   *
+   * - Available since: 2.0.0.
+   * - Time complexity: O(1).
+   * @param key The key of the hash.
+   * @param field The field to set.
+   * @param value The value to set.
+   * @returns Returns `true` if the field is new and the value was set. Returns `false` if the field already exists and no operation was performed.
+   * @see {@link https://redis.io/commands/hsetnx}
+   */
+  HSETNX(key: string, field: string, value: string | number): RedisXTransactionCommand<boolean>;
+  /**
+   * Returns the absolute Unix timestamp in seconds since Unix epoch at which the given key's field(s) will expire.
+   *
+   * See also the `HPEXPIRETIME` command, which returns the same information with millisecond resolution.
+   * - Available since: 7.4.0.
+   * - Time complexity: O(N) where N is the number of specified fields.
+   * @param key - The name of the key that holds the hash.
+   * @param fields - The hash fields to retrieve the expiration time for.
+   * @returns Array reply. For each field:
+   * - Integer reply: `-2` if no such field exists in the provided hash key, or the provided key does not exist.
+   * - Integer reply: `-1` if the field exists but has no associated expiration set.
+   * - Integer reply: the expiration (Unix timestamp) in seconds.
+   * @see {@link https://redis.io/commands/hexpiretime}
+   */
+  HEXPIRETIME(key: string, fields: Collection<string | number>): RedisXTransactionCommand<number[]>;
+  /**
+   * Runs a read-only Lua script. Unlike `EVAL`, this command can't run commands that modify data.
+   * - Available since: 7.0.0.
+   * - Time complexity: Depends on the script that is executed.
+   * @param script - The Lua script to evaluate. It must not modify data.
+   * @param keys - The key names the script accesses, provided to it via the Lua `KEYS` global variable.
+   * @param args - Additional arguments provided to the script via the Lua `ARGV` variable.
+   * @returns The return value depends on the script that was executed.
+   * @see {@link https://redis.io/commands/eval_ro}
+   */
+  EVAL_RO(script: string, keys: (string | number)[], args?: (string | number)[]): RedisXTransactionCommand<unknown>;
+  /**
+   * Invoke the execution of a server-side Lua script.
+   * - Available since: 2.6.0.
+   * - Time complexity: Depends on the script that is executed.
+   * @param script Script's source code.
+   * @param keys Keys accessed by the script.
+   * @param args Arguments passed to the script.
+   * @returns Value returned by the script.
+   * @see {@link https://redis.io/commands/eval}
+   */
+  EVAL(script: string, keys: (string | number)[], args?: (string | number)[]): RedisXTransactionCommand<unknown>;
+  /**
+   * Evaluate a script from the server's cache by its SHA1 digest.
+   *
+   * The server caches scripts by using the `SCRIPT LOAD` command.
+   * The command is otherwise identical to `EVAL`.
+   * - Available since: 2.6.0.
+   * - Time complexity: Depends on the script that is executed.
+   * @param sha1 - The SHA1 digest of a script previously cached with `SCRIPT LOAD` or `EVAL`.
+   * @param keys - The key names the script accesses, provided to it via the Lua `KEYS` global variable.
+   * @param args - Additional arguments provided to the script via the Lua `ARGV` variable.
+   * @returns The return value depends on the script that was executed.
+   * @see {@link https://redis.io/commands/evalsha}
+   */
+  EVALSHA(sha1: string, keys: (string | number)[], args?: (string | number)[]): RedisXTransactionCommand<unknown>;
+  /**
+   * This is a read-only variant of the `EVALSHA` command that cannot execute commands that modify data.
+   * - Available since: 7.0.0.
+   * - Time complexity: Depends on the script that is executed.
+   * @param sha1 - The SHA1 digest of a read-only script previously cached with `SCRIPT LOAD` or `EVAL_RO`.
+   * @param keys - The key names the script accesses, provided to it via the Lua `KEYS` global variable.
+   * @param args - Additional arguments provided to the script via the Lua `ARGV` variable.
+   * @returns The return value depends on the script that was executed.
+   * @see {@link https://redis.io/commands/evalsha_ro}
+   */
+  EVALSHA_RO(sha1: string, keys: (string | number)[], args?: (string | number)[]): RedisXTransactionCommand<unknown>;
+}
+//#endregion
+//#region src/transaction.d.ts
+type AddToList<T, U> = T extends any[] ? [...T, U] : [U];
+type GetLast<L> = L extends [...any[], infer T] ? T : never;
+declare class RedisXTransaction<L = [], C extends boolean = false, D = unknown> {
+  private multi;
+  private promise;
+  private queue_length;
+  private transformers;
+  private return_no_array;
+  private data;
+  constructor(redisClient: RedisClient);
+  addCommand(command: string, ...args: (string | number)[]): RedisXTransaction<AddToList<L, unknown>, C, D>;
+  /**
+   * Addes command to MULTI queue.
+   * @param command -
+   */
+  private queueCommand;
+  private useCommand;
+  as<const K extends string>(key: K): RedisXTransaction<L, C, { [P in keyof D | K]: K extends P ? GetLast<L> : P extends keyof D ? D[P] : never; }>;
+  use<const CB extends (transaction: RedisXTransactionUse) => Promisable<Record<string, any> | void>>(callback: CB): RedisXTransaction<[], true, Awaited<ReturnType<CB>> extends Record<string, any> ? UnwrapRedisXTransactionCommand<Awaited<ReturnType<CB>>> & D : D>;
+  execute<RL = C extends true ? unknown : L extends [] ? unknown : L, R = unknown extends D ? unknown extends RL ? Record<string, never> : RL : RL & { [K in keyof D]: D[K]; }>(): Promise<R>;
+  /**
+   * This command is similar to `SINTER`, but instead of returning the result set, it returns just the cardinality of the result.
+   * Returns the cardinality of the set which would result from the intersection of all the given sets.
+   *
+   * Keys that do not exist are considered to be empty sets.
+   * With one of the keys being an empty set, the resulting set is also empty (since set intersection with an empty set always results in an empty set).
+   * - Available since: 7.0.0.
+   * - Time complexity: O(N*M) worst case where N is the cardinality of the smallest set and M is the number of sets.
+   * @param keys - One or more set keys to intersect.
+   * @param options -
+   * @returns Integer reply: the number of elements in the resulting intersection.
+   * @see {@link https://redis.io/commands/sintercard}
+   */
+  SINTERCARD(keys: Collection<string>, options?: SintercardOptions): RedisXTransaction<AddToList<L, number>, C, D>;
+  /**
+   * Remove the specified members from the set stored at key.
+   * Specified members that are not a member of this set are ignored.
+   * If key does not exist, it is treated as an empty set and this command returns 0.
+   *
+   * - Available since: 1.0.0. Multiple members support added in 2.4.0.
+   * - Time complexity: O(N) where N is the number of members to be removed.
+   * @param key Key of the set.
+   * @param members One or more members to remove from the set.
+   * @returns The number of members that were removed from the set, not including non existing members.
+   * @see {@link https://redis.io/commands/srem}
+   */
+  SREM(key: string, members: Collection<string | number>): RedisXTransaction<AddToList<L, number>, C, D>;
+  /**
+   * Remove the specified members from the set stored at key.
+   * Specified members that are not a member of this set are ignored.
+   * If key does not exist, it is treated as an empty set and this command returns 0.
+   *
+   * - Available since: 1.0.0. Multiple members support added in 2.4.0.
+   * - Time complexity: O(N) where N is the number of members to be removed.
+   * @param key Key of the set.
+   * @param members Members to remove from the set.
+   * @returns The number of members that were removed from the set, not including non existing members.
+   * @see {@link https://redis.io/commands/srem}
+   */
+  SREM(key: string, ...members: (string | number)[]): RedisXTransaction<AddToList<L, number>, C, D>;
+  /**
+   * When called with just the `key` argument, return a random element from the set value stored at `key`.
+   * - Available since: 1.0.0.
+   * - Time complexity: Without the count argument O(1), otherwise O(N) where N is the absolute value of the passed count.
+   * @param key - The name of the key that holds the set.
+   * @returns Bulk string reply: without the additional _count_ argument, the command returns a randomly selected member, or a Nil reply when _key_ doesn't exist.
+   * @see {@link https://redis.io/commands/srandmember}
+   */
+  SRANDMEMBER(key: string): RedisXTransaction<AddToList<L, string | null>, C, D>;
+  /**
+   * If the provided `count` argument is positive, return an array of **distinct elements**.
+   * The array's length is either `count` or the set's cardinality (`SCARD`), whichever is lower.
+   *
+   * If called with a negative `count`, the behavior changes and the command is allowed to return the **same element multiple times**.
+   * In this case, the number of returned elements is the absolute value of the specified `count`.
+   * - Available since: 1.0.0.
+   * - Starting with Redis version 2.6.0: Added the optional `count` argument.
+   * - Time complexity: Without the count argument O(1), otherwise O(N) where N is the absolute value of the passed count.
+   * @param key - The name of the key that holds the set.
+   * @param count - The number of members to return. A positive `count` returns up to that many distinct members; a negative `count` returns exactly `|count|` members and may repeat them.
+   * @returns Array reply: when the optional _count_ argument is passed, the command returns an array of members, or an empty array when _key_ doesn't exist.
+   * @see {@link https://redis.io/commands/srandmember}
+   */
+  SRANDMEMBER(key: string, count: number): RedisXTransaction<AddToList<L, string[]>, C, D>;
+  /**
+   * Removes and returns one or more random members from the set value store at `key`.
+   *
+   * This operation is similar to `SRANDMEMBER`, that returns one or more random elements from a set but does not remove it.
+   *
+   * By default, the command pops a single member from the set.
+   * - Available since: 1.0.0.
+   * - Time complexity: Without the count argument O(1), otherwise O(N) where N is the value of the passed count.
+   * @param key - The name of the key that holds the set.
+   * @returns Any of the following:
+   * - Nil reply: if the key does not exist.
+   * - Bulk string reply: when called without the _count_ argument, the removed member.
+   * @see {@link https://redis.io/commands/spop}
+   */
+  SPOP(key: string): RedisXTransaction<AddToList<L, string | null>, C, D>;
+  /**
+   * Removes and returns one or more random members from the set value store at `key`.
+   *
+   * This operation is similar to `SRANDMEMBER`, that returns one or more random elements from a set but does not remove it.
+   *
+   * When provided with the optional `count` argument, the reply will consist of up to `count` members, depending on the set's cardinality.
+   * - Available since: 1.0.0.
+   * - Starting with Redis version 3.2.0: Added the optional `count` argument.
+   * - Time complexity: Without the count argument O(1), otherwise O(N) where N is the value of the passed count.
+   * @param key - The name of the key that holds the set.
+   * @param count - The number of members to pop. Without it, a single member is popped.
+   * @returns Array reply: when called with the _count_ argument, a list of the removed members.
+   * @see {@link https://redis.io/commands/spop}
+   */
+  SPOP(key: string, count: number): RedisXTransaction<AddToList<L, Set<string>>, C, D>;
+  /**
+   * This command is equal to `SINTER`, but instead of returning the resulting set, it is stored in `destination`.
+   *
+   * If `destination` already exists, it is overwritten.
+   * - Available since: 1.0.0.
+   * - Time complexity: O(N*M) worst case where N is the cardinality of the smallest set and M is the number of sets.
+   * @param destination - The key to store the resulting set in.
+   * @param keys - One or more set keys to intersect.
+   * @returns Integer reply: the number of elements in the resulting set.
+   * @see {@link https://redis.io/commands/sinterstore}
+   */
+  SINTERSTORE(destination: string, ...keys: string[]): RedisXTransaction<AddToList<L, number>, C, D>;
+  /**
+   * This command is equal to `SINTER`, but instead of returning the resulting set, it is stored in `destination`.
+   *
+   * If `destination` already exists, it is overwritten.
+   * - Available since: 1.0.0.
+   * - Time complexity: O(N*M) worst case where N is the cardinality of the smallest set and M is the number of sets.
+   * @param destination - The key to store the resulting set in.
+   * @param keys - One or more set keys to intersect.
+   * @returns Integer reply: the number of elements in the resulting set.
+   * @see {@link https://redis.io/commands/sinterstore}
+   */
+  SINTERSTORE(destination: string, keys: Collection<string>): RedisXTransaction<AddToList<L, number>, C, D>;
+  /**
+   * Returns whether each member is a member of the set stored at key.
+   *
+   * For every member, 1 is returned if the value is a member of the set,
+   * or 0 if the element is not a member of the set or if key does not exist.
+   *
+   * - Available since: 6.2.0.
+   * - Time complexity: O(N) where N is the number of elements being checked for membership.
+   * @param key The key of the set.
+   * @param members The members to check.
+   * @returns A list representing the membership of the given elements, in the same order as they are requested.
+   * @see {@link https://redis.io/commands/smismember}
+   */
+  SMISMEMBER(key: string, ...members: (string | number)[]): RedisXTransaction<AddToList<L, boolean[]>, C, D>;
+  /**
+   * Returns whether each member is a member of the set stored at key.
+   *
+   * For every member, 1 is returned if the value is a member of the set,
+   * or 0 if the element is not a member of the set or if key does not exist.
+   *
+   * - Available since: 6.2.0.
+   * - Time complexity: O(N) where N is the number of elements being checked for membership.
+   * @param key The name of the key that holds the set.
+   * @param members One or more members to check for.
+   * @returns A list representing the membership of the given elements, in the same order as they are requested.
+   * @see {@link https://redis.io/commands/smismember}
+   */
+  SMISMEMBER(key: string, members: Collection<string | number>): RedisXTransaction<AddToList<L, boolean[]>, C, D>;
+  /**
+   * Returns the members of the set resulting from the intersection of all the given sets.
+   *
+   * Keys that do not exist are considered to be empty sets.
+   * With one of the keys being an empty set, the resulting set is also empty (since set intersection with an empty set always results in an empty set).
+   * - Available since: 1.0.0.
+   * - Time complexity: O(N*M) worst case where N is the cardinality of the smallest set and M is the number of sets.
+   * @param keys - One or more set keys to intersect.
+   * @returns Array reply: an array with the members of the resulting set.
+   * @see {@link https://redis.io/commands/sinter}
+   */
+  SINTER(...keys: string[]): RedisXTransaction<AddToList<L, Set<string>>, C, D>;
+  /**
+   * Returns the members of the set resulting from the intersection of all the given sets.
+   *
+   * Keys that do not exist are considered to be empty sets.
+   * With one of the keys being an empty set, the resulting set is also empty (since set intersection with an empty set always results in an empty set).
+   * - Available since: 1.0.0.
+   * - Time complexity: O(N*M) worst case where N is the cardinality of the smallest set and M is the number of sets.
+   * @param keys - One or more set keys to intersect.
+   * @returns Array reply: an array with the members of the resulting set.
+   * @see {@link https://redis.io/commands/sinter}
+   */
+  SINTER(keys: Collection<string>): RedisXTransaction<AddToList<L, Set<string>>, C, D>;
+  /**
+   * Returns all the members of the set value stored at key.
+   *
+   * - Available since: 1.0.0.
+   * - Time complexity: O(N) where N is the set cardinality.
+   * @param key The key of the set.
+   * @returns A set with all the members of the set.
+   * @see {@link https://redis.io/commands/smembers}
+   */
+  SMEMBERS(key: string): RedisXTransaction<AddToList<L, Set<string>>, C, D>;
+  /**
+   * Returns the members of the set resulting from the union of all the given sets.
+   *
+   * Keys that do not exist are considered to be empty sets.
+   * - Available since: 1.0.0.
+   * - Time complexity: O(N) where N is the total number of elements in all given sets.
+   * @param keys - One or more set keys to union.
+   * @returns Array reply: a list with members of the resulting set.
+   * @see {@link https://redis.io/commands/sunion}
+   */
+  SUNION(...keys: string[]): RedisXTransaction<AddToList<L, Set<string>>, C, D>;
+  /**
+   * Returns the members of the set resulting from the union of all the given sets.
+   *
+   * Keys that do not exist are considered to be empty sets.
+   * - Available since: 1.0.0.
+   * - Time complexity: O(N) where N is the total number of elements in all given sets.
+   * @param keys - One or more set keys to union.
+   * @returns Array reply: a list with members of the resulting set.
+   * @see {@link https://redis.io/commands/sunion}
+   */
+  SUNION(keys: Collection<string>): RedisXTransaction<AddToList<L, Set<string>>, C, D>;
+  /**
+   * Returns if member is a member of the set stored at key.
+   *
+   * - Available since: 1.0.0.
+   * - Time complexity: O(1).
+   * @param key The key of the set.
+   * @param member The member to check.
+   * @returns `true` if the member is a member of the set stored at key, `false` otherwise.
+   * @see {@link https://redis.io/commands/sismember}
+   */
+  SISMEMBER(key: string, member: string | number): RedisXTransaction<AddToList<L, boolean>, C, D>;
+  /**
+   * This command is equal to `SUNION`, but instead of returning the resulting set, it is stored in `destination`.
+   *
+   * If `destination` already exists, it is overwritten.
+   * - Available since: 1.0.0.
+   * - Time complexity: O(N) where N is the total number of elements in all given sets.
+   * @param destination - The key to store the resulting set in.
+   * @param keys - One or more set keys to union.
+   * @returns Integer reply: the number of elements in the resulting set.
+   * @see {@link https://redis.io/commands/sunionstore}
+   */
+  SUNIONSTORE(destination: string, ...keys: string[]): RedisXTransaction<AddToList<L, number>, C, D>;
+  /**
+   * This command is equal to `SUNION`, but instead of returning the resulting set, it is stored in `destination`.
+   *
+   * If `destination` already exists, it is overwritten.
+   * - Available since: 1.0.0.
+   * - Time complexity: O(N) where N is the total number of elements in all given sets.
+   * @param destination - The key to store the resulting set in.
+   * @param keys - One or more set keys to union.
+   * @returns Integer reply: the number of elements in the resulting set.
+   * @see {@link https://redis.io/commands/sunionstore}
+   */
+  SUNIONSTORE(destination: string, keys: Collection<string>): RedisXTransaction<AddToList<L, number>, C, D>;
+  /**
+   * Move `member` from the set at `source` to the set at `destination`.
+   * This operation is atomic.
+   * In every given moment the element will appear to be a member of `source` **or** `destination` for other clients.
+   *
+   * If the source set does not exist or does not contain the specified element, no operation is performed and `0` is returned.
+   * Otherwise, the element is removed from the source set and added to the destination set.
+   * When the specified element already exists in the destination set, it is only removed from the source set.
+   * - Available since: 1.0.0.
+   * - Time complexity: O(1).
+   * @param source - The key of the source set.
+   * @param destination - The key of the destination set.
+   * @param member - The member to move from the source set to the destination set.
+   * @returns Any of the following:
+   * - Integer reply: `1` if the element is moved.
+   * - Integer reply: `0` if the element is not a member of _source_ and no operation was performed.
+   * @see {@link https://redis.io/commands/smove}
+   */
+  SMOVE(source: string, destination: string, member: string | number): RedisXTransaction<AddToList<L, boolean>, C, D>;
+  /**
+   * Returns the members of the set resulting from the difference between the first set and all the successive sets.
+   *
+   * Keys that do not exist are considered to be empty sets.
+   * - Available since: 1.0.0.
+   * - Time complexity: O(N) where N is the total number of elements in all given sets.
+   * @param keys - One or more set keys. The result is the members of the first set that are not present in any of the subsequent sets.
+   * @returns Array reply: a list with members of the resulting set.
+   * @see {@link https://redis.io/commands/sdiff}
+   */
+  SDIFF(...keys: string[]): RedisXTransaction<AddToList<L, Set<string>>, C, D>;
+  /**
+   * Returns the members of the set resulting from the difference between the first set and all the successive sets.
+   *
+   * Keys that do not exist are considered to be empty sets.
+   * - Available since: 1.0.0.
+   * - Time complexity: O(N) where N is the total number of elements in all given sets.
+   * @param keys - One or more set keys. The result is the members of the first set that are not present in any of the subsequent sets.
+   * @returns Array reply: a list with members of the resulting set.
+   * @see {@link https://redis.io/commands/sdiff}
+   */
+  SDIFF(keys: Collection<string>): RedisXTransaction<AddToList<L, Set<string>>, C, D>;
+  /**
+   * Iterates over members of a set.
+   *
+   * `SSCAN` is a cursor based iterator. This means that at every call of the command, the server returns an updated cursor that the user needs to use as the cursor argument in the next call.
+   * An iteration starts when the cursor is set to 0, and terminates when the cursor returned by the server is 0.
+   *
+   * A given element may be returned multiple times. It is up to the application to handle the case of duplicated elements, for example only using the returned elements in order to perform operations that are safe when re-applied multiple times.
+   * - Available since: 2.8.0.
+   * - Time complexity: O(1) for every call. O(N) for a complete iteration, including enough command calls for the cursor to return back to 0. N is the number of elements inside the collection.
+   * @param key - The name of the key that holds the set.
+   * @param cursor - The cursor value. Start an iteration with `0`, then use the cursor returned by each call as the argument to the next call.
+   * @param options -
+   * @returns Array reply: specifically, an array with two elements.
+   * - The first element is a Bulk string reply that represents an unsigned 64-bit number, the cursor.
+   * - The second element is an Array reply with the names of scanned members.
+   * @see {@link https://redis.io/commands/sscan}
+   */
+  SSCAN(key: string, cursor: string | number, options?: SscanOptions): RedisXTransaction<AddToList<L, {
+    cursor: string;
+    members: Set<string>;
+  }>, C, D>;
+  /**
+   * Returns the cardinality of the union of the given sets. This is the count-only counterpart of `SUNION`: it returns just the number of distinct elements in the union, not the members themselves.
+   *
+   * Keys that do not exist are considered to be empty sets.
+   * - Available since: 8.10.0.
+   * - Time complexity: O(N) where N is the total number of elements in all given sets.
+   * @param keys - One or more set keys to union.
+   * @param options -
+   * @returns Integer reply: the number of elements in the resulting union.
+   * @see {@link https://redis.io/commands/sunioncard}
+   */
+  SUNIONCARD(keys: Collection<string>, options?: SunioncardOptions): RedisXTransaction<AddToList<L, number>, C, D>;
+  /**
+   * This command is equal to `SDIFF`, but instead of returning the resulting set, it is stored in `destination`.
+   *
+   * If `destination` already exists, it is overwritten.
+   * - Available since: 1.0.0.
+   * - Time complexity: O(N) where N is the total number of elements in all given sets.
+   * @param destination - The key to store the resulting set in.
+   * @param keys - One or more set keys. The difference is the members of the first set that are not present in any of the subsequent sets.
+   * @returns Integer reply: the number of elements in the resulting set.
+   * @see {@link https://redis.io/commands/sdiffstore}
+   */
+  SDIFFSTORE(destination: string, ...keys: string[]): RedisXTransaction<AddToList<L, number>, C, D>;
+  /**
+   * This command is equal to `SDIFF`, but instead of returning the resulting set, it is stored in `destination`.
+   *
+   * If `destination` already exists, it is overwritten.
+   * - Available since: 1.0.0.
+   * - Time complexity: O(N) where N is the total number of elements in all given sets.
+   * @param destination - The key to store the resulting set in.
+   * @param keys - One or more set keys. The difference is the members of the first set that are not present in any of the subsequent sets.
+   * @returns Integer reply: the number of elements in the resulting set.
+   * @see {@link https://redis.io/commands/sdiffstore}
+   */
+  SDIFFSTORE(destination: string, keys: Collection<string>): RedisXTransaction<AddToList<L, number>, C, D>;
+  /**
+   * Returns the set cardinality (number of elements) of the set stored at key.
+   *
+   * - Available since: 1.0.0.
+   * - Time complexity: O(1).
+   * @param key The key of the set.
+   * @returns The cardinality (number of elements) of the set, or `0` if the key does not exist.
+   * @see {@link https://redis.io/commands/scard}
+   */
+  SCARD(key: string): RedisXTransaction<AddToList<L, number>, C, D>;
+  /**
+   * Returns the cardinality of the difference between the first set and all the successive sets. This is the count-only counterpart of `SDIFF`: it returns just the number of elements in the difference, not the members themselves.
+   *
+   * Keys that do not exist are considered to be empty sets.
+   * - Available since: 8.10.0.
+   * - Time complexity: O(N) where N is the total number of elements in all given sets.
+   * @param keys - One or more set keys. The result counts the members of the first set that are not present in any of the subsequent sets.
+   * @param options -
+   * @returns Integer reply: the number of elements in the resulting difference.
+   * @see {@link https://redis.io/commands/sdiffcard}
+   */
+  SDIFFCARD(keys: Collection<string>, options?: SdiffcardOptions): RedisXTransaction<AddToList<L, number>, C, D>;
+  /**
+   * Add the specified members to the set stored at key.
+   * Specified members that are already a member of this set are ignored.
+   * If key does not exist, a new set is created before adding the specified members.
+   *
+   * An error is returned when the value stored at key is not a set.
+   *
+   * - Available since: 1.0.0. Multiple members support added in 2.4.0.
+   * - Time complexity: O(1) for each element added.
+   * @param key Key of the set.
+   * @param members One or more members to add to the set.
+   * @returns The number of elements that were added to the set, not including all the elements already present in the set.
+   * @see {@link https://redis.io/commands/sadd}
+   */
+  SADD(key: string, members: Collection<string | number>): RedisXTransaction<AddToList<L, number>, C, D>;
+  /**
+   * Add the specified members to the set stored at key.
+   * Specified members that are already a member of this set are ignored.
+   * If key does not exist, a new set is created before adding the specified members.
+   *
+   * An error is returned when the value stored at key is not a set.
+   *
+   * - Available since: 1.0.0. Multiple members support added in 2.4.0.
+   * - Time complexity: O(1) for each element added.
+   * @param key Key of the set.
+   * @param members Members to add to the set.
+   * @returns The number of elements that were added to the set, not including all the elements already present in the set.
+   * @see {@link https://redis.io/commands/sadd}
+   */
+  SADD(key: string, ...members: (string | number)[]): RedisXTransaction<AddToList<L, number>, C, D>;
+  /**
+   * Sets the given keys to their respective values. MSETNX will not perform
+   * any operation at all even if just a single key already exists.
+   *
+   * - Available since: 1.0.1.
+   * - Time complexity: O(N) where N is the number of keys to set.
+   * @param pairs A record of key-value pairs.
+   * @returns `true` if all the keys were set, `false` if no key was set (at least one key already existed).
+   * @see {@link https://redis.io/commands/msetnx}
+   */
+  MSETNX(pairs: Record<string, string | number>): RedisXTransaction<AddToList<L, boolean>, C, D>;
+  /**
+   * Set key to hold string value if key does not exist. In that case, it is equal to SET.
+   * When key already holds a value, no operation is performed. SETNX is short for "SET if Not eXists".
+   *
+   * - Available since: 1.0.0.
+   * - Time complexity: O(1).
+   * @deprecated As of Redis version 2.6.12, this command is regarded as deprecated. It can be replaced by SET with the NX argument when migrating or writing new code.
+   * @param key Key to set.
+   * @param value Value to set.
+   * @returns Integer reply: 1 if the key was set, 0 if the key was not set.
+   * @see {@link https://redis.io/commands/setnx}
+   */
+  SETNX(key: string, value: string | number): RedisXTransaction<AddToList<L, boolean>, C, D>;
+  /**
+   * Get the value of key.
+   *
+   * If the key does not exist `null` is returned.
+   *
+   * An error is returned if the value stored at key is not a string, because GET only handles string values.
+   * - Available since: 1.0.0.
+   * - Time complexity: O(1).
+   * @param key Key to get.
+   * @returns The value of key, or `null` when key does not exist.
+   * @see {@link https://redis.io/commands/get}
+   */
+  GET(key: string): RedisXTransaction<AddToList<L, string | null>, C, D>;
+  /**
+   * Set `key` to hold the string `value`.
+   * - Available since: 1.0.0.
+   * - Time complexity: O(1).
+   * @param key The name of the key.
+   * @param value The string value to set.
+   * @param options Command options.
+   * @returns
+   * - Simple string reply: `OK`: The key was set.
+   * - Null bulk string reply in the following two cases.
+   *   - The key doesn’t exist and `XX/IFEQ/IFDEQ` was specified. The key was not created.
+   *   - The key exists, and `NX` was specified or a specified `IFEQ/IFNE/IFDEQ/IFDNE` condition is false. The key was not set.
+   * @see {@link https://redis.io/commands/set}
+   */
+  SET(key: string, value: string | number, options?: SetOptions & {
+    GET?: false;
+  }): RedisXTransaction<AddToList<L, "OK" | null>, C, D>;
+  /**
+   * Set `key` to hold the string `value`.
+   * - Available since: 1.0.0.
+   * - Time complexity: O(1).
+   * @param key The name of the key.
+   * @param value The string value to set.
+   * @param options Command options.
+   * @returns
+   * - Null bulk string reply: The key didn't exist before the `SET` operation, whether the key was created of not.
+   * - Bulk string reply: The previous value of the key, whether the key was set or not.
+   * @see {@link https://redis.io/commands/set}
+   */
+  SET(key: string, value: string | number, options: SetOptions & {
+    GET: true;
+  }): RedisXTransaction<AddToList<L, string | null>, C, D>;
+  /**
+   * Set `key` to hold the string `value`.
+   * - Available since: 1.0.0.
+   * - Time complexity: O(1).
+   * @param key The name of the key.
+   * @param value The string value to set.
+   * @param options Command options.
+   * @returns
+   * - If `GET` was not specified, one of the following:
+   *   - Simple string reply: `OK`: The key was set.
+   *   - Null bulk string reply in the following two cases.
+   *     - The key doesn’t exist and `XX/IFEQ/IFDEQ` was specified. The key was not created.
+   *     - The key exists, and `NX` was specified or a specified `IFEQ/IFNE/IFDEQ/IFDNE` condition is false. The key was not set.
+   * - If `GET` was specified, one of the following:
+   *   - Null bulk string reply: The key didn't exist before the `SET` operation, whether the key was created of not.
+   *   - Bulk string reply: The previous value of the key, whether the key was set or not.
+   * @see {@link https://redis.io/commands/set}
+   */
+  SET(key: string, value: string | number, options?: SetOptions): RedisXTransaction<AddToList<L, string | null>, C, D>;
+  /**
+   * Append a value to a key.
+   *
+   * If key already exists and is a string, this command appends the value at the end of the string.
+   * If key does not exist it is created and set as an empty string, so APPEND will be similar to SET in this special case.
+   * - Available since: 2.0.0.
+   * - Time complexity: O(1). The amortized time complexity is O(1) assuming the appended value is small and the already present value is of any size, since the dynamic string library used by Redis will double the free space available on every reallocation.
+   * @param key Key to append to.
+   * @param value Value to append.
+   * @returns The length of the string after the append operation.
+   * @see {@link https://redis.io/commands/append}
+   */
+  APPEND(key: string, value: string): RedisXTransaction<AddToList<L, number>, C, D>;
+  /**
+   * Increments the number stored at key by one. If the key does not exist,
+   * it is set to 0 before performing the operation. An error is returned if the
+   * key contains a value of the wrong type or contains a string that can not
+   * be represented as integer. This operation is limited to 64 bit signed integers.
+   * - Available since: 1.0.0.
+   * - Time complexity: O(1).
+   * @param key Key to increment.
+   * @returns The value of the key after incrementing it.
+   * @see {@link https://redis.io/commands/incr}
+   */
+  INCR(key: string): RedisXTransaction<AddToList<L, number>, C, D>;
+  /**
+   * Increment the string representing a floating point number stored at key by the specified increment.
+   * By using a negative increment value, the result is that the value stored at the key is decremented.
+   * If the key does not exist, it is set to 0 before performing the operation.
+   *
+   * - Available since: 2.6.0.
+   * - Time complexity: O(1).
+   * @param key Key to increment.
+   * @param increment Value to increment by.
+   * @returns The value of key after the increment.
+   * @see {@link https://redis.io/commands/incrbyfloat}
+   */
+  INCRBYFLOAT(key: string, increment: number): RedisXTransaction<AddToList<L, string>, C, D>;
+  /**
+   * Returns the values of all specified keys. For every key that does not hold a
+   * string value or does not exist, the special value `null` is returned.
+   * Because of this, the operation never fails.
+   *
+   * - Available since: 1.0.0.
+   * - Time complexity: O(N) where N is the number of keys to retrieve.
+   * @param keys The keys to get.
+   * @returns Array reply: a list of values at the specified keys.
+   * @see {@link https://redis.io/commands/mget}
+   */
+  MGET<const K extends string[]>(keys: K): RedisXTransaction<AddToList<L, { [I in keyof K]: string | null; }>, C, D>;
+  /**
+   * Returns the values of all specified keys. For every key that does not hold a
+   * string value or does not exist, the special value `null` is returned.
+   * Because of this, the operation never fails.
+   *
+   * - Available since: 1.0.0.
+   * - Time complexity: O(N) where N is the number of keys to retrieve.
+   * @param keys The keys to get.
+   * @returns Array reply: a list of values at the specified keys.
+   * @see {@link https://redis.io/commands/mget}
+   */
+  MGET<const K extends string[]>(...keys: K): RedisXTransaction<AddToList<L, { [I in keyof K]: string | null; }>, C, D>;
+  /**
+   * Get the value of key and delete the key. This command is similar to GET, except for the fact
+   * that it also deletes the key on success (if and only if the key's value type is a string).
+   *
+   * - Available since: 6.2.0.
+   * - Time complexity: O(1).
+   * @param key Key to get and delete.
+   * @returns The value of key, or `null` when key does not exist or its value is not a string.
+   * @see {@link https://redis.io/commands/getdel}
+   */
+  GETDEL(key: string): RedisXTransaction<AddToList<L, string | null>, C, D>;
+  /**
+   * Sets the given keys to their respective values. MSET replaces existing values with new values, just as regular SET.
+   * MSET is atomic, so all given keys are set at once. It is not possible for clients to see that some of the keys were updated while others are unchanged.
+   * - Available since: 1.0.1.
+   * - Time complexity: O(N) where N is the number of keys to set.
+   * @param pairs A record of key-value pairs.
+   * @returns "OK"
+   * @see {@link https://redis.io/commands/mset}
+   */
+  MSET(pairs: Record<string, string | number>): RedisXTransaction<AddToList<L, "OK">, C, D>;
+  /**
+   * Increments the number stored at key by increment. If the key does not exist, it is set to 0 before performing the operation.
+   * An error is returned if the key contains a value of the wrong type or contains a string that cannot be represented as integer.
+   * This operation is limited to 64 bit signed integers.
+   *
+   * - Available since: 1.0.0.
+   * - Time complexity: O(1).
+   * @param key Key to increment.
+   * @param increment Amount to increment by.
+   * @returns The value of the key after the increment.
+   * @see {@link https://redis.io/commands/incrby}
+   */
+  INCRBY(key: string, increment: number): RedisXTransaction<AddToList<L, number>, C, D>;
+  /**
+   * Overwrites part of the string stored at key, starting at the specified offset, for the entire length of value.
+   * If the offset is larger than the current length of the string at key, the string is padded with zero-bytes to make offset fit.
+   * Non-existing keys are considered as empty strings, so this command will make sure it holds a string large enough to be able to set value at offset.
+   *
+   * Note that the maximum offset that you can set is `2^29-1` (536870911), as Redis Strings are limited to 512 megabytes.
+   *
+   * - Available since: 2.2.0.
+   * - Time complexity: O(1), not counting the time taken to copy the new string in place. Usually, this string is very small so the amortized complexity is O(1). Otherwise, complexity is O(M) with M being the length of the value argument.
+   * @param key Key to modify.
+   * @param offset Position at which the overwrite should begin.
+   * @param value String that will be written to the key, starting at the specified offset.
+   * @returns The length of the string after it was modified by the command.
+   * @see {@link https://redis.io/commands/setrange}
+   */
+  SETRANGE(key: string, offset: number, value: string): RedisXTransaction<AddToList<L, number>, C, D>;
+  /**
+   * Returns the substring of the string value stored at key, determined by the offsets start and end (both are inclusive).
+   * Negative offsets can be used in order to provide an offset starting from the end of the string.
+   * So -1 means the last character, -2 the penultimate and so forth.
+   * - Available since: 1.0.0.
+   * - Time complexity: O(N) where N is the length of the returned string. The complexity is ultimately determined by the returned length, but because creating a substring from an existing string is very cheap, it can be considered O(1) for small strings.
+   * @deprecated As of Redis version 2.0.0, this command is regarded as deprecated. It can be replaced by GETRANGE when migrating or writing new code.
+   * @param key Key to get the substring from.
+   * @param start Start offset (inclusive).
+   * @param end End offset (inclusive).
+   * @returns The substring of the string value stored at key.
+   * @see {@link https://redis.io/commands/substr}
+   */
+  SUBSTR(key: string, start: number, end: number): RedisXTransaction<AddToList<L, string>, C, D>;
+  /**
+   * Atomically sets key to value and returns the old value stored at key.
+   * Returns an error when key exists but does not hold a string value.
+   * Any previous time to live associated with the key is discarded on successful SET operation.
+   *
+   * - Available since: 1.0.0.
+   * - Time complexity: O(1).
+   * @deprecated As of Redis version 6.2.0, this command is regarded as deprecated. It can be replaced by SET with the GET argument when migrating or writing new code.
+   * @param key Key to set.
+   * @param value Value to set.
+   * @returns The old value stored at key, or `null` if key did not exist.
+   * @see {@link https://redis.io/commands/getset}
+   */
+  GETSET(key: string, value: string | number): RedisXTransaction<AddToList<L, string | null>, C, D>;
+  /**
+   * Reduces the value stored at the specified key by the specified decrement.
+   * If the key does not exist, it is initialized with a value of 0 before performing the operation.
+   * If the key's value is not of the correct type or cannot be represented as an integer, an error is returned.
+   * This operation is limited to 64-bit signed integers.
+   *
+   * - Available since: 1.0.0.
+   * - Time complexity: O(1).
+   * @param key Key to decrement.
+   * @param decrement The value to decrement by.
+   * @returns The value of the key after decrementing it.
+   * @see {@link https://redis.io/commands/decrby}
+   */
+  DECRBY(key: string, decrement: number): RedisXTransaction<AddToList<L, number>, C, D>;
+  /**
+   * Returns the substring of the string value stored at key, determined by the offsets start and end (both are inclusive).
+   * Negative offsets can be used in order to provide an offset starting from the end of the string.
+   * So -1 means the last character, -2 the penultimate and so forth.
+   *
+   * The function handles out of range requests by limiting the resulting range to the actual length of the string.
+   * - Available since: 2.4.0.
+   * - Time complexity: O(N) where N is the length of the returned string. The complexity is ultimately determined by the returned length, but because creating a substring from an existing string is very cheap, it can be considered O(1) for small strings.
+   * @param key The key holding the string value.
+   * @param start The starting offset. Can be negative to count from the end of the string.
+   * @param end The ending offset (inclusive). Can be negative to count from the end of the string.
+   * @returns The substring.
+   * @see {@link https://redis.io/commands/getrange}
+   */
+  GETRANGE(key: string, start: number, end: number): RedisXTransaction<AddToList<L, string>, C, D>;
+  /**
+   * Set key to hold the string value and set key to timeout after a given number of seconds.
+   * This command is equivalent to SET key value EX seconds.
+   *
+   * - Available since: 2.0.0.
+   * - Time complexity: O(1).
+   * @deprecated As of Redis version 2.6.12, this command is regarded as deprecated. It can be replaced by SET with the EX argument when migrating or writing new code.
+   * @param key Key to set.
+   * @param seconds Timeout in seconds.
+   * @param value Value to set.
+   * @returns Simple string reply: OK.
+   * @see {@link https://redis.io/commands/setex}
+   */
+  SETEX(key: string, seconds: number, value: string | number): RedisXTransaction<AddToList<L, "OK">, C, D>;
+  /**
+   * Get the value of key and optionally set its expiration.
+   * GETEX is similar to GET, but is a write command with additional options.
+   *
+   * An error is returned if the value stored at key is not a string, because GETEX only handles string values.
+   * - Available since: 6.2.0.
+   * - Time complexity: O(1).
+   * @param key Key to get.
+   * @param options Command options.
+   * @returns The value of key, or `null` when key does not exist.
+   * @see {@link https://redis.io/commands/getex}
+   */
+  GETEX(key: string, options?: GetexOptions): RedisXTransaction<AddToList<L, string | null>, C, D>;
+  /**
+   * Returns the length of the string value stored at key.
+   * An error is returned when key holds a non-string value.
+   *
+   * - Available since: 2.2.0.
+   * - Time complexity: O(1).
+   * @param key Key to get length of.
+   * @returns The length of the string stored at key, or 0 when the key does not exist.
+   * @see {@link https://redis.io/commands/strlen}
+   */
+  STRLEN(key: string): RedisXTransaction<AddToList<L, number>, C, D>;
+  /**
+   * Decrements the number stored at key by one. If the key does not exist,
+   * it is set to 0 before performing the operation. An error is returned if the
+   * key contains a value of the wrong type or contains a string that can not
+   * be represented as integer. This operation is limited to 64 bit signed integers.
+   * - Available since: 1.0.0.
+   * - Time complexity: O(1).
+   * @param key Key to decrement.
+   * @returns The value of the key after decrementing it.
+   * @see {@link https://redis.io/commands/decr}
+   */
+  DECR(key: string): RedisXTransaction<AddToList<L, number>, C, D>;
+  /**
+   * Set key to hold the string value and set key to timeout after a given number of milliseconds.
+   * This command is similar to SETEX, except that the expiration time is specified in milliseconds instead of seconds.
+   *
+   * - Available since: 2.6.0.
+   * - Time complexity: O(1).
+   * @deprecated As of Redis version 2.6.12, this command is regarded as deprecated. It can be replaced by SET with the PX argument when migrating or writing new code.
+   * @param key Key to set.
+   * @param milliseconds Expiration time in milliseconds.
+   * @param value Value to set.
+   * @returns "OK" if the command was executed successfully.
+   * @see {@link https://redis.io/commands/psetex}
+   */
+  PSETEX(key: string, milliseconds: number, value: string | number): RedisXTransaction<AddToList<L, "OK">, C, D>;
+  /**
+   * This command works exactly like EXPIRE but the time to live of the key is specified in milliseconds instead of seconds.
+   * - Available since: 2.6.0.
+   * - Time complexity: O(1).
+   * @param key Key to set the timeout on.
+   * @param seconds Time to live in milliseconds.
+   * @param options Command options.
+   * @returns Returns `true` if the timeout was set. Returns `false` if the timeout was not set; for example, the key doesn't exist, or the operation was skipped because of the provided arguments.
+   * @see {@link https://redis.io/commands/pexpire}
+   * @see {@link https://redis.io/commands/expire}
+   */
+  PEXPIRE(key: string, seconds: number, options?: PexpireOptions): RedisXTransaction<AddToList<L, boolean>, C, D>;
+  /**
+   * Returns the remaining time to live of a key that has a timeout, in milliseconds.
+   *
+   * Like TTL this command returns the remaining time to live of a key that has an
+   * expire set, with the sole difference that TTL returns the amount of remaining
+   * time in seconds while PTTL returns it in milliseconds.
+   *
+   * - Available since: 2.6.0.
+   * - Time complexity: O(1).
+   * @param key The key to check.
+   * @returns One of the following:
+   * - A positive integer: TTL in milliseconds.
+   * - `-1`: if the key exists but has no associated expiration.
+   * - `-2`: if the key does not exist.
+   * @see {@link https://redis.io/commands/pttl}
+   * @see {@link https://redis.io/commands/ttl}
+   */
+  PTTL(key: string): RedisXTransaction<AddToList<L, number>, C, D>;
+  /**
+   * Iterates over the key names in the database.
+   *
+   * `SCAN` is a cursor based iterator. This means that at every call of the command, the server returns an updated cursor that the user needs to use as the cursor argument in the next call.
+   * An iteration starts when the cursor is set to 0, and terminates when the cursor returned by the server is 0.
+   *
+   * A given element may be returned multiple times. It is up to the application to handle the case of duplicated elements, for example only using the returned elements in order to perform operations that are safe when re-applied multiple times.
+   * - Available since: 2.8.0.
+   * - Time complexity: O(1) for every call. O(N) for a complete iteration, including enough command calls for the cursor to return back to 0. N is the number of elements inside the collection.
+   * @param cursor - The cursor value. Start an iteration with `0`, then use the cursor returned by each call as the argument to the next call.
+   * @param options -
+   * @returns Array reply: specifically, an array with two elements.
+   * - The first element is a Bulk string reply that represents an unsigned 64-bit number, the cursor.
+   * - The second element is an Array reply with the names of scanned keys.
+   * @see {@link https://redis.io/commands/scan}
+   */
+  SCAN(cursor: string | number, options?: ScanOptions): RedisXTransaction<AddToList<L, {
+    cursor: string;
+    keys: Set<string>;
+  }>, C, D>;
+  /**
+   * Returns the remaining time to live of a key that has a timeout.
+   *
+   * This introspection capability allows a Redis client to check how many seconds
+   * a given key will continue to be part of the dataset.
+   *
+   * - Available since: 1.0.0.
+   * - Time complexity: O(1).
+   * @param key The key to check.
+   * @returns One of the following:
+   * - A positive integer: TTL in seconds.
+   * - `-1`: if the key exists but has no associated expiration.
+   * - `-2`: if the key does not exist.
+   * @see {@link https://redis.io/commands/ttl}
+   */
+  TTL(key: string): RedisXTransaction<AddToList<L, number>, C, D>;
+  /**
+   * Set a timeout on key.
+   *
+   * After the timeout has expired, the key will automatically be deleted.
+   * - Available since: 1.0.0.
+   * - Time complexity: O(1).
+   * @param key Key to set the timeout on.
+   * @param seconds Time to live in seconds.
+   * @param options Command options.
+   * @returns Returns `true` if the timeout was set. Returns `false` if the timeout was not set; for example, the key doesn't exist, or the operation was skipped because of the provided arguments.
+   * @see {@link https://redis.io/commands/expire}
+   */
+  EXPIRE(key: string, seconds: number, options?: ExpireOptions): RedisXTransaction<AddToList<L, boolean>, C, D>;
+  /**
+   * Returns the string representation of the type of the value stored at `key`.
+   * - Available since: 1.0.0.
+   * - Time complexity: O(1).
+   * @param key The key to check.
+   * @returns The type of the value stored at the key, or `"none"` if the key does not exist.
+   * @see {@link https://redis.io/commands/type}
+   */
+  TYPE(key: string): RedisXTransaction<AddToList<L, "none" | "string" | "list" | "set" | "zset" | "hash" | "stream" | "vectorset">, C, D>;
+  /**
+   * Returns all keys matching pattern.
+   * - Available since: 1.0.0.
+   * - Time complexity: O(N) with N being the number of keys in the database.
+   * @param pattern Pattern to match.
+   * @returns A set of keys matching pattern.
+   * @see {@link https://redis.io/commands/keys}
+   */
+  KEYS(pattern: string): RedisXTransaction<AddToList<L, Set<string>>, C, D>;
+  /**
+   * Copy the value stored at the source key to the destination key.
+   * - Available since: 6.2.0.
+   * - Time complexity: O(N) worst case for collections, where N is the number of nested items. O(1) for string values.
+   * @param source The source key.
+   * @param destination The destination key.
+   * @param options Command options.
+   * @returns Whether the copy was successful.
+   * @see {@link https://redis.io/commands/copy}
+   */
+  COPY(source: string, destination: string, options?: CopyOptions): RedisXTransaction<AddToList<L, boolean>, C, D>;
+  /**
+   * This command has the same effect and semantic as EXPIRE, but instead of specifying the number of seconds representing the TTL (time to live), it takes an absolute Unix timestamp (seconds since January 1, 1970).
+   *
+   * A timestamp in the past will delete the key immediately.
+   * - Available since: 1.2.0.
+   * - Time complexity: O(1).
+   * @param key Key to set the timeout on.
+   * @param timestamp Unix timestamp in seconds.
+   * @param options Command options.
+   * @returns Returns `true` if the timeout was set. Returns `false` if the timeout was not set; for example, the key doesn't exist, or the operation was skipped because of the provided arguments.
+   * @see {@link https://redis.io/commands/expireat}
+   * @see {@link https://redis.io/commands/expire}
+   */
+  EXPIREAT(key: string, timestamp: number, options?: ExpireatOptions): RedisXTransaction<AddToList<L, boolean>, C, D>;
+  /**
+   * This command has the same effect and semantic as EXPIREAT, but the Unix time at which the key will expire is specified in milliseconds instead of seconds.
+   * - Available since: 2.6.0.
+   * - Time complexity: O(1).
+   * @param key Key to set the timeout on.
+   * @param timestamp Unix timestamp in milliseconds.
+   * @param options Command options.
+   * @returns Returns `true` if the timeout was set. Returns `false` if the timeout was not set; for example, the key doesn't exist, or the operation was skipped because of the provided arguments.
+   * @see {@link https://redis.io/commands/pexpireat}
+   * @see {@link https://redis.io/commands/expireat}
+   */
+  PEXPIREAT(key: string, timestamp: number, options?: PexpireatOptions): RedisXTransaction<AddToList<L, boolean>, C, D>;
+  /**
+   * Remove the existing timeout on key, turning the key from volatile (a key with an expire set) to persistent (a key that will never expire as no timeout is associated).
+   *
+   * - Available since: 2.2.0.
+   * - Time complexity: O(1).
+   * @param key The key to persist.
+   * @returns Returns `true` if the timeout was removed. Returns `false` if the key does not exist or does not have an associated timeout.
+   * @see {@link https://redis.io/commands/persist}
+   */
+  PERSIST(key: string): RedisXTransaction<AddToList<L, boolean>, C, D>;
+  /**
+   * Returns the absolute Unix timestamp (since January 1, 1970) in seconds at which the given key will expire.
+   * - Available since: 7.0.0.
+   * - Time complexity: O(1).
+   * @param key Key to get expiration time for.
+   * @returns One of the following:
+   * - A number representing the expiration Unix timestamp in seconds.
+   * - `-1` if the key exists but has no associated expiration time.
+   * - `-2` if the key does not exist.
+   * @see {@link https://redis.io/commands/expiretime}
+   */
+  EXPIRETIME(key: string): RedisXTransaction<AddToList<L, number>, C, D>;
+  /**
+   * Renames `key` to `newkey`. It returns an error when `key` does not exist. If `newkey` already exists it is overwritten.
+   *
+   * - Available since: 1.0.0.
+   * - Time complexity: O(1).
+   * @param key The key to rename.
+   * @param newkey The new key name.
+   * @returns "OK".
+   * @see {@link https://redis.io/commands/rename}
+   */
+  RENAME(key: string, newkey: string): RedisXTransaction<AddToList<L, "OK">, C, D>;
+  /**
+   * Renames `key` to `newkey` if `newkey` does not yet exist. It returns an error when `key` does not exist.
+   *
+   * - Available since: 1.0.0.
+   * - Time complexity: O(1).
+   * @param key The key to rename.
+   * @param newkey The new key name.
+   * @returns `1` if the key was renamed, or `0` if the destination key already exists.
+   * @see {@link https://redis.io/commands/renamenx}
+   */
+  RENAMENX(key: string, newkey: string): RedisXTransaction<AddToList<L, 0 | 1>, C, D>;
+  /**
+   * PEXPIRETIME has the same semantic as EXPIRETIME, but returns the absolute Unix expiration timestamp in milliseconds instead of seconds.
+   * - Available since: 7.0.0.
+   * - Time complexity: O(1).
+   * @param key Key to get expiration time for.
+   * @returns One of the following:
+   * - A number representing the expiration Unix timestamp in milliseconds.
+   * - `-1` if the key exists but has no associated expiration time.
+   * - `-2` if the key does not exist.
+   * @see {@link https://redis.io/commands/pexpiretime}
+   * @see {@link https://redis.io/commands/expiretime}
+   */
+  PEXPIRETIME(key: string): RedisXTransaction<AddToList<L, number>, C, D>;
+  /**
+   * Removes the specified keys.
+   *
+   * A key is ignored if it does not exist.
+   * - Available since: 1.0.0.
+   * - Time complexity: O(N) where N is the number of keys that will be removed. When a key to remove holds a value other than a string, the individual complexity for this key is O(M) where M is the number of elements in the list, set, sorted set or hash.
+   * @param keys Keys to delete.
+   * @returns The number of keys that were removed.
+   * @see {@link https://redis.io/commands/del}
+   */
+  DEL(...keys: string[]): RedisXTransaction<AddToList<L, number>, C, D>;
+  /**
+   * Removes the specified keys.
+   *
+   * A key is ignored if it does not exist.
+   * - Available since: 1.0.0.
+   * - Time complexity: O(N) where N is the number of keys that will be removed. When a key to remove holds a value other than a string, the individual complexity for this key is O(M) where M is the number of elements in the list, set, sorted set or hash.
+   * @param keys One or more keys to delete.
+   * @returns The number of keys that were removed.
+   * @see {@link https://redis.io/commands/del}
+   */
+  DEL(keys: Collection<string>): RedisXTransaction<AddToList<L, number>, C, D>;
+  /**
+   * Returns the number of keys that exist.
+   *
+   * If you specify the same existing key multiple times, EXISTS counts it each time. For example, if somekey exists, EXISTS somekey somekey returns 2.
+   * - Available since: 1.0.0.
+   * - Time complexity: O(N) where N is the number of keys to check.
+   * @param keys Keys to check.
+   * @returns The number of keys existing among the ones specified as arguments.
+   * @see {@link https://redis.io/commands/exists}
+   */
+  EXISTS(...keys: string[]): RedisXTransaction<AddToList<L, number>, C, D>;
+  /**
+   * Returns the number of keys that exist.
+   *
+   * If you specify the same existing key multiple times, EXISTS counts it each time. For example, if somekey exists, EXISTS somekey somekey returns 2.
+   * - Available since: 1.0.0.
+   * - Time complexity: O(N) where N is the number of keys to check.
+   * @param keys One or more keys to check for existence. A repeated key is counted once per occurrence.
+   * @returns The number of keys existing among the ones specified as arguments.
+   * @see {@link https://redis.io/commands/exists}
+   */
+  EXISTS(keys: Collection<string>): RedisXTransaction<AddToList<L, number>, C, D>;
+  /**
+   * Insert all the specified values at the tail of the list stored at key.
+   *
+   * If key does not exist, it is created as empty list before performing the push operation.
+   * When key holds a value that is not a list, an error is returned.
+   * - Available since: 1.0.0.
+   * - Multiple elements are available since Redis 2.4.0.
+   * - Time complexity: O(1) for each element added, so O(N) to add N elements when the command is called with multiple arguments.
+   * @param key Key to push values to.
+   * @param elements An array of elements to add to the list.
+   * @returns The length of the list after the push operation.
+   * @see {@link https://redis.io/commands/rpush}
+   */
+  RPUSH(key: string, elements: (string | number)[]): RedisXTransaction<AddToList<L, number>, C, D>;
+  /**
+   * Insert all the specified values at the tail of the list stored at key.
+   *
+   * If key does not exist, it is created as empty list before performing the push operation.
+   * When key holds a value that is not a list, an error is returned.
+   * - Available since: 1.0.0.
+   * - Multiple elements are available since Redis 2.4.0.
+   * - Time complexity: O(1) for each element added, so O(N) to add N elements when the command is called with multiple arguments.
+   * @param key Key to push values to.
+   * @param elements Elements to add to the list.
+   * @returns The length of the list after the push operation.
+   * @see {@link https://redis.io/commands/rpush}
+   */
+  RPUSH(key: string, ...elements: (string | number)[]): RedisXTransaction<AddToList<L, number>, C, D>;
+  /**
+   * Removes and returns the first elements of the list stored at key.
+   *
+   * By default, the command pops a single element from the beginning of the list. When provided
+   * with the optional count argument, the reply will consist of up to count elements, depending
+   * on the list's length.
+   *
+   * - Available since: 1.0.0.
+   * - Time complexity: O(N) where N is the number of elements returned.
+   * @param key The key of the list.
+   * @returns The value of the first element, or `null` when key does not exist.
+   * @see {@link https://redis.io/commands/lpop}
+   */
+  LPOP(key: string): RedisXTransaction<AddToList<L, string | null>, C, D>;
+  /**
+   * Removes and returns the first elements of the list stored at key.
+   *
+   * By default, the command pops a single element from the beginning of the list. When provided
+   * with the optional count argument, the reply will consist of up to count elements, depending
+   * on the list's length.
+   *
+   * - Available since: 6.2.0 (for the count argument).
+   * - Time complexity: O(N) where N is the number of elements returned.
+   * @param key The key of the list.
+   * @param count The number of elements to pop.
+   * @returns An array of popped elements, or `null` when key does not exist.
+   * @see {@link https://redis.io/commands/lpop}
+   */
+  LPOP(key: string, count: number): RedisXTransaction<AddToList<L, string[] | null>, C, D>;
+  /**
+   * Atomically returns and removes the last element (tail) of the list stored at source,
+   * and pushes the element at the first element (head) of the list stored at destination.
+   *
+   * For example: consider source holding the list a,b,c, and destination holding the list x,y,z.
+   * Executing RPOPLPUSH results in source holding a,b and destination holding c,x,y,z.
+   *
+   * If source does not exist, the value nil is returned and no operation is performed.
+   * If source and destination are the same, the operation is equivalent to removing the
+   * last element from the list and pushing it as first element of the list, so it can be
+   * considered as a list rotation command.
+   *
+   * - Available since: 1.2.0.
+   * - Time complexity: O(1).
+   * @deprecated As of Redis version 6.2.0, this command is regarded as deprecated. It can be replaced by LMOVE with the RIGHT and LEFT arguments when migrating or writing new code.
+   * @param source Source list key.
+   * @param destination Destination list key.
+   * @returns The element being popped and pushed, or `null` if the source list is empty.
+   * @see {@link https://redis.io/commands/rpoplpush}
+   */
+  RPOPLPUSH(source: string, destination: string): RedisXTransaction<AddToList<L, string | null>, C, D>;
+  /**
+   * Insert all the specified values at the tail of the list stored at key, only if key already exists and holds a list.
+   * In contrary to RPUSH, no operation will be performed when key does not yet exist.
+   *
+   * - Available since: 2.2.0.
+   * - Multiple elements are available since Redis 4.0.0.
+   * - Time complexity: O(1) for each element added, so O(N) to add N elements when the command is called with multiple arguments.
+   * @param key Key to push values to.
+   * @param elements An array of elements to add to the list.
+   * @returns The length of the list after the push operation.
+   * @see {@link https://redis.io/commands/rpushx}
+   */
+  RPUSHX(key: string, elements: (string | number)[]): RedisXTransaction<AddToList<L, number>, C, D>;
+  /**
+   * Insert all the specified values at the tail of the list stored at key, only if key already exists and holds a list.
+   * In contrary to RPUSH, no operation will be performed when key does not yet exist.
+   *
+   * - Available since: 2.2.0.
+   * - Multiple elements are available since Redis 4.0.0.
+   * - Time complexity: O(1) for each element added, so O(N) to add N elements when the command is called with multiple arguments.
+   * @param key Key to push values to.
+   * @param elements Elements to add to the list.
+   * @returns The length of the list after the push operation.
+   * @see {@link https://redis.io/commands/rpushx}
+   */
+  RPUSHX(key: string, ...elements: (string | number)[]): RedisXTransaction<AddToList<L, number>, C, D>;
+  /**
+   * Sets the list element at index to element. For more information on the index argument, see LINDEX.
+   *
+   * An error is returned for out of range indexes.
+   *
+   * - Available since: 1.0.0.
+   * - Time complexity: O(N) where N is the length of the list. Setting either the first or the last element of the list is O(1).
+   * @param key The key of the list.
+   * @param index The index of the element to set. Can be negative to count from the end of the list.
+   * @param element The new value to set.
+   * @returns "OK" if successful.
+   * @see {@link https://redis.io/commands/lset}
+   */
+  LSET(key: string, index: number, element: string | number): RedisXTransaction<AddToList<L, "OK">, C, D>;
+  /**
+   * Removes the first count occurrences of elements equal to element from the list stored at key.
+   * The count argument influences the operation in the following ways:
+   * - count > 0: Remove elements equal to element moving from head to tail.
+   * - count < 0: Remove elements equal to element moving from tail to head.
+   * - count = 0: Remove all elements equal to element.
+   *
+   * - Available since: 1.0.0.
+   * - Time complexity: O(N+M) where N is the length of the list and M is the number of elements removed.
+   * @param key The key of the list.
+   * @param count The number of occurrences to remove. Use negative values to start from the tail.
+   * @param element The element to remove from the list.
+   * @returns The number of removed elements.
+   * @see {@link https://redis.io/commands/lrem}
+   */
+  LREM(key: string, count: number, element: string | number): RedisXTransaction<AddToList<L, number>, C, D>;
+  /**
+   * Insert all the specified elements at the head of the list stored at key.
+   *
+   * If key does not exist, it is created as empty list before performing the push operations.
+   * - Available since: 1.0.0.
+   * - Multiple field/value pairs are available since Redis 2.4.0.
+   * - Time complexity: O(1) for each element added.
+   * @param key Key of the list.
+   * @param elements An array of elements to add to the list.
+   * @returns The length of the list after the push operation.
+   * @see {@link https://redis.io/commands/lpush}
+   */
+  LPUSH(key: string, elements: (string | number)[]): RedisXTransaction<AddToList<L, number>, C, D>;
+  /**
+   * Insert all the specified elements at the head of the list stored at key.
+   *
+   * If key does not exist, it is created as empty list before performing the push operations.
+   * - Available since: 1.0.0.
+   * - Multiple field/value pairs are available since Redis 2.4.0.
+   * - Time complexity: O(1) for each element added.
+   * @param key Key of the list.
+   * @param elements Elements to add to the list.
+   * @returns The length of the list after the push operation.
+   * @see {@link https://redis.io/commands/lpush}
+   */
+  LPUSH(key: string, ...elements: (string | number)[]): RedisXTransaction<AddToList<L, number>, C, D>;
+  /**
+   * Inserts specified values at the head of the list stored at key, only if key already exists and holds a list.
+   * In contrary to LPUSH, no operation will be performed when key does not yet exist.
+   *
+   * - Available since: 2.2.0.
+   * - Time complexity: O(1) for each element added, so O(N) to add N elements when the command is called with multiple arguments.
+   * @param key Key of the list.
+   * @param elements Element or array of elements to push to the list.
+   * @returns The length of the list after the push operation.
+   * @see {@link https://redis.io/commands/lpushx}
+   */
+  LPUSHX(key: string, elements: (string | number)[]): RedisXTransaction<AddToList<L, number>, C, D>;
+  /**
+   * Inserts specified values at the head of the list stored at key, only if key already exists and holds a list.
+   * In contrary to LPUSH, no operation will be performed when key does not yet exist.
+   *
+   * - Available since: 2.2.0.
+   * - Time complexity: O(1) for each element added, so O(N) to add N elements when the command is called with multiple arguments.
+   * @param key Key of the list.
+   * @param elements One or more elements to push to the list.
+   * @returns The length of the list after the push operation.
+   * @see {@link https://redis.io/commands/lpushx}
+   */
+  LPUSHX(key: string, ...elements: (string | number)[]): RedisXTransaction<AddToList<L, number>, C, D>;
+  /**
+   * Removes and returns the last elements of the list stored at key.
+   *
+   * By default, the command pops a single element from the end of the list.
+   * When provided with the optional count argument, the reply will consist
+   * of up to count elements, depending on the list's length.
+   *
+   * - Available since: 1.0.0.
+   * - Time complexity: O(N) where N is the number of elements returned.
+   * @param key The key of the list.
+   * @returns The value of the last element, or `null` when key does not exist.
+   * @see {@link https://redis.io/commands/rpop}
+   */
+  RPOP(key: string): RedisXTransaction<AddToList<L, string | null>, C, D>;
+  /**
+   * Removes and returns the last elements of the list stored at key.
+   *
+   * By default, the command pops a single element from the end of the list.
+   * When provided with the optional count argument, the reply will consist
+   * of up to count elements, depending on the list's length.
+   *
+   * - Available since: 6.2.0 (for the count argument).
+   * - Time complexity: O(N) where N is the number of elements returned.
+   * @param key The key of the list.
+   * @param count The number of elements to pop.
+   * @returns Array of popped elements, or `null` when key does not exist.
+   * @see {@link https://redis.io/commands/rpop}
+   */
+  RPOP(key: string, count: number): RedisXTransaction<AddToList<L, string[] | null>, C, D>;
+  /**
+   * Returns the specified elements of the list stored at key. The offsets start and stop
+   * are zero-based indexes, with 0 being the first element of the list (the head of the list),
+   * 1 being the next element and so on.
+   *
+   * These offsets can also be negative numbers indicating offsets starting at the end of the list.
+   * For example, -1 is the last element of the list, -2 the penultimate, and so on.
+   *
+   * Out of range indexes will not produce an error. If start is larger than the end of the list,
+   * an empty list is returned. If stop is larger than the actual end of the list, Redis will
+   * treat it like the last element of the list.
+   *
+   * - Available since: 1.0.0.
+   * - Time complexity: O(S+N) where S is the distance of start offset from HEAD for small lists,
+   *   from nearest end (HEAD or TAIL) for large lists; and N is the number of elements in the specified range.
+   * @param key The key of the list.
+   * @param start The starting position (inclusive, 0-based index).
+   * @param stop The ending position (inclusive, 0-based index).
+   * @returns Array of elements in the specified range, or an empty array if the key doesn't exist.
+   * @see {@link https://redis.io/commands/lrange}
+   */
+  LRANGE(key: string, start: number, stop: number): RedisXTransaction<AddToList<L, string[]>, C, D>;
+  /**
+   * Returns the length of the list stored at key. If key does not exist, it is interpreted as an empty list and 0 is returned.
+   * An error is returned when the value stored at key is not a list.
+   *
+   * - Available since: 1.0.0.
+   * - Time complexity: O(1).
+   * @param key Key to get the length of the list for.
+   * @returns The length of the list at key.
+   * @see {@link https://redis.io/commands/llen}
+   */
+  LLEN(key: string): RedisXTransaction<AddToList<L, number>, C, D>;
+  /**
+   * Inserts `element` in the list stored at `key` either before or after the reference value `pivot`.
+   *
+   * When `key` does not exist, it is considered an empty list and no operation is performed.
+   *
+   * An error is returned when `key` exists but does not hold a list value.
+   * - Available since: 2.2.0.
+   * - Time complexity: O(N) where N is the number of elements to traverse before seeing the value pivot. This means that inserting somewhere on the left end on the list (head) can be considered O(1) and inserting somewhere on the right end (tail) is O(N).
+   * @param key - The name of the key that holds the list.
+   * @param element - The value to insert.
+   * @param options -
+   * @returns Any of the following:
+   * - Integer reply: the list length after a successful insert operation.
+   * - Integer reply: `0` when the key doesn't exist.
+   * - Integer reply: `-1` when the pivot wasn't found.
+   * @see {@link https://redis.io/commands/linsert}
+   */
+  LINSERT(key: string, element: string | number, options: LinsertOptions): RedisXTransaction<AddToList<L, number>, C, D>;
+  /**
+   * Trim an existing list so that it will contain only the specified range of elements specified.
+   * Both `start` and `stop` are zero-based indexes, where 0 is the first element of the list (the head),
+   * 1 the next element and so on.
+   *
+   * `start` and `stop` can also be negative numbers indicating offsets from the end of the list,
+   * where -1 is the last element of the list, -2 the penultimate element and so on.
+   *
+   * Out of range indexes will not produce an error: if `start` is larger than the end of the list,
+   * or `start` > `stop`, the result will be an empty list (which causes key to be removed).
+   * If `stop` is larger than the end of the list, Redis will treat it like the last element of the list.
+   *
+   * - Available since: 1.0.0.
+   * - Time complexity: O(N) where N is the number of elements to be removed by the operation.
+   * @param key The key of the list to trim.
+   * @param start Zero-based index of the first element to keep.
+   * @param stop Zero-based index of the last element to keep.
+   * @returns "OK"
+   * @see {@link https://redis.io/commands/ltrim}
+   */
+  LTRIM(key: string, start: number, stop: number): RedisXTransaction<AddToList<L, "OK">, C, D>;
+  /**
+   * Returns the element at index in the list stored at key.
+   * The index is zero-based, so 0 means the first element, 1 the second element and so on.
+   * Negative indices can be used to designate elements starting at the tail of the list.
+   *
+   * - Available since: 1.0.0.
+   * - Time complexity: O(N) where N is the number of elements to traverse to get to the element at index. This makes asking for the first or the last element of the list O(1).
+   * @param key Key of the list.
+   * @param index Zero-based index of the element to return.
+   * @returns The requested element, or `null` when index is out of range.
+   * @see {@link https://redis.io/commands/lindex}
+   */
+  LINDEX(key: string, index: number): RedisXTransaction<AddToList<L, string | null>, C, D>;
+  /**
+   * Returns the number of entries inside a stream. If the specified key does not exist
+   * the command returns zero, as if the stream was empty. However note that unlike other
+   * Redis types, zero-length streams are possible, so you should call TYPE or EXISTS in
+   * order to check if a key exists or not.
+   *
+   * Streams are not auto-deleted once they have no entries inside (for instance after an
+   * XDEL call), because the stream may have consumer groups associated with it.
+   *
+   * - Available since: 5.0.0.
+   * - Time complexity: O(1).
+   * @param key The key of the stream.
+   * @returns The number of entries of the stream at key.
+   * @see {@link https://redis.io/commands/xlen}
+   */
+  XLEN(key: string): RedisXTransaction<AddToList<L, number>, C, D>;
+  /**
+   * Removes the specified entries from a stream, and returns the number of entries deleted.
+   * This number may be less than the number of IDs passed to the command in the case where
+   * some of the specified IDs do not exist in the stream.
+   *
+   * - Available since: 5.0.0.
+   * - Time complexity: O(1) for each single item to delete in the stream, regardless of the stream size.
+   * @param key The key of the stream.
+   * @param ids The IDs of the entries to remove.
+   * @returns The number of entries actually deleted.
+   * @see {@link https://redis.io/commands/xdel}
+   */
+  XDEL(key: string, ids: string[]): RedisXTransaction<AddToList<L, number>, C, D>;
+  /**
+   * Removes the specified entries from a stream, and returns the number of entries deleted.
+   * This number may be less than the number of IDs passed to the command in the case where
+   * some of the specified IDs do not exist in the stream.
+   *
+   * - Available since: 5.0.0.
+   * - Time complexity: O(1) for each single item to delete in the stream, regardless of the stream size.
+   * @param key The key of the stream.
+   * @param ids The IDs of the entries to remove.
+   * @returns The number of entries actually deleted.
+   * @see {@link https://redis.io/commands/xdel}
+   */
+  XDEL(key: string, ...ids: string[]): RedisXTransaction<AddToList<L, number>, C, D>;
+  /**
+   * Read data from one or multiple streams, only returning entries with an ID greater than the last received ID reported by the caller.
+   *
+   * - Available since: 5.0.0.
+   * - Time complexity: O(N) where N is the number of entries returned.
+   * @param key The name of the stream to read from.
+   * @param id The last ID received from the stream.
+   * @param options Command options.
+   * @returns An array of stream entries or `null` if no entries are available.
+   * @see {@link https://redis.io/commands/xread}
+   */
+  XREAD(key: string, id: XreadId, options?: XreadOptions): RedisXTransaction<AddToList<L, XStreamEntry[]>, C, D>;
+  /**
+   * Read data from one or multiple streams, only returning entries with an ID greater than the last received ID reported by the caller.
+   *
+   * - Available since: 5.0.0.
+   * - Time complexity: O(N) where N is the number of entries returned.
+   * @param streams Object where keys are stream names and values are the last IDs received from those streams.
+   * @param options Command options.
+   * @returns An object where keys are stream names and values are arrays of stream entries or `null` if no entries are available.
+   * @see {@link https://redis.io/commands/xread}
+   */
+  XREAD<const S extends Record<string, XreadId>>(streams: S, options?: XreadOptions): RedisXTransaction<AddToList<L, { [K in keyof S]: XStreamEntry[]; }>, C, D>;
+  /**
+   * Appends the specified stream entry to the stream at the specified `key`.
+   * If the key does not exist, `XADD` will create a new key with the given stream value as a side effect of running this command.
+   * You can turn off key creation with the `NOMKSTREAM` option.
+   * - Available since: 5.0.0.
+   * - Time complexity: O(1) when adding a new entry, O(N) when trimming where N being the number of entries evicted.
+   * @param key The name of the stream key.
+   * @param id The stream entry ID. Use `*` to auto-generate a unique ID, or specify a well-formed ID in the format `<ms>-<seq>` (for example, `1526919030474-55`).
+   * @param pairs One or more field-value pairs that make up the stream entry. You must provide at least one field-value pair.
+   * @param options Command options.
+   * @returns Bulk string reply: The ID of the added entry.
+   * @see {@link https://redis.io/commands/xadd}
+   */
+  XADD(key: string, id: XaddId, pairs: XaddPairs, options?: XaddOptions & {
+    NOMKSTREAM?: false;
+  }): RedisXTransaction<AddToList<L, string>, C, D>;
+  /**
+   * Appends the specified stream entry to the stream at the specified `key`.
+   * If the key does not exist, `XADD` will create a new key with the given stream value as a side effect of running this command.
+   * You can turn off key creation with the `NOMKSTREAM` option.
+   * - Available since: 5.0.0.
+   * - Time complexity: O(1) when adding a new entry, O(N) when trimming where N being the number of entries evicted.
+   * @param key The name of the stream key.
+   * @param id The stream entry ID. Use `*` to auto-generate a unique ID, or specify a well-formed ID in the format `<ms>-<seq>` (for example, `1526919030474-55`).
+   * @param pairs One or more field-value pairs that make up the stream entry. You must provide at least one field-value pair.
+   * @param options Command options.
+   * @returns
+   * - Bulk string reply: The ID of the added entry.
+   * - Nil reply: if the NOMKSTREAM option is given and the key doesn't exist.
+   * @see {@link https://redis.io/commands/xadd}
+   */
+  XADD(key: string, id: XaddId, pairs: XaddPairs, options: XaddOptions & {
+    NOMKSTREAM: true;
+  }): RedisXTransaction<AddToList<L, string | null>, C, D>;
+  /**
+   * Appends the specified stream entry to the stream at the specified `key`.
+   * If the key does not exist, `XADD` will create a new key with the given stream value as a side effect of running this command.
+   * You can turn off key creation with the `NOMKSTREAM` option.
+   * - Available since: 5.0.0.
+   * - Time complexity: O(1) when adding a new entry, O(N) when trimming where N being the number of entries evicted.
+   * @param key The name of the stream key.
+   * @param id The stream entry ID. Use `*` to auto-generate a unique ID, or specify a well-formed ID in the format `<ms>-<seq>` (for example, `1526919030474-55`).
+   * @param pairs One or more field-value pairs that make up the stream entry. You must provide at least one field-value pair.
+   * @param options Command options.
+   * @returns
+   * - Bulk string reply: The ID of the added entry.
+   * - Nil reply: if the NOMKSTREAM option is given and the key doesn't exist.
+   * @see {@link https://redis.io/commands/xadd}
+   */
+  XADD(key: string, id: XaddId, pairs: XaddPairs, options?: XaddOptions): RedisXTransaction<AddToList<L, string | null>, C, D>;
+  /**
+   * Returns the stream entries matching a given range of IDs.
+   *
+   * The range is specified by a minimum and maximum ID. All the entries having an ID
+   * between the two specified or exactly one of the two IDs specified (closed interval)
+   * are returned.
+   *
+   * Special IDs `-` and `+` mean respectively the minimum ID possible and the maximum
+   * ID possible inside a stream.
+   *
+   * Exclusive ranges can be specified by prefixing the ID with `(`.
+   *
+   * - Available since: 5.0.0.
+   * - Time complexity: O(N) with N being the number of elements being returned. If N is constant (e.g. always asking for the first 10 elements with COUNT), you can consider it O(1).
+   * @param key Key that contains the stream.
+   * @param start Start ID for the range query. Use `-` for the minimum ID possible or prefix with `(` for exclusive range.
+   * @param end End ID for the range query. Use `+` for the maximum ID possible or prefix with `(` for exclusive range.
+   * @param options Command options.
+   * @returns An array of stream entries matching the range.
+   * @see {@link https://redis.io/commands/xrange}
+   */
+  XRANGE(key: string, start: "-" | (string & {}), end: "+" | (string & {}), options?: XrangeOptions): RedisXTransaction<AddToList<L, XStreamEntry[]>, C, D>;
+  /**
+   * This command is exactly like XRANGE, but with the notable difference of returning the entries in reverse order,
+   * and also taking the start-end range in reverse order:
+   * in XREVRANGE you need to state the end ID and later the start ID,
+   * and the command will produce all the element between (or exactly like) the two IDs, starting from the end side.
+   *
+   * - Available since: 5.0.0.
+   * - Time complexity: O(N) with N being the number of elements being returned. If N is constant (e.g. always asking for the first 10 elements with COUNT), you can consider it O(1).
+   * @param key Key that contains the stream.
+   * @param end End ID for the range query. Use `+` for the maximum ID possible or prefix with `(` for exclusive range.
+   * @param start Start ID for the range query. Use `-` for the minimum ID possible or prefix with `(` for exclusive range.
+   * @param options Command options.
+   * @returns An array of stream entries matching the range.
+   * @see {@link https://redis.io/commands/xrange}
+   */
+  XREVRANGE(key: string, end: "+" | (string & {}), start: "-" | (string & {}), options?: XrevrangeOptions): RedisXTransaction<AddToList<L, XStreamEntry[]>, C, D>;
+  /**
+   * Trims the stream by evicting older entries (entries with lower IDs) if needed.
+   *
+   * Using MAXLEN strategy which evicts entries as long as the stream's length exceeds the specified threshold.
+   *
+   * - Available since: 5.0.0.
+   * - Time complexity: O(N), with N being the number of evicted entries.
+   * @param key The key of the stream.
+   * @param strategy The MAXLEN trimming strategy.
+   * @param threshold A positive integer representing the max length.
+   * @param options Additional options.
+   * @returns The number of entries deleted from the stream.
+   * @see {@link https://redis.io/commands/xtrim}
+   */
+  XTRIM(key: string, strategy: "MAXLEN", threshold: number, options?: XtrimOptions): RedisXTransaction<AddToList<L, number>, C, D>;
+  /**
+   * Trims the stream by evicting older entries (entries with lower IDs) if needed.
+   *
+   * Using MINID strategy which evicts entries with IDs lower than threshold.
+   *
+   * - Available since: 6.2.0.
+   * - Time complexity: O(N), with N being the number of evicted entries.
+   * @param key The key of the stream.
+   * @param strategy The MINID trimming strategy.
+   * @param threshold A stream ID threshold in the format of "timestamp-sequence" or "timestamp".
+   * @param options Additional options.
+   * @returns The number of entries deleted from the stream.
+   * @see {@link https://redis.io/commands/xtrim}
+   */
+  XTRIM(key: string, strategy: "MINID", threshold: string, options?: XtrimOptions): RedisXTransaction<AddToList<L, number>, C, D>;
+  /**
+   * Removes all elements in the sorted set stored at `key` with rank between `start` and `stop`.
+   * Both `start` and `stop` are `0` -based indexes with `0` being the element with the lowest score.
+   * These indexes can be negative numbers, where they indicate offsets starting at the element with the highest score.
+   * For example: `-1` is the element with the highest score, `-2` the element with the second highest score and so forth.
+   * - Available since: 2.0.0.
+   * - Time complexity: O(log(N)+M) with N being the number of elements in the sorted set and M the number of elements removed by the operation.
+   * @param key - The name of the key that holds the sorted set.
+   * @param start - The start index, zero-based. Negative values count from the end of the sorted set (`-1` is the member with the highest score).
+   * @param stop - The stop index, zero-based and inclusive. Negative values count from the end of the sorted set.
+   * @returns Integer reply: the number of members removed.
+   * @see {@link https://redis.io/commands/zremrangebyrank}
+   */
+  ZREMRANGEBYRANK(key: string, start: number, stop: number): RedisXTransaction<AddToList<L, number>, C, D>;
+  /**
+   * Returns the sorted set cardinality (number of elements) of the sorted set stored at key.
+   * - Available since: 1.2.0.
+   * - Time complexity: O(1).
+   * @param key Key holds a sorted set.
+   * @returns The cardinality (number of members) of the sorted set, or 0 if the key doesn't exist.
+   * @see {@link https://redis.io/commands/zcard}
+   */
+  ZCARD(key: string): RedisXTransaction<AddToList<L, number>, C, D>;
+  /**
+   * Returns all the elements in the sorted set at key with a score between min and max (including elements with score equal to min or max).
+   * The elements are considered to be ordered from low to high scores.
+   *
+   * The elements having the same score are returned in lexicographical order.
+   *
+   * - Available since: 1.0.5.
+   * - Time complexity: O(log(N)+M) with N being the number of elements in the sorted set and M the number of elements being returned. If M is constant (e.g. always asking for the first 10 elements with LIMIT), you can consider it O(log(N)).
+   * @deprecated As of Redis version 6.2.0, this command is regarded as deprecated. It can be replaced by ZRANGE with the BYSCORE argument when migrating or writing new code.
+   * @param key The key of the sorted set.
+   * @param min The minimum score to consider.
+   * @param max The maximum score to consider.
+   * @param options Additional options for the command.
+   * @returns Array of elements in the specified score range.
+   * @see {@link https://redis.io/commands/zrangebyscore}
+   */
+  ZRANGEBYSCORE(key: string, min: number | `(${number}` | "-inf", max: number | `(${number}` | "+inf", options?: ZrangebyscoreOptions & {
+    WITHSCORES?: false;
+  }): RedisXTransaction<AddToList<L, string[]>, C, D>;
+  /**
+   * Returns all the elements in the sorted set at key with a score between min and max (including elements with score equal to min or max).
+   * The elements are considered to be ordered from low to high scores.
+   *
+   * The elements having the same score are returned in lexicographical order.
+   *
+   * - Available since: 1.0.5.
+   * - Time complexity: O(log(N)+M) with N being the number of elements in the sorted set and M the number of elements being returned. If M is constant (e.g. always asking for the first 10 elements with LIMIT), you can consider it O(log(N)).
+   * @deprecated As of Redis version 6.2.0, this command is regarded as deprecated. It can be replaced by ZRANGE with the BYSCORE argument when migrating or writing new code.
+   * @param key The key of the sorted set.
+   * @param min The minimum score to consider.
+   * @param max The maximum score to consider.
+   * @param options Additional options for the command with WITHSCORES set to true.
+   * @returns Array of elements with their scores in the specified score range.
+   * @see {@link https://redis.io/commands/zrangebyscore}
+   */
+  ZRANGEBYSCORE(key: string, min: number | `(${number}` | "-inf", max: number | `(${number}` | "+inf", options: ZrangebyscoreOptions & {
+    WITHSCORES: true;
+  }): RedisXTransaction<AddToList<L, {
+    member: string;
+    score: number;
+  }[]>, C, D>;
+  /**
+   * Returns all the elements in the sorted set at key with a score between min and max (including elements with score equal to min or max).
+   * The elements are considered to be ordered from low to high scores.
+   *
+   * The elements having the same score are returned in lexicographical order.
+   *
+   * - Available since: 1.0.5.
+   * - Time complexity: O(log(N)+M) with N being the number of elements in the sorted set and M the number of elements being returned. If M is constant (e.g. always asking for the first 10 elements with LIMIT), you can consider it O(log(N)).
+   * @deprecated As of Redis version 6.2.0, this command is regarded as deprecated. It can be replaced by ZRANGE with the BYSCORE argument when migrating or writing new code.
+   * @param key The key of the sorted set.
+   * @param min The minimum score to consider.
+   * @param max The maximum score to consider.
+   * @param options Additional options for the command.
+   * @returns Array of elements, with their scores when requested.
+   * @see {@link https://redis.io/commands/zrangebyscore}
+   */
+  ZRANGEBYSCORE(key: string, min: number | `(${number}` | "-inf", max: number | `(${number}` | "+inf", options?: ZrangebyscoreOptions): RedisXTransaction<AddToList<L, string[] | {
+    member: string;
+    score: number;
+  }[]>, C, D>;
+  /**
+   * Iterates over members and scores of a sorted set.
+   *
+   * `ZSCAN` is a cursor based iterator. This means that at every call of the command, the server returns an updated cursor that the user needs to use as the cursor argument in the next call.
+   * An iteration starts when the cursor is set to 0, and terminates when the cursor returned by the server is 0.
+   *
+   * A given element may be returned multiple times. It is up to the application to handle the case of duplicated elements, for example only using the returned elements in order to perform operations that are safe when re-applied multiple times.
+   * - Available since: 2.8.0.
+   * - Time complexity: O(1) for every call. O(N) for a complete iteration, including enough command calls for the cursor to return back to 0. N is the number of elements inside the collection.
+   * @param key - The name of the key that holds the sorted set.
+   * @param cursor - The cursor value. Start an iteration with `0`, then use the cursor returned by each call as the argument to the next call.
+   * @param options -
+   * @returns Array reply: cursor and scan response in array form.
+   * - The first element is a Bulk string reply that represents an unsigned 64-bit number, the cursor.
+   * - The second element is an Array reply that contains two elements, a member and its associated score, for every returned element of the sorted set.
+   * @see {@link https://redis.io/commands/zscan}
+   */
+  ZSCAN(key: string, cursor: string | number, options?: ZscanOptions): RedisXTransaction<AddToList<L, {
+    cursor: string;
+    members: Record<string, number>;
+  }>, C, D>;
+  /**
+   * When all the elements in a sorted set are inserted with the same score, in order to force lexicographical ordering, this command returns all the elements in the sorted set at `key` with a value between `max` and `min`.
+   *
+   * Apart from the reversed ordering, `ZREVRANGEBYLEX` is similar to `ZRANGEBYLEX`.
+   * - Available since: 2.8.9.
+   * - Time complexity: O(log(N)+M) with N being the number of elements in the sorted set and M the number of elements being returned. If M is constant (e.g. always asking for the first 10 elements with LIMIT), you can consider it O(log(N)).
+   * @deprecated As of Redis version 6.2.0, this command is regarded as deprecated. It can be replaced by ZRANGE with the REV and BYLEX arguments when migrating or writing new code.
+   * @param key - The name of the key that holds the sorted set.
+   * @param max - The maximum member, compared lexicographically. Prefix with `[` for an inclusive bound or `(` for an exclusive bound; use `+` for the highest possible value.
+   * @param min - The minimum member, compared lexicographically. Prefix with `[` for an inclusive bound or `(` for an exclusive bound; use `-` for the lowest possible value.
+   * @param options -
+   * @returns Array reply: a list of members in the specified lexicographical range.
+   * @see {@link https://redis.io/commands/zrevrangebylex}
+   */
+  ZREVRANGEBYLEX(key: string, max: `(${string}` | `[${string}` | "+", min: `(${string}` | `[${string}` | "-", options?: ZrevrangebylexOptions): RedisXTransaction<AddToList<L, string[]>, C, D>;
+  /**
+   * Returns all the elements in the sorted set at `key` with a score between `max` and `min` (including elements with score equal to `max` or `min`).
+   * In contrary to the default ordering of sorted sets, for this command the elements are considered to be ordered from high to low scores.
+   *
+   * The elements having the same score are returned in reverse lexicographical order.
+   *
+   * Apart from the reversed ordering, `ZREVRANGEBYSCORE` is similar to `ZRANGEBYSCORE`.
+   * - Available since: 2.2.0.
+   * - Time complexity: O(log(N)+M) with N being the number of elements in the sorted set and M the number of elements being returned. If M is constant (e.g. always asking for the first 10 elements with LIMIT), you can consider it O(log(N)).
+   * @deprecated As of Redis version 6.2.0, this command is regarded as deprecated. It can be replaced by ZRANGE with the REV and BYSCORE arguments when migrating or writing new code.
+   * @param key - The name of the key that holds the sorted set.
+   * @param max - The maximum score. The bound is inclusive unless prefixed with `(`. Use `+inf` for no upper bound.
+   * @param min - The minimum score. The bound is inclusive unless prefixed with `(`. Use `-inf` for no lower bound.
+   * @param options -
+   * @returns Array reply: a list of the members and, optionally, their scores in the specified score range.
+   * @see {@link https://redis.io/commands/zrevrangebyscore}
+   */
+  ZREVRANGEBYSCORE(key: string, max: number | `(${number}` | "+inf", min: number | `(${number}` | "-inf", options?: ZrevrangebyscoreOptions & {
+    WITHSCORES?: false;
+  }): RedisXTransaction<AddToList<L, string[]>, C, D>;
+  /**
+   * Returns all the elements in the sorted set at `key` with a score between `max` and `min` (including elements with score equal to `max` or `min`).
+   * In contrary to the default ordering of sorted sets, for this command the elements are considered to be ordered from high to low scores.
+   *
+   * The elements having the same score are returned in reverse lexicographical order.
+   *
+   * Apart from the reversed ordering, `ZREVRANGEBYSCORE` is similar to `ZRANGEBYSCORE`.
+   * - Available since: 2.2.0.
+   * - Time complexity: O(log(N)+M) with N being the number of elements in the sorted set and M the number of elements being returned. If M is constant (e.g. always asking for the first 10 elements with LIMIT), you can consider it O(log(N)).
+   * @deprecated As of Redis version 6.2.0, this command is regarded as deprecated. It can be replaced by ZRANGE with the REV and BYSCORE arguments when migrating or writing new code.
+   * @param key - The name of the key that holds the sorted set.
+   * @param max - The maximum score. The bound is inclusive unless prefixed with `(`. Use `+inf` for no upper bound.
+   * @param min - The minimum score. The bound is inclusive unless prefixed with `(`. Use `-inf` for no lower bound.
+   * @param options -
+   * @returns Array reply: a list of the members and, optionally, their scores in the specified score range.
+   * @see {@link https://redis.io/commands/zrevrangebyscore}
+   */
+  ZREVRANGEBYSCORE(key: string, max: number | `(${number}` | "+inf", min: number | `(${number}` | "-inf", options: ZrevrangebyscoreOptions & {
+    WITHSCORES: true;
+  }): RedisXTransaction<AddToList<L, {
+    member: string;
+    score: number;
+  }[]>, C, D>;
+  /**
+   * Returns all the elements in the sorted set at `key` with a score between `max` and `min` (including elements with score equal to `max` or `min`).
+   * In contrary to the default ordering of sorted sets, for this command the elements are considered to be ordered from high to low scores.
+   *
+   * The elements having the same score are returned in reverse lexicographical order.
+   *
+   * Apart from the reversed ordering, `ZREVRANGEBYSCORE` is similar to `ZRANGEBYSCORE`.
+   * - Available since: 2.2.0.
+   * - Time complexity: O(log(N)+M) with N being the number of elements in the sorted set and M the number of elements being returned. If M is constant (e.g. always asking for the first 10 elements with LIMIT), you can consider it O(log(N)).
+   * @deprecated As of Redis version 6.2.0, this command is regarded as deprecated. It can be replaced by ZRANGE with the REV and BYSCORE arguments when migrating or writing new code.
+   * @param key - The name of the key that holds the sorted set.
+   * @param max - The maximum score. The bound is inclusive unless prefixed with `(`. Use `+inf` for no upper bound.
+   * @param min - The minimum score. The bound is inclusive unless prefixed with `(`. Use `-inf` for no lower bound.
+   * @param options -
+   * @returns Array reply: a list of the members and, optionally, their scores in the specified score range.
+   * @see {@link https://redis.io/commands/zrevrangebyscore}
+   */
+  ZREVRANGEBYSCORE(key: string, max: number | `(${number}` | "+inf", min: number | `(${number}` | "-inf", options?: ZrevrangebyscoreOptions): RedisXTransaction<AddToList<L, string[] | {
+    member: string;
+    score: number;
+  }[]>, C, D>;
+  /**
+   * Returns the score of member in the sorted set at key.
+   * - Available since: 1.0.0.
+   * - Time complexity: O(1).
+   * @param key Key holds a sorted set.
+   * @param member Member in the sorted set.
+   * @returns The score of the member (a double-precision floating point number), represented as a string, or `null` if member does not exist in the sorted set, or the key does not exist.
+   * @see {@link https://redis.io/commands/zscore}
+   */
+  ZSCORE(key: string, member: string | number): RedisXTransaction<AddToList<L, number | null>, C, D>;
+  /**
+   * Returns the number of elements in the sorted set at key with a score between min and max.
+   *
+   * The min and max arguments have the same semantic as described for ZRANGEBYSCORE.
+   *
+   * Note: the command has a complexity of just O(log(N)) because it uses elements ranks (see ZRANK) to get an idea of the range.
+   * Because of this there is no need to do a work proportional to the size of the range.
+   * - Available since: 2.0.0.
+   * - Time complexity: O(log(N)) with N being the number of elements in the sorted set.
+   * @param key The key of the sorted set.
+   * @param min The minimum score to include in the count. Can be "-inf" for negative infinity, or a number prefixed with "(" to exclude that value.
+   * @param max The maximum score to include in the count. Can be "+inf" for positive infinity, or a number prefixed with "(" to exclude that value.
+   * @returns The number of elements in the specified score range.
+   * @see {@link https://redis.io/commands/zcount}
+   */
+  ZCOUNT(key: string, min: number | `(${number}` | "-inf", max: number | `(${number}` | "+inf"): RedisXTransaction<AddToList<L, number>, C, D>;
+  /**
+   * Adds all the specified members with the specified scores to the sorted set stored at `key`.
+   * - Available since: 1.2.0
+   * - Starting with Redis version 2.4.0: Accepts multiple elements.
+   * - Time complexity: O(log(N)) for each item added, where N is the number of elements in the sorted set.
+   * @param key - The name of the key that holds the sorted set.
+   * @param score - `score` is a double-precision floating-point number.
+   * @param member -
+   * @param options -
+   * @returns Any of the following:
+   * - Integer reply: the number of new members when the CH option is not used.
+   * - Integer reply: the number of new or updated members when the CH option is used.
+   * @see {@link https://redis.io/commands/zadd}
+   */
+  ZADD(key: string, score: number, member: string | number, options?: ZaddOptions & {
+    INCR?: false;
+  }): RedisXTransaction<AddToList<L, number>, C, D>;
+  /**
+   * Adds all the specified members with the specified scores to the sorted set stored at `key`.
+   * - Available since: 1.2.0
+   * - Starting with Redis version 3.0.2: Added the `XX`, `NX`, `CH` and `INCR` options.
+   * - Time complexity: O(log(N)) for each item added, where N is the number of elements in the sorted set.
+   * @param key - The name of the key that holds the sorted set.
+   * @param score - `score` is a double-precision floating-point number.
+   * @param member -
+   * @param options -
+   * @returns Any of the following:
+   * - Nil reply: if the operation was aborted because of a conflict with one of the XX/NX/LT/GT options.
+   * - Bulk string reply: the updated score of the member when the INCR option is used.
+   * @see {@link https://redis.io/commands/zadd}
+   */
+  ZADD(key: string, score: number, member: string | number, options: ZaddOptions & {
+    INCR: true;
+  }): RedisXTransaction<AddToList<L, number | null>, C, D>;
+  /**
+   * Adds all the specified members with the specified scores to the sorted set stored at `key`.
+   * - Available since: 1.2.0
+   * - Starting with Redis version 2.4.0: Accepts multiple elements.
+   * - Time complexity: O(log(N)) for each item added, where N is the number of elements in the sorted set.
+   * @param key - The name of the key that holds the sorted set.
+   * @param pairs - One or more score-member pairs to add or update.
+   * @param options -
+   * @returns Any of the following:
+   * - Integer reply: the number of new members when the CH option is not used.
+   * - Integer reply: the number of new or updated members when the CH option is used.
+   * @see {@link https://redis.io/commands/zadd}
+   */
+  ZADD(key: string, pairs: Record<string, number>, options?: ZaddOptions & {
+    INCR?: false;
+  }): RedisXTransaction<AddToList<L, number>, C, D>;
+  /**
+   * Adds all the specified members with the specified scores to the sorted set stored at `key`.
+   * - Available since: 1.2.0
+   * - Starting with Redis version 3.0.2: Added the `XX`, `NX`, `CH` and `INCR` options.
+   * - Time complexity: O(log(N)) for each item added, where N is the number of elements in the sorted set.
+   * @param key - The name of the key that holds the sorted set.
+   * @param score - `score` is a double-precision floating-point number.
+   * @param member -
+   * @param options -
+   * @returns Any of the following:
+   * - Nil reply: if the operation was aborted because of a conflict with one of the XX/NX/LT/GT options.
+   * - Integer reply: the number of new members when the CH option is not used.
+   * - Integer reply: the number of new or updated members when the CH option is used.
+   * - Bulk string reply: the updated score of the member when the INCR option is used.
+   * @see {@link https://redis.io/commands/zadd}
+   */
+  ZADD(key: string, score: number, member: string | number, options?: ZaddOptions): RedisXTransaction<AddToList<L, number | null>, C, D>;
+  /**
+   * Returns the rank of `member` in the sorted set stored at `key`, with the scores ordered from low to high.
+   * The rank (or index) is 0-based, which means that the member with the lowest score has rank `0`.
+   * - Available since: 2.0.0.
+   * - Time complexity: O(log(N)).
+   * @param key - The name of the key that holds the sorted set.
+   * @param member - The member whose rank to return.
+   * @param options -
+   * @returns Any of the following:
+   * - Nil reply: if the key does not exist or the member does not exist in the sorted set.
+   * - Integer reply: the rank of the member when _WITHSCORE_ is not used.
+   * @see {@link https://redis.io/commands/zrank}
+   */
+  ZRANK(key: string, member: string | number, options?: ZrankOptions & {
+    WITHSCORE?: false;
+  }): RedisXTransaction<AddToList<L, number | null>, C, D>;
+  /**
+   * Returns the rank of `member` in the sorted set stored at `key`, with the scores ordered from low to high.
+   * The rank (or index) is 0-based, which means that the member with the lowest score has rank `0`.
+   *
+   * The optional `WITHSCORE` argument supplements the command's reply with the score of the element returned.
+   * - Available since: 2.0.0.
+   * - Starting with Redis version 7.2.0: Added the optional `WITHSCORE` argument.
+   * - Time complexity: O(log(N)).
+   * @param key - The name of the key that holds the sorted set.
+   * @param member - The member whose rank to return.
+   * @param options -
+   * @returns Any of the following:
+   * - Nil reply: if the key does not exist or the member does not exist in the sorted set.
+   * - Array reply: the rank and score of the member when _WITHSCORE_ is used.
+   * @see {@link https://redis.io/commands/zrank}
+   */
+  ZRANK(key: string, member: string | number, options: ZrankOptions & {
+    WITHSCORE: true;
+  }): RedisXTransaction<AddToList<L, {
+    rank: number;
+    score: number;
+  } | null>, C, D>;
+  /**
+   * Returns the rank of `member` in the sorted set stored at `key`, with the scores ordered from low to high.
+   * The rank (or index) is 0-based, which means that the member with the lowest score has rank `0`.
+   *
+   * The optional `WITHSCORE` argument supplements the command's reply with the score of the element returned.
+   * - Available since: 2.0.0.
+   * - Starting with Redis version 7.2.0: Added the optional `WITHSCORE` argument.
+   * - Time complexity: O(log(N)).
+   * @param key - The name of the key that holds the sorted set.
+   * @param member - The member whose rank to return.
+   * @param options -
+   * @returns Any of the following:
+   * - Nil reply: if the key does not exist or the member does not exist in the sorted set.
+   * - Integer reply: the rank of the member when _WITHSCORE_ is not used.
+   * - Array reply: the rank and score of the member when _WITHSCORE_ is used.
+   * @see {@link https://redis.io/commands/zrank}
+   */
+  ZRANK(key: string, member: string | number, options?: ZrankOptions): RedisXTransaction<AddToList<L, number | {
+    rank: number;
+    score: number;
+  } | null>, C, D>;
+  /**
+   * When called with just the `key` argument, return a random element from the sorted set value stored at `key`.
+   * - Available since: 6.2.0.
+   * - Time complexity: O(N) where N is the number of members returned.
+   * @param key - The name of the key that holds the sorted set.
+   * @returns Bulk string reply: without the additional _count_ argument, the command returns a randomly selected member, or Nil reply when _key_ doesn't exist.
+   * @see {@link https://redis.io/commands/zrandmember}
+   */
+  ZRANDMEMBER(key: string): RedisXTransaction<AddToList<L, string | null>, C, D>;
+  /**
+   * If the provided `count` argument is positive, return an array of distinct elements.
+   * The array's length is either `count` or the sorted set's cardinality (`ZCARD`), whichever is lower.
+   *
+   * If called with a negative `count`, the behavior changes and the command is allowed to return the same element multiple times.
+   * In this case, the number of returned elements is the absolute value of the specified `count`.
+   * - Available since: 6.2.0.
+   * - Time complexity: O(N) where N is the number of members returned.
+   * @param key - The name of the key that holds the sorted set.
+   * @param count - The number of members to return. A positive `count` returns up to that many distinct members; a negative `count` returns exactly `|count|` members and may repeat them.
+   * @param options -
+   * @returns Array reply: when the additional _count_ argument is passed, the command returns an array of members, or an empty array when _key_ doesn't exist.
+   * @see {@link https://redis.io/commands/zrandmember}
+   */
+  ZRANDMEMBER(key: string, count: number, options?: ZrandmemberOptions & {
+    WITHSCORES?: false;
+  }): RedisXTransaction<AddToList<L, string[]>, C, D>;
+  /**
+   * If the provided `count` argument is positive, return an array of distinct elements.
+   * The array's length is either `count` or the sorted set's cardinality (`ZCARD`), whichever is lower.
+   *
+   * If called with a negative `count`, the behavior changes and the command is allowed to return the same element multiple times.
+   * In this case, the number of returned elements is the absolute value of the specified `count`.
+   *
+   * The optional `WITHSCORES` modifier changes the reply so it includes the respective scores of the randomly selected elements from the sorted set.
+   * - Available since: 6.2.0.
+   * - Time complexity: O(N) where N is the number of members returned.
+   * @param key - The name of the key that holds the sorted set.
+   * @param count - The number of members to return. A positive `count` returns up to that many distinct members; a negative `count` returns exactly `|count|` members and may repeat them.
+   * @param options -
+   * @returns Array reply: when the additional _count_ argument is passed, the command returns an array of members, or an empty array when _key_ doesn't exist. If the _WITHSCORES_ modifier is used, the reply is a list of members and their scores from the sorted set.
+   * @see {@link https://redis.io/commands/zrandmember}
+   */
+  ZRANDMEMBER(key: string, count: number, options: ZrandmemberOptions & {
+    WITHSCORES: true;
+  }): RedisXTransaction<AddToList<L, {
+    member: string;
+    score: number;
+  }[]>, C, D>;
+  /**
+   * If the provided `count` argument is positive, return an array of distinct elements.
+   * The array's length is either `count` or the sorted set's cardinality (`ZCARD`), whichever is lower.
+   *
+   * If called with a negative `count`, the behavior changes and the command is allowed to return the same element multiple times.
+   * In this case, the number of returned elements is the absolute value of the specified `count`.
+   *
+   * The optional `WITHSCORES` modifier changes the reply so it includes the respective scores of the randomly selected elements from the sorted set.
+   * - Available since: 6.2.0.
+   * - Time complexity: O(N) where N is the number of members returned.
+   * @param key - The name of the key that holds the sorted set.
+   * @param count - The number of members to return. A positive `count` returns up to that many distinct members; a negative `count` returns exactly `|count|` members and may repeat them.
+   * @param options -
+   * @returns Array reply: when the additional _count_ argument is passed, the command returns an array of members, or an empty array when _key_ doesn't exist. If the _WITHSCORES_ modifier is used, the reply is a list of members and their scores from the sorted set.
+   * @see {@link https://redis.io/commands/zrandmember}
+   */
+  ZRANDMEMBER(key: string, count: number, options?: ZrandmemberOptions): RedisXTransaction<AddToList<L, string[] | {
+    member: string;
+    score: number;
+  }[]>, C, D>;
+  /**
+   * Removes the specified members from the sorted set stored at key. Non existing members are ignored.
+   * - Available since: 1.2.0
+   * - Time complexity: O(M*log(N)) with N being the number of elements in the sorted set and M the number of elements to be removed.
+   * @param key Key holds a sorted set.
+   * @param members Members to remove.
+   * @returns The number of members removed from the sorted set, not including non-existing members.
+   * @see {@link https://redis.io/commands/zrem}
+   */
+  ZREM(key: string, ...members: (string | number)[]): RedisXTransaction<AddToList<L, number>, C, D>;
+  /**
+   * Removes the specified members from the sorted set stored at key. Non existing members are ignored.
+   * - Available since: 1.2.0
+   * - Time complexity: O(M*log(N)) with N being the number of elements in the sorted set and M the number of elements to be removed.
+   * @param key Key holds a sorted set.
+   * @param members Members to remove.
+   * @returns The number of members removed from the sorted set, not including non-existing members.
+   * @see {@link https://redis.io/commands/zrem}
+   */
+  ZREM(key: string, members: Collection<string | number>): RedisXTransaction<AddToList<L, number>, C, D>;
+  /**
+   * Removes all elements in the sorted set stored at `key` with a score between `min` and `max` (inclusive).
+   * - Available since: 1.2.0.
+   * - Time complexity: O(log(N)+M) with N being the number of elements in the sorted set and M the number of elements removed by the operation.
+   * @param key - The name of the key that holds the sorted set.
+   * @param min - The minimum score. The bound is inclusive unless prefixed with `(`. Use `-inf` for no lower bound.
+   * @param max - The maximum score. The bound is inclusive unless prefixed with `(`. Use `+inf` for no upper bound.
+   * @returns Integer reply: the number of members removed.
+   * @see {@link https://redis.io/commands/zremrangebyscore}
+   */
+  ZREMRANGEBYSCORE(key: string, min: number | `(${number}` | "-inf", max: number | `(${number}` | "+inf"): RedisXTransaction<AddToList<L, number>, C, D>;
+  /**
+   * Returns the rank of `member` in the sorted set stored at `key`, with the scores ordered from high to low.
+   * The rank (or index) is 0-based, which means that the member with the highest score has rank `0`.
+   * - Available since: 2.0.0.
+   * - Time complexity: O(log(N)).
+   * @param key - The name of the key that holds the sorted set.
+   * @param member - The member whose rank to return.
+   * @param options -
+   * @returns Any of the following:
+   * - Nil reply: if the key does not exist or the member does not exist in the sorted set.
+   * - Integer reply: The rank of the member when _WITHSCORE_ is not used.
+   * @see {@link https://redis.io/commands/zrevrank}
+   */
+  ZREVRANK(key: string, member: string | number, options?: ZrevrankOptions & {
+    WITHSCORE?: false;
+  }): RedisXTransaction<AddToList<L, number | null>, C, D>;
+  /**
+   * Returns the rank of `member` in the sorted set stored at `key`, with the scores ordered from high to low.
+   * The rank (or index) is 0-based, which means that the member with the highest score has rank `0`.
+   *
+   * The optional `WITHSCORE` argument supplements the command's reply with the score of the element returned.
+   * - Available since: 2.0.0.
+   * - Starting with Redis version 7.2.0: Added the optional `WITHSCORE` argument.
+   * - Time complexity: O(log(N)).
+   * @param key - The name of the key that holds the sorted set.
+   * @param member - The member whose rank to return.
+   * @param options -
+   * @returns Any of the following:
+   * - Nil reply: if the key does not exist or the member does not exist in the sorted set.
+   * - Array reply: The rank and score of the member when _WITHSCORE_ is used.
+   * @see {@link https://redis.io/commands/zrevrank}
+   */
+  ZREVRANK(key: string, member: string | number, options: ZrevrankOptions & {
+    WITHSCORE: true;
+  }): RedisXTransaction<AddToList<L, {
+    rank: number;
+    score: number;
+  } | null>, C, D>;
+  /**
+   * Returns the rank of `member` in the sorted set stored at `key`, with the scores ordered from high to low.
+   * The rank (or index) is 0-based, which means that the member with the highest score has rank `0`.
+   *
+   * The optional `WITHSCORE` argument supplements the command's reply with the score of the element returned.
+   * - Available since: 2.0.0.
+   * - Starting with Redis version 7.2.0: Added the optional `WITHSCORE` argument.
+   * - Time complexity: O(log(N)).
+   * @param key - The name of the key that holds the sorted set.
+   * @param member - The member whose rank to return.
+   * @param options -
+   * @returns Any of the following:
+   * - Nil reply: if the key does not exist or the member does not exist in the sorted set.
+   * - Integer reply: The rank of the member when _WITHSCORE_ is not used.
+   * - Array reply: The rank and score of the member when _WITHSCORE_ is used.
+   * @see {@link https://redis.io/commands/zrevrank}
+   */
+  ZREVRANK(key: string, member: string | number, options?: ZrevrankOptions): RedisXTransaction<AddToList<L, number | {
+    rank: number;
+    score: number;
+  } | null>, C, D>;
+  /**
+   * Returns the specified range of elements in the sorted set stored at key.
+   * - Available since: 1.2.0
+   * - Time complexity: O(log(N)+M) with N being the number of elements in the sorted set and M the number of elements returned.
+   * @param key - Key that contains the hash.
+   * @param start - Start index by default, minimum score if BY is `SCORE` or minimum lexicographical string if BY is `LEX`.
+   * @param stop - Stop index by default, minimum score if BY is `SCORE` or minimum lexicographical string if BY is `LEX`.
+   * @param options -
+   * @returns List of members in the specified range.
+   * @see {@link https://redis.io/commands/zrange}
+   */
+  ZRANGE(key: string, start: string | number, stop: string | number, options?: ZrangeOptions & {
+    WITHSCORES?: false;
+  }): RedisXTransaction<AddToList<L, string[]>, C, D>;
+  /**
+   * Returns the specified range of elements in the sorted set stored at key.
+   * - Available since: 1.2.0
+   * - Time complexity: O(log(N)+M) with N being the number of elements in the sorted set and M the number of elements returned.
+   * @param key - Key that contains the hash.
+   * @param start - Start index by default, minimum score if BY is `SCORE` or minimum lexicographical string if BY is `LEX`.
+   * @param stop - Stop index by default, minimum score if BY is `SCORE` or minimum lexicographical string if BY is `LEX`.
+   * @param options -
+   * @returns List of members in the specified range with their scores.
+   * @see {@link https://redis.io/commands/zrange}
+   */
+  ZRANGE(key: string, start: string | number, stop: string | number, options: ZrangeOptions & {
+    WITHSCORES: true;
+  }): RedisXTransaction<AddToList<L, {
+    member: string;
+    score: number;
+  }[]>, C, D>;
+  /**
+   * Returns the specified range of elements in the sorted set stored at key.
+   * - Available since: 1.2.0
+   * - Time complexity: O(log(N)+M) with N being the number of elements in the sorted set and M the number of elements returned.
+   * @param key - Key that contains the sorted set.
+   * @param start - Start index by default, minimum score if BY is `SCORE` or minimum lexicographical string if BY is `LEX`.
+   * @param stop - Stop index by default, maximum score if BY is `SCORE` or maximum lexicographical string if BY is `LEX`.
+   * @param options - Additional options for the command.
+   * @returns List of members, with their scores when requested.
+   * @see {@link https://redis.io/commands/zrange}
+   */
+  ZRANGE(key: string, start: string | number, stop: string | number, options?: ZrangeOptions): RedisXTransaction<AddToList<L, string[] | {
+    member: string;
+    score: number;
+  }[]>, C, D>;
+  /**
+   * Increments the score of `member` in the sorted set stored at `key` by `increment`.
+   * If `member` does not exist in the sorted set, it is added with `increment` as its score (as if its previous score was `0.0`).
+   * If `key` does not exist, a new sorted set with the specified `member` as its sole member is created.
+   *
+   * An error is returned when `key` exists but does not hold a sorted set.
+   *
+   * The `score` value should be the string representation of a numeric value, and accepts double precision floating point numbers.
+   * It is possible to provide a negative value to decrement the score.
+   * - Available since: 1.2.0.
+   * - Time complexity: O(log(N)) where N is the number of elements in the sorted set.
+   * @param key - The name of the key that holds the sorted set.
+   * @param increment - The amount to add to the member's current score.
+   * @param member - The member whose score to increment. It is added with the increment as its score if it does not exist.
+   * @returns Bulk string reply: the new score of `member` as a double precision floating point number.
+   * @see {@link https://redis.io/commands/zincrby}
+   */
+  ZINCRBY(key: string, increment: number, member: string | number): RedisXTransaction<AddToList<L, number>, C, D>;
+  /**
+   * When all the elements in a sorted set are inserted with the same score, in order to force lexicographical ordering, this command removes all elements in the sorted set stored at `key` between the lexicographical range specified by `min` and `max`.
+   *
+   * The meaning of `min` and `max` are the same of the `ZRANGEBYLEX` command. Similarly, this command actually removes the same elements that `ZRANGEBYLEX` would return if called with the same `min` and `max` arguments.
+   * - Available since: 2.8.9.
+   * - Time complexity: O(log(N)+M) with N being the number of elements in the sorted set and M the number of elements removed by the operation.
+   * @param key - The name of the key that holds the sorted set.
+   * @param min - The minimum member, compared lexicographically. Prefix with `[` for an inclusive bound or `(` for an exclusive bound; use `-` for the lowest possible value.
+   * @param max - The maximum member, compared lexicographically. Prefix with `[` for an inclusive bound or `(` for an exclusive bound; use `+` for the highest possible value.
+   * @returns Integer reply: the number of members removed.
+   * @see {@link https://redis.io/commands/zremrangebylex}
+   */
+  ZREMRANGEBYLEX(key: string, min: `(${string}` | `[${string}` | "-", max: `(${string}` | `[${string}` | "+"): RedisXTransaction<AddToList<L, number>, C, D>;
+  /**
+   * Computes the intersection of sorted sets given by the specified keys, and stores the result in destination. It is mandatory to provide the number of input keys (numkeys) before passing the input keys and the other (optional) arguments.
+   * - Available since: 2.0.0.
+   * - Time complexity: O(N*K)+O(M*log(M)).
+   * @param destination Destination key where the resulting sorted set should be stored.
+   * @param keys List of keys that holds sorted sets.
+   * @param options -
+   * @returns The number of members in the resulting sorted set at the destination.
+   * @see {@link https://redis.io/commands/zinterstore}
+   */
+  ZINTERSTORE(destination: string, keys: (string | number)[], options?: ZinterstoreOptions): RedisXTransaction<AddToList<L, number>, C, D>;
+  /**
+   * Computes the intersection of sorted sets given by the specified keys, and stores the result in destination. It is mandatory to provide the number of input keys (numkeys) before passing the input keys and the other (optional) arguments.
+   * - Available since: 2.0.0.
+   * - Time complexity: O(N*K)+O(M*log(M)).
+   * @param destination Destination key where the resulting sorted set should be stored.
+   * @param keys_with_weights Record where keys are the keys that holds sorted sets and values are the weights to apply to the sorted sets.
+   * @param options -
+   * @returns The number of members in the resulting sorted set at the destination.
+   * @see {@link https://redis.io/commands/zinterstore}
+   */
+  ZINTERSTORE(destination: string, keys_with_weights: Record<string, number>, options?: ZinterstoreOptions): RedisXTransaction<AddToList<L, number>, C, D>;
+  /**
+   * Returns the specified range of elements in the sorted set stored at `key`.
+   * The elements are considered to be ordered from the highest to the lowest score.
+   * Descending lexicographical order is used for elements with equal score.
+   *
+   * Apart from the reversed ordering, `ZREVRANGE` is similar to `ZRANGE`.
+   * - Available since: 1.2.0.
+   * - Time complexity: O(log(N)+M) with N being the number of elements in the sorted set and M the number of elements returned.
+   * @deprecated As of Redis version 6.2.0, this command is regarded as deprecated. It can be replaced by ZRANGE with the REV argument when migrating or writing new code.
+   * @param key - The name of the key that holds the sorted set.
+   * @param start - The start index, zero-based. Negative values count from the end of the sorted set (`-1` is the member with the highest score).
+   * @param stop - The stop index, zero-based and inclusive. Negative values count from the end of the sorted set.
+   * @param options -
+   * @returns Array reply: a list of members in the specified range, optionally with their scores if _WITHSCORES_ was used.
+   * @see {@link https://redis.io/commands/zrevrange}
+   */
+  ZREVRANGE(key: string, start: number, stop: number, options?: ZrevrangeOptions & {
+    WITHSCORES?: false;
+  }): RedisXTransaction<AddToList<L, string[]>, C, D>;
+  /**
+   * Returns the specified range of elements in the sorted set stored at `key`.
+   * The elements are considered to be ordered from the highest to the lowest score.
+   * Descending lexicographical order is used for elements with equal score.
+   *
+   * Apart from the reversed ordering, `ZREVRANGE` is similar to `ZRANGE`.
+   * - Available since: 1.2.0.
+   * - Time complexity: O(log(N)+M) with N being the number of elements in the sorted set and M the number of elements returned.
+   * @deprecated As of Redis version 6.2.0, this command is regarded as deprecated. It can be replaced by ZRANGE with the REV argument when migrating or writing new code.
+   * @param key - The name of the key that holds the sorted set.
+   * @param start - The start index, zero-based. Negative values count from the end of the sorted set (`-1` is the member with the highest score).
+   * @param stop - The stop index, zero-based and inclusive. Negative values count from the end of the sorted set.
+   * @param options -
+   * @returns Array reply: a list of members in the specified range, optionally with their scores if _WITHSCORES_ was used.
+   * @see {@link https://redis.io/commands/zrevrange}
+   */
+  ZREVRANGE(key: string, start: number, stop: number, options: ZrevrangeOptions & {
+    WITHSCORES: true;
+  }): RedisXTransaction<AddToList<L, {
+    member: string;
+    score: number;
+  }[]>, C, D>;
+  /**
+   * Returns the specified range of elements in the sorted set stored at `key`.
+   * The elements are considered to be ordered from the highest to the lowest score.
+   * Descending lexicographical order is used for elements with equal score.
+   *
+   * Apart from the reversed ordering, `ZREVRANGE` is similar to `ZRANGE`.
+   * - Available since: 1.2.0.
+   * - Time complexity: O(log(N)+M) with N being the number of elements in the sorted set and M the number of elements returned.
+   * @deprecated As of Redis version 6.2.0, this command is regarded as deprecated. It can be replaced by ZRANGE with the REV argument when migrating or writing new code.
+   * @param key - The name of the key that holds the sorted set.
+   * @param start - The start index, zero-based. Negative values count from the end of the sorted set (`-1` is the member with the highest score).
+   * @param stop - The stop index, zero-based and inclusive. Negative values count from the end of the sorted set.
+   * @param options -
+   * @returns Array reply: a list of members in the specified range, optionally with their scores if _WITHSCORES_ was used.
+   * @see {@link https://redis.io/commands/zrevrange}
+   */
+  ZREVRANGE(key: string, start: number, stop: number, options?: ZrevrangeOptions): RedisXTransaction<AddToList<L, string[] | {
+    member: string;
+    score: number;
+  }[]>, C, D>;
+  /**
+   * Returns all the elements in the sorted set at `key` with a value between `min` and `max`.
+   *
+   * The elements are considered to be ordered from lower to higher strings as compared byte-by-byte using the `memcmp()` C function.
+   * Longer strings are considered greater than shorter strings if the common part is identical.
+   *
+   * Valid `min` and `max` must start with `(` or `[`, in order to specify if the range item is respectively exclusive or inclusive.
+   * The special values of `+` or `-` for `min` and `max` have the special meaning or positively infinite and negatively infinite strings.
+   *
+   * - Available since: 2.8.9.
+   * - Time complexity: O(log(N)+M) with N being the number of elements in the sorted set and M the number of elements being returned. If M is constant (e.g. always asking for the first 10 elements with LIMIT), you can consider it O(log(N)).
+   * @deprecated As of Redis version 6.2.0, this command is regarded as deprecated. It can be replaced by ZRANGE with the BYLEX argument when migrating or writing new code.
+   * @param key The key of the sorted set.
+   * @param min Minimum value of the range.
+   * @param max Maximum value of the range.
+   * @param options Command options.
+   * @returns List of elements in the specified range.
+   * @see {@link https://redis.io/commands/zrangebylex}
+   */
+  ZRANGEBYLEX(key: string, min: `(${string}` | `[${string}` | "-", max: `(${string}` | `[${string}` | "+", options?: ZrangebylexOptions): RedisXTransaction<AddToList<L, string[]>, C, D>;
+  /**
+   * Returns all values in the hash stored at key.
+   * - Available since: 2.0.0.
+   * - Time complexity: O(N) where N is the size of the hash.
+   * @param key The key of the hash.
+   * @returns An array of values in the hash, preserving duplicates, or an empty array when the key does not exist.
+   * @see {@link https://redis.io/commands/hvals}
+   */
+  HVALS(key: string): RedisXTransaction<AddToList<L, string[]>, C, D>;
+  /**
+   * Sets the specified fields to their respective values in the hash stored at key.
+   * - Available since: 2.0.0.
+   * - Multiple field/value pairs are available since Redis 4.0.0.
+   * - Time complexity: O(1) for each field/value pair added.
+   * @param key Key that contains the hash.
+   * @param field Field to set.
+   * @param value Value to set.
+   * @returns The number of fields that were added.
+   * @see {@link https://redis.io/commands/hset}
+   */
+  HSET(key: string, field: string, value: string | number): RedisXTransaction<AddToList<L, number>, C, D>;
+  /**
+   * Sets the specified fields to their respective values in the hash stored at key.
+   * - Available since: 2.0.0.
+   * - Multiple field/value pairs are available since Redis 4.0.0.
+   * - Time complexity: O(1) for each field/value pair added.
+   * @param key Key that contains the hash.
+   * @param pairs Object containing field/value pairs to set.
+   * @returns The number of fields that were added.
+   * @see {@link https://redis.io/commands/hset}
+   */
+  HSET(key: string, pairs: Record<string, string | number>): RedisXTransaction<AddToList<L, number>, C, D>;
+  /**
+   * Increment the specified field of a hash stored at key, and representing a floating point number, by the specified increment.
+   * If the increment value is negative, the result is to have the hash field value decremented instead of incremented.
+   * If the field does not exist, it is set to 0 before performing the operation.
+   *
+   * - Available since: 2.6.0.
+   * - Time complexity: O(1).
+   * @param key Key of the hash.
+   * @param field Field in the hash to increment.
+   * @param increment The increment value (can be negative for decrementing).
+   * @returns The value of the field after the increment operation as a string representing the floating point value.
+   * @see {@link https://redis.io/commands/hincrbyfloat}
+   */
+  HINCRBYFLOAT(key: string, field: string | number, increment: number): RedisXTransaction<AddToList<L, string>, C, D>;
+  /**
+   * Returns all fields and values of the hash stored at key.
+   * - Available since: 2.0.0.
+   * - Time complexity: O(N) where N is the size of the hash.
+   * @param key -
+   * @returns A record of fields and their values stored in the hash.
+   * @see {@link https://redis.io/commands/hgetall}
+   */
+  HGETALL(key: string): RedisXTransaction<AddToList<L, Record<string, string>>, C, D>;
+  /**
+   * Like `HTTL`, this command returns the remaining TTL (time to live) of a field that has an expiration set, but in milliseconds instead of seconds.
+   * - Available since: 7.4.0.
+   * - Time complexity: O(N) where N is the number of specified fields.
+   * @param key - The name of the key that holds the hash.
+   * @param fields - The hash fields to retrieve the remaining time to live for.
+   * @returns Array reply. For each field:
+   * - Integer reply: `-2` if no such field exists in the provided hash key, or the provided key does not exist.
+   * - Integer reply: `-1` if the field exists but has no associated expiration set.
+   * - Integer reply: the TTL in milliseconds.
+   * @see {@link https://redis.io/commands/hpttl}
+   */
+  HPTTL(key: string, fields: Collection<string | number>): RedisXTransaction<AddToList<L, number[]>, C, D>;
+  /**
+   * Returns the value associated with field in the hash stored at key.
+   * - Available since: 2.0.0.
+   * - Time complexity: O(1)
+   * @param key -
+   * @param field -
+   * @returns The value associated with field in the hash stored at key or null.
+   * @see {@link https://redis.io/commands/hget}
+   */
+  HGET(key: string, field: string): RedisXTransaction<AddToList<L, string | null>, C, D>;
+  /**
+   * This command works like `HEXPIRE`, but the expiration of a field is specified in milliseconds instead of seconds.
+   * - Available since: 7.4.0.
+   * - Time complexity: O(N) where N is the number of specified fields.
+   * @param key - The name of the key that holds the hash.
+   * @param milliseconds - The timeout, in milliseconds.
+   * @param fields - The hash fields to operate on.
+   * @param options -
+   * @returns Array reply. For each field:
+   * - Integer reply: `-2` if no such field exists in the provided hash key, or the provided key does not exist.
+   * - Integer reply: `0` if the specified NX | XX | GT | LT condition has not been met.
+   * - Integer reply: `1` if the expiration time was set/updated.
+   * - Integer reply: `2` when `HEXPIRE`/`HPEXPIRE` is called with 0 seconds/milliseconds or when `HEXPIREAT`/`HPEXPIREAT` is called with a past Unix time in seconds/milliseconds.
+   * @see {@link https://redis.io/commands/hpexpire}
+   */
+  HPEXPIRE(key: string, milliseconds: number, fields: Collection<string | number>, options?: HpexpireOptions): RedisXTransaction<AddToList<L, number[]>, C, D>;
+  /**
+   * Returns the remaining TTL (time to live) of a hash key's field(s) that have a set expiration.
+   * This introspection capability allows you to check how many seconds a given hash field will continue to be part of the hash key.
+   *
+   * See also the `HPTTL` command that returns the same information with millisecond resolution.
+   * - Available since: 7.4.0.
+   * - Time complexity: O(N) where N is the number of specified fields.
+   * @param key - The name of the key that holds the hash.
+   * @param fields - The hash fields to retrieve the remaining time to live for.
+   * @returns Array reply. For each field:
+   * - Integer reply: `-2` if no such field exists in the provided hash key, or the provided key does not exist.
+   * - Integer reply: `-1` if the field exists but has no associated expiration set.
+   * - Integer reply: the TTL in seconds.
+   * @see {@link https://redis.io/commands/httl}
+   */
+  HTTL(key: string, fields: Collection<string | number>): RedisXTransaction<AddToList<L, number[]>, C, D>;
+  /**
+   * Set an expiration (TTL or time to live) on one or more fields of a given hash key. You must specify at least one field.
+   * Field(s) will automatically be deleted from the hash key when their TTLs expire.
+   *
+   * Field expirations will only be cleared by commands that delete or overwrite the contents of the hash fields, including `HDEL` and `HSET` commands.
+   * This means that all the operations that conceptually _alter_ the value stored at a hash key's field without replacing it with a new one will leave the TTL untouched.
+   *
+   * You can clear the TTL using the `HPERSIST` command, which turns the hash field back into a persistent field.
+   *
+   * Note that calling `HEXPIRE`/`HPEXPIRE` with a zero TTL or `HEXPIREAT`/`HPEXPIREAT` with a time in the past will result in the hash field being deleted.
+   * - Available since: 7.4.0.
+   * - Time complexity: O(N) where N is the number of specified fields.
+   * @param key - The name of the key that holds the hash.
+   * @param seconds - The time to live, in seconds. Each specified field is deleted after this many seconds.
+   * @param fields - The hash fields to set expiration for.
+   * @param options -
+   * @returns Array reply. For each field:
+   * - Integer reply: `-2` if no such field exists in the provided hash key, or the provided key does not exist.
+   * - Integer reply: `0` if the specified NX | XX | GT | LT condition has not been met.
+   * - Integer reply: `1` if the expiration time was set/updated.
+   * - Integer reply: `2` when `HEXPIRE`/`HPEXPIRE` is called with 0 seconds/milliseconds or when `HEXPIREAT`/`HPEXPIREAT` is called with a past Unix time in seconds/milliseconds.
+   * @see {@link https://redis.io/commands/hexpire}
+   */
+  HEXPIRE(key: string, seconds: number, fields: Collection<string | number>, options?: HexpireOptions): RedisXTransaction<AddToList<L, number[]>, C, D>;
+  /**
+   * Sets the specified fields to their respective values in the hash stored at key.
+   * This command overwrites any specified fields already existing in the hash.
+   * If key does not exist, a new key holding a hash is created.
+   *
+   * - Available since: 2.0.0.
+   * - Time complexity: O(N) where N is the number of fields being set.
+   * @deprecated As of Redis version 4.0.0, this command is regarded as deprecated. It can be replaced by HSET with multiple field-value pairs when migrating or writing new code.
+   * @param key Key that contains the hash.
+   * @param field Field to set.
+   * @param value Value to set.
+   * @returns Simple string reply: "OK".
+   * @see {@link https://redis.io/commands/hmset}
+   */
+  HMSET(key: string, field: string, value: string | number): RedisXTransaction<AddToList<L, "OK">, C, D>;
+  /**
+   * Sets the specified fields to their respective values in the hash stored at key.
+   * This command overwrites any specified fields already existing in the hash.
+   * If key does not exist, a new key holding a hash is created.
+   *
+   * - Available since: 2.0.0.
+   * - Time complexity: O(N) where N is the number of fields being set.
+   * @deprecated As of Redis version 4.0.0, this command is regarded as deprecated. It can be replaced by HSET with multiple field-value pairs when migrating or writing new code.
+   * @param key Key that contains the hash.
+   * @param pairs Object containing field/value pairs to set.
+   * @returns Simple string reply: "OK".
+   * @see {@link https://redis.io/commands/hmset}
+   */
+  HMSET(key: string, pairs: Record<string, string | number>): RedisXTransaction<AddToList<L, "OK">, C, D>;
+  /**
+   * Returns the values associated with the specified fields in the hash stored at key.
+   *
+   * For every field that does not exist in the hash, a nil value is returned.
+   * Because non-existing keys are treated as empty hashes, running HMGET against a non-existing key will return a list of nil values.
+   *
+   * - Available since: 2.0.0.
+   * - Time complexity: O(N) where N is the number of fields being requested.
+   * @param key Key holding the hash.
+   * @param fields Fields to get.
+   * @returns Array of values associated with the given fields, in the same order as they are requested.
+   * @see {@link https://redis.io/commands/hmget}
+   */
+  HMGET(key: string, fields: string[]): RedisXTransaction<AddToList<L, (string | null)[]>, C, D>;
+  /**
+   * Returns the values associated with the specified fields in the hash stored at key.
+   *
+   * For every field that does not exist in the hash, a nil value is returned.
+   * Because non-existing keys are treated as empty hashes, running HMGET against a non-existing key will return a list of nil values.
+   *
+   * - Available since: 2.0.0.
+   * - Time complexity: O(N) where N is the number of fields being requested.
+   * @param key Key holding the hash.
+   * @param fields Fields to get.
+   * @returns Array of values associated with the given fields, in the same order as they are requested.
+   * @see {@link https://redis.io/commands/hmget}
+   */
+  HMGET(key: string, ...fields: string[]): RedisXTransaction<AddToList<L, (string | null)[]>, C, D>;
+  /**
+   * `HEXPIREAT` has the same effect and semantics as `HEXPIRE`, but instead of specifying the number of seconds for the TTL (time to live), it takes an absolute Unix timestamp in seconds since Unix epoch.
+   * A timestamp in the past will delete the field immediately.
+   *
+   * For the specific semantics of the command, see `HEXPIRE`.
+   * - Available since: 7.4.0.
+   * - Time complexity: O(N) where N is the number of specified fields.
+   * @param key - The name of the key that holds the hash.
+   * @param timestamp - The absolute Unix expiration timestamp, in seconds since Unix epoch. A timestamp in the past deletes the field immediately.
+   * @param fields - The hash fields to set expiration for.
+   * @param options -
+   * @returns Array reply. For each field:
+   * - Integer reply: `-2` if no such field exists in the provided hash key, or the provided key does not exist.
+   * - Integer reply: `0` if the specified NX | XX | GT | LT condition has not been met.
+   * - Integer reply: `1` if the expiration time was set/updated.
+   * - Integer reply: `2` when `HEXPIRE`/`HPEXPIRE` is called with 0 seconds/milliseconds or when `HEXPIREAT`/`HPEXPIREAT` is called with a past Unix time in seconds/milliseconds.
+   * @see {@link https://redis.io/commands/hexpireat}
+   */
+  HEXPIREAT(key: string, timestamp: number, fields: Collection<string | number>, options?: HexpireatOptions): RedisXTransaction<AddToList<L, number[]>, C, D>;
+  /**
+   * Iterates over fields and values of a hash.
+   *
+   * `HSCAN` is a cursor based iterator. This means that at every call of the command, the server returns an updated cursor that the user needs to use as the cursor argument in the next call.
+   * An iteration starts when the cursor is set to 0, and terminates when the cursor returned by the server is 0.
+   *
+   * A given element may be returned multiple times. It is up to the application to handle the case of duplicated elements, for example only using the returned elements in order to perform operations that are safe when re-applied multiple times.
+   * - Available since: 2.8.0.
+   * - Time complexity: O(1) for every call. O(N) for a complete iteration, including enough command calls for the cursor to return back to 0. N is the number of elements inside the collection.
+   * @param key - The name of the key that holds the hash.
+   * @param cursor - The cursor value. Start an iteration with `0`, then use the cursor returned by each call as the argument to the next call.
+   * @param options -
+   * @returns Array reply: a two-element array.
+   * - The first element is a Bulk string reply that represents an unsigned 64-bit number, the cursor.
+   * - The second element is an Array reply of field/value pairs that were scanned.
+   * @see {@link https://redis.io/commands/hscan}
+   */
+  HSCAN(key: string, cursor: string | number, options?: HscanOptions & {
+    NOVALUES?: false;
+  }): RedisXTransaction<AddToList<L, {
+    cursor: string;
+    fields: Record<string, string>;
+  }>, C, D>;
+  /**
+   * Iterates over fields and values of a hash.
+   *
+   * `HSCAN` is a cursor based iterator. This means that at every call of the command, the server returns an updated cursor that the user needs to use as the cursor argument in the next call.
+   * An iteration starts when the cursor is set to 0, and terminates when the cursor returned by the server is 0.
+   *
+   * A given element may be returned multiple times. It is up to the application to handle the case of duplicated elements, for example only using the returned elements in order to perform operations that are safe when re-applied multiple times.
+   * - Available since: 2.8.0.
+   * - Time complexity: O(1) for every call. O(N) for a complete iteration, including enough command calls for the cursor to return back to 0. N is the number of elements inside the collection.
+   * @param key - The name of the key that holds the hash.
+   * @param cursor - The cursor value. Start an iteration with `0`, then use the cursor returned by each call as the argument to the next call.
+   * @param options -
+   * @returns Array reply: a two-element array.
+   * - The first element is a Bulk string reply that represents an unsigned 64-bit number, the cursor.
+   * - The second element is an Array reply: when the `NOVALUES` flag is used, only the field names are returned.
+   * @see {@link https://redis.io/commands/hscan}
+   */
+  HSCAN(key: string, cursor: string | number, options: HscanOptions & {
+    NOVALUES: true;
+  }): RedisXTransaction<AddToList<L, {
+    cursor: string;
+    fields: Set<string>;
+  }>, C, D>;
+  /**
+   * Iterates over fields and values of a hash.
+   *
+   * `HSCAN` is a cursor based iterator. This means that at every call of the command, the server returns an updated cursor that the user needs to use as the cursor argument in the next call.
+   * An iteration starts when the cursor is set to 0, and terminates when the cursor returned by the server is 0.
+   *
+   * A given element may be returned multiple times. It is up to the application to handle the case of duplicated elements, for example only using the returned elements in order to perform operations that are safe when re-applied multiple times.
+   * - Available since: 2.8.0.
+   * - Time complexity: O(1) for every call. O(N) for a complete iteration, including enough command calls for the cursor to return back to 0. N is the number of elements inside the collection.
+   * @param key - The name of the key that holds the hash.
+   * @param cursor - The cursor value. Start an iteration with `0`, then use the cursor returned by each call as the argument to the next call.
+   * @param options -
+   * @returns Array reply: a two-element array.
+   * - The first element is a Bulk string reply that represents an unsigned 64-bit number, the cursor.
+   * - The second element is an Array reply of field/value pairs that were scanned. When the `NOVALUES` flag is used, only the field names are returned.
+   * @see {@link https://redis.io/commands/hscan}
+   */
+  HSCAN(key: string, cursor: string | number, options?: HscanOptions): RedisXTransaction<AddToList<L, {
+    cursor: string;
+    fields: Record<string, string> | Set<string>;
+  }>, C, D>;
+  /**
+   * When called with just the `key` argument, return a random field from the hash value stored at `key`.
+   * - Available since: 6.2.0.
+   * - Time complexity: O(N) where N is the number of fields returned.
+   * @param key - The name of the key that holds the hash.
+   * @returns Any of the following:
+   * - Nil reply: if the key doesn't exist
+   * - Bulk string reply: a single, randomly selected field when the `count` option is not used
+   * @see {@link https://redis.io/commands/hrandfield}
+   */
+  HRANDFIELD(key: string): RedisXTransaction<AddToList<L, string | null>, C, D>;
+  /**
+   * If the provided `count` argument is positive, return an array of **distinct fields**.
+   * The array's length is either `count` or the hash's number of fields (`HLEN`), whichever is lower.
+   *
+   * If called with a negative `count`, the behavior changes and the command is allowed to return the **same field multiple times**.
+   * In this case, the number of returned fields is the absolute value of the specified `count`.
+   * - Available since: 6.2.0.
+   * - Time complexity: O(N) where N is the number of fields returned.
+   * @param key - The name of the key that holds the hash.
+   * @param count - The number of fields to return. A positive `count` returns up to that many distinct fields; a negative `count` returns exactly `|count|` fields and may repeat fields.
+   * @param options -
+   * @returns Array reply: a list containing `count` fields when the `count` option is used, or an empty array if the key does not exists.
+   * @see {@link https://redis.io/commands/hrandfield}
+   */
+  HRANDFIELD(key: string, count: number, options?: HrandfieldOptions & {
+    WITHVALUES?: false;
+  }): RedisXTransaction<AddToList<L, string[]>, C, D>;
+  /**
+   * If the provided `count` argument is positive, return an array of **distinct fields**.
+   * The array's length is either `count` or the hash's number of fields (`HLEN`), whichever is lower.
+   *
+   * If called with a negative `count`, the behavior changes and the command is allowed to return the **same field multiple times**.
+   * In this case, the number of returned fields is the absolute value of the specified `count`.
+   *
+   * The optional `WITHVALUES` modifier changes the reply so it includes the respective values of the randomly selected hash fields.
+   * - Available since: 6.2.0.
+   * - Time complexity: O(N) where N is the number of fields returned.
+   * @param key - The name of the key that holds the hash.
+   * @param count - The number of fields to return. A positive `count` returns up to that many distinct fields; a negative `count` returns exactly `|count|` fields and may repeat fields.
+   * @param options -
+   * @returns Array reply: a list of fields and their values when `count` and `WITHVALUES` were both used.
+   * @see {@link https://redis.io/commands/hrandfield}
+   */
+  HRANDFIELD(key: string, count: number, options: HrandfieldOptions & {
+    WITHVALUES: true;
+  }): RedisXTransaction<AddToList<L, {
+    field: string;
+    value: string;
+  }[]>, C, D>;
+  /**
+   * If the provided `count` argument is positive, return an array of **distinct fields**.
+   * The array's length is either `count` or the hash's number of fields (`HLEN`), whichever is lower.
+   *
+   * If called with a negative `count`, the behavior changes and the command is allowed to return the **same field multiple times**.
+   * In this case, the number of returned fields is the absolute value of the specified `count`.
+   *
+   * The optional `WITHVALUES` modifier changes the reply so it includes the respective values of the randomly selected hash fields.
+   * - Available since: 6.2.0.
+   * - Time complexity: O(N) where N is the number of fields returned.
+   * @param key - The name of the key that holds the hash.
+   * @param count - The number of fields to return. A positive `count` returns up to that many distinct fields; a negative `count` returns exactly `|count|` fields and may repeat fields.
+   * @param options -
+   * @returns Any of the following:
+   * - Array reply: a list containing `count` fields when the `count` option is used, or an empty array if the key does not exists.
+   * - Array reply: a list of fields and their values when `count` and `WITHVALUES` were both used.
+   * @see {@link https://redis.io/commands/hrandfield}
+   */
+  HRANDFIELD(key: string, count: number, options?: HrandfieldOptions): RedisXTransaction<AddToList<L, string[] | {
+    field: string;
+    value: string;
+  }[]>, C, D>;
+  /**
+   * Returns the number of fields contained in the hash stored at key.
+   *
+   * - Available since: 2.0.0.
+   * - Time complexity: O(1).
+   * @param key Key to get hash length.
+   * @returns The number of fields in the hash, or 0 when the key does not exist.
+   * @see {@link https://redis.io/commands/hlen}
+   */
+  HLEN(key: string): RedisXTransaction<AddToList<L, number>, C, D>;
+  /**
+   * Returns all field names in the hash stored at key.
+   *
+   * - Available since: 2.0.0.
+   * - Time complexity: O(N) where N is the size of the hash.
+   * @param key The key of the hash.
+   * @returns A set of fields in the hash, or an empty set when the key does not exist.
+   * @see {@link https://redis.io/commands/hkeys}
+   */
+  HKEYS(key: string): RedisXTransaction<AddToList<L, Set<string>>, C, D>;
+  /**
+   * Increments the number stored at field in the hash stored at key by increment.
+   * If key does not exist, a new key holding a hash is created. If field does not
+   * exist the value is set to 0 before the operation is performed.
+   *
+   * The range of values supported by HINCRBY is limited to 64 bit signed integers.
+   *
+   * - Available since: 2.0.0.
+   * - Time complexity: O(1).
+   * @param key Key of the hash.
+   * @param field Field in the hash to increment.
+   * @param increment The increment value (can be negative for decrementing).
+   * @returns The value of the field after the increment operation.
+   * @see {@link https://redis.io/commands/hincrby}
+   */
+  HINCRBY(key: string, field: string | number, increment: number): RedisXTransaction<AddToList<L, number>, C, D>;
+  /**
+   * Removes the specified fields from the hash stored at key. Specified fields that do not exist within this hash are ignored.
+   * Deletes the hash if no fields remain. If key does not exist, it is treated as an empty hash and this command returns 0.
+   *
+   * - Available since: 2.0.0. Multiple field arguments support added in 2.4.0.
+   * - Time complexity: O(N) where N is the number of fields to be removed.
+   * @param key Key of the hash.
+   * @param fields One or more fields to delete from the hash.
+   * @returns The number of fields that were removed from the hash, excluding specified but non-existing fields.
+   * @see {@link https://redis.io/commands/hdel}
+   */
+  HDEL(key: string, fields: Collection<string | number>): RedisXTransaction<AddToList<L, number>, C, D>;
+  /**
+   * Removes the specified fields from the hash stored at key. Specified fields that do not exist within this hash are ignored.
+   * Deletes the hash if no fields remain. If key does not exist, it is treated as an empty hash and this command returns 0.
+   *
+   * - Available since: 2.0.0. Multiple field arguments support added in 2.4.0.
+   * - Time complexity: O(N) where N is the number of fields to be removed.
+   * @param key Key of the hash.
+   * @param fields Fields to remove from the hash.
+   * @returns The number of fields that were removed from the hash, excluding specified but non-existing fields.
+   * @see {@link https://redis.io/commands/hdel}
+   */
+  HDEL(key: string, ...fields: (string | number)[]): RedisXTransaction<AddToList<L, number>, C, D>;
+  /**
+   * Returns the string length of the value associated with field in the hash stored at key.
+   * If the key or the field do not exist, 0 is returned.
+   *
+   * - Available since: 3.2.0.
+   * - Time complexity: O(1).
+   * @param key The key of the hash.
+   * @param field The field in the hash.
+   * @returns The string length of the value associated with the field, or zero when the field isn't present in the hash or the key doesn't exist at all.
+   * @see {@link https://redis.io/commands/hstrlen}
+   */
+  HSTRLEN(key: string, field: string): RedisXTransaction<AddToList<L, number>, C, D>;
+  /**
+   * `HPEXPIRETIME` has the same semantics as `HEXPIRETIME`, but returns the absolute Unix expiration timestamp in milliseconds since Unix epoch instead of seconds.
+   * - Available since: 7.4.0.
+   * - Time complexity: O(N) where N is the number of specified fields.
+   * @param key - The name of the key that holds the hash.
+   * @param fields - The hash fields to retrieve the expiration time for.
+   * @returns Array reply. For each field:
+   * - Integer reply: `-2` if no such field exists in the provided hash key, or the provided key does not exist.
+   * - Integer reply: `-1` if the field exists but has no associated expiration set.
+   * - Integer reply: the expiration (Unix timestamp) in milliseconds.
+   * @see {@link https://redis.io/commands/hpexpiretime}
+   */
+  HPEXPIRETIME(key: string, fields: Collection<string | number>): RedisXTransaction<AddToList<L, number[]>, C, D>;
+  /**
+   * Returns if field is an existing field in the hash stored at key.
+   *
+   * - Available since: 2.0.0.
+   * - Time complexity: O(1).
+   * @param key Key of the hash.
+   * @param field Field to check in the hash.
+   * @returns Returns `true` if the hash contains the field. Returns `false` if the hash does not contain the field, or the key does not exist.
+   * @see {@link https://redis.io/commands/hexists}
+   */
+  HEXISTS(key: string, field: string | number): RedisXTransaction<AddToList<L, boolean>, C, D>;
+  /**
+   * `HPEXPIREAT` has the same effect and semantics as `HEXPIREAT`, but the Unix time at which the field will expire is specified in milliseconds since Unix epoch instead of seconds.
+   * - Available since: 7.4.0.
+   * - Time complexity: O(N) where N is the number of specified fields.
+   * @param key - The name of the key that holds the hash.
+   * @param timestamp - The absolute Unix expiration timestamp, in milliseconds since Unix epoch. A timestamp in the past deletes the field immediately.
+   * @param fields - The hash fields to operate on.
+   * @param options -
+   * @returns Array reply. For each field:
+   * - Integer reply: `-2` if no such field exists in the provided hash key, or the provided key does not exist.
+   * - Integer reply: `0` if the specified NX | XX | GT | LT condition has not been met.
+   * - Integer reply: `1` if the expiration time was set/updated.
+   * - Integer reply: `2` when `HEXPIRE`/`HPEXPIRE` is called with 0 seconds/milliseconds or when `HEXPIREAT`/`HPEXPIREAT` is called with a past Unix time in seconds/milliseconds.
+   * @see {@link https://redis.io/commands/hpexpireat}
+   */
+  HPEXPIREAT(key: string, timestamp: number, fields: Collection<string | number>, options?: HpexpireatOptions): RedisXTransaction<AddToList<L, number[]>, C, D>;
+  /**
+   * Remove the existing expiration on a hash key's field(s), turning the field(s) from _volatile_ (a field with expiration set) to _persistent_ (a field that will never expire as no TTL (time to live) is associated).
+   * - Available since: 7.4.0.
+   * - Time complexity: O(N) where N is the number of specified fields.
+   * @param key - The name of the key that holds the hash.
+   * @param fields - The hash fields to remove the expiration from.
+   * @returns Array reply. For each field:
+   * - Integer reply: `-2` if no such field exists in the provided hash key, or the provided key does not exist.
+   * - Integer reply: `-1` if the field exists but has no associated expiration set.
+   * - Integer reply: `1` the expiration was removed.
+   * @see {@link https://redis.io/commands/hpersist}
+   */
+  HPERSIST(key: string, fields: Collection<string | number>): RedisXTransaction<AddToList<L, number[]>, C, D>;
+  /**
+   * Sets field in the hash stored at key to value, only if field does not yet exist.
+   * If key does not exist, a new key holding a hash is created.
+   * If field already exists, this operation has no effect.
+   *
+   * - Available since: 2.0.0.
+   * - Time complexity: O(1).
+   * @param key The key of the hash.
+   * @param field The field to set.
+   * @param value The value to set.
+   * @returns Returns `true` if the field is new and the value was set. Returns `false` if the field already exists and no operation was performed.
+   * @see {@link https://redis.io/commands/hsetnx}
+   */
+  HSETNX(key: string, field: string, value: string | number): RedisXTransaction<AddToList<L, boolean>, C, D>;
+  /**
+   * Returns the absolute Unix timestamp in seconds since Unix epoch at which the given key's field(s) will expire.
+   *
+   * See also the `HPEXPIRETIME` command, which returns the same information with millisecond resolution.
+   * - Available since: 7.4.0.
+   * - Time complexity: O(N) where N is the number of specified fields.
+   * @param key - The name of the key that holds the hash.
+   * @param fields - The hash fields to retrieve the expiration time for.
+   * @returns Array reply. For each field:
+   * - Integer reply: `-2` if no such field exists in the provided hash key, or the provided key does not exist.
+   * - Integer reply: `-1` if the field exists but has no associated expiration set.
+   * - Integer reply: the expiration (Unix timestamp) in seconds.
+   * @see {@link https://redis.io/commands/hexpiretime}
+   */
+  HEXPIRETIME(key: string, fields: Collection<string | number>): RedisXTransaction<AddToList<L, number[]>, C, D>;
+  /**
+   * Runs a read-only Lua script. Unlike `EVAL`, this command can't run commands that modify data.
+   * - Available since: 7.0.0.
+   * - Time complexity: Depends on the script that is executed.
+   * @param script - The Lua script to evaluate. It must not modify data.
+   * @param keys - The key names the script accesses, provided to it via the Lua `KEYS` global variable.
+   * @param args - Additional arguments provided to the script via the Lua `ARGV` variable.
+   * @returns The return value depends on the script that was executed.
+   * @see {@link https://redis.io/commands/eval_ro}
+   */
+  EVAL_RO(script: string, keys: (string | number)[], args?: (string | number)[]): RedisXTransaction<AddToList<L, unknown>, C, D>;
+  /**
+   * Invoke the execution of a server-side Lua script.
+   * - Available since: 2.6.0.
+   * - Time complexity: Depends on the script that is executed.
+   * @param script Script's source code.
+   * @param keys Keys accessed by the script.
+   * @param args Arguments passed to the script.
+   * @returns Value returned by the script.
+   * @see {@link https://redis.io/commands/eval}
+   */
+  EVAL(script: string, keys: (string | number)[], args?: (string | number)[]): RedisXTransaction<AddToList<L, unknown>, C, D>;
+  /**
+   * Evaluate a script from the server's cache by its SHA1 digest.
+   *
+   * The server caches scripts by using the `SCRIPT LOAD` command.
+   * The command is otherwise identical to `EVAL`.
+   * - Available since: 2.6.0.
+   * - Time complexity: Depends on the script that is executed.
+   * @param sha1 - The SHA1 digest of a script previously cached with `SCRIPT LOAD` or `EVAL`.
+   * @param keys - The key names the script accesses, provided to it via the Lua `KEYS` global variable.
+   * @param args - Additional arguments provided to the script via the Lua `ARGV` variable.
+   * @returns The return value depends on the script that was executed.
+   * @see {@link https://redis.io/commands/evalsha}
+   */
+  EVALSHA(sha1: string, keys: (string | number)[], args?: (string | number)[]): RedisXTransaction<AddToList<L, unknown>, C, D>;
+  /**
+   * This is a read-only variant of the `EVALSHA` command that cannot execute commands that modify data.
+   * - Available since: 7.0.0.
+   * - Time complexity: Depends on the script that is executed.
+   * @param sha1 - The SHA1 digest of a read-only script previously cached with `SCRIPT LOAD` or `EVAL_RO`.
+   * @param keys - The key names the script accesses, provided to it via the Lua `KEYS` global variable.
+   * @param args - Additional arguments provided to the script via the Lua `ARGV` variable.
+   * @returns The return value depends on the script that was executed.
+   * @see {@link https://redis.io/commands/evalsha_ro}
+   */
+  EVALSHA_RO(sha1: string, keys: (string | number)[], args?: (string | number)[]): RedisXTransaction<AddToList<L, unknown>, C, D>;
+}
+//#endregion
+//#region src/client.d.ts
+export declare class RedisXClient {
+  private redisClient;
+  constructor(redisClient: RedisClient);
+  sendCommand<T extends string>(command: T, ...args: (string | number)[]): Promise<unknown>;
+  private useCommand;
+  createTransaction(): RedisXTransaction<[], false, unknown>;
+  createScript(code: string): RedisXScript<string[], unknown>;
+  createScript(code: string, keys: string[]): RedisXScript<string[], unknown>;
+  createScript<O = unknown>(code: string, outputValidator: (value: unknown) => O): RedisXScript<string[], O>;
+  createScript<O = unknown>(code: string, keys: string[], outputValidator: (value: unknown) => O): RedisXScript<string[], O>;
+  createScript<I extends any[] = string[], O = unknown>(options: RedisXScriptOptions<I, O>): RedisXScript<I, O>;
+  /**
+   * This command is similar to `SINTER`, but instead of returning the result set, it returns just the cardinality of the result.
+   * Returns the cardinality of the set which would result from the intersection of all the given sets.
+   *
+   * Keys that do not exist are considered to be empty sets.
+   * With one of the keys being an empty set, the resulting set is also empty (since set intersection with an empty set always results in an empty set).
+   * - Available since: 7.0.0.
+   * - Time complexity: O(N*M) worst case where N is the cardinality of the smallest set and M is the number of sets.
+   * @param keys - One or more set keys to intersect.
+   * @param options -
+   * @returns Integer reply: the number of elements in the resulting intersection.
+   * @see {@link https://redis.io/commands/sintercard}
+   */
+  SINTERCARD(keys: Collection<string>, options?: SintercardOptions): Promise<number>;
+  /**
+   * Remove the specified members from the set stored at key.
+   * Specified members that are not a member of this set are ignored.
+   * If key does not exist, it is treated as an empty set and this command returns 0.
+   *
+   * - Available since: 1.0.0. Multiple members support added in 2.4.0.
+   * - Time complexity: O(N) where N is the number of members to be removed.
+   * @param key Key of the set.
+   * @param members One or more members to remove from the set.
+   * @returns The number of members that were removed from the set, not including non existing members.
+   * @see {@link https://redis.io/commands/srem}
+   */
+  SREM(key: string, members: Collection<string | number>): Promise<number>;
+  /**
+   * Remove the specified members from the set stored at key.
+   * Specified members that are not a member of this set are ignored.
+   * If key does not exist, it is treated as an empty set and this command returns 0.
+   *
+   * - Available since: 1.0.0. Multiple members support added in 2.4.0.
+   * - Time complexity: O(N) where N is the number of members to be removed.
+   * @param key Key of the set.
+   * @param members Members to remove from the set.
+   * @returns The number of members that were removed from the set, not including non existing members.
+   * @see {@link https://redis.io/commands/srem}
+   */
+  SREM(key: string, ...members: (string | number)[]): Promise<number>;
+  /**
+   * When called with just the `key` argument, return a random element from the set value stored at `key`.
+   * - Available since: 1.0.0.
+   * - Time complexity: Without the count argument O(1), otherwise O(N) where N is the absolute value of the passed count.
+   * @param key - The name of the key that holds the set.
+   * @returns Bulk string reply: without the additional _count_ argument, the command returns a randomly selected member, or a Nil reply when _key_ doesn't exist.
+   * @see {@link https://redis.io/commands/srandmember}
+   */
+  SRANDMEMBER(key: string): Promise<string | null>;
+  /**
+   * If the provided `count` argument is positive, return an array of **distinct elements**.
+   * The array's length is either `count` or the set's cardinality (`SCARD`), whichever is lower.
+   *
+   * If called with a negative `count`, the behavior changes and the command is allowed to return the **same element multiple times**.
+   * In this case, the number of returned elements is the absolute value of the specified `count`.
+   * - Available since: 1.0.0.
+   * - Starting with Redis version 2.6.0: Added the optional `count` argument.
+   * - Time complexity: Without the count argument O(1), otherwise O(N) where N is the absolute value of the passed count.
+   * @param key - The name of the key that holds the set.
+   * @param count - The number of members to return. A positive `count` returns up to that many distinct members; a negative `count` returns exactly `|count|` members and may repeat them.
+   * @returns Array reply: when the optional _count_ argument is passed, the command returns an array of members, or an empty array when _key_ doesn't exist.
+   * @see {@link https://redis.io/commands/srandmember}
+   */
+  SRANDMEMBER(key: string, count: number): Promise<string[]>;
+  /**
+   * Removes and returns one or more random members from the set value store at `key`.
+   *
+   * This operation is similar to `SRANDMEMBER`, that returns one or more random elements from a set but does not remove it.
+   *
+   * By default, the command pops a single member from the set.
+   * - Available since: 1.0.0.
+   * - Time complexity: Without the count argument O(1), otherwise O(N) where N is the value of the passed count.
+   * @param key - The name of the key that holds the set.
+   * @returns Any of the following:
+   * - Nil reply: if the key does not exist.
+   * - Bulk string reply: when called without the _count_ argument, the removed member.
+   * @see {@link https://redis.io/commands/spop}
+   */
+  SPOP(key: string): Promise<string | null>;
+  /**
+   * Removes and returns one or more random members from the set value store at `key`.
+   *
+   * This operation is similar to `SRANDMEMBER`, that returns one or more random elements from a set but does not remove it.
+   *
+   * When provided with the optional `count` argument, the reply will consist of up to `count` members, depending on the set's cardinality.
+   * - Available since: 1.0.0.
+   * - Starting with Redis version 3.2.0: Added the optional `count` argument.
+   * - Time complexity: Without the count argument O(1), otherwise O(N) where N is the value of the passed count.
+   * @param key - The name of the key that holds the set.
+   * @param count - The number of members to pop. Without it, a single member is popped.
+   * @returns Array reply: when called with the _count_ argument, a list of the removed members.
+   * @see {@link https://redis.io/commands/spop}
+   */
+  SPOP(key: string, count: number): Promise<Set<string>>;
+  /**
+   * This command is equal to `SINTER`, but instead of returning the resulting set, it is stored in `destination`.
+   *
+   * If `destination` already exists, it is overwritten.
+   * - Available since: 1.0.0.
+   * - Time complexity: O(N*M) worst case where N is the cardinality of the smallest set and M is the number of sets.
+   * @param destination - The key to store the resulting set in.
+   * @param keys - One or more set keys to intersect.
+   * @returns Integer reply: the number of elements in the resulting set.
+   * @see {@link https://redis.io/commands/sinterstore}
+   */
+  SINTERSTORE(destination: string, ...keys: string[]): Promise<number>;
+  /**
+   * This command is equal to `SINTER`, but instead of returning the resulting set, it is stored in `destination`.
+   *
+   * If `destination` already exists, it is overwritten.
+   * - Available since: 1.0.0.
+   * - Time complexity: O(N*M) worst case where N is the cardinality of the smallest set and M is the number of sets.
+   * @param destination - The key to store the resulting set in.
+   * @param keys - One or more set keys to intersect.
+   * @returns Integer reply: the number of elements in the resulting set.
+   * @see {@link https://redis.io/commands/sinterstore}
+   */
+  SINTERSTORE(destination: string, keys: Collection<string>): Promise<number>;
+  /**
+   * Returns whether each member is a member of the set stored at key.
+   *
+   * For every member, 1 is returned if the value is a member of the set,
+   * or 0 if the element is not a member of the set or if key does not exist.
+   *
+   * - Available since: 6.2.0.
+   * - Time complexity: O(N) where N is the number of elements being checked for membership.
+   * @param key The key of the set.
+   * @param members The members to check.
+   * @returns A list representing the membership of the given elements, in the same order as they are requested.
+   * @see {@link https://redis.io/commands/smismember}
+   */
+  SMISMEMBER(key: string, ...members: (string | number)[]): Promise<boolean[]>;
+  /**
+   * Returns whether each member is a member of the set stored at key.
+   *
+   * For every member, 1 is returned if the value is a member of the set,
+   * or 0 if the element is not a member of the set or if key does not exist.
+   *
+   * - Available since: 6.2.0.
+   * - Time complexity: O(N) where N is the number of elements being checked for membership.
+   * @param key The name of the key that holds the set.
+   * @param members One or more members to check for.
+   * @returns A list representing the membership of the given elements, in the same order as they are requested.
+   * @see {@link https://redis.io/commands/smismember}
+   */
+  SMISMEMBER(key: string, members: Collection<string | number>): Promise<boolean[]>;
+  /**
+   * Returns the members of the set resulting from the intersection of all the given sets.
+   *
+   * Keys that do not exist are considered to be empty sets.
+   * With one of the keys being an empty set, the resulting set is also empty (since set intersection with an empty set always results in an empty set).
+   * - Available since: 1.0.0.
+   * - Time complexity: O(N*M) worst case where N is the cardinality of the smallest set and M is the number of sets.
+   * @param keys - One or more set keys to intersect.
+   * @returns Array reply: an array with the members of the resulting set.
+   * @see {@link https://redis.io/commands/sinter}
+   */
+  SINTER(...keys: string[]): Promise<Set<string>>;
+  /**
+   * Returns the members of the set resulting from the intersection of all the given sets.
+   *
+   * Keys that do not exist are considered to be empty sets.
+   * With one of the keys being an empty set, the resulting set is also empty (since set intersection with an empty set always results in an empty set).
+   * - Available since: 1.0.0.
+   * - Time complexity: O(N*M) worst case where N is the cardinality of the smallest set and M is the number of sets.
+   * @param keys - One or more set keys to intersect.
+   * @returns Array reply: an array with the members of the resulting set.
+   * @see {@link https://redis.io/commands/sinter}
+   */
+  SINTER(keys: Collection<string>): Promise<Set<string>>;
+  /**
+   * Returns all the members of the set value stored at key.
+   *
+   * - Available since: 1.0.0.
+   * - Time complexity: O(N) where N is the set cardinality.
+   * @param key The key of the set.
+   * @returns A set with all the members of the set.
+   * @see {@link https://redis.io/commands/smembers}
+   */
+  SMEMBERS(key: string): Promise<Set<string>>;
+  /**
+   * Returns the members of the set resulting from the union of all the given sets.
+   *
+   * Keys that do not exist are considered to be empty sets.
+   * - Available since: 1.0.0.
+   * - Time complexity: O(N) where N is the total number of elements in all given sets.
+   * @param keys - One or more set keys to union.
+   * @returns Array reply: a list with members of the resulting set.
+   * @see {@link https://redis.io/commands/sunion}
+   */
+  SUNION(...keys: string[]): Promise<Set<string>>;
+  /**
+   * Returns the members of the set resulting from the union of all the given sets.
+   *
+   * Keys that do not exist are considered to be empty sets.
+   * - Available since: 1.0.0.
+   * - Time complexity: O(N) where N is the total number of elements in all given sets.
+   * @param keys - One or more set keys to union.
+   * @returns Array reply: a list with members of the resulting set.
+   * @see {@link https://redis.io/commands/sunion}
+   */
+  SUNION(keys: Collection<string>): Promise<Set<string>>;
+  /**
+   * Returns if member is a member of the set stored at key.
+   *
+   * - Available since: 1.0.0.
+   * - Time complexity: O(1).
+   * @param key The key of the set.
+   * @param member The member to check.
+   * @returns `true` if the member is a member of the set stored at key, `false` otherwise.
+   * @see {@link https://redis.io/commands/sismember}
+   */
+  SISMEMBER(key: string, member: string | number): Promise<boolean>;
+  /**
+   * This command is equal to `SUNION`, but instead of returning the resulting set, it is stored in `destination`.
+   *
+   * If `destination` already exists, it is overwritten.
+   * - Available since: 1.0.0.
+   * - Time complexity: O(N) where N is the total number of elements in all given sets.
+   * @param destination - The key to store the resulting set in.
+   * @param keys - One or more set keys to union.
+   * @returns Integer reply: the number of elements in the resulting set.
+   * @see {@link https://redis.io/commands/sunionstore}
+   */
+  SUNIONSTORE(destination: string, ...keys: string[]): Promise<number>;
+  /**
+   * This command is equal to `SUNION`, but instead of returning the resulting set, it is stored in `destination`.
+   *
+   * If `destination` already exists, it is overwritten.
+   * - Available since: 1.0.0.
+   * - Time complexity: O(N) where N is the total number of elements in all given sets.
+   * @param destination - The key to store the resulting set in.
+   * @param keys - One or more set keys to union.
+   * @returns Integer reply: the number of elements in the resulting set.
+   * @see {@link https://redis.io/commands/sunionstore}
+   */
+  SUNIONSTORE(destination: string, keys: Collection<string>): Promise<number>;
+  /**
+   * Move `member` from the set at `source` to the set at `destination`.
+   * This operation is atomic.
+   * In every given moment the element will appear to be a member of `source` **or** `destination` for other clients.
+   *
+   * If the source set does not exist or does not contain the specified element, no operation is performed and `0` is returned.
+   * Otherwise, the element is removed from the source set and added to the destination set.
+   * When the specified element already exists in the destination set, it is only removed from the source set.
+   * - Available since: 1.0.0.
+   * - Time complexity: O(1).
+   * @param source - The key of the source set.
+   * @param destination - The key of the destination set.
+   * @param member - The member to move from the source set to the destination set.
+   * @returns Any of the following:
+   * - Integer reply: `1` if the element is moved.
+   * - Integer reply: `0` if the element is not a member of _source_ and no operation was performed.
+   * @see {@link https://redis.io/commands/smove}
+   */
+  SMOVE(source: string, destination: string, member: string | number): Promise<boolean>;
+  /**
+   * Returns the members of the set resulting from the difference between the first set and all the successive sets.
+   *
+   * Keys that do not exist are considered to be empty sets.
+   * - Available since: 1.0.0.
+   * - Time complexity: O(N) where N is the total number of elements in all given sets.
+   * @param keys - One or more set keys. The result is the members of the first set that are not present in any of the subsequent sets.
+   * @returns Array reply: a list with members of the resulting set.
+   * @see {@link https://redis.io/commands/sdiff}
+   */
+  SDIFF(...keys: string[]): Promise<Set<string>>;
+  /**
+   * Returns the members of the set resulting from the difference between the first set and all the successive sets.
+   *
+   * Keys that do not exist are considered to be empty sets.
+   * - Available since: 1.0.0.
+   * - Time complexity: O(N) where N is the total number of elements in all given sets.
+   * @param keys - One or more set keys. The result is the members of the first set that are not present in any of the subsequent sets.
+   * @returns Array reply: a list with members of the resulting set.
+   * @see {@link https://redis.io/commands/sdiff}
+   */
+  SDIFF(keys: Collection<string>): Promise<Set<string>>;
+  /**
+   * Iterates over members of a set.
+   *
+   * `SSCAN` is a cursor based iterator. This means that at every call of the command, the server returns an updated cursor that the user needs to use as the cursor argument in the next call.
+   * An iteration starts when the cursor is set to 0, and terminates when the cursor returned by the server is 0.
+   *
+   * A given element may be returned multiple times. It is up to the application to handle the case of duplicated elements, for example only using the returned elements in order to perform operations that are safe when re-applied multiple times.
+   * - Available since: 2.8.0.
+   * - Time complexity: O(1) for every call. O(N) for a complete iteration, including enough command calls for the cursor to return back to 0. N is the number of elements inside the collection.
+   * @param key - The name of the key that holds the set.
+   * @param cursor - The cursor value. Start an iteration with `0`, then use the cursor returned by each call as the argument to the next call.
+   * @param options -
+   * @returns Array reply: specifically, an array with two elements.
+   * - The first element is a Bulk string reply that represents an unsigned 64-bit number, the cursor.
+   * - The second element is an Array reply with the names of scanned members.
+   * @see {@link https://redis.io/commands/sscan}
+   */
+  SSCAN(key: string, cursor: string | number, options?: SscanOptions): Promise<{
+    cursor: string;
+    members: Set<string>;
+  }>;
+  /**
+   * Returns the cardinality of the union of the given sets. This is the count-only counterpart of `SUNION`: it returns just the number of distinct elements in the union, not the members themselves.
+   *
+   * Keys that do not exist are considered to be empty sets.
+   * - Available since: 8.10.0.
+   * - Time complexity: O(N) where N is the total number of elements in all given sets.
+   * @param keys - One or more set keys to union.
+   * @param options -
+   * @returns Integer reply: the number of elements in the resulting union.
+   * @see {@link https://redis.io/commands/sunioncard}
+   */
+  SUNIONCARD(keys: Collection<string>, options?: SunioncardOptions): Promise<number>;
+  /**
+   * This command is equal to `SDIFF`, but instead of returning the resulting set, it is stored in `destination`.
+   *
+   * If `destination` already exists, it is overwritten.
+   * - Available since: 1.0.0.
+   * - Time complexity: O(N) where N is the total number of elements in all given sets.
+   * @param destination - The key to store the resulting set in.
+   * @param keys - One or more set keys. The difference is the members of the first set that are not present in any of the subsequent sets.
+   * @returns Integer reply: the number of elements in the resulting set.
+   * @see {@link https://redis.io/commands/sdiffstore}
+   */
+  SDIFFSTORE(destination: string, ...keys: string[]): Promise<number>;
+  /**
+   * This command is equal to `SDIFF`, but instead of returning the resulting set, it is stored in `destination`.
+   *
+   * If `destination` already exists, it is overwritten.
+   * - Available since: 1.0.0.
+   * - Time complexity: O(N) where N is the total number of elements in all given sets.
+   * @param destination - The key to store the resulting set in.
+   * @param keys - One or more set keys. The difference is the members of the first set that are not present in any of the subsequent sets.
+   * @returns Integer reply: the number of elements in the resulting set.
+   * @see {@link https://redis.io/commands/sdiffstore}
+   */
+  SDIFFSTORE(destination: string, keys: Collection<string>): Promise<number>;
+  /**
+   * Returns the set cardinality (number of elements) of the set stored at key.
+   *
+   * - Available since: 1.0.0.
+   * - Time complexity: O(1).
+   * @param key The key of the set.
+   * @returns The cardinality (number of elements) of the set, or `0` if the key does not exist.
+   * @see {@link https://redis.io/commands/scard}
+   */
+  SCARD(key: string): Promise<number>;
+  /**
+   * Returns the cardinality of the difference between the first set and all the successive sets. This is the count-only counterpart of `SDIFF`: it returns just the number of elements in the difference, not the members themselves.
+   *
+   * Keys that do not exist are considered to be empty sets.
+   * - Available since: 8.10.0.
+   * - Time complexity: O(N) where N is the total number of elements in all given sets.
+   * @param keys - One or more set keys. The result counts the members of the first set that are not present in any of the subsequent sets.
+   * @param options -
+   * @returns Integer reply: the number of elements in the resulting difference.
+   * @see {@link https://redis.io/commands/sdiffcard}
+   */
+  SDIFFCARD(keys: Collection<string>, options?: SdiffcardOptions): Promise<number>;
+  /**
+   * Add the specified members to the set stored at key.
+   * Specified members that are already a member of this set are ignored.
+   * If key does not exist, a new set is created before adding the specified members.
+   *
+   * An error is returned when the value stored at key is not a set.
+   *
+   * - Available since: 1.0.0. Multiple members support added in 2.4.0.
+   * - Time complexity: O(1) for each element added.
+   * @param key Key of the set.
+   * @param members One or more members to add to the set.
+   * @returns The number of elements that were added to the set, not including all the elements already present in the set.
+   * @see {@link https://redis.io/commands/sadd}
+   */
+  SADD(key: string, members: Collection<string | number>): Promise<number>;
+  /**
+   * Add the specified members to the set stored at key.
+   * Specified members that are already a member of this set are ignored.
+   * If key does not exist, a new set is created before adding the specified members.
+   *
+   * An error is returned when the value stored at key is not a set.
+   *
+   * - Available since: 1.0.0. Multiple members support added in 2.4.0.
+   * - Time complexity: O(1) for each element added.
+   * @param key Key of the set.
+   * @param members Members to add to the set.
+   * @returns The number of elements that were added to the set, not including all the elements already present in the set.
+   * @see {@link https://redis.io/commands/sadd}
+   */
+  SADD(key: string, ...members: (string | number)[]): Promise<number>;
+  /**
+   * Sets the given keys to their respective values. MSETNX will not perform
+   * any operation at all even if just a single key already exists.
+   *
+   * - Available since: 1.0.1.
+   * - Time complexity: O(N) where N is the number of keys to set.
+   * @param pairs A record of key-value pairs.
+   * @returns `true` if all the keys were set, `false` if no key was set (at least one key already existed).
+   * @see {@link https://redis.io/commands/msetnx}
+   */
+  MSETNX(pairs: Record<string, string | number>): Promise<boolean>;
+  /**
+   * Set key to hold string value if key does not exist. In that case, it is equal to SET.
+   * When key already holds a value, no operation is performed. SETNX is short for "SET if Not eXists".
+   *
+   * - Available since: 1.0.0.
+   * - Time complexity: O(1).
+   * @deprecated As of Redis version 2.6.12, this command is regarded as deprecated. It can be replaced by SET with the NX argument when migrating or writing new code.
+   * @param key Key to set.
+   * @param value Value to set.
+   * @returns Integer reply: 1 if the key was set, 0 if the key was not set.
+   * @see {@link https://redis.io/commands/setnx}
+   */
+  SETNX(key: string, value: string | number): Promise<boolean>;
+  /**
+   * Get the value of key.
+   *
+   * If the key does not exist `null` is returned.
+   *
+   * An error is returned if the value stored at key is not a string, because GET only handles string values.
+   * - Available since: 1.0.0.
+   * - Time complexity: O(1).
+   * @param key Key to get.
+   * @returns The value of key, or `null` when key does not exist.
+   * @see {@link https://redis.io/commands/get}
+   */
+  GET(key: string): Promise<string | null>;
+  /**
+   * Set `key` to hold the string `value`.
+   * - Available since: 1.0.0.
+   * - Time complexity: O(1).
+   * @param key The name of the key.
+   * @param value The string value to set.
+   * @param options Command options.
+   * @returns
+   * - Simple string reply: `OK`: The key was set.
+   * - Null bulk string reply in the following two cases.
+   *   - The key doesn’t exist and `XX/IFEQ/IFDEQ` was specified. The key was not created.
+   *   - The key exists, and `NX` was specified or a specified `IFEQ/IFNE/IFDEQ/IFDNE` condition is false. The key was not set.
+   * @see {@link https://redis.io/commands/set}
+   */
+  SET(key: string, value: string | number, options?: SetOptions & {
+    GET?: false;
+  }): Promise<"OK" | null>;
+  /**
+   * Set `key` to hold the string `value`.
+   * - Available since: 1.0.0.
+   * - Time complexity: O(1).
+   * @param key The name of the key.
+   * @param value The string value to set.
+   * @param options Command options.
+   * @returns
+   * - Null bulk string reply: The key didn't exist before the `SET` operation, whether the key was created of not.
+   * - Bulk string reply: The previous value of the key, whether the key was set or not.
+   * @see {@link https://redis.io/commands/set}
+   */
+  SET(key: string, value: string | number, options: SetOptions & {
+    GET: true;
+  }): Promise<string | null>;
+  /**
+   * Set `key` to hold the string `value`.
+   * - Available since: 1.0.0.
+   * - Time complexity: O(1).
+   * @param key The name of the key.
+   * @param value The string value to set.
+   * @param options Command options.
+   * @returns
+   * - If `GET` was not specified, one of the following:
+   *   - Simple string reply: `OK`: The key was set.
+   *   - Null bulk string reply in the following two cases.
+   *     - The key doesn’t exist and `XX/IFEQ/IFDEQ` was specified. The key was not created.
+   *     - The key exists, and `NX` was specified or a specified `IFEQ/IFNE/IFDEQ/IFDNE` condition is false. The key was not set.
+   * - If `GET` was specified, one of the following:
+   *   - Null bulk string reply: The key didn't exist before the `SET` operation, whether the key was created of not.
+   *   - Bulk string reply: The previous value of the key, whether the key was set or not.
+   * @see {@link https://redis.io/commands/set}
+   */
+  SET(key: string, value: string | number, options?: SetOptions): Promise<string | null>;
+  /**
+   * Append a value to a key.
+   *
+   * If key already exists and is a string, this command appends the value at the end of the string.
+   * If key does not exist it is created and set as an empty string, so APPEND will be similar to SET in this special case.
+   * - Available since: 2.0.0.
+   * - Time complexity: O(1). The amortized time complexity is O(1) assuming the appended value is small and the already present value is of any size, since the dynamic string library used by Redis will double the free space available on every reallocation.
+   * @param key Key to append to.
+   * @param value Value to append.
+   * @returns The length of the string after the append operation.
+   * @see {@link https://redis.io/commands/append}
+   */
+  APPEND(key: string, value: string): Promise<number>;
+  /**
+   * Increments the number stored at key by one. If the key does not exist,
+   * it is set to 0 before performing the operation. An error is returned if the
+   * key contains a value of the wrong type or contains a string that can not
+   * be represented as integer. This operation is limited to 64 bit signed integers.
+   * - Available since: 1.0.0.
+   * - Time complexity: O(1).
+   * @param key Key to increment.
+   * @returns The value of the key after incrementing it.
+   * @see {@link https://redis.io/commands/incr}
+   */
+  INCR(key: string): Promise<number>;
+  /**
+   * Increment the string representing a floating point number stored at key by the specified increment.
+   * By using a negative increment value, the result is that the value stored at the key is decremented.
+   * If the key does not exist, it is set to 0 before performing the operation.
+   *
+   * - Available since: 2.6.0.
+   * - Time complexity: O(1).
+   * @param key Key to increment.
+   * @param increment Value to increment by.
+   * @returns The value of key after the increment.
+   * @see {@link https://redis.io/commands/incrbyfloat}
+   */
+  INCRBYFLOAT(key: string, increment: number): Promise<string>;
+  /**
+   * Returns the values of all specified keys. For every key that does not hold a
+   * string value or does not exist, the special value `null` is returned.
+   * Because of this, the operation never fails.
+   *
+   * - Available since: 1.0.0.
+   * - Time complexity: O(N) where N is the number of keys to retrieve.
+   * @param keys The keys to get.
+   * @returns Array reply: a list of values at the specified keys.
+   * @see {@link https://redis.io/commands/mget}
+   */
+  MGET<const K extends string[]>(keys: K): Promise<{ [I in keyof K]: string | null; }>;
+  /**
+   * Returns the values of all specified keys. For every key that does not hold a
+   * string value or does not exist, the special value `null` is returned.
+   * Because of this, the operation never fails.
+   *
+   * - Available since: 1.0.0.
+   * - Time complexity: O(N) where N is the number of keys to retrieve.
+   * @param keys The keys to get.
+   * @returns Array reply: a list of values at the specified keys.
+   * @see {@link https://redis.io/commands/mget}
+   */
+  MGET<const K extends string[]>(...keys: K): Promise<{ [I in keyof K]: string | null; }>;
+  /**
+   * Get the value of key and delete the key. This command is similar to GET, except for the fact
+   * that it also deletes the key on success (if and only if the key's value type is a string).
+   *
+   * - Available since: 6.2.0.
+   * - Time complexity: O(1).
+   * @param key Key to get and delete.
+   * @returns The value of key, or `null` when key does not exist or its value is not a string.
+   * @see {@link https://redis.io/commands/getdel}
+   */
+  GETDEL(key: string): Promise<string | null>;
+  /**
+   * Sets the given keys to their respective values. MSET replaces existing values with new values, just as regular SET.
+   * MSET is atomic, so all given keys are set at once. It is not possible for clients to see that some of the keys were updated while others are unchanged.
+   * - Available since: 1.0.1.
+   * - Time complexity: O(N) where N is the number of keys to set.
+   * @param pairs A record of key-value pairs.
+   * @returns "OK"
+   * @see {@link https://redis.io/commands/mset}
+   */
+  MSET(pairs: Record<string, string | number>): Promise<"OK">;
+  /**
+   * Increments the number stored at key by increment. If the key does not exist, it is set to 0 before performing the operation.
+   * An error is returned if the key contains a value of the wrong type or contains a string that cannot be represented as integer.
+   * This operation is limited to 64 bit signed integers.
+   *
+   * - Available since: 1.0.0.
+   * - Time complexity: O(1).
+   * @param key Key to increment.
+   * @param increment Amount to increment by.
+   * @returns The value of the key after the increment.
+   * @see {@link https://redis.io/commands/incrby}
+   */
+  INCRBY(key: string, increment: number): Promise<number>;
+  /**
+   * Overwrites part of the string stored at key, starting at the specified offset, for the entire length of value.
+   * If the offset is larger than the current length of the string at key, the string is padded with zero-bytes to make offset fit.
+   * Non-existing keys are considered as empty strings, so this command will make sure it holds a string large enough to be able to set value at offset.
+   *
+   * Note that the maximum offset that you can set is `2^29-1` (536870911), as Redis Strings are limited to 512 megabytes.
+   *
+   * - Available since: 2.2.0.
+   * - Time complexity: O(1), not counting the time taken to copy the new string in place. Usually, this string is very small so the amortized complexity is O(1). Otherwise, complexity is O(M) with M being the length of the value argument.
+   * @param key Key to modify.
+   * @param offset Position at which the overwrite should begin.
+   * @param value String that will be written to the key, starting at the specified offset.
+   * @returns The length of the string after it was modified by the command.
+   * @see {@link https://redis.io/commands/setrange}
+   */
+  SETRANGE(key: string, offset: number, value: string): Promise<number>;
+  /**
+   * Returns the substring of the string value stored at key, determined by the offsets start and end (both are inclusive).
+   * Negative offsets can be used in order to provide an offset starting from the end of the string.
+   * So -1 means the last character, -2 the penultimate and so forth.
+   * - Available since: 1.0.0.
+   * - Time complexity: O(N) where N is the length of the returned string. The complexity is ultimately determined by the returned length, but because creating a substring from an existing string is very cheap, it can be considered O(1) for small strings.
+   * @deprecated As of Redis version 2.0.0, this command is regarded as deprecated. It can be replaced by GETRANGE when migrating or writing new code.
+   * @param key Key to get the substring from.
+   * @param start Start offset (inclusive).
+   * @param end End offset (inclusive).
+   * @returns The substring of the string value stored at key.
+   * @see {@link https://redis.io/commands/substr}
+   */
+  SUBSTR(key: string, start: number, end: number): Promise<string>;
+  /**
+   * Atomically sets key to value and returns the old value stored at key.
+   * Returns an error when key exists but does not hold a string value.
+   * Any previous time to live associated with the key is discarded on successful SET operation.
+   *
+   * - Available since: 1.0.0.
+   * - Time complexity: O(1).
+   * @deprecated As of Redis version 6.2.0, this command is regarded as deprecated. It can be replaced by SET with the GET argument when migrating or writing new code.
+   * @param key Key to set.
+   * @param value Value to set.
+   * @returns The old value stored at key, or `null` if key did not exist.
+   * @see {@link https://redis.io/commands/getset}
+   */
+  GETSET(key: string, value: string | number): Promise<string | null>;
+  /**
+   * Reduces the value stored at the specified key by the specified decrement.
+   * If the key does not exist, it is initialized with a value of 0 before performing the operation.
+   * If the key's value is not of the correct type or cannot be represented as an integer, an error is returned.
+   * This operation is limited to 64-bit signed integers.
+   *
+   * - Available since: 1.0.0.
+   * - Time complexity: O(1).
+   * @param key Key to decrement.
+   * @param decrement The value to decrement by.
+   * @returns The value of the key after decrementing it.
+   * @see {@link https://redis.io/commands/decrby}
+   */
+  DECRBY(key: string, decrement: number): Promise<number>;
+  /**
+   * Returns the substring of the string value stored at key, determined by the offsets start and end (both are inclusive).
+   * Negative offsets can be used in order to provide an offset starting from the end of the string.
+   * So -1 means the last character, -2 the penultimate and so forth.
+   *
+   * The function handles out of range requests by limiting the resulting range to the actual length of the string.
+   * - Available since: 2.4.0.
+   * - Time complexity: O(N) where N is the length of the returned string. The complexity is ultimately determined by the returned length, but because creating a substring from an existing string is very cheap, it can be considered O(1) for small strings.
+   * @param key The key holding the string value.
+   * @param start The starting offset. Can be negative to count from the end of the string.
+   * @param end The ending offset (inclusive). Can be negative to count from the end of the string.
+   * @returns The substring.
+   * @see {@link https://redis.io/commands/getrange}
+   */
+  GETRANGE(key: string, start: number, end: number): Promise<string>;
+  /**
+   * Set key to hold the string value and set key to timeout after a given number of seconds.
+   * This command is equivalent to SET key value EX seconds.
+   *
+   * - Available since: 2.0.0.
+   * - Time complexity: O(1).
+   * @deprecated As of Redis version 2.6.12, this command is regarded as deprecated. It can be replaced by SET with the EX argument when migrating or writing new code.
+   * @param key Key to set.
+   * @param seconds Timeout in seconds.
+   * @param value Value to set.
+   * @returns Simple string reply: OK.
+   * @see {@link https://redis.io/commands/setex}
+   */
+  SETEX(key: string, seconds: number, value: string | number): Promise<"OK">;
+  /**
+   * Get the value of key and optionally set its expiration.
+   * GETEX is similar to GET, but is a write command with additional options.
+   *
+   * An error is returned if the value stored at key is not a string, because GETEX only handles string values.
+   * - Available since: 6.2.0.
+   * - Time complexity: O(1).
+   * @param key Key to get.
+   * @param options Command options.
+   * @returns The value of key, or `null` when key does not exist.
+   * @see {@link https://redis.io/commands/getex}
+   */
+  GETEX(key: string, options?: GetexOptions): Promise<string | null>;
+  /**
+   * Returns the length of the string value stored at key.
+   * An error is returned when key holds a non-string value.
+   *
+   * - Available since: 2.2.0.
+   * - Time complexity: O(1).
+   * @param key Key to get length of.
+   * @returns The length of the string stored at key, or 0 when the key does not exist.
+   * @see {@link https://redis.io/commands/strlen}
+   */
+  STRLEN(key: string): Promise<number>;
+  /**
+   * Decrements the number stored at key by one. If the key does not exist,
+   * it is set to 0 before performing the operation. An error is returned if the
+   * key contains a value of the wrong type or contains a string that can not
+   * be represented as integer. This operation is limited to 64 bit signed integers.
+   * - Available since: 1.0.0.
+   * - Time complexity: O(1).
+   * @param key Key to decrement.
+   * @returns The value of the key after decrementing it.
+   * @see {@link https://redis.io/commands/decr}
+   */
+  DECR(key: string): Promise<number>;
+  /**
+   * Set key to hold the string value and set key to timeout after a given number of milliseconds.
+   * This command is similar to SETEX, except that the expiration time is specified in milliseconds instead of seconds.
+   *
+   * - Available since: 2.6.0.
+   * - Time complexity: O(1).
+   * @deprecated As of Redis version 2.6.12, this command is regarded as deprecated. It can be replaced by SET with the PX argument when migrating or writing new code.
+   * @param key Key to set.
+   * @param milliseconds Expiration time in milliseconds.
+   * @param value Value to set.
+   * @returns "OK" if the command was executed successfully.
+   * @see {@link https://redis.io/commands/psetex}
+   */
+  PSETEX(key: string, milliseconds: number, value: string | number): Promise<"OK">;
+  /**
+   * This command works exactly like EXPIRE but the time to live of the key is specified in milliseconds instead of seconds.
+   * - Available since: 2.6.0.
+   * - Time complexity: O(1).
+   * @param key Key to set the timeout on.
+   * @param seconds Time to live in milliseconds.
+   * @param options Command options.
+   * @returns Returns `true` if the timeout was set. Returns `false` if the timeout was not set; for example, the key doesn't exist, or the operation was skipped because of the provided arguments.
+   * @see {@link https://redis.io/commands/pexpire}
+   * @see {@link https://redis.io/commands/expire}
+   */
+  PEXPIRE(key: string, seconds: number, options?: PexpireOptions): Promise<boolean>;
+  /**
+   * Returns the remaining time to live of a key that has a timeout, in milliseconds.
+   *
+   * Like TTL this command returns the remaining time to live of a key that has an
+   * expire set, with the sole difference that TTL returns the amount of remaining
+   * time in seconds while PTTL returns it in milliseconds.
+   *
+   * - Available since: 2.6.0.
+   * - Time complexity: O(1).
+   * @param key The key to check.
+   * @returns One of the following:
+   * - A positive integer: TTL in milliseconds.
+   * - `-1`: if the key exists but has no associated expiration.
+   * - `-2`: if the key does not exist.
+   * @see {@link https://redis.io/commands/pttl}
+   * @see {@link https://redis.io/commands/ttl}
+   */
+  PTTL(key: string): Promise<number>;
+  /**
+   * Iterates over the key names in the database.
+   *
+   * `SCAN` is a cursor based iterator. This means that at every call of the command, the server returns an updated cursor that the user needs to use as the cursor argument in the next call.
+   * An iteration starts when the cursor is set to 0, and terminates when the cursor returned by the server is 0.
+   *
+   * A given element may be returned multiple times. It is up to the application to handle the case of duplicated elements, for example only using the returned elements in order to perform operations that are safe when re-applied multiple times.
+   * - Available since: 2.8.0.
+   * - Time complexity: O(1) for every call. O(N) for a complete iteration, including enough command calls for the cursor to return back to 0. N is the number of elements inside the collection.
+   * @param cursor - The cursor value. Start an iteration with `0`, then use the cursor returned by each call as the argument to the next call.
+   * @param options -
+   * @returns Array reply: specifically, an array with two elements.
+   * - The first element is a Bulk string reply that represents an unsigned 64-bit number, the cursor.
+   * - The second element is an Array reply with the names of scanned keys.
+   * @see {@link https://redis.io/commands/scan}
+   */
+  SCAN(cursor: string | number, options?: ScanOptions): Promise<{
+    cursor: string;
+    keys: Set<string>;
+  }>;
+  /**
+   * Returns the remaining time to live of a key that has a timeout.
+   *
+   * This introspection capability allows a Redis client to check how many seconds
+   * a given key will continue to be part of the dataset.
+   *
+   * - Available since: 1.0.0.
+   * - Time complexity: O(1).
+   * @param key The key to check.
+   * @returns One of the following:
+   * - A positive integer: TTL in seconds.
+   * - `-1`: if the key exists but has no associated expiration.
+   * - `-2`: if the key does not exist.
+   * @see {@link https://redis.io/commands/ttl}
+   */
+  TTL(key: string): Promise<number>;
+  /**
+   * Set a timeout on key.
+   *
+   * After the timeout has expired, the key will automatically be deleted.
+   * - Available since: 1.0.0.
+   * - Time complexity: O(1).
+   * @param key Key to set the timeout on.
+   * @param seconds Time to live in seconds.
+   * @param options Command options.
+   * @returns Returns `true` if the timeout was set. Returns `false` if the timeout was not set; for example, the key doesn't exist, or the operation was skipped because of the provided arguments.
+   * @see {@link https://redis.io/commands/expire}
+   */
+  EXPIRE(key: string, seconds: number, options?: ExpireOptions): Promise<boolean>;
+  /**
+   * Returns the string representation of the type of the value stored at `key`.
+   * - Available since: 1.0.0.
+   * - Time complexity: O(1).
+   * @param key The key to check.
+   * @returns The type of the value stored at the key, or `"none"` if the key does not exist.
+   * @see {@link https://redis.io/commands/type}
+   */
+  TYPE(key: string): Promise<"none" | "string" | "list" | "set" | "zset" | "hash" | "stream" | "vectorset">;
+  /**
+   * Returns all keys matching pattern.
+   * - Available since: 1.0.0.
+   * - Time complexity: O(N) with N being the number of keys in the database.
+   * @param pattern Pattern to match.
+   * @returns A set of keys matching pattern.
+   * @see {@link https://redis.io/commands/keys}
+   */
+  KEYS(pattern: string): Promise<Set<string>>;
+  /**
+   * Copy the value stored at the source key to the destination key.
+   * - Available since: 6.2.0.
+   * - Time complexity: O(N) worst case for collections, where N is the number of nested items. O(1) for string values.
+   * @param source The source key.
+   * @param destination The destination key.
+   * @param options Command options.
+   * @returns Whether the copy was successful.
+   * @see {@link https://redis.io/commands/copy}
+   */
+  COPY(source: string, destination: string, options?: CopyOptions): Promise<boolean>;
+  /**
+   * This command has the same effect and semantic as EXPIRE, but instead of specifying the number of seconds representing the TTL (time to live), it takes an absolute Unix timestamp (seconds since January 1, 1970).
+   *
+   * A timestamp in the past will delete the key immediately.
+   * - Available since: 1.2.0.
+   * - Time complexity: O(1).
+   * @param key Key to set the timeout on.
+   * @param timestamp Unix timestamp in seconds.
+   * @param options Command options.
+   * @returns Returns `true` if the timeout was set. Returns `false` if the timeout was not set; for example, the key doesn't exist, or the operation was skipped because of the provided arguments.
+   * @see {@link https://redis.io/commands/expireat}
+   * @see {@link https://redis.io/commands/expire}
+   */
+  EXPIREAT(key: string, timestamp: number, options?: ExpireatOptions): Promise<boolean>;
+  /**
+   * This command has the same effect and semantic as EXPIREAT, but the Unix time at which the key will expire is specified in milliseconds instead of seconds.
+   * - Available since: 2.6.0.
+   * - Time complexity: O(1).
+   * @param key Key to set the timeout on.
+   * @param timestamp Unix timestamp in milliseconds.
+   * @param options Command options.
+   * @returns Returns `true` if the timeout was set. Returns `false` if the timeout was not set; for example, the key doesn't exist, or the operation was skipped because of the provided arguments.
+   * @see {@link https://redis.io/commands/pexpireat}
+   * @see {@link https://redis.io/commands/expireat}
+   */
+  PEXPIREAT(key: string, timestamp: number, options?: PexpireatOptions): Promise<boolean>;
+  /**
+   * Remove the existing timeout on key, turning the key from volatile (a key with an expire set) to persistent (a key that will never expire as no timeout is associated).
+   *
+   * - Available since: 2.2.0.
+   * - Time complexity: O(1).
+   * @param key The key to persist.
+   * @returns Returns `true` if the timeout was removed. Returns `false` if the key does not exist or does not have an associated timeout.
+   * @see {@link https://redis.io/commands/persist}
+   */
+  PERSIST(key: string): Promise<boolean>;
+  /**
+   * Returns the absolute Unix timestamp (since January 1, 1970) in seconds at which the given key will expire.
+   * - Available since: 7.0.0.
+   * - Time complexity: O(1).
+   * @param key Key to get expiration time for.
+   * @returns One of the following:
+   * - A number representing the expiration Unix timestamp in seconds.
+   * - `-1` if the key exists but has no associated expiration time.
+   * - `-2` if the key does not exist.
+   * @see {@link https://redis.io/commands/expiretime}
+   */
+  EXPIRETIME(key: string): Promise<number>;
+  /**
+   * Renames `key` to `newkey`. It returns an error when `key` does not exist. If `newkey` already exists it is overwritten.
+   *
+   * - Available since: 1.0.0.
+   * - Time complexity: O(1).
+   * @param key The key to rename.
+   * @param newkey The new key name.
+   * @returns "OK".
+   * @see {@link https://redis.io/commands/rename}
+   */
+  RENAME(key: string, newkey: string): Promise<"OK">;
+  /**
+   * Renames `key` to `newkey` if `newkey` does not yet exist. It returns an error when `key` does not exist.
+   *
+   * - Available since: 1.0.0.
+   * - Time complexity: O(1).
+   * @param key The key to rename.
+   * @param newkey The new key name.
+   * @returns `1` if the key was renamed, or `0` if the destination key already exists.
+   * @see {@link https://redis.io/commands/renamenx}
+   */
+  RENAMENX(key: string, newkey: string): Promise<0 | 1>;
+  /**
+   * PEXPIRETIME has the same semantic as EXPIRETIME, but returns the absolute Unix expiration timestamp in milliseconds instead of seconds.
+   * - Available since: 7.0.0.
+   * - Time complexity: O(1).
+   * @param key Key to get expiration time for.
+   * @returns One of the following:
+   * - A number representing the expiration Unix timestamp in milliseconds.
+   * - `-1` if the key exists but has no associated expiration time.
+   * - `-2` if the key does not exist.
+   * @see {@link https://redis.io/commands/pexpiretime}
+   * @see {@link https://redis.io/commands/expiretime}
+   */
+  PEXPIRETIME(key: string): Promise<number>;
+  /**
+   * Removes the specified keys.
+   *
+   * A key is ignored if it does not exist.
+   * - Available since: 1.0.0.
+   * - Time complexity: O(N) where N is the number of keys that will be removed. When a key to remove holds a value other than a string, the individual complexity for this key is O(M) where M is the number of elements in the list, set, sorted set or hash.
+   * @param keys Keys to delete.
+   * @returns The number of keys that were removed.
+   * @see {@link https://redis.io/commands/del}
+   */
+  DEL(...keys: string[]): Promise<number>;
+  /**
+   * Removes the specified keys.
+   *
+   * A key is ignored if it does not exist.
+   * - Available since: 1.0.0.
+   * - Time complexity: O(N) where N is the number of keys that will be removed. When a key to remove holds a value other than a string, the individual complexity for this key is O(M) where M is the number of elements in the list, set, sorted set or hash.
+   * @param keys One or more keys to delete.
+   * @returns The number of keys that were removed.
+   * @see {@link https://redis.io/commands/del}
+   */
+  DEL(keys: Collection<string>): Promise<number>;
+  /**
+   * Returns the number of keys that exist.
+   *
+   * If you specify the same existing key multiple times, EXISTS counts it each time. For example, if somekey exists, EXISTS somekey somekey returns 2.
+   * - Available since: 1.0.0.
+   * - Time complexity: O(N) where N is the number of keys to check.
+   * @param keys Keys to check.
+   * @returns The number of keys existing among the ones specified as arguments.
+   * @see {@link https://redis.io/commands/exists}
+   */
+  EXISTS(...keys: string[]): Promise<number>;
+  /**
+   * Returns the number of keys that exist.
+   *
+   * If you specify the same existing key multiple times, EXISTS counts it each time. For example, if somekey exists, EXISTS somekey somekey returns 2.
+   * - Available since: 1.0.0.
+   * - Time complexity: O(N) where N is the number of keys to check.
+   * @param keys One or more keys to check for existence. A repeated key is counted once per occurrence.
+   * @returns The number of keys existing among the ones specified as arguments.
+   * @see {@link https://redis.io/commands/exists}
+   */
+  EXISTS(keys: Collection<string>): Promise<number>;
+  /**
+   * Insert all the specified values at the tail of the list stored at key.
+   *
+   * If key does not exist, it is created as empty list before performing the push operation.
+   * When key holds a value that is not a list, an error is returned.
+   * - Available since: 1.0.0.
+   * - Multiple elements are available since Redis 2.4.0.
+   * - Time complexity: O(1) for each element added, so O(N) to add N elements when the command is called with multiple arguments.
+   * @param key Key to push values to.
+   * @param elements An array of elements to add to the list.
+   * @returns The length of the list after the push operation.
+   * @see {@link https://redis.io/commands/rpush}
+   */
+  RPUSH(key: string, elements: (string | number)[]): Promise<number>;
+  /**
+   * Insert all the specified values at the tail of the list stored at key.
+   *
+   * If key does not exist, it is created as empty list before performing the push operation.
+   * When key holds a value that is not a list, an error is returned.
+   * - Available since: 1.0.0.
+   * - Multiple elements are available since Redis 2.4.0.
+   * - Time complexity: O(1) for each element added, so O(N) to add N elements when the command is called with multiple arguments.
+   * @param key Key to push values to.
+   * @param elements Elements to add to the list.
+   * @returns The length of the list after the push operation.
+   * @see {@link https://redis.io/commands/rpush}
+   */
+  RPUSH(key: string, ...elements: (string | number)[]): Promise<number>;
+  /**
+   * Removes and returns the first elements of the list stored at key.
+   *
+   * By default, the command pops a single element from the beginning of the list. When provided
+   * with the optional count argument, the reply will consist of up to count elements, depending
+   * on the list's length.
+   *
+   * - Available since: 1.0.0.
+   * - Time complexity: O(N) where N is the number of elements returned.
+   * @param key The key of the list.
+   * @returns The value of the first element, or `null` when key does not exist.
+   * @see {@link https://redis.io/commands/lpop}
+   */
+  LPOP(key: string): Promise<string | null>;
+  /**
+   * Removes and returns the first elements of the list stored at key.
+   *
+   * By default, the command pops a single element from the beginning of the list. When provided
+   * with the optional count argument, the reply will consist of up to count elements, depending
+   * on the list's length.
+   *
+   * - Available since: 6.2.0 (for the count argument).
+   * - Time complexity: O(N) where N is the number of elements returned.
+   * @param key The key of the list.
+   * @param count The number of elements to pop.
+   * @returns An array of popped elements, or `null` when key does not exist.
+   * @see {@link https://redis.io/commands/lpop}
+   */
+  LPOP(key: string, count: number): Promise<string[] | null>;
+  /**
+   * Atomically returns and removes the last element (tail) of the list stored at source,
+   * and pushes the element at the first element (head) of the list stored at destination.
+   *
+   * For example: consider source holding the list a,b,c, and destination holding the list x,y,z.
+   * Executing RPOPLPUSH results in source holding a,b and destination holding c,x,y,z.
+   *
+   * If source does not exist, the value nil is returned and no operation is performed.
+   * If source and destination are the same, the operation is equivalent to removing the
+   * last element from the list and pushing it as first element of the list, so it can be
+   * considered as a list rotation command.
+   *
+   * - Available since: 1.2.0.
+   * - Time complexity: O(1).
+   * @deprecated As of Redis version 6.2.0, this command is regarded as deprecated. It can be replaced by LMOVE with the RIGHT and LEFT arguments when migrating or writing new code.
+   * @param source Source list key.
+   * @param destination Destination list key.
+   * @returns The element being popped and pushed, or `null` if the source list is empty.
+   * @see {@link https://redis.io/commands/rpoplpush}
+   */
+  RPOPLPUSH(source: string, destination: string): Promise<string | null>;
+  /**
+   * Insert all the specified values at the tail of the list stored at key, only if key already exists and holds a list.
+   * In contrary to RPUSH, no operation will be performed when key does not yet exist.
+   *
+   * - Available since: 2.2.0.
+   * - Multiple elements are available since Redis 4.0.0.
+   * - Time complexity: O(1) for each element added, so O(N) to add N elements when the command is called with multiple arguments.
+   * @param key Key to push values to.
+   * @param elements An array of elements to add to the list.
+   * @returns The length of the list after the push operation.
+   * @see {@link https://redis.io/commands/rpushx}
+   */
+  RPUSHX(key: string, elements: (string | number)[]): Promise<number>;
+  /**
+   * Insert all the specified values at the tail of the list stored at key, only if key already exists and holds a list.
+   * In contrary to RPUSH, no operation will be performed when key does not yet exist.
+   *
+   * - Available since: 2.2.0.
+   * - Multiple elements are available since Redis 4.0.0.
+   * - Time complexity: O(1) for each element added, so O(N) to add N elements when the command is called with multiple arguments.
+   * @param key Key to push values to.
+   * @param elements Elements to add to the list.
+   * @returns The length of the list after the push operation.
+   * @see {@link https://redis.io/commands/rpushx}
+   */
+  RPUSHX(key: string, ...elements: (string | number)[]): Promise<number>;
+  /**
+   * Sets the list element at index to element. For more information on the index argument, see LINDEX.
+   *
+   * An error is returned for out of range indexes.
+   *
+   * - Available since: 1.0.0.
+   * - Time complexity: O(N) where N is the length of the list. Setting either the first or the last element of the list is O(1).
+   * @param key The key of the list.
+   * @param index The index of the element to set. Can be negative to count from the end of the list.
+   * @param element The new value to set.
+   * @returns "OK" if successful.
+   * @see {@link https://redis.io/commands/lset}
+   */
+  LSET(key: string, index: number, element: string | number): Promise<"OK">;
+  /**
+   * Removes the first count occurrences of elements equal to element from the list stored at key.
+   * The count argument influences the operation in the following ways:
+   * - count > 0: Remove elements equal to element moving from head to tail.
+   * - count < 0: Remove elements equal to element moving from tail to head.
+   * - count = 0: Remove all elements equal to element.
+   *
+   * - Available since: 1.0.0.
+   * - Time complexity: O(N+M) where N is the length of the list and M is the number of elements removed.
+   * @param key The key of the list.
+   * @param count The number of occurrences to remove. Use negative values to start from the tail.
+   * @param element The element to remove from the list.
+   * @returns The number of removed elements.
+   * @see {@link https://redis.io/commands/lrem}
+   */
+  LREM(key: string, count: number, element: string | number): Promise<number>;
+  /**
+   * Insert all the specified elements at the head of the list stored at key.
+   *
+   * If key does not exist, it is created as empty list before performing the push operations.
+   * - Available since: 1.0.0.
+   * - Multiple field/value pairs are available since Redis 2.4.0.
+   * - Time complexity: O(1) for each element added.
+   * @param key Key of the list.
+   * @param elements An array of elements to add to the list.
+   * @returns The length of the list after the push operation.
+   * @see {@link https://redis.io/commands/lpush}
+   */
+  LPUSH(key: string, elements: (string | number)[]): Promise<number>;
+  /**
+   * Insert all the specified elements at the head of the list stored at key.
+   *
+   * If key does not exist, it is created as empty list before performing the push operations.
+   * - Available since: 1.0.0.
+   * - Multiple field/value pairs are available since Redis 2.4.0.
+   * - Time complexity: O(1) for each element added.
+   * @param key Key of the list.
+   * @param elements Elements to add to the list.
+   * @returns The length of the list after the push operation.
+   * @see {@link https://redis.io/commands/lpush}
+   */
+  LPUSH(key: string, ...elements: (string | number)[]): Promise<number>;
+  /**
+   * Inserts specified values at the head of the list stored at key, only if key already exists and holds a list.
+   * In contrary to LPUSH, no operation will be performed when key does not yet exist.
+   *
+   * - Available since: 2.2.0.
+   * - Time complexity: O(1) for each element added, so O(N) to add N elements when the command is called with multiple arguments.
+   * @param key Key of the list.
+   * @param elements Element or array of elements to push to the list.
+   * @returns The length of the list after the push operation.
+   * @see {@link https://redis.io/commands/lpushx}
+   */
+  LPUSHX(key: string, elements: (string | number)[]): Promise<number>;
+  /**
+   * Inserts specified values at the head of the list stored at key, only if key already exists and holds a list.
+   * In contrary to LPUSH, no operation will be performed when key does not yet exist.
+   *
+   * - Available since: 2.2.0.
+   * - Time complexity: O(1) for each element added, so O(N) to add N elements when the command is called with multiple arguments.
+   * @param key Key of the list.
+   * @param elements One or more elements to push to the list.
+   * @returns The length of the list after the push operation.
+   * @see {@link https://redis.io/commands/lpushx}
+   */
+  LPUSHX(key: string, ...elements: (string | number)[]): Promise<number>;
+  /**
+   * Removes and returns the last elements of the list stored at key.
+   *
+   * By default, the command pops a single element from the end of the list.
+   * When provided with the optional count argument, the reply will consist
+   * of up to count elements, depending on the list's length.
+   *
+   * - Available since: 1.0.0.
+   * - Time complexity: O(N) where N is the number of elements returned.
+   * @param key The key of the list.
+   * @returns The value of the last element, or `null` when key does not exist.
+   * @see {@link https://redis.io/commands/rpop}
+   */
+  RPOP(key: string): Promise<string | null>;
+  /**
+   * Removes and returns the last elements of the list stored at key.
+   *
+   * By default, the command pops a single element from the end of the list.
+   * When provided with the optional count argument, the reply will consist
+   * of up to count elements, depending on the list's length.
+   *
+   * - Available since: 6.2.0 (for the count argument).
+   * - Time complexity: O(N) where N is the number of elements returned.
+   * @param key The key of the list.
+   * @param count The number of elements to pop.
+   * @returns Array of popped elements, or `null` when key does not exist.
+   * @see {@link https://redis.io/commands/rpop}
+   */
+  RPOP(key: string, count: number): Promise<string[] | null>;
+  /**
+   * Returns the specified elements of the list stored at key. The offsets start and stop
+   * are zero-based indexes, with 0 being the first element of the list (the head of the list),
+   * 1 being the next element and so on.
+   *
+   * These offsets can also be negative numbers indicating offsets starting at the end of the list.
+   * For example, -1 is the last element of the list, -2 the penultimate, and so on.
+   *
+   * Out of range indexes will not produce an error. If start is larger than the end of the list,
+   * an empty list is returned. If stop is larger than the actual end of the list, Redis will
+   * treat it like the last element of the list.
+   *
+   * - Available since: 1.0.0.
+   * - Time complexity: O(S+N) where S is the distance of start offset from HEAD for small lists,
+   *   from nearest end (HEAD or TAIL) for large lists; and N is the number of elements in the specified range.
+   * @param key The key of the list.
+   * @param start The starting position (inclusive, 0-based index).
+   * @param stop The ending position (inclusive, 0-based index).
+   * @returns Array of elements in the specified range, or an empty array if the key doesn't exist.
+   * @see {@link https://redis.io/commands/lrange}
+   */
+  LRANGE(key: string, start: number, stop: number): Promise<string[]>;
+  /**
+   * Returns the length of the list stored at key. If key does not exist, it is interpreted as an empty list and 0 is returned.
+   * An error is returned when the value stored at key is not a list.
+   *
+   * - Available since: 1.0.0.
+   * - Time complexity: O(1).
+   * @param key Key to get the length of the list for.
+   * @returns The length of the list at key.
+   * @see {@link https://redis.io/commands/llen}
+   */
+  LLEN(key: string): Promise<number>;
+  /**
+   * Inserts `element` in the list stored at `key` either before or after the reference value `pivot`.
+   *
+   * When `key` does not exist, it is considered an empty list and no operation is performed.
+   *
+   * An error is returned when `key` exists but does not hold a list value.
+   * - Available since: 2.2.0.
+   * - Time complexity: O(N) where N is the number of elements to traverse before seeing the value pivot. This means that inserting somewhere on the left end on the list (head) can be considered O(1) and inserting somewhere on the right end (tail) is O(N).
+   * @param key - The name of the key that holds the list.
+   * @param element - The value to insert.
+   * @param options -
+   * @returns Any of the following:
+   * - Integer reply: the list length after a successful insert operation.
+   * - Integer reply: `0` when the key doesn't exist.
+   * - Integer reply: `-1` when the pivot wasn't found.
+   * @see {@link https://redis.io/commands/linsert}
+   */
+  LINSERT(key: string, element: string | number, options: LinsertOptions): Promise<number>;
+  /**
+   * Trim an existing list so that it will contain only the specified range of elements specified.
+   * Both `start` and `stop` are zero-based indexes, where 0 is the first element of the list (the head),
+   * 1 the next element and so on.
+   *
+   * `start` and `stop` can also be negative numbers indicating offsets from the end of the list,
+   * where -1 is the last element of the list, -2 the penultimate element and so on.
+   *
+   * Out of range indexes will not produce an error: if `start` is larger than the end of the list,
+   * or `start` > `stop`, the result will be an empty list (which causes key to be removed).
+   * If `stop` is larger than the end of the list, Redis will treat it like the last element of the list.
+   *
+   * - Available since: 1.0.0.
+   * - Time complexity: O(N) where N is the number of elements to be removed by the operation.
+   * @param key The key of the list to trim.
+   * @param start Zero-based index of the first element to keep.
+   * @param stop Zero-based index of the last element to keep.
+   * @returns "OK"
+   * @see {@link https://redis.io/commands/ltrim}
+   */
+  LTRIM(key: string, start: number, stop: number): Promise<"OK">;
+  /**
+   * Returns the element at index in the list stored at key.
+   * The index is zero-based, so 0 means the first element, 1 the second element and so on.
+   * Negative indices can be used to designate elements starting at the tail of the list.
+   *
+   * - Available since: 1.0.0.
+   * - Time complexity: O(N) where N is the number of elements to traverse to get to the element at index. This makes asking for the first or the last element of the list O(1).
+   * @param key Key of the list.
+   * @param index Zero-based index of the element to return.
+   * @returns The requested element, or `null` when index is out of range.
+   * @see {@link https://redis.io/commands/lindex}
+   */
+  LINDEX(key: string, index: number): Promise<string | null>;
+  /**
+   * Returns the number of entries inside a stream. If the specified key does not exist
+   * the command returns zero, as if the stream was empty. However note that unlike other
+   * Redis types, zero-length streams are possible, so you should call TYPE or EXISTS in
+   * order to check if a key exists or not.
+   *
+   * Streams are not auto-deleted once they have no entries inside (for instance after an
+   * XDEL call), because the stream may have consumer groups associated with it.
+   *
+   * - Available since: 5.0.0.
+   * - Time complexity: O(1).
+   * @param key The key of the stream.
+   * @returns The number of entries of the stream at key.
+   * @see {@link https://redis.io/commands/xlen}
+   */
+  XLEN(key: string): Promise<number>;
+  /**
+   * Removes the specified entries from a stream, and returns the number of entries deleted.
+   * This number may be less than the number of IDs passed to the command in the case where
+   * some of the specified IDs do not exist in the stream.
+   *
+   * - Available since: 5.0.0.
+   * - Time complexity: O(1) for each single item to delete in the stream, regardless of the stream size.
+   * @param key The key of the stream.
+   * @param ids The IDs of the entries to remove.
+   * @returns The number of entries actually deleted.
+   * @see {@link https://redis.io/commands/xdel}
+   */
+  XDEL(key: string, ids: string[]): Promise<number>;
+  /**
+   * Removes the specified entries from a stream, and returns the number of entries deleted.
+   * This number may be less than the number of IDs passed to the command in the case where
+   * some of the specified IDs do not exist in the stream.
+   *
+   * - Available since: 5.0.0.
+   * - Time complexity: O(1) for each single item to delete in the stream, regardless of the stream size.
+   * @param key The key of the stream.
+   * @param ids The IDs of the entries to remove.
+   * @returns The number of entries actually deleted.
+   * @see {@link https://redis.io/commands/xdel}
+   */
+  XDEL(key: string, ...ids: string[]): Promise<number>;
+  /**
+   * Read data from one or multiple streams, only returning entries with an ID greater than the last received ID reported by the caller.
+   *
+   * - Available since: 5.0.0.
+   * - Time complexity: O(N) where N is the number of entries returned.
+   * @param key The name of the stream to read from.
+   * @param id The last ID received from the stream.
+   * @param options Command options.
+   * @returns An array of stream entries or `null` if no entries are available.
+   * @see {@link https://redis.io/commands/xread}
+   */
+  XREAD(key: string, id: XreadId, options?: XreadOptions): Promise<XStreamEntry[]>;
+  /**
+   * Read data from one or multiple streams, only returning entries with an ID greater than the last received ID reported by the caller.
+   *
+   * - Available since: 5.0.0.
+   * - Time complexity: O(N) where N is the number of entries returned.
+   * @param streams Object where keys are stream names and values are the last IDs received from those streams.
+   * @param options Command options.
+   * @returns An object where keys are stream names and values are arrays of stream entries or `null` if no entries are available.
+   * @see {@link https://redis.io/commands/xread}
+   */
+  XREAD<const S extends Record<string, XreadId>>(streams: S, options?: XreadOptions): Promise<{ [K in keyof S]: XStreamEntry[]; }>;
+  /**
+   * Appends the specified stream entry to the stream at the specified `key`.
+   * If the key does not exist, `XADD` will create a new key with the given stream value as a side effect of running this command.
+   * You can turn off key creation with the `NOMKSTREAM` option.
+   * - Available since: 5.0.0.
+   * - Time complexity: O(1) when adding a new entry, O(N) when trimming where N being the number of entries evicted.
+   * @param key The name of the stream key.
+   * @param id The stream entry ID. Use `*` to auto-generate a unique ID, or specify a well-formed ID in the format `<ms>-<seq>` (for example, `1526919030474-55`).
+   * @param pairs One or more field-value pairs that make up the stream entry. You must provide at least one field-value pair.
+   * @param options Command options.
+   * @returns Bulk string reply: The ID of the added entry.
+   * @see {@link https://redis.io/commands/xadd}
+   */
+  XADD(key: string, id: XaddId, pairs: XaddPairs, options?: XaddOptions & {
+    NOMKSTREAM?: false;
+  }): Promise<string>;
+  /**
+   * Appends the specified stream entry to the stream at the specified `key`.
+   * If the key does not exist, `XADD` will create a new key with the given stream value as a side effect of running this command.
+   * You can turn off key creation with the `NOMKSTREAM` option.
+   * - Available since: 5.0.0.
+   * - Time complexity: O(1) when adding a new entry, O(N) when trimming where N being the number of entries evicted.
+   * @param key The name of the stream key.
+   * @param id The stream entry ID. Use `*` to auto-generate a unique ID, or specify a well-formed ID in the format `<ms>-<seq>` (for example, `1526919030474-55`).
+   * @param pairs One or more field-value pairs that make up the stream entry. You must provide at least one field-value pair.
+   * @param options Command options.
+   * @returns
+   * - Bulk string reply: The ID of the added entry.
+   * - Nil reply: if the NOMKSTREAM option is given and the key doesn't exist.
+   * @see {@link https://redis.io/commands/xadd}
+   */
+  XADD(key: string, id: XaddId, pairs: XaddPairs, options: XaddOptions & {
+    NOMKSTREAM: true;
+  }): Promise<string | null>;
+  /**
+   * Appends the specified stream entry to the stream at the specified `key`.
+   * If the key does not exist, `XADD` will create a new key with the given stream value as a side effect of running this command.
+   * You can turn off key creation with the `NOMKSTREAM` option.
+   * - Available since: 5.0.0.
+   * - Time complexity: O(1) when adding a new entry, O(N) when trimming where N being the number of entries evicted.
+   * @param key The name of the stream key.
+   * @param id The stream entry ID. Use `*` to auto-generate a unique ID, or specify a well-formed ID in the format `<ms>-<seq>` (for example, `1526919030474-55`).
+   * @param pairs One or more field-value pairs that make up the stream entry. You must provide at least one field-value pair.
+   * @param options Command options.
+   * @returns
+   * - Bulk string reply: The ID of the added entry.
+   * - Nil reply: if the NOMKSTREAM option is given and the key doesn't exist.
+   * @see {@link https://redis.io/commands/xadd}
+   */
+  XADD(key: string, id: XaddId, pairs: XaddPairs, options?: XaddOptions): Promise<string | null>;
+  /**
+   * Returns the stream entries matching a given range of IDs.
+   *
+   * The range is specified by a minimum and maximum ID. All the entries having an ID
+   * between the two specified or exactly one of the two IDs specified (closed interval)
+   * are returned.
+   *
+   * Special IDs `-` and `+` mean respectively the minimum ID possible and the maximum
+   * ID possible inside a stream.
+   *
+   * Exclusive ranges can be specified by prefixing the ID with `(`.
+   *
+   * - Available since: 5.0.0.
+   * - Time complexity: O(N) with N being the number of elements being returned. If N is constant (e.g. always asking for the first 10 elements with COUNT), you can consider it O(1).
+   * @param key Key that contains the stream.
+   * @param start Start ID for the range query. Use `-` for the minimum ID possible or prefix with `(` for exclusive range.
+   * @param end End ID for the range query. Use `+` for the maximum ID possible or prefix with `(` for exclusive range.
+   * @param options Command options.
+   * @returns An array of stream entries matching the range.
+   * @see {@link https://redis.io/commands/xrange}
+   */
+  XRANGE(key: string, start: "-" | (string & {}), end: "+" | (string & {}), options?: XrangeOptions): Promise<XStreamEntry[]>;
+  /**
+   * This command is exactly like XRANGE, but with the notable difference of returning the entries in reverse order,
+   * and also taking the start-end range in reverse order:
+   * in XREVRANGE you need to state the end ID and later the start ID,
+   * and the command will produce all the element between (or exactly like) the two IDs, starting from the end side.
+   *
+   * - Available since: 5.0.0.
+   * - Time complexity: O(N) with N being the number of elements being returned. If N is constant (e.g. always asking for the first 10 elements with COUNT), you can consider it O(1).
+   * @param key Key that contains the stream.
+   * @param end End ID for the range query. Use `+` for the maximum ID possible or prefix with `(` for exclusive range.
+   * @param start Start ID for the range query. Use `-` for the minimum ID possible or prefix with `(` for exclusive range.
+   * @param options Command options.
+   * @returns An array of stream entries matching the range.
+   * @see {@link https://redis.io/commands/xrange}
+   */
+  XREVRANGE(key: string, end: "+" | (string & {}), start: "-" | (string & {}), options?: XrevrangeOptions): Promise<XStreamEntry[]>;
+  /**
+   * Trims the stream by evicting older entries (entries with lower IDs) if needed.
+   *
+   * Using MAXLEN strategy which evicts entries as long as the stream's length exceeds the specified threshold.
+   *
+   * - Available since: 5.0.0.
+   * - Time complexity: O(N), with N being the number of evicted entries.
+   * @param key The key of the stream.
+   * @param strategy The MAXLEN trimming strategy.
+   * @param threshold A positive integer representing the max length.
+   * @param options Additional options.
+   * @returns The number of entries deleted from the stream.
+   * @see {@link https://redis.io/commands/xtrim}
+   */
+  XTRIM(key: string, strategy: "MAXLEN", threshold: number, options?: XtrimOptions): Promise<number>;
+  /**
+   * Trims the stream by evicting older entries (entries with lower IDs) if needed.
+   *
+   * Using MINID strategy which evicts entries with IDs lower than threshold.
+   *
+   * - Available since: 6.2.0.
+   * - Time complexity: O(N), with N being the number of evicted entries.
+   * @param key The key of the stream.
+   * @param strategy The MINID trimming strategy.
+   * @param threshold A stream ID threshold in the format of "timestamp-sequence" or "timestamp".
+   * @param options Additional options.
+   * @returns The number of entries deleted from the stream.
+   * @see {@link https://redis.io/commands/xtrim}
+   */
+  XTRIM(key: string, strategy: "MINID", threshold: string, options?: XtrimOptions): Promise<number>;
+  /**
+   * Removes all elements in the sorted set stored at `key` with rank between `start` and `stop`.
+   * Both `start` and `stop` are `0` -based indexes with `0` being the element with the lowest score.
+   * These indexes can be negative numbers, where they indicate offsets starting at the element with the highest score.
+   * For example: `-1` is the element with the highest score, `-2` the element with the second highest score and so forth.
+   * - Available since: 2.0.0.
+   * - Time complexity: O(log(N)+M) with N being the number of elements in the sorted set and M the number of elements removed by the operation.
+   * @param key - The name of the key that holds the sorted set.
+   * @param start - The start index, zero-based. Negative values count from the end of the sorted set (`-1` is the member with the highest score).
+   * @param stop - The stop index, zero-based and inclusive. Negative values count from the end of the sorted set.
+   * @returns Integer reply: the number of members removed.
+   * @see {@link https://redis.io/commands/zremrangebyrank}
+   */
+  ZREMRANGEBYRANK(key: string, start: number, stop: number): Promise<number>;
+  /**
+   * Returns the sorted set cardinality (number of elements) of the sorted set stored at key.
+   * - Available since: 1.2.0.
+   * - Time complexity: O(1).
+   * @param key Key holds a sorted set.
+   * @returns The cardinality (number of members) of the sorted set, or 0 if the key doesn't exist.
+   * @see {@link https://redis.io/commands/zcard}
+   */
+  ZCARD(key: string): Promise<number>;
+  /**
+   * Returns all the elements in the sorted set at key with a score between min and max (including elements with score equal to min or max).
+   * The elements are considered to be ordered from low to high scores.
+   *
+   * The elements having the same score are returned in lexicographical order.
+   *
+   * - Available since: 1.0.5.
+   * - Time complexity: O(log(N)+M) with N being the number of elements in the sorted set and M the number of elements being returned. If M is constant (e.g. always asking for the first 10 elements with LIMIT), you can consider it O(log(N)).
+   * @deprecated As of Redis version 6.2.0, this command is regarded as deprecated. It can be replaced by ZRANGE with the BYSCORE argument when migrating or writing new code.
+   * @param key The key of the sorted set.
+   * @param min The minimum score to consider.
+   * @param max The maximum score to consider.
+   * @param options Additional options for the command.
+   * @returns Array of elements in the specified score range.
+   * @see {@link https://redis.io/commands/zrangebyscore}
+   */
+  ZRANGEBYSCORE(key: string, min: number | `(${number}` | "-inf", max: number | `(${number}` | "+inf", options?: ZrangebyscoreOptions & {
+    WITHSCORES?: false;
+  }): Promise<string[]>;
+  /**
+   * Returns all the elements in the sorted set at key with a score between min and max (including elements with score equal to min or max).
+   * The elements are considered to be ordered from low to high scores.
+   *
+   * The elements having the same score are returned in lexicographical order.
+   *
+   * - Available since: 1.0.5.
+   * - Time complexity: O(log(N)+M) with N being the number of elements in the sorted set and M the number of elements being returned. If M is constant (e.g. always asking for the first 10 elements with LIMIT), you can consider it O(log(N)).
+   * @deprecated As of Redis version 6.2.0, this command is regarded as deprecated. It can be replaced by ZRANGE with the BYSCORE argument when migrating or writing new code.
+   * @param key The key of the sorted set.
+   * @param min The minimum score to consider.
+   * @param max The maximum score to consider.
+   * @param options Additional options for the command with WITHSCORES set to true.
+   * @returns Array of elements with their scores in the specified score range.
+   * @see {@link https://redis.io/commands/zrangebyscore}
+   */
+  ZRANGEBYSCORE(key: string, min: number | `(${number}` | "-inf", max: number | `(${number}` | "+inf", options: ZrangebyscoreOptions & {
+    WITHSCORES: true;
+  }): Promise<{
+    member: string;
+    score: number;
+  }[]>;
+  /**
+   * Returns all the elements in the sorted set at key with a score between min and max (including elements with score equal to min or max).
+   * The elements are considered to be ordered from low to high scores.
+   *
+   * The elements having the same score are returned in lexicographical order.
+   *
+   * - Available since: 1.0.5.
+   * - Time complexity: O(log(N)+M) with N being the number of elements in the sorted set and M the number of elements being returned. If M is constant (e.g. always asking for the first 10 elements with LIMIT), you can consider it O(log(N)).
+   * @deprecated As of Redis version 6.2.0, this command is regarded as deprecated. It can be replaced by ZRANGE with the BYSCORE argument when migrating or writing new code.
+   * @param key The key of the sorted set.
+   * @param min The minimum score to consider.
+   * @param max The maximum score to consider.
+   * @param options Additional options for the command.
+   * @returns Array of elements, with their scores when requested.
+   * @see {@link https://redis.io/commands/zrangebyscore}
+   */
+  ZRANGEBYSCORE(key: string, min: number | `(${number}` | "-inf", max: number | `(${number}` | "+inf", options?: ZrangebyscoreOptions): Promise<string[] | {
+    member: string;
+    score: number;
+  }[]>;
+  /**
+   * Iterates over members and scores of a sorted set.
+   *
+   * `ZSCAN` is a cursor based iterator. This means that at every call of the command, the server returns an updated cursor that the user needs to use as the cursor argument in the next call.
+   * An iteration starts when the cursor is set to 0, and terminates when the cursor returned by the server is 0.
+   *
+   * A given element may be returned multiple times. It is up to the application to handle the case of duplicated elements, for example only using the returned elements in order to perform operations that are safe when re-applied multiple times.
+   * - Available since: 2.8.0.
+   * - Time complexity: O(1) for every call. O(N) for a complete iteration, including enough command calls for the cursor to return back to 0. N is the number of elements inside the collection.
+   * @param key - The name of the key that holds the sorted set.
+   * @param cursor - The cursor value. Start an iteration with `0`, then use the cursor returned by each call as the argument to the next call.
+   * @param options -
+   * @returns Array reply: cursor and scan response in array form.
+   * - The first element is a Bulk string reply that represents an unsigned 64-bit number, the cursor.
+   * - The second element is an Array reply that contains two elements, a member and its associated score, for every returned element of the sorted set.
+   * @see {@link https://redis.io/commands/zscan}
+   */
+  ZSCAN(key: string, cursor: string | number, options?: ZscanOptions): Promise<{
+    cursor: string;
+    members: Record<string, number>;
+  }>;
+  /**
+   * When all the elements in a sorted set are inserted with the same score, in order to force lexicographical ordering, this command returns all the elements in the sorted set at `key` with a value between `max` and `min`.
+   *
+   * Apart from the reversed ordering, `ZREVRANGEBYLEX` is similar to `ZRANGEBYLEX`.
+   * - Available since: 2.8.9.
+   * - Time complexity: O(log(N)+M) with N being the number of elements in the sorted set and M the number of elements being returned. If M is constant (e.g. always asking for the first 10 elements with LIMIT), you can consider it O(log(N)).
+   * @deprecated As of Redis version 6.2.0, this command is regarded as deprecated. It can be replaced by ZRANGE with the REV and BYLEX arguments when migrating or writing new code.
+   * @param key - The name of the key that holds the sorted set.
+   * @param max - The maximum member, compared lexicographically. Prefix with `[` for an inclusive bound or `(` for an exclusive bound; use `+` for the highest possible value.
+   * @param min - The minimum member, compared lexicographically. Prefix with `[` for an inclusive bound or `(` for an exclusive bound; use `-` for the lowest possible value.
+   * @param options -
+   * @returns Array reply: a list of members in the specified lexicographical range.
+   * @see {@link https://redis.io/commands/zrevrangebylex}
+   */
+  ZREVRANGEBYLEX(key: string, max: `(${string}` | `[${string}` | "+", min: `(${string}` | `[${string}` | "-", options?: ZrevrangebylexOptions): Promise<string[]>;
+  /**
+   * Returns all the elements in the sorted set at `key` with a score between `max` and `min` (including elements with score equal to `max` or `min`).
+   * In contrary to the default ordering of sorted sets, for this command the elements are considered to be ordered from high to low scores.
+   *
+   * The elements having the same score are returned in reverse lexicographical order.
+   *
+   * Apart from the reversed ordering, `ZREVRANGEBYSCORE` is similar to `ZRANGEBYSCORE`.
+   * - Available since: 2.2.0.
+   * - Time complexity: O(log(N)+M) with N being the number of elements in the sorted set and M the number of elements being returned. If M is constant (e.g. always asking for the first 10 elements with LIMIT), you can consider it O(log(N)).
+   * @deprecated As of Redis version 6.2.0, this command is regarded as deprecated. It can be replaced by ZRANGE with the REV and BYSCORE arguments when migrating or writing new code.
+   * @param key - The name of the key that holds the sorted set.
+   * @param max - The maximum score. The bound is inclusive unless prefixed with `(`. Use `+inf` for no upper bound.
+   * @param min - The minimum score. The bound is inclusive unless prefixed with `(`. Use `-inf` for no lower bound.
+   * @param options -
+   * @returns Array reply: a list of the members and, optionally, their scores in the specified score range.
+   * @see {@link https://redis.io/commands/zrevrangebyscore}
+   */
+  ZREVRANGEBYSCORE(key: string, max: number | `(${number}` | "+inf", min: number | `(${number}` | "-inf", options?: ZrevrangebyscoreOptions & {
+    WITHSCORES?: false;
+  }): Promise<string[]>;
+  /**
+   * Returns all the elements in the sorted set at `key` with a score between `max` and `min` (including elements with score equal to `max` or `min`).
+   * In contrary to the default ordering of sorted sets, for this command the elements are considered to be ordered from high to low scores.
+   *
+   * The elements having the same score are returned in reverse lexicographical order.
+   *
+   * Apart from the reversed ordering, `ZREVRANGEBYSCORE` is similar to `ZRANGEBYSCORE`.
+   * - Available since: 2.2.0.
+   * - Time complexity: O(log(N)+M) with N being the number of elements in the sorted set and M the number of elements being returned. If M is constant (e.g. always asking for the first 10 elements with LIMIT), you can consider it O(log(N)).
+   * @deprecated As of Redis version 6.2.0, this command is regarded as deprecated. It can be replaced by ZRANGE with the REV and BYSCORE arguments when migrating or writing new code.
+   * @param key - The name of the key that holds the sorted set.
+   * @param max - The maximum score. The bound is inclusive unless prefixed with `(`. Use `+inf` for no upper bound.
+   * @param min - The minimum score. The bound is inclusive unless prefixed with `(`. Use `-inf` for no lower bound.
+   * @param options -
+   * @returns Array reply: a list of the members and, optionally, their scores in the specified score range.
+   * @see {@link https://redis.io/commands/zrevrangebyscore}
+   */
+  ZREVRANGEBYSCORE(key: string, max: number | `(${number}` | "+inf", min: number | `(${number}` | "-inf", options: ZrevrangebyscoreOptions & {
+    WITHSCORES: true;
+  }): Promise<{
+    member: string;
+    score: number;
+  }[]>;
+  /**
+   * Returns all the elements in the sorted set at `key` with a score between `max` and `min` (including elements with score equal to `max` or `min`).
+   * In contrary to the default ordering of sorted sets, for this command the elements are considered to be ordered from high to low scores.
+   *
+   * The elements having the same score are returned in reverse lexicographical order.
+   *
+   * Apart from the reversed ordering, `ZREVRANGEBYSCORE` is similar to `ZRANGEBYSCORE`.
+   * - Available since: 2.2.0.
+   * - Time complexity: O(log(N)+M) with N being the number of elements in the sorted set and M the number of elements being returned. If M is constant (e.g. always asking for the first 10 elements with LIMIT), you can consider it O(log(N)).
+   * @deprecated As of Redis version 6.2.0, this command is regarded as deprecated. It can be replaced by ZRANGE with the REV and BYSCORE arguments when migrating or writing new code.
+   * @param key - The name of the key that holds the sorted set.
+   * @param max - The maximum score. The bound is inclusive unless prefixed with `(`. Use `+inf` for no upper bound.
+   * @param min - The minimum score. The bound is inclusive unless prefixed with `(`. Use `-inf` for no lower bound.
+   * @param options -
+   * @returns Array reply: a list of the members and, optionally, their scores in the specified score range.
+   * @see {@link https://redis.io/commands/zrevrangebyscore}
+   */
+  ZREVRANGEBYSCORE(key: string, max: number | `(${number}` | "+inf", min: number | `(${number}` | "-inf", options?: ZrevrangebyscoreOptions): Promise<string[] | {
+    member: string;
+    score: number;
+  }[]>;
+  /**
+   * Returns the score of member in the sorted set at key.
+   * - Available since: 1.0.0.
+   * - Time complexity: O(1).
+   * @param key Key holds a sorted set.
+   * @param member Member in the sorted set.
+   * @returns The score of the member (a double-precision floating point number), represented as a string, or `null` if member does not exist in the sorted set, or the key does not exist.
+   * @see {@link https://redis.io/commands/zscore}
+   */
+  ZSCORE(key: string, member: string | number): Promise<number | null>;
+  /**
+   * Returns the number of elements in the sorted set at key with a score between min and max.
+   *
+   * The min and max arguments have the same semantic as described for ZRANGEBYSCORE.
+   *
+   * Note: the command has a complexity of just O(log(N)) because it uses elements ranks (see ZRANK) to get an idea of the range.
+   * Because of this there is no need to do a work proportional to the size of the range.
+   * - Available since: 2.0.0.
+   * - Time complexity: O(log(N)) with N being the number of elements in the sorted set.
+   * @param key The key of the sorted set.
+   * @param min The minimum score to include in the count. Can be "-inf" for negative infinity, or a number prefixed with "(" to exclude that value.
+   * @param max The maximum score to include in the count. Can be "+inf" for positive infinity, or a number prefixed with "(" to exclude that value.
+   * @returns The number of elements in the specified score range.
+   * @see {@link https://redis.io/commands/zcount}
+   */
+  ZCOUNT(key: string, min: number | `(${number}` | "-inf", max: number | `(${number}` | "+inf"): Promise<number>;
+  /**
+   * Adds all the specified members with the specified scores to the sorted set stored at `key`.
+   * - Available since: 1.2.0
+   * - Starting with Redis version 2.4.0: Accepts multiple elements.
+   * - Time complexity: O(log(N)) for each item added, where N is the number of elements in the sorted set.
+   * @param key - The name of the key that holds the sorted set.
+   * @param score - `score` is a double-precision floating-point number.
+   * @param member -
+   * @param options -
+   * @returns Any of the following:
+   * - Integer reply: the number of new members when the CH option is not used.
+   * - Integer reply: the number of new or updated members when the CH option is used.
+   * @see {@link https://redis.io/commands/zadd}
+   */
+  ZADD(key: string, score: number, member: string | number, options?: ZaddOptions & {
+    INCR?: false;
+  }): Promise<number>;
+  /**
+   * Adds all the specified members with the specified scores to the sorted set stored at `key`.
+   * - Available since: 1.2.0
+   * - Starting with Redis version 3.0.2: Added the `XX`, `NX`, `CH` and `INCR` options.
+   * - Time complexity: O(log(N)) for each item added, where N is the number of elements in the sorted set.
+   * @param key - The name of the key that holds the sorted set.
+   * @param score - `score` is a double-precision floating-point number.
+   * @param member -
+   * @param options -
+   * @returns Any of the following:
+   * - Nil reply: if the operation was aborted because of a conflict with one of the XX/NX/LT/GT options.
+   * - Bulk string reply: the updated score of the member when the INCR option is used.
+   * @see {@link https://redis.io/commands/zadd}
+   */
+  ZADD(key: string, score: number, member: string | number, options: ZaddOptions & {
+    INCR: true;
+  }): Promise<number | null>;
+  /**
+   * Adds all the specified members with the specified scores to the sorted set stored at `key`.
+   * - Available since: 1.2.0
+   * - Starting with Redis version 2.4.0: Accepts multiple elements.
+   * - Time complexity: O(log(N)) for each item added, where N is the number of elements in the sorted set.
+   * @param key - The name of the key that holds the sorted set.
+   * @param pairs - One or more score-member pairs to add or update.
+   * @param options -
+   * @returns Any of the following:
+   * - Integer reply: the number of new members when the CH option is not used.
+   * - Integer reply: the number of new or updated members when the CH option is used.
+   * @see {@link https://redis.io/commands/zadd}
+   */
+  ZADD(key: string, pairs: Record<string, number>, options?: ZaddOptions & {
+    INCR?: false;
+  }): Promise<number>;
+  /**
+   * Adds all the specified members with the specified scores to the sorted set stored at `key`.
+   * - Available since: 1.2.0
+   * - Starting with Redis version 3.0.2: Added the `XX`, `NX`, `CH` and `INCR` options.
+   * - Time complexity: O(log(N)) for each item added, where N is the number of elements in the sorted set.
+   * @param key - The name of the key that holds the sorted set.
+   * @param score - `score` is a double-precision floating-point number.
+   * @param member -
+   * @param options -
+   * @returns Any of the following:
+   * - Nil reply: if the operation was aborted because of a conflict with one of the XX/NX/LT/GT options.
+   * - Integer reply: the number of new members when the CH option is not used.
+   * - Integer reply: the number of new or updated members when the CH option is used.
+   * - Bulk string reply: the updated score of the member when the INCR option is used.
+   * @see {@link https://redis.io/commands/zadd}
+   */
+  ZADD(key: string, score: number, member: string | number, options?: ZaddOptions): Promise<number | null>;
+  /**
+   * Returns the rank of `member` in the sorted set stored at `key`, with the scores ordered from low to high.
+   * The rank (or index) is 0-based, which means that the member with the lowest score has rank `0`.
+   * - Available since: 2.0.0.
+   * - Time complexity: O(log(N)).
+   * @param key - The name of the key that holds the sorted set.
+   * @param member - The member whose rank to return.
+   * @param options -
+   * @returns Any of the following:
+   * - Nil reply: if the key does not exist or the member does not exist in the sorted set.
+   * - Integer reply: the rank of the member when _WITHSCORE_ is not used.
+   * @see {@link https://redis.io/commands/zrank}
+   */
+  ZRANK(key: string, member: string | number, options?: ZrankOptions & {
+    WITHSCORE?: false;
+  }): Promise<number | null>;
+  /**
+   * Returns the rank of `member` in the sorted set stored at `key`, with the scores ordered from low to high.
+   * The rank (or index) is 0-based, which means that the member with the lowest score has rank `0`.
+   *
+   * The optional `WITHSCORE` argument supplements the command's reply with the score of the element returned.
+   * - Available since: 2.0.0.
+   * - Starting with Redis version 7.2.0: Added the optional `WITHSCORE` argument.
+   * - Time complexity: O(log(N)).
+   * @param key - The name of the key that holds the sorted set.
+   * @param member - The member whose rank to return.
+   * @param options -
+   * @returns Any of the following:
+   * - Nil reply: if the key does not exist or the member does not exist in the sorted set.
+   * - Array reply: the rank and score of the member when _WITHSCORE_ is used.
+   * @see {@link https://redis.io/commands/zrank}
+   */
+  ZRANK(key: string, member: string | number, options: ZrankOptions & {
+    WITHSCORE: true;
+  }): Promise<{
+    rank: number;
+    score: number;
+  } | null>;
+  /**
+   * Returns the rank of `member` in the sorted set stored at `key`, with the scores ordered from low to high.
+   * The rank (or index) is 0-based, which means that the member with the lowest score has rank `0`.
+   *
+   * The optional `WITHSCORE` argument supplements the command's reply with the score of the element returned.
+   * - Available since: 2.0.0.
+   * - Starting with Redis version 7.2.0: Added the optional `WITHSCORE` argument.
+   * - Time complexity: O(log(N)).
+   * @param key - The name of the key that holds the sorted set.
+   * @param member - The member whose rank to return.
+   * @param options -
+   * @returns Any of the following:
+   * - Nil reply: if the key does not exist or the member does not exist in the sorted set.
+   * - Integer reply: the rank of the member when _WITHSCORE_ is not used.
+   * - Array reply: the rank and score of the member when _WITHSCORE_ is used.
+   * @see {@link https://redis.io/commands/zrank}
+   */
+  ZRANK(key: string, member: string | number, options?: ZrankOptions): Promise<number | {
+    rank: number;
+    score: number;
+  } | null>;
+  /**
+   * When called with just the `key` argument, return a random element from the sorted set value stored at `key`.
+   * - Available since: 6.2.0.
+   * - Time complexity: O(N) where N is the number of members returned.
+   * @param key - The name of the key that holds the sorted set.
+   * @returns Bulk string reply: without the additional _count_ argument, the command returns a randomly selected member, or Nil reply when _key_ doesn't exist.
+   * @see {@link https://redis.io/commands/zrandmember}
+   */
+  ZRANDMEMBER(key: string): Promise<string | null>;
+  /**
+   * If the provided `count` argument is positive, return an array of distinct elements.
+   * The array's length is either `count` or the sorted set's cardinality (`ZCARD`), whichever is lower.
+   *
+   * If called with a negative `count`, the behavior changes and the command is allowed to return the same element multiple times.
+   * In this case, the number of returned elements is the absolute value of the specified `count`.
+   * - Available since: 6.2.0.
+   * - Time complexity: O(N) where N is the number of members returned.
+   * @param key - The name of the key that holds the sorted set.
+   * @param count - The number of members to return. A positive `count` returns up to that many distinct members; a negative `count` returns exactly `|count|` members and may repeat them.
+   * @param options -
+   * @returns Array reply: when the additional _count_ argument is passed, the command returns an array of members, or an empty array when _key_ doesn't exist.
+   * @see {@link https://redis.io/commands/zrandmember}
+   */
+  ZRANDMEMBER(key: string, count: number, options?: ZrandmemberOptions & {
+    WITHSCORES?: false;
+  }): Promise<string[]>;
+  /**
+   * If the provided `count` argument is positive, return an array of distinct elements.
+   * The array's length is either `count` or the sorted set's cardinality (`ZCARD`), whichever is lower.
+   *
+   * If called with a negative `count`, the behavior changes and the command is allowed to return the same element multiple times.
+   * In this case, the number of returned elements is the absolute value of the specified `count`.
+   *
+   * The optional `WITHSCORES` modifier changes the reply so it includes the respective scores of the randomly selected elements from the sorted set.
+   * - Available since: 6.2.0.
+   * - Time complexity: O(N) where N is the number of members returned.
+   * @param key - The name of the key that holds the sorted set.
+   * @param count - The number of members to return. A positive `count` returns up to that many distinct members; a negative `count` returns exactly `|count|` members and may repeat them.
+   * @param options -
+   * @returns Array reply: when the additional _count_ argument is passed, the command returns an array of members, or an empty array when _key_ doesn't exist. If the _WITHSCORES_ modifier is used, the reply is a list of members and their scores from the sorted set.
+   * @see {@link https://redis.io/commands/zrandmember}
+   */
+  ZRANDMEMBER(key: string, count: number, options: ZrandmemberOptions & {
+    WITHSCORES: true;
+  }): Promise<{
+    member: string;
+    score: number;
+  }[]>;
+  /**
+   * If the provided `count` argument is positive, return an array of distinct elements.
+   * The array's length is either `count` or the sorted set's cardinality (`ZCARD`), whichever is lower.
+   *
+   * If called with a negative `count`, the behavior changes and the command is allowed to return the same element multiple times.
+   * In this case, the number of returned elements is the absolute value of the specified `count`.
+   *
+   * The optional `WITHSCORES` modifier changes the reply so it includes the respective scores of the randomly selected elements from the sorted set.
+   * - Available since: 6.2.0.
+   * - Time complexity: O(N) where N is the number of members returned.
+   * @param key - The name of the key that holds the sorted set.
+   * @param count - The number of members to return. A positive `count` returns up to that many distinct members; a negative `count` returns exactly `|count|` members and may repeat them.
+   * @param options -
+   * @returns Array reply: when the additional _count_ argument is passed, the command returns an array of members, or an empty array when _key_ doesn't exist. If the _WITHSCORES_ modifier is used, the reply is a list of members and their scores from the sorted set.
+   * @see {@link https://redis.io/commands/zrandmember}
+   */
+  ZRANDMEMBER(key: string, count: number, options?: ZrandmemberOptions): Promise<string[] | {
+    member: string;
+    score: number;
+  }[]>;
+  /**
+   * Removes the specified members from the sorted set stored at key. Non existing members are ignored.
+   * - Available since: 1.2.0
+   * - Time complexity: O(M*log(N)) with N being the number of elements in the sorted set and M the number of elements to be removed.
+   * @param key Key holds a sorted set.
+   * @param members Members to remove.
+   * @returns The number of members removed from the sorted set, not including non-existing members.
+   * @see {@link https://redis.io/commands/zrem}
+   */
+  ZREM(key: string, ...members: (string | number)[]): Promise<number>;
+  /**
+   * Removes the specified members from the sorted set stored at key. Non existing members are ignored.
+   * - Available since: 1.2.0
+   * - Time complexity: O(M*log(N)) with N being the number of elements in the sorted set and M the number of elements to be removed.
+   * @param key Key holds a sorted set.
+   * @param members Members to remove.
+   * @returns The number of members removed from the sorted set, not including non-existing members.
+   * @see {@link https://redis.io/commands/zrem}
+   */
+  ZREM(key: string, members: Collection<string | number>): Promise<number>;
+  /**
+   * Removes all elements in the sorted set stored at `key` with a score between `min` and `max` (inclusive).
+   * - Available since: 1.2.0.
+   * - Time complexity: O(log(N)+M) with N being the number of elements in the sorted set and M the number of elements removed by the operation.
+   * @param key - The name of the key that holds the sorted set.
+   * @param min - The minimum score. The bound is inclusive unless prefixed with `(`. Use `-inf` for no lower bound.
+   * @param max - The maximum score. The bound is inclusive unless prefixed with `(`. Use `+inf` for no upper bound.
+   * @returns Integer reply: the number of members removed.
+   * @see {@link https://redis.io/commands/zremrangebyscore}
+   */
+  ZREMRANGEBYSCORE(key: string, min: number | `(${number}` | "-inf", max: number | `(${number}` | "+inf"): Promise<number>;
+  /**
+   * Returns the rank of `member` in the sorted set stored at `key`, with the scores ordered from high to low.
+   * The rank (or index) is 0-based, which means that the member with the highest score has rank `0`.
+   * - Available since: 2.0.0.
+   * - Time complexity: O(log(N)).
+   * @param key - The name of the key that holds the sorted set.
+   * @param member - The member whose rank to return.
+   * @param options -
+   * @returns Any of the following:
+   * - Nil reply: if the key does not exist or the member does not exist in the sorted set.
+   * - Integer reply: The rank of the member when _WITHSCORE_ is not used.
+   * @see {@link https://redis.io/commands/zrevrank}
+   */
+  ZREVRANK(key: string, member: string | number, options?: ZrevrankOptions & {
+    WITHSCORE?: false;
+  }): Promise<number | null>;
+  /**
+   * Returns the rank of `member` in the sorted set stored at `key`, with the scores ordered from high to low.
+   * The rank (or index) is 0-based, which means that the member with the highest score has rank `0`.
+   *
+   * The optional `WITHSCORE` argument supplements the command's reply with the score of the element returned.
+   * - Available since: 2.0.0.
+   * - Starting with Redis version 7.2.0: Added the optional `WITHSCORE` argument.
+   * - Time complexity: O(log(N)).
+   * @param key - The name of the key that holds the sorted set.
+   * @param member - The member whose rank to return.
+   * @param options -
+   * @returns Any of the following:
+   * - Nil reply: if the key does not exist or the member does not exist in the sorted set.
+   * - Array reply: The rank and score of the member when _WITHSCORE_ is used.
+   * @see {@link https://redis.io/commands/zrevrank}
+   */
+  ZREVRANK(key: string, member: string | number, options: ZrevrankOptions & {
+    WITHSCORE: true;
+  }): Promise<{
+    rank: number;
+    score: number;
+  } | null>;
+  /**
+   * Returns the rank of `member` in the sorted set stored at `key`, with the scores ordered from high to low.
+   * The rank (or index) is 0-based, which means that the member with the highest score has rank `0`.
+   *
+   * The optional `WITHSCORE` argument supplements the command's reply with the score of the element returned.
+   * - Available since: 2.0.0.
+   * - Starting with Redis version 7.2.0: Added the optional `WITHSCORE` argument.
+   * - Time complexity: O(log(N)).
+   * @param key - The name of the key that holds the sorted set.
+   * @param member - The member whose rank to return.
+   * @param options -
+   * @returns Any of the following:
+   * - Nil reply: if the key does not exist or the member does not exist in the sorted set.
+   * - Integer reply: The rank of the member when _WITHSCORE_ is not used.
+   * - Array reply: The rank and score of the member when _WITHSCORE_ is used.
+   * @see {@link https://redis.io/commands/zrevrank}
+   */
+  ZREVRANK(key: string, member: string | number, options?: ZrevrankOptions): Promise<number | {
+    rank: number;
+    score: number;
+  } | null>;
+  /**
+   * Returns the specified range of elements in the sorted set stored at key.
+   * - Available since: 1.2.0
+   * - Time complexity: O(log(N)+M) with N being the number of elements in the sorted set and M the number of elements returned.
+   * @param key - Key that contains the hash.
+   * @param start - Start index by default, minimum score if BY is `SCORE` or minimum lexicographical string if BY is `LEX`.
+   * @param stop - Stop index by default, minimum score if BY is `SCORE` or minimum lexicographical string if BY is `LEX`.
+   * @param options -
+   * @returns List of members in the specified range.
+   * @see {@link https://redis.io/commands/zrange}
+   */
+  ZRANGE(key: string, start: string | number, stop: string | number, options?: ZrangeOptions & {
+    WITHSCORES?: false;
+  }): Promise<string[]>;
+  /**
+   * Returns the specified range of elements in the sorted set stored at key.
+   * - Available since: 1.2.0
+   * - Time complexity: O(log(N)+M) with N being the number of elements in the sorted set and M the number of elements returned.
+   * @param key - Key that contains the hash.
+   * @param start - Start index by default, minimum score if BY is `SCORE` or minimum lexicographical string if BY is `LEX`.
+   * @param stop - Stop index by default, minimum score if BY is `SCORE` or minimum lexicographical string if BY is `LEX`.
+   * @param options -
+   * @returns List of members in the specified range with their scores.
+   * @see {@link https://redis.io/commands/zrange}
+   */
+  ZRANGE(key: string, start: string | number, stop: string | number, options: ZrangeOptions & {
+    WITHSCORES: true;
+  }): Promise<{
+    member: string;
+    score: number;
+  }[]>;
+  /**
+   * Returns the specified range of elements in the sorted set stored at key.
+   * - Available since: 1.2.0
+   * - Time complexity: O(log(N)+M) with N being the number of elements in the sorted set and M the number of elements returned.
+   * @param key - Key that contains the sorted set.
+   * @param start - Start index by default, minimum score if BY is `SCORE` or minimum lexicographical string if BY is `LEX`.
+   * @param stop - Stop index by default, maximum score if BY is `SCORE` or maximum lexicographical string if BY is `LEX`.
+   * @param options - Additional options for the command.
+   * @returns List of members, with their scores when requested.
+   * @see {@link https://redis.io/commands/zrange}
+   */
+  ZRANGE(key: string, start: string | number, stop: string | number, options?: ZrangeOptions): Promise<string[] | {
+    member: string;
+    score: number;
+  }[]>;
+  /**
+   * Increments the score of `member` in the sorted set stored at `key` by `increment`.
+   * If `member` does not exist in the sorted set, it is added with `increment` as its score (as if its previous score was `0.0`).
+   * If `key` does not exist, a new sorted set with the specified `member` as its sole member is created.
+   *
+   * An error is returned when `key` exists but does not hold a sorted set.
+   *
+   * The `score` value should be the string representation of a numeric value, and accepts double precision floating point numbers.
+   * It is possible to provide a negative value to decrement the score.
+   * - Available since: 1.2.0.
+   * - Time complexity: O(log(N)) where N is the number of elements in the sorted set.
+   * @param key - The name of the key that holds the sorted set.
+   * @param increment - The amount to add to the member's current score.
+   * @param member - The member whose score to increment. It is added with the increment as its score if it does not exist.
+   * @returns Bulk string reply: the new score of `member` as a double precision floating point number.
+   * @see {@link https://redis.io/commands/zincrby}
+   */
+  ZINCRBY(key: string, increment: number, member: string | number): Promise<number>;
+  /**
+   * When all the elements in a sorted set are inserted with the same score, in order to force lexicographical ordering, this command removes all elements in the sorted set stored at `key` between the lexicographical range specified by `min` and `max`.
+   *
+   * The meaning of `min` and `max` are the same of the `ZRANGEBYLEX` command. Similarly, this command actually removes the same elements that `ZRANGEBYLEX` would return if called with the same `min` and `max` arguments.
+   * - Available since: 2.8.9.
+   * - Time complexity: O(log(N)+M) with N being the number of elements in the sorted set and M the number of elements removed by the operation.
+   * @param key - The name of the key that holds the sorted set.
+   * @param min - The minimum member, compared lexicographically. Prefix with `[` for an inclusive bound or `(` for an exclusive bound; use `-` for the lowest possible value.
+   * @param max - The maximum member, compared lexicographically. Prefix with `[` for an inclusive bound or `(` for an exclusive bound; use `+` for the highest possible value.
+   * @returns Integer reply: the number of members removed.
+   * @see {@link https://redis.io/commands/zremrangebylex}
+   */
+  ZREMRANGEBYLEX(key: string, min: `(${string}` | `[${string}` | "-", max: `(${string}` | `[${string}` | "+"): Promise<number>;
+  /**
+   * Computes the intersection of sorted sets given by the specified keys, and stores the result in destination. It is mandatory to provide the number of input keys (numkeys) before passing the input keys and the other (optional) arguments.
+   * - Available since: 2.0.0.
+   * - Time complexity: O(N*K)+O(M*log(M)).
+   * @param destination Destination key where the resulting sorted set should be stored.
+   * @param keys List of keys that holds sorted sets.
+   * @param options -
+   * @returns The number of members in the resulting sorted set at the destination.
+   * @see {@link https://redis.io/commands/zinterstore}
+   */
+  ZINTERSTORE(destination: string, keys: (string | number)[], options?: ZinterstoreOptions): Promise<number>;
+  /**
+   * Computes the intersection of sorted sets given by the specified keys, and stores the result in destination. It is mandatory to provide the number of input keys (numkeys) before passing the input keys and the other (optional) arguments.
+   * - Available since: 2.0.0.
+   * - Time complexity: O(N*K)+O(M*log(M)).
+   * @param destination Destination key where the resulting sorted set should be stored.
+   * @param keys_with_weights Record where keys are the keys that holds sorted sets and values are the weights to apply to the sorted sets.
+   * @param options -
+   * @returns The number of members in the resulting sorted set at the destination.
+   * @see {@link https://redis.io/commands/zinterstore}
+   */
+  ZINTERSTORE(destination: string, keys_with_weights: Record<string, number>, options?: ZinterstoreOptions): Promise<number>;
+  /**
+   * Returns the specified range of elements in the sorted set stored at `key`.
+   * The elements are considered to be ordered from the highest to the lowest score.
+   * Descending lexicographical order is used for elements with equal score.
+   *
+   * Apart from the reversed ordering, `ZREVRANGE` is similar to `ZRANGE`.
+   * - Available since: 1.2.0.
+   * - Time complexity: O(log(N)+M) with N being the number of elements in the sorted set and M the number of elements returned.
+   * @deprecated As of Redis version 6.2.0, this command is regarded as deprecated. It can be replaced by ZRANGE with the REV argument when migrating or writing new code.
+   * @param key - The name of the key that holds the sorted set.
+   * @param start - The start index, zero-based. Negative values count from the end of the sorted set (`-1` is the member with the highest score).
+   * @param stop - The stop index, zero-based and inclusive. Negative values count from the end of the sorted set.
+   * @param options -
+   * @returns Array reply: a list of members in the specified range, optionally with their scores if _WITHSCORES_ was used.
+   * @see {@link https://redis.io/commands/zrevrange}
+   */
+  ZREVRANGE(key: string, start: number, stop: number, options?: ZrevrangeOptions & {
+    WITHSCORES?: false;
+  }): Promise<string[]>;
+  /**
+   * Returns the specified range of elements in the sorted set stored at `key`.
+   * The elements are considered to be ordered from the highest to the lowest score.
+   * Descending lexicographical order is used for elements with equal score.
+   *
+   * Apart from the reversed ordering, `ZREVRANGE` is similar to `ZRANGE`.
+   * - Available since: 1.2.0.
+   * - Time complexity: O(log(N)+M) with N being the number of elements in the sorted set and M the number of elements returned.
+   * @deprecated As of Redis version 6.2.0, this command is regarded as deprecated. It can be replaced by ZRANGE with the REV argument when migrating or writing new code.
+   * @param key - The name of the key that holds the sorted set.
+   * @param start - The start index, zero-based. Negative values count from the end of the sorted set (`-1` is the member with the highest score).
+   * @param stop - The stop index, zero-based and inclusive. Negative values count from the end of the sorted set.
+   * @param options -
+   * @returns Array reply: a list of members in the specified range, optionally with their scores if _WITHSCORES_ was used.
+   * @see {@link https://redis.io/commands/zrevrange}
+   */
+  ZREVRANGE(key: string, start: number, stop: number, options: ZrevrangeOptions & {
+    WITHSCORES: true;
+  }): Promise<{
+    member: string;
+    score: number;
+  }[]>;
+  /**
+   * Returns the specified range of elements in the sorted set stored at `key`.
+   * The elements are considered to be ordered from the highest to the lowest score.
+   * Descending lexicographical order is used for elements with equal score.
+   *
+   * Apart from the reversed ordering, `ZREVRANGE` is similar to `ZRANGE`.
+   * - Available since: 1.2.0.
+   * - Time complexity: O(log(N)+M) with N being the number of elements in the sorted set and M the number of elements returned.
+   * @deprecated As of Redis version 6.2.0, this command is regarded as deprecated. It can be replaced by ZRANGE with the REV argument when migrating or writing new code.
+   * @param key - The name of the key that holds the sorted set.
+   * @param start - The start index, zero-based. Negative values count from the end of the sorted set (`-1` is the member with the highest score).
+   * @param stop - The stop index, zero-based and inclusive. Negative values count from the end of the sorted set.
+   * @param options -
+   * @returns Array reply: a list of members in the specified range, optionally with their scores if _WITHSCORES_ was used.
+   * @see {@link https://redis.io/commands/zrevrange}
+   */
+  ZREVRANGE(key: string, start: number, stop: number, options?: ZrevrangeOptions): Promise<string[] | {
+    member: string;
+    score: number;
+  }[]>;
+  /**
+   * Returns all the elements in the sorted set at `key` with a value between `min` and `max`.
+   *
+   * The elements are considered to be ordered from lower to higher strings as compared byte-by-byte using the `memcmp()` C function.
+   * Longer strings are considered greater than shorter strings if the common part is identical.
+   *
+   * Valid `min` and `max` must start with `(` or `[`, in order to specify if the range item is respectively exclusive or inclusive.
+   * The special values of `+` or `-` for `min` and `max` have the special meaning or positively infinite and negatively infinite strings.
+   *
+   * - Available since: 2.8.9.
+   * - Time complexity: O(log(N)+M) with N being the number of elements in the sorted set and M the number of elements being returned. If M is constant (e.g. always asking for the first 10 elements with LIMIT), you can consider it O(log(N)).
+   * @deprecated As of Redis version 6.2.0, this command is regarded as deprecated. It can be replaced by ZRANGE with the BYLEX argument when migrating or writing new code.
+   * @param key The key of the sorted set.
+   * @param min Minimum value of the range.
+   * @param max Maximum value of the range.
+   * @param options Command options.
+   * @returns List of elements in the specified range.
+   * @see {@link https://redis.io/commands/zrangebylex}
+   */
+  ZRANGEBYLEX(key: string, min: `(${string}` | `[${string}` | "-", max: `(${string}` | `[${string}` | "+", options?: ZrangebylexOptions): Promise<string[]>;
+  /**
+   * Returns all values in the hash stored at key.
+   * - Available since: 2.0.0.
+   * - Time complexity: O(N) where N is the size of the hash.
+   * @param key The key of the hash.
+   * @returns An array of values in the hash, preserving duplicates, or an empty array when the key does not exist.
+   * @see {@link https://redis.io/commands/hvals}
+   */
+  HVALS(key: string): Promise<string[]>;
+  /**
+   * Sets the specified fields to their respective values in the hash stored at key.
+   * - Available since: 2.0.0.
+   * - Multiple field/value pairs are available since Redis 4.0.0.
+   * - Time complexity: O(1) for each field/value pair added.
+   * @param key Key that contains the hash.
+   * @param field Field to set.
+   * @param value Value to set.
+   * @returns The number of fields that were added.
+   * @see {@link https://redis.io/commands/hset}
+   */
+  HSET(key: string, field: string, value: string | number): Promise<number>;
+  /**
+   * Sets the specified fields to their respective values in the hash stored at key.
+   * - Available since: 2.0.0.
+   * - Multiple field/value pairs are available since Redis 4.0.0.
+   * - Time complexity: O(1) for each field/value pair added.
+   * @param key Key that contains the hash.
+   * @param pairs Object containing field/value pairs to set.
+   * @returns The number of fields that were added.
+   * @see {@link https://redis.io/commands/hset}
+   */
+  HSET(key: string, pairs: Record<string, string | number>): Promise<number>;
+  /**
+   * Increment the specified field of a hash stored at key, and representing a floating point number, by the specified increment.
+   * If the increment value is negative, the result is to have the hash field value decremented instead of incremented.
+   * If the field does not exist, it is set to 0 before performing the operation.
+   *
+   * - Available since: 2.6.0.
+   * - Time complexity: O(1).
+   * @param key Key of the hash.
+   * @param field Field in the hash to increment.
+   * @param increment The increment value (can be negative for decrementing).
+   * @returns The value of the field after the increment operation as a string representing the floating point value.
+   * @see {@link https://redis.io/commands/hincrbyfloat}
+   */
+  HINCRBYFLOAT(key: string, field: string | number, increment: number): Promise<string>;
+  /**
+   * Returns all fields and values of the hash stored at key.
+   * - Available since: 2.0.0.
+   * - Time complexity: O(N) where N is the size of the hash.
+   * @param key -
+   * @returns A record of fields and their values stored in the hash.
+   * @see {@link https://redis.io/commands/hgetall}
+   */
+  HGETALL(key: string): Promise<Record<string, string>>;
+  /**
+   * Like `HTTL`, this command returns the remaining TTL (time to live) of a field that has an expiration set, but in milliseconds instead of seconds.
+   * - Available since: 7.4.0.
+   * - Time complexity: O(N) where N is the number of specified fields.
+   * @param key - The name of the key that holds the hash.
+   * @param fields - The hash fields to retrieve the remaining time to live for.
+   * @returns Array reply. For each field:
+   * - Integer reply: `-2` if no such field exists in the provided hash key, or the provided key does not exist.
+   * - Integer reply: `-1` if the field exists but has no associated expiration set.
+   * - Integer reply: the TTL in milliseconds.
+   * @see {@link https://redis.io/commands/hpttl}
+   */
+  HPTTL(key: string, fields: Collection<string | number>): Promise<number[]>;
+  /**
+   * Returns the value associated with field in the hash stored at key.
+   * - Available since: 2.0.0.
+   * - Time complexity: O(1)
+   * @param key -
+   * @param field -
+   * @returns The value associated with field in the hash stored at key or null.
+   * @see {@link https://redis.io/commands/hget}
+   */
+  HGET(key: string, field: string): Promise<string | null>;
+  /**
+   * This command works like `HEXPIRE`, but the expiration of a field is specified in milliseconds instead of seconds.
+   * - Available since: 7.4.0.
+   * - Time complexity: O(N) where N is the number of specified fields.
+   * @param key - The name of the key that holds the hash.
+   * @param milliseconds - The timeout, in milliseconds.
+   * @param fields - The hash fields to operate on.
+   * @param options -
+   * @returns Array reply. For each field:
+   * - Integer reply: `-2` if no such field exists in the provided hash key, or the provided key does not exist.
+   * - Integer reply: `0` if the specified NX | XX | GT | LT condition has not been met.
+   * - Integer reply: `1` if the expiration time was set/updated.
+   * - Integer reply: `2` when `HEXPIRE`/`HPEXPIRE` is called with 0 seconds/milliseconds or when `HEXPIREAT`/`HPEXPIREAT` is called with a past Unix time in seconds/milliseconds.
+   * @see {@link https://redis.io/commands/hpexpire}
+   */
+  HPEXPIRE(key: string, milliseconds: number, fields: Collection<string | number>, options?: HpexpireOptions): Promise<number[]>;
+  /**
+   * Returns the remaining TTL (time to live) of a hash key's field(s) that have a set expiration.
+   * This introspection capability allows you to check how many seconds a given hash field will continue to be part of the hash key.
+   *
+   * See also the `HPTTL` command that returns the same information with millisecond resolution.
+   * - Available since: 7.4.0.
+   * - Time complexity: O(N) where N is the number of specified fields.
+   * @param key - The name of the key that holds the hash.
+   * @param fields - The hash fields to retrieve the remaining time to live for.
+   * @returns Array reply. For each field:
+   * - Integer reply: `-2` if no such field exists in the provided hash key, or the provided key does not exist.
+   * - Integer reply: `-1` if the field exists but has no associated expiration set.
+   * - Integer reply: the TTL in seconds.
+   * @see {@link https://redis.io/commands/httl}
+   */
+  HTTL(key: string, fields: Collection<string | number>): Promise<number[]>;
+  /**
+   * Set an expiration (TTL or time to live) on one or more fields of a given hash key. You must specify at least one field.
+   * Field(s) will automatically be deleted from the hash key when their TTLs expire.
+   *
+   * Field expirations will only be cleared by commands that delete or overwrite the contents of the hash fields, including `HDEL` and `HSET` commands.
+   * This means that all the operations that conceptually _alter_ the value stored at a hash key's field without replacing it with a new one will leave the TTL untouched.
+   *
+   * You can clear the TTL using the `HPERSIST` command, which turns the hash field back into a persistent field.
+   *
+   * Note that calling `HEXPIRE`/`HPEXPIRE` with a zero TTL or `HEXPIREAT`/`HPEXPIREAT` with a time in the past will result in the hash field being deleted.
+   * - Available since: 7.4.0.
+   * - Time complexity: O(N) where N is the number of specified fields.
+   * @param key - The name of the key that holds the hash.
+   * @param seconds - The time to live, in seconds. Each specified field is deleted after this many seconds.
+   * @param fields - The hash fields to set expiration for.
+   * @param options -
+   * @returns Array reply. For each field:
+   * - Integer reply: `-2` if no such field exists in the provided hash key, or the provided key does not exist.
+   * - Integer reply: `0` if the specified NX | XX | GT | LT condition has not been met.
+   * - Integer reply: `1` if the expiration time was set/updated.
+   * - Integer reply: `2` when `HEXPIRE`/`HPEXPIRE` is called with 0 seconds/milliseconds or when `HEXPIREAT`/`HPEXPIREAT` is called with a past Unix time in seconds/milliseconds.
+   * @see {@link https://redis.io/commands/hexpire}
+   */
+  HEXPIRE(key: string, seconds: number, fields: Collection<string | number>, options?: HexpireOptions): Promise<number[]>;
+  /**
+   * Sets the specified fields to their respective values in the hash stored at key.
+   * This command overwrites any specified fields already existing in the hash.
+   * If key does not exist, a new key holding a hash is created.
+   *
+   * - Available since: 2.0.0.
+   * - Time complexity: O(N) where N is the number of fields being set.
+   * @deprecated As of Redis version 4.0.0, this command is regarded as deprecated. It can be replaced by HSET with multiple field-value pairs when migrating or writing new code.
+   * @param key Key that contains the hash.
+   * @param field Field to set.
+   * @param value Value to set.
+   * @returns Simple string reply: "OK".
+   * @see {@link https://redis.io/commands/hmset}
+   */
+  HMSET(key: string, field: string, value: string | number): Promise<"OK">;
+  /**
+   * Sets the specified fields to their respective values in the hash stored at key.
+   * This command overwrites any specified fields already existing in the hash.
+   * If key does not exist, a new key holding a hash is created.
+   *
+   * - Available since: 2.0.0.
+   * - Time complexity: O(N) where N is the number of fields being set.
+   * @deprecated As of Redis version 4.0.0, this command is regarded as deprecated. It can be replaced by HSET with multiple field-value pairs when migrating or writing new code.
+   * @param key Key that contains the hash.
+   * @param pairs Object containing field/value pairs to set.
+   * @returns Simple string reply: "OK".
+   * @see {@link https://redis.io/commands/hmset}
+   */
+  HMSET(key: string, pairs: Record<string, string | number>): Promise<"OK">;
+  /**
+   * Returns the values associated with the specified fields in the hash stored at key.
+   *
+   * For every field that does not exist in the hash, a nil value is returned.
+   * Because non-existing keys are treated as empty hashes, running HMGET against a non-existing key will return a list of nil values.
+   *
+   * - Available since: 2.0.0.
+   * - Time complexity: O(N) where N is the number of fields being requested.
+   * @param key Key holding the hash.
+   * @param fields Fields to get.
+   * @returns Array of values associated with the given fields, in the same order as they are requested.
+   * @see {@link https://redis.io/commands/hmget}
+   */
+  HMGET(key: string, fields: string[]): Promise<(string | null)[]>;
+  /**
+   * Returns the values associated with the specified fields in the hash stored at key.
+   *
+   * For every field that does not exist in the hash, a nil value is returned.
+   * Because non-existing keys are treated as empty hashes, running HMGET against a non-existing key will return a list of nil values.
+   *
+   * - Available since: 2.0.0.
+   * - Time complexity: O(N) where N is the number of fields being requested.
+   * @param key Key holding the hash.
+   * @param fields Fields to get.
+   * @returns Array of values associated with the given fields, in the same order as they are requested.
+   * @see {@link https://redis.io/commands/hmget}
+   */
+  HMGET(key: string, ...fields: string[]): Promise<(string | null)[]>;
+  /**
+   * `HEXPIREAT` has the same effect and semantics as `HEXPIRE`, but instead of specifying the number of seconds for the TTL (time to live), it takes an absolute Unix timestamp in seconds since Unix epoch.
+   * A timestamp in the past will delete the field immediately.
+   *
+   * For the specific semantics of the command, see `HEXPIRE`.
+   * - Available since: 7.4.0.
+   * - Time complexity: O(N) where N is the number of specified fields.
+   * @param key - The name of the key that holds the hash.
+   * @param timestamp - The absolute Unix expiration timestamp, in seconds since Unix epoch. A timestamp in the past deletes the field immediately.
+   * @param fields - The hash fields to set expiration for.
+   * @param options -
+   * @returns Array reply. For each field:
+   * - Integer reply: `-2` if no such field exists in the provided hash key, or the provided key does not exist.
+   * - Integer reply: `0` if the specified NX | XX | GT | LT condition has not been met.
+   * - Integer reply: `1` if the expiration time was set/updated.
+   * - Integer reply: `2` when `HEXPIRE`/`HPEXPIRE` is called with 0 seconds/milliseconds or when `HEXPIREAT`/`HPEXPIREAT` is called with a past Unix time in seconds/milliseconds.
+   * @see {@link https://redis.io/commands/hexpireat}
+   */
+  HEXPIREAT(key: string, timestamp: number, fields: Collection<string | number>, options?: HexpireatOptions): Promise<number[]>;
+  /**
+   * Iterates over fields and values of a hash.
+   *
+   * `HSCAN` is a cursor based iterator. This means that at every call of the command, the server returns an updated cursor that the user needs to use as the cursor argument in the next call.
+   * An iteration starts when the cursor is set to 0, and terminates when the cursor returned by the server is 0.
+   *
+   * A given element may be returned multiple times. It is up to the application to handle the case of duplicated elements, for example only using the returned elements in order to perform operations that are safe when re-applied multiple times.
+   * - Available since: 2.8.0.
+   * - Time complexity: O(1) for every call. O(N) for a complete iteration, including enough command calls for the cursor to return back to 0. N is the number of elements inside the collection.
+   * @param key - The name of the key that holds the hash.
+   * @param cursor - The cursor value. Start an iteration with `0`, then use the cursor returned by each call as the argument to the next call.
+   * @param options -
+   * @returns Array reply: a two-element array.
+   * - The first element is a Bulk string reply that represents an unsigned 64-bit number, the cursor.
+   * - The second element is an Array reply of field/value pairs that were scanned.
+   * @see {@link https://redis.io/commands/hscan}
+   */
+  HSCAN(key: string, cursor: string | number, options?: HscanOptions & {
+    NOVALUES?: false;
+  }): Promise<{
+    cursor: string;
+    fields: Record<string, string>;
+  }>;
+  /**
+   * Iterates over fields and values of a hash.
+   *
+   * `HSCAN` is a cursor based iterator. This means that at every call of the command, the server returns an updated cursor that the user needs to use as the cursor argument in the next call.
+   * An iteration starts when the cursor is set to 0, and terminates when the cursor returned by the server is 0.
+   *
+   * A given element may be returned multiple times. It is up to the application to handle the case of duplicated elements, for example only using the returned elements in order to perform operations that are safe when re-applied multiple times.
+   * - Available since: 2.8.0.
+   * - Time complexity: O(1) for every call. O(N) for a complete iteration, including enough command calls for the cursor to return back to 0. N is the number of elements inside the collection.
+   * @param key - The name of the key that holds the hash.
+   * @param cursor - The cursor value. Start an iteration with `0`, then use the cursor returned by each call as the argument to the next call.
+   * @param options -
+   * @returns Array reply: a two-element array.
+   * - The first element is a Bulk string reply that represents an unsigned 64-bit number, the cursor.
+   * - The second element is an Array reply: when the `NOVALUES` flag is used, only the field names are returned.
+   * @see {@link https://redis.io/commands/hscan}
+   */
+  HSCAN(key: string, cursor: string | number, options: HscanOptions & {
+    NOVALUES: true;
+  }): Promise<{
+    cursor: string;
+    fields: Set<string>;
+  }>;
+  /**
+   * Iterates over fields and values of a hash.
+   *
+   * `HSCAN` is a cursor based iterator. This means that at every call of the command, the server returns an updated cursor that the user needs to use as the cursor argument in the next call.
+   * An iteration starts when the cursor is set to 0, and terminates when the cursor returned by the server is 0.
+   *
+   * A given element may be returned multiple times. It is up to the application to handle the case of duplicated elements, for example only using the returned elements in order to perform operations that are safe when re-applied multiple times.
+   * - Available since: 2.8.0.
+   * - Time complexity: O(1) for every call. O(N) for a complete iteration, including enough command calls for the cursor to return back to 0. N is the number of elements inside the collection.
+   * @param key - The name of the key that holds the hash.
+   * @param cursor - The cursor value. Start an iteration with `0`, then use the cursor returned by each call as the argument to the next call.
+   * @param options -
+   * @returns Array reply: a two-element array.
+   * - The first element is a Bulk string reply that represents an unsigned 64-bit number, the cursor.
+   * - The second element is an Array reply of field/value pairs that were scanned. When the `NOVALUES` flag is used, only the field names are returned.
+   * @see {@link https://redis.io/commands/hscan}
+   */
+  HSCAN(key: string, cursor: string | number, options?: HscanOptions): Promise<{
+    cursor: string;
+    fields: Record<string, string> | Set<string>;
+  }>;
+  /**
+   * When called with just the `key` argument, return a random field from the hash value stored at `key`.
+   * - Available since: 6.2.0.
+   * - Time complexity: O(N) where N is the number of fields returned.
+   * @param key - The name of the key that holds the hash.
+   * @returns Any of the following:
+   * - Nil reply: if the key doesn't exist
+   * - Bulk string reply: a single, randomly selected field when the `count` option is not used
+   * @see {@link https://redis.io/commands/hrandfield}
+   */
+  HRANDFIELD(key: string): Promise<string | null>;
+  /**
+   * If the provided `count` argument is positive, return an array of **distinct fields**.
+   * The array's length is either `count` or the hash's number of fields (`HLEN`), whichever is lower.
+   *
+   * If called with a negative `count`, the behavior changes and the command is allowed to return the **same field multiple times**.
+   * In this case, the number of returned fields is the absolute value of the specified `count`.
+   * - Available since: 6.2.0.
+   * - Time complexity: O(N) where N is the number of fields returned.
+   * @param key - The name of the key that holds the hash.
+   * @param count - The number of fields to return. A positive `count` returns up to that many distinct fields; a negative `count` returns exactly `|count|` fields and may repeat fields.
+   * @param options -
+   * @returns Array reply: a list containing `count` fields when the `count` option is used, or an empty array if the key does not exists.
+   * @see {@link https://redis.io/commands/hrandfield}
+   */
+  HRANDFIELD(key: string, count: number, options?: HrandfieldOptions & {
+    WITHVALUES?: false;
+  }): Promise<string[]>;
+  /**
+   * If the provided `count` argument is positive, return an array of **distinct fields**.
+   * The array's length is either `count` or the hash's number of fields (`HLEN`), whichever is lower.
+   *
+   * If called with a negative `count`, the behavior changes and the command is allowed to return the **same field multiple times**.
+   * In this case, the number of returned fields is the absolute value of the specified `count`.
+   *
+   * The optional `WITHVALUES` modifier changes the reply so it includes the respective values of the randomly selected hash fields.
+   * - Available since: 6.2.0.
+   * - Time complexity: O(N) where N is the number of fields returned.
+   * @param key - The name of the key that holds the hash.
+   * @param count - The number of fields to return. A positive `count` returns up to that many distinct fields; a negative `count` returns exactly `|count|` fields and may repeat fields.
+   * @param options -
+   * @returns Array reply: a list of fields and their values when `count` and `WITHVALUES` were both used.
+   * @see {@link https://redis.io/commands/hrandfield}
+   */
+  HRANDFIELD(key: string, count: number, options: HrandfieldOptions & {
+    WITHVALUES: true;
+  }): Promise<{
+    field: string;
+    value: string;
+  }[]>;
+  /**
+   * If the provided `count` argument is positive, return an array of **distinct fields**.
+   * The array's length is either `count` or the hash's number of fields (`HLEN`), whichever is lower.
+   *
+   * If called with a negative `count`, the behavior changes and the command is allowed to return the **same field multiple times**.
+   * In this case, the number of returned fields is the absolute value of the specified `count`.
+   *
+   * The optional `WITHVALUES` modifier changes the reply so it includes the respective values of the randomly selected hash fields.
+   * - Available since: 6.2.0.
+   * - Time complexity: O(N) where N is the number of fields returned.
+   * @param key - The name of the key that holds the hash.
+   * @param count - The number of fields to return. A positive `count` returns up to that many distinct fields; a negative `count` returns exactly `|count|` fields and may repeat fields.
+   * @param options -
+   * @returns Any of the following:
+   * - Array reply: a list containing `count` fields when the `count` option is used, or an empty array if the key does not exists.
+   * - Array reply: a list of fields and their values when `count` and `WITHVALUES` were both used.
+   * @see {@link https://redis.io/commands/hrandfield}
+   */
+  HRANDFIELD(key: string, count: number, options?: HrandfieldOptions): Promise<string[] | {
+    field: string;
+    value: string;
+  }[]>;
+  /**
+   * Returns the number of fields contained in the hash stored at key.
+   *
+   * - Available since: 2.0.0.
+   * - Time complexity: O(1).
+   * @param key Key to get hash length.
+   * @returns The number of fields in the hash, or 0 when the key does not exist.
+   * @see {@link https://redis.io/commands/hlen}
+   */
+  HLEN(key: string): Promise<number>;
+  /**
+   * Returns all field names in the hash stored at key.
+   *
+   * - Available since: 2.0.0.
+   * - Time complexity: O(N) where N is the size of the hash.
+   * @param key The key of the hash.
+   * @returns A set of fields in the hash, or an empty set when the key does not exist.
+   * @see {@link https://redis.io/commands/hkeys}
+   */
+  HKEYS(key: string): Promise<Set<string>>;
+  /**
+   * Increments the number stored at field in the hash stored at key by increment.
+   * If key does not exist, a new key holding a hash is created. If field does not
+   * exist the value is set to 0 before the operation is performed.
+   *
+   * The range of values supported by HINCRBY is limited to 64 bit signed integers.
+   *
+   * - Available since: 2.0.0.
+   * - Time complexity: O(1).
+   * @param key Key of the hash.
+   * @param field Field in the hash to increment.
+   * @param increment The increment value (can be negative for decrementing).
+   * @returns The value of the field after the increment operation.
+   * @see {@link https://redis.io/commands/hincrby}
+   */
+  HINCRBY(key: string, field: string | number, increment: number): Promise<number>;
+  /**
+   * Removes the specified fields from the hash stored at key. Specified fields that do not exist within this hash are ignored.
+   * Deletes the hash if no fields remain. If key does not exist, it is treated as an empty hash and this command returns 0.
+   *
+   * - Available since: 2.0.0. Multiple field arguments support added in 2.4.0.
+   * - Time complexity: O(N) where N is the number of fields to be removed.
+   * @param key Key of the hash.
+   * @param fields One or more fields to delete from the hash.
+   * @returns The number of fields that were removed from the hash, excluding specified but non-existing fields.
+   * @see {@link https://redis.io/commands/hdel}
+   */
+  HDEL(key: string, fields: Collection<string | number>): Promise<number>;
+  /**
+   * Removes the specified fields from the hash stored at key. Specified fields that do not exist within this hash are ignored.
+   * Deletes the hash if no fields remain. If key does not exist, it is treated as an empty hash and this command returns 0.
+   *
+   * - Available since: 2.0.0. Multiple field arguments support added in 2.4.0.
+   * - Time complexity: O(N) where N is the number of fields to be removed.
+   * @param key Key of the hash.
+   * @param fields Fields to remove from the hash.
+   * @returns The number of fields that were removed from the hash, excluding specified but non-existing fields.
+   * @see {@link https://redis.io/commands/hdel}
+   */
+  HDEL(key: string, ...fields: (string | number)[]): Promise<number>;
+  /**
+   * Returns the string length of the value associated with field in the hash stored at key.
+   * If the key or the field do not exist, 0 is returned.
+   *
+   * - Available since: 3.2.0.
+   * - Time complexity: O(1).
+   * @param key The key of the hash.
+   * @param field The field in the hash.
+   * @returns The string length of the value associated with the field, or zero when the field isn't present in the hash or the key doesn't exist at all.
+   * @see {@link https://redis.io/commands/hstrlen}
+   */
+  HSTRLEN(key: string, field: string): Promise<number>;
+  /**
+   * `HPEXPIRETIME` has the same semantics as `HEXPIRETIME`, but returns the absolute Unix expiration timestamp in milliseconds since Unix epoch instead of seconds.
+   * - Available since: 7.4.0.
+   * - Time complexity: O(N) where N is the number of specified fields.
+   * @param key - The name of the key that holds the hash.
+   * @param fields - The hash fields to retrieve the expiration time for.
+   * @returns Array reply. For each field:
+   * - Integer reply: `-2` if no such field exists in the provided hash key, or the provided key does not exist.
+   * - Integer reply: `-1` if the field exists but has no associated expiration set.
+   * - Integer reply: the expiration (Unix timestamp) in milliseconds.
+   * @see {@link https://redis.io/commands/hpexpiretime}
+   */
+  HPEXPIRETIME(key: string, fields: Collection<string | number>): Promise<number[]>;
+  /**
+   * Returns if field is an existing field in the hash stored at key.
+   *
+   * - Available since: 2.0.0.
+   * - Time complexity: O(1).
+   * @param key Key of the hash.
+   * @param field Field to check in the hash.
+   * @returns Returns `true` if the hash contains the field. Returns `false` if the hash does not contain the field, or the key does not exist.
+   * @see {@link https://redis.io/commands/hexists}
+   */
+  HEXISTS(key: string, field: string | number): Promise<boolean>;
+  /**
+   * `HPEXPIREAT` has the same effect and semantics as `HEXPIREAT`, but the Unix time at which the field will expire is specified in milliseconds since Unix epoch instead of seconds.
+   * - Available since: 7.4.0.
+   * - Time complexity: O(N) where N is the number of specified fields.
+   * @param key - The name of the key that holds the hash.
+   * @param timestamp - The absolute Unix expiration timestamp, in milliseconds since Unix epoch. A timestamp in the past deletes the field immediately.
+   * @param fields - The hash fields to operate on.
+   * @param options -
+   * @returns Array reply. For each field:
+   * - Integer reply: `-2` if no such field exists in the provided hash key, or the provided key does not exist.
+   * - Integer reply: `0` if the specified NX | XX | GT | LT condition has not been met.
+   * - Integer reply: `1` if the expiration time was set/updated.
+   * - Integer reply: `2` when `HEXPIRE`/`HPEXPIRE` is called with 0 seconds/milliseconds or when `HEXPIREAT`/`HPEXPIREAT` is called with a past Unix time in seconds/milliseconds.
+   * @see {@link https://redis.io/commands/hpexpireat}
+   */
+  HPEXPIREAT(key: string, timestamp: number, fields: Collection<string | number>, options?: HpexpireatOptions): Promise<number[]>;
+  /**
+   * Remove the existing expiration on a hash key's field(s), turning the field(s) from _volatile_ (a field with expiration set) to _persistent_ (a field that will never expire as no TTL (time to live) is associated).
+   * - Available since: 7.4.0.
+   * - Time complexity: O(N) where N is the number of specified fields.
+   * @param key - The name of the key that holds the hash.
+   * @param fields - The hash fields to remove the expiration from.
+   * @returns Array reply. For each field:
+   * - Integer reply: `-2` if no such field exists in the provided hash key, or the provided key does not exist.
+   * - Integer reply: `-1` if the field exists but has no associated expiration set.
+   * - Integer reply: `1` the expiration was removed.
+   * @see {@link https://redis.io/commands/hpersist}
+   */
+  HPERSIST(key: string, fields: Collection<string | number>): Promise<number[]>;
+  /**
+   * Sets field in the hash stored at key to value, only if field does not yet exist.
+   * If key does not exist, a new key holding a hash is created.
+   * If field already exists, this operation has no effect.
+   *
+   * - Available since: 2.0.0.
+   * - Time complexity: O(1).
+   * @param key The key of the hash.
+   * @param field The field to set.
+   * @param value The value to set.
+   * @returns Returns `true` if the field is new and the value was set. Returns `false` if the field already exists and no operation was performed.
+   * @see {@link https://redis.io/commands/hsetnx}
+   */
+  HSETNX(key: string, field: string, value: string | number): Promise<boolean>;
+  /**
+   * Returns the absolute Unix timestamp in seconds since Unix epoch at which the given key's field(s) will expire.
+   *
+   * See also the `HPEXPIRETIME` command, which returns the same information with millisecond resolution.
+   * - Available since: 7.4.0.
+   * - Time complexity: O(N) where N is the number of specified fields.
+   * @param key - The name of the key that holds the hash.
+   * @param fields - The hash fields to retrieve the expiration time for.
+   * @returns Array reply. For each field:
+   * - Integer reply: `-2` if no such field exists in the provided hash key, or the provided key does not exist.
+   * - Integer reply: `-1` if the field exists but has no associated expiration set.
+   * - Integer reply: the expiration (Unix timestamp) in seconds.
+   * @see {@link https://redis.io/commands/hexpiretime}
+   */
+  HEXPIRETIME(key: string, fields: Collection<string | number>): Promise<number[]>;
+  /**
+   * Runs a read-only Lua script. Unlike `EVAL`, this command can't run commands that modify data.
+   * - Available since: 7.0.0.
+   * - Time complexity: Depends on the script that is executed.
+   * @param script - The Lua script to evaluate. It must not modify data.
+   * @param keys - The key names the script accesses, provided to it via the Lua `KEYS` global variable.
+   * @param args - Additional arguments provided to the script via the Lua `ARGV` variable.
+   * @returns The return value depends on the script that was executed.
+   * @see {@link https://redis.io/commands/eval_ro}
+   */
+  EVAL_RO(script: string, keys: (string | number)[], args?: (string | number)[]): Promise<unknown>;
+  /**
+   * Invoke the execution of a server-side Lua script.
+   * - Available since: 2.6.0.
+   * - Time complexity: Depends on the script that is executed.
+   * @param script Script's source code.
+   * @param keys Keys accessed by the script.
+   * @param args Arguments passed to the script.
+   * @returns Value returned by the script.
+   * @see {@link https://redis.io/commands/eval}
+   */
+  EVAL(script: string, keys: (string | number)[], args?: (string | number)[]): Promise<unknown>;
+  /**
+   * Evaluate a script from the server's cache by its SHA1 digest.
+   *
+   * The server caches scripts by using the `SCRIPT LOAD` command.
+   * The command is otherwise identical to `EVAL`.
+   * - Available since: 2.6.0.
+   * - Time complexity: Depends on the script that is executed.
+   * @param sha1 - The SHA1 digest of a script previously cached with `SCRIPT LOAD` or `EVAL`.
+   * @param keys - The key names the script accesses, provided to it via the Lua `KEYS` global variable.
+   * @param args - Additional arguments provided to the script via the Lua `ARGV` variable.
+   * @returns The return value depends on the script that was executed.
+   * @see {@link https://redis.io/commands/evalsha}
+   */
+  EVALSHA(sha1: string, keys: (string | number)[], args?: (string | number)[]): Promise<unknown>;
+  /**
+   * This is a read-only variant of the `EVALSHA` command that cannot execute commands that modify data.
+   * - Available since: 7.0.0.
+   * - Time complexity: Depends on the script that is executed.
+   * @param sha1 - The SHA1 digest of a read-only script previously cached with `SCRIPT LOAD` or `EVAL_RO`.
+   * @param keys - The key names the script accesses, provided to it via the Lua `KEYS` global variable.
+   * @param args - Additional arguments provided to the script via the Lua `ARGV` variable.
+   * @returns The return value depends on the script that was executed.
+   * @see {@link https://redis.io/commands/evalsha_ro}
+   */
+  EVALSHA_RO(sha1: string, keys: (string | number)[], args?: (string | number)[]): Promise<unknown>;
+}
+//#endregion
+export type { RedisXScript, RedisXTransaction };

@@ -1,0 +1,73 @@
+{
+	"name": "@redis-x/client",
+	"version": "0.4.0",
+	"description": "Enhanced redis client built on top of \"redis\" package.",
+	"publishConfig": {
+		"access": "public"
+	},
+	"type": "module",
+	"files": [
+		"dist"
+	],
+	"exports": {
+		".": {
+			"types": {
+				"import": "./dist/main.d.mts",
+				"require": "./dist/main.d.cts"
+			},
+			"import": "./dist/main.mjs",
+			"require": "./dist/main.cjs"
+		}
+	},
+	"engines": {
+		"node": ">=15.0.0"
+	},
+	"peerDependencies": {
+		"redis": "^4.6"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "2.5.4",
+		"@kirick/lint": "0.4.1",
+		"@types/bun": "1.4.2",
+		"eslint": "10.7.0",
+		"oxc-parser": "0.76.0",
+		"oxlint": "1.74.0",
+		"publint": "0.3.25",
+		"tsdown": "0.23.0",
+		"type-fest": "5.10.0",
+		"typescript": "6.0.3",
+		"unplugin-unused": "0.6.0",
+		"valibot": "1.5.0",
+		"vite": "8.3.4",
+		"vitest": "5.0.3"
+	},
+	"scripts": {
+		"build": "bun run build:lib && bun run build:package",
+		"build:lib": "bun run build/main.ts && bunx biome format src/client.ts src/transaction.ts src/transaction/use.ts --write",
+		"build:package": "tsdown",
+		"check": "bun run build:lib && bun run lint && bun run build:package && bun run test",
+		"lint": "lint && bun run lint:ts:build && bun run lint:ts:test",
+		"lint:ts:build": "tsc -p build/tsconfig.json",
+		"lint:ts:test": "tsc -p test/tsconfig.json",
+		"redis:down": "docker stop test-redis",
+		"redis:up": "docker ps | grep test-redis >/dev/null || docker run --rm -d -p 16379:6379 --name test-redis redis:7-alpine",
+		"test": "bun run redis:up && npm run test:vitest && bun test --coverage",
+		"test:vitest": "vitest run --no-file-parallelism"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/redis-x/client.git"
+	},
+	"keywords": [
+		"redis",
+		"client",
+		"transaction",
+		"multi"
+	],
+	"author": "Daniil Kirichenko (https://twitter.com/kirickme)",
+	"license": "MIT",
+	"bugs": {
+		"url": "https://github.com/redis-x/client/issues"
+	},
+	"homepage": "https://github.com/redis-x/client#readme"
+}

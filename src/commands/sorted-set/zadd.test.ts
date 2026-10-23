@@ -1,0 +1,78 @@
+import { describe, expect, test } from 'vitest';
+import { input } from './zadd.js';
+
+describe('command', () => {
+	test('single pair', () => {
+		const command = input('key', 1, 'member');
+
+		expect(command.args).toStrictEqual(['ZADD', 'key', '1', 'member']);
+
+		expect(command.replyTransform!(0)).toStrictEqual(0);
+		expect(command.replyTransform!(1)).toStrictEqual(1);
+	});
+
+	test('single pair with numeric member', () => {
+		const command = input('key', 1, 0);
+
+		expect(command.args).toStrictEqual(['ZADD', 'key', '1', '0']);
+	});
+
+	test('multiple pairs', () => {
+		const command = input('key', {
+			foo: 1,
+			bar: 2,
+		});
+
+		expect(command.args).toStrictEqual(['ZADD', 'key', '1', 'foo', '2', 'bar']);
+	});
+
+	test('increment with a condition', () => {
+		const command = input('key', 1, 'member', { INCR: true, XX: true });
+
+		expect(command.args).toStrictEqual([
+			'ZADD',
+			'key',
+			'XX',
+			'INCR',
+			'1',
+			'member',
+		]);
+		expect(command.replyTransform!('0')).toStrictEqual(0);
+		expect(command.replyTransform!(10.345)).toStrictEqual(10.345);
+		expect(command.replyTransform!(null)).toBeNull();
+	});
+
+	test('multiple pairs with increment disabled', () => {
+		const command = input('key', { foo: 1, bar: 2 }, { INCR: false, CH: true });
+
+		expect(command.args).toStrictEqual([
+			'ZADD',
+			'key',
+			'CH',
+			'1',
+			'foo',
+			'2',
+			'bar',
+		]);
+		expect(command.replyTransform!(0)).toStrictEqual(0);
+		expect(command.replyTransform!(2)).toStrictEqual(2);
+	});
+
+	for (const option of ['NX', 'XX', 'GT', 'LT', 'CH', 'INCR']) {
+		describe(`option ${option}`, () => {
+			for (const value of [true, false]) {
+				test(String(value), () => {
+					const command = input('key', 1, 'foo', {
+						[option]: value,
+					});
+
+					expect(command.args).toStrictEqual(
+						value
+							? ['ZADD', 'key', option, '1', 'foo']
+							: ['ZADD', 'key', '1', 'foo'],
+					);
+				});
+			}
+		});
+	}
+});
