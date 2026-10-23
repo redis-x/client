@@ -2617,6 +2617,97 @@ export class RedisXTransaction<
 	}
 
 	/**
+	 * When called with just the `key` argument, return a random element from the sorted set value stored at `key`.
+	 * - Available since: 6.2.0.
+	 * - Time complexity: O(N) where N is the number of members returned.
+	 * @param key - The name of the key that holds the sorted set.
+	 * @returns Bulk string reply: without the additional _count_ argument, the command returns a randomly selected member, or Nil reply when _key_ doesn't exist.
+	 * @see {@link https://redis.io/commands/zrandmember}
+	 */
+	ZRANDMEMBER(
+		key: string,
+	): RedisXTransaction<AddToList<L, string | null>, C, D>;
+	/**
+	 * If the provided `count` argument is positive, return an array of distinct elements.
+	 * The array's length is either `count` or the sorted set's cardinality (`ZCARD`), whichever is lower.
+	 *
+	 * If called with a negative `count`, the behavior changes and the command is allowed to return the same element multiple times.
+	 * In this case, the number of returned elements is the absolute value of the specified `count`.
+	 * - Available since: 6.2.0.
+	 * - Time complexity: O(N) where N is the number of members returned.
+	 * @param key - The name of the key that holds the sorted set.
+	 * @param count - The number of members to return. A positive `count` returns up to that many distinct members; a negative `count` returns exactly `|count|` members and may repeat them.
+	 * @param options -
+	 * @returns Array reply: when the additional _count_ argument is passed, the command returns an array of members, or an empty array when _key_ doesn't exist.
+	 * @see {@link https://redis.io/commands/zrandmember}
+	 */
+	ZRANDMEMBER(
+		key: string,
+		count: number,
+		options?: ZrandmemberOptions & { WITHSCORES?: false },
+	): RedisXTransaction<AddToList<L, string[]>, C, D>;
+	/**
+	 * If the provided `count` argument is positive, return an array of distinct elements.
+	 * The array's length is either `count` or the sorted set's cardinality (`ZCARD`), whichever is lower.
+	 *
+	 * If called with a negative `count`, the behavior changes and the command is allowed to return the same element multiple times.
+	 * In this case, the number of returned elements is the absolute value of the specified `count`.
+	 *
+	 * The optional `WITHSCORES` modifier changes the reply so it includes the respective scores of the randomly selected elements from the sorted set.
+	 * - Available since: 6.2.0.
+	 * - Time complexity: O(N) where N is the number of members returned.
+	 * @param key - The name of the key that holds the sorted set.
+	 * @param count - The number of members to return. A positive `count` returns up to that many distinct members; a negative `count` returns exactly `|count|` members and may repeat them.
+	 * @param options -
+	 * @returns Array reply: when the additional _count_ argument is passed, the command returns an array of members, or an empty array when _key_ doesn't exist. If the _WITHSCORES_ modifier is used, the reply is a list of members and their scores from the sorted set.
+	 * @see {@link https://redis.io/commands/zrandmember}
+	 */
+	ZRANDMEMBER(
+		key: string,
+		count: number,
+		options: ZrandmemberOptions & { WITHSCORES: true },
+	): RedisXTransaction<
+		AddToList<
+			L,
+			{
+				member: string;
+				score: number;
+			}[]
+		>,
+		C,
+		D
+	>;
+	/**
+	 * If the provided `count` argument is positive, return an array of distinct elements.
+	 * The array's length is either `count` or the sorted set's cardinality (`ZCARD`), whichever is lower.
+	 *
+	 * If called with a negative `count`, the behavior changes and the command is allowed to return the same element multiple times.
+	 * In this case, the number of returned elements is the absolute value of the specified `count`.
+	 *
+	 * The optional `WITHSCORES` modifier changes the reply so it includes the respective scores of the randomly selected elements from the sorted set.
+	 * - Available since: 6.2.0.
+	 * - Time complexity: O(N) where N is the number of members returned.
+	 * @param key - The name of the key that holds the sorted set.
+	 * @param count - The number of members to return. A positive `count` returns up to that many distinct members; a negative `count` returns exactly `|count|` members and may repeat them.
+	 * @param options -
+	 * @returns Array reply: when the additional _count_ argument is passed, the command returns an array of members, or an empty array when _key_ doesn't exist. If the _WITHSCORES_ modifier is used, the reply is a list of members and their scores from the sorted set.
+	 * @see {@link https://redis.io/commands/zrandmember}
+	 */
+	ZRANDMEMBER(
+		key: string,
+		count: number,
+		options?: ZrandmemberOptions,
+	): RedisXTransaction<
+		AddToList<L, string[] | { member: string; score: number }[]>,
+		C,
+		D
+	>;
+
+	ZRANDMEMBER(key: string, count?: number, options?: ZrandmemberOptions) {
+		return this.useCommand(input_zrandmember(key, count, options));
+	}
+
+	/**
 	 * Removes the specified members from the sorted set stored at key. Non existing members are ignored.
 	 * - Available since: 1.2.0
 	 * - Time complexity: O(M*log(N)) with N being the number of elements in the sorted set and M the number of elements to be removed.
@@ -3224,6 +3315,99 @@ export class RedisXTransaction<
 	}
 
 	/**
+	 * When called with just the `key` argument, return a random field from the hash value stored at `key`.
+	 * - Available since: 6.2.0.
+	 * - Time complexity: O(N) where N is the number of fields returned.
+	 * @param key - The name of the key that holds the hash.
+	 * @returns Any of the following:
+	 * - Nil reply: if the key doesn't exist
+	 * - Bulk string reply: a single, randomly selected field when the `count` option is not used
+	 * @see {@link https://redis.io/commands/hrandfield}
+	 */
+	HRANDFIELD(key: string): RedisXTransaction<AddToList<L, string | null>, C, D>;
+	/**
+	 * If the provided `count` argument is positive, return an array of **distinct fields**.
+	 * The array's length is either `count` or the hash's number of fields (`HLEN`), whichever is lower.
+	 *
+	 * If called with a negative `count`, the behavior changes and the command is allowed to return the **same field multiple times**.
+	 * In this case, the number of returned fields is the absolute value of the specified `count`.
+	 * - Available since: 6.2.0.
+	 * - Time complexity: O(N) where N is the number of fields returned.
+	 * @param key - The name of the key that holds the hash.
+	 * @param count - The number of fields to return. A positive `count` returns up to that many distinct fields; a negative `count` returns exactly `|count|` fields and may repeat fields.
+	 * @param options -
+	 * @returns Array reply: a list containing `count` fields when the `count` option is used, or an empty array if the key does not exists.
+	 * @see {@link https://redis.io/commands/hrandfield}
+	 */
+	HRANDFIELD(
+		key: string,
+		count: number,
+		options?: HrandfieldOptions & { WITHVALUES?: false },
+	): RedisXTransaction<AddToList<L, string[]>, C, D>;
+	/**
+	 * If the provided `count` argument is positive, return an array of **distinct fields**.
+	 * The array's length is either `count` or the hash's number of fields (`HLEN`), whichever is lower.
+	 *
+	 * If called with a negative `count`, the behavior changes and the command is allowed to return the **same field multiple times**.
+	 * In this case, the number of returned fields is the absolute value of the specified `count`.
+	 *
+	 * The optional `WITHVALUES` modifier changes the reply so it includes the respective values of the randomly selected hash fields.
+	 * - Available since: 6.2.0.
+	 * - Time complexity: O(N) where N is the number of fields returned.
+	 * @param key - The name of the key that holds the hash.
+	 * @param count - The number of fields to return. A positive `count` returns up to that many distinct fields; a negative `count` returns exactly `|count|` fields and may repeat fields.
+	 * @param options -
+	 * @returns Array reply: a list of fields and their values when `count` and `WITHVALUES` were both used.
+	 * @see {@link https://redis.io/commands/hrandfield}
+	 */
+	HRANDFIELD(
+		key: string,
+		count: number,
+		options: HrandfieldOptions & { WITHVALUES: true },
+	): RedisXTransaction<
+		AddToList<
+			L,
+			{
+				field: string;
+				value: string;
+			}[]
+		>,
+		C,
+		D
+	>;
+	/**
+	 * If the provided `count` argument is positive, return an array of **distinct fields**.
+	 * The array's length is either `count` or the hash's number of fields (`HLEN`), whichever is lower.
+	 *
+	 * If called with a negative `count`, the behavior changes and the command is allowed to return the **same field multiple times**.
+	 * In this case, the number of returned fields is the absolute value of the specified `count`.
+	 *
+	 * The optional `WITHVALUES` modifier changes the reply so it includes the respective values of the randomly selected hash fields.
+	 * - Available since: 6.2.0.
+	 * - Time complexity: O(N) where N is the number of fields returned.
+	 * @param key - The name of the key that holds the hash.
+	 * @param count - The number of fields to return. A positive `count` returns up to that many distinct fields; a negative `count` returns exactly `|count|` fields and may repeat fields.
+	 * @param options -
+	 * @returns Any of the following:
+	 * - Array reply: a list containing `count` fields when the `count` option is used, or an empty array if the key does not exists.
+	 * - Array reply: a list of fields and their values when `count` and `WITHVALUES` were both used.
+	 * @see {@link https://redis.io/commands/hrandfield}
+	 */
+	HRANDFIELD(
+		key: string,
+		count: number,
+		options?: HrandfieldOptions,
+	): RedisXTransaction<
+		AddToList<L, string[] | { field: string; value: string }[]>,
+		C,
+		D
+	>;
+
+	HRANDFIELD(key: string, count?: number, options?: HrandfieldOptions) {
+		return this.useCommand(input_hrandfield(key, count, options));
+	}
+
+	/**
 	 * Returns the number of fields contained in the hash stored at key.
 	 *
 	 * - Available since: 2.0.0.
@@ -3539,6 +3723,10 @@ import {
 	type ZrankOptions,
 	input as input_zrank,
 } from './commands/sorted-set/zrank.js';
+import {
+	type ZrandmemberOptions,
+	input as input_zrandmember,
+} from './commands/sorted-set/zrandmember.js';
 import { input as input_zrem } from './commands/sorted-set/zrem.js';
 import { input as input_zremrangebyscore } from './commands/sorted-set/zremrangebyscore.js';
 import {
@@ -3570,6 +3758,10 @@ import { input as input_hgetall } from './commands/hash/hgetall.js';
 import { input as input_hget } from './commands/hash/hget.js';
 import { input as input_hmset } from './commands/hash/hmset.js';
 import { input as input_hmget } from './commands/hash/hmget.js';
+import {
+	type HrandfieldOptions,
+	input as input_hrandfield,
+} from './commands/hash/hrandfield.js';
 import { input as input_hlen } from './commands/hash/hlen.js';
 import { input as input_hkeys } from './commands/hash/hkeys.js';
 import { input as input_hincrby } from './commands/hash/hincrby.js';
