@@ -318,7 +318,7 @@ X / Y / (1/7)
 | Section                                           | Commands available | |
 | ------------------------------------------------- | - | -: |
 | [Generic](src/commands/generic)                   | 🟩🟩🟩🟨🟥🟥🟥 | **16** / 32 |
-| [Hash](src/commands/hash)                         | 🟩🟩🟩🟥🟥🟥🟥 | **15** / 33 |
+| [Hash](src/commands/hash)                         | 🟩🟩🟩🟩🟥🟥🟥 | **21** / 33 |
 | [List](src/commands/list)                         | 🟩🟩🟩🟩🟥🟥🟥 | **14** / 24 |
 | [Scripting and Functions](src/commands/scripting) | 🟩🟥🟥🟥🟥🟥🟥 |  **4** / 19 |
 | [Set](src/commands/set)                           | 🟩🟩🟩🟩🟩🟩🟨 | **18** / 19 |

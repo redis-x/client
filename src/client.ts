@@ -2882,6 +2882,62 @@ export class RedisXClient {
 	}
 
 	/**
+	 * This command works like `HEXPIRE`, but the expiration of a field is specified in milliseconds instead of seconds.
+	 * - Available since: 7.4.0.
+	 * - Time complexity: O(N) where N is the number of specified fields.
+	 * @param key - The name of the key that holds the hash.
+	 * @param milliseconds - The timeout, in milliseconds.
+	 * @param fields - The hash fields to operate on.
+	 * @param options -
+	 * @returns Array reply. For each field:
+	 * - Integer reply: `-2` if no such field exists in the provided hash key, or the provided key does not exist.
+	 * - Integer reply: `0` if the specified NX | XX | GT | LT condition has not been met.
+	 * - Integer reply: `1` if the expiration time was set/updated.
+	 * - Integer reply: `2` when `HEXPIRE`/`HPEXPIRE` is called with 0 seconds/milliseconds or when `HEXPIREAT`/`HPEXPIREAT` is called with a past Unix time in seconds/milliseconds.
+	 * @see {@link https://redis.io/commands/hpexpire}
+	 */
+	HPEXPIRE(
+		key: string,
+		milliseconds: number,
+		fields: Collection<string | number>,
+		options?: HpexpireOptions,
+	): Promise<number[]> {
+		return this.useCommand(input_hpexpire(key, milliseconds, fields, options));
+	}
+
+	/**
+	 * Set an expiration (TTL or time to live) on one or more fields of a given hash key. You must specify at least one field.
+	 * Field(s) will automatically be deleted from the hash key when their TTLs expire.
+	 *
+	 * Field expirations will only be cleared by commands that delete or overwrite the contents of the hash fields, including `HDEL` and `HSET` commands.
+	 * This means that all the operations that conceptually _alter_ the value stored at a hash key's field without replacing it with a new one will leave the TTL untouched.
+	 *
+	 * You can clear the TTL using the `HPERSIST` command, which turns the hash field back into a persistent field.
+	 *
+	 * Note that calling `HEXPIRE`/`HPEXPIRE` with a zero TTL or `HEXPIREAT`/`HPEXPIREAT` with a time in the past will result in the hash field being deleted.
+	 * - Available since: 7.4.0.
+	 * - Time complexity: O(N) where N is the number of specified fields.
+	 * @param key - The name of the key that holds the hash.
+	 * @param seconds - The time to live, in seconds. Each specified field is deleted after this many seconds.
+	 * @param fields - The hash fields to set expiration for.
+	 * @param options -
+	 * @returns Array reply. For each field:
+	 * - Integer reply: `-2` if no such field exists in the provided hash key, or the provided key does not exist.
+	 * - Integer reply: `0` if the specified NX | XX | GT | LT condition has not been met.
+	 * - Integer reply: `1` if the expiration time was set/updated.
+	 * - Integer reply: `2` when `HEXPIRE`/`HPEXPIRE` is called with 0 seconds/milliseconds or when `HEXPIREAT`/`HPEXPIREAT` is called with a past Unix time in seconds/milliseconds.
+	 * @see {@link https://redis.io/commands/hexpire}
+	 */
+	HEXPIRE(
+		key: string,
+		seconds: number,
+		fields: Collection<string | number>,
+		options?: HexpireOptions,
+	): Promise<number[]> {
+		return this.useCommand(input_hexpire(key, seconds, fields, options));
+	}
+
+	/**
 	 * Sets the specified fields to their respective values in the hash stored at key.
 	 * This command overwrites any specified fields already existing in the hash.
 	 * If key does not exist, a new key holding a hash is created.
@@ -2953,6 +3009,33 @@ export class RedisXClient {
 		...fields: (string | string[])[]
 	): Promise<(string | null)[]> {
 		return this.useCommand(input_hmget(key, ...fields));
+	}
+
+	/**
+	 * `HEXPIREAT` has the same effect and semantics as `HEXPIRE`, but instead of specifying the number of seconds for the TTL (time to live), it takes an absolute Unix timestamp in seconds since Unix epoch.
+	 * A timestamp in the past will delete the field immediately.
+	 *
+	 * For the specific semantics of the command, see `HEXPIRE`.
+	 * - Available since: 7.4.0.
+	 * - Time complexity: O(N) where N is the number of specified fields.
+	 * @param key - The name of the key that holds the hash.
+	 * @param timestamp - The absolute Unix expiration timestamp, in seconds since Unix epoch. A timestamp in the past deletes the field immediately.
+	 * @param fields - The hash fields to set expiration for.
+	 * @param options -
+	 * @returns Array reply. For each field:
+	 * - Integer reply: `-2` if no such field exists in the provided hash key, or the provided key does not exist.
+	 * - Integer reply: `0` if the specified NX | XX | GT | LT condition has not been met.
+	 * - Integer reply: `1` if the expiration time was set/updated.
+	 * - Integer reply: `2` when `HEXPIRE`/`HPEXPIRE` is called with 0 seconds/milliseconds or when `HEXPIREAT`/`HPEXPIREAT` is called with a past Unix time in seconds/milliseconds.
+	 * @see {@link https://redis.io/commands/hexpireat}
+	 */
+	HEXPIREAT(
+		key: string,
+		timestamp: number,
+		fields: Collection<string | number>,
+		options?: HexpireatOptions,
+	): Promise<number[]> {
+		return this.useCommand(input_hexpireat(key, timestamp, fields, options));
 	}
 
 	/**
@@ -3137,6 +3220,25 @@ export class RedisXClient {
 	}
 
 	/**
+	 * `HPEXPIRETIME` has the same semantics as `HEXPIRETIME`, but returns the absolute Unix expiration timestamp in milliseconds since Unix epoch instead of seconds.
+	 * - Available since: 7.4.0.
+	 * - Time complexity: O(N) where N is the number of specified fields.
+	 * @param key - The name of the key that holds the hash.
+	 * @param fields - The hash fields to retrieve the expiration time for.
+	 * @returns Array reply. For each field:
+	 * - Integer reply: `-2` if no such field exists in the provided hash key, or the provided key does not exist.
+	 * - Integer reply: `-1` if the field exists but has no associated expiration set.
+	 * - Integer reply: the expiration (Unix timestamp) in milliseconds.
+	 * @see {@link https://redis.io/commands/hpexpiretime}
+	 */
+	HPEXPIRETIME(
+		key: string,
+		fields: Collection<string | number>,
+	): Promise<number[]> {
+		return this.useCommand(input_hpexpiretime(key, fields));
+	}
+
+	/**
 	 * Returns if field is an existing field in the hash stored at key.
 	 *
 	 * - Available since: 2.0.0.
@@ -3148,6 +3250,30 @@ export class RedisXClient {
 	 */
 	HEXISTS(key: string, field: string | number): Promise<boolean> {
 		return this.useCommand(input_hexists(key, field));
+	}
+
+	/**
+	 * `HPEXPIREAT` has the same effect and semantics as `HEXPIREAT`, but the Unix time at which the field will expire is specified in milliseconds since Unix epoch instead of seconds.
+	 * - Available since: 7.4.0.
+	 * - Time complexity: O(N) where N is the number of specified fields.
+	 * @param key - The name of the key that holds the hash.
+	 * @param timestamp - The absolute Unix expiration timestamp, in milliseconds since Unix epoch. A timestamp in the past deletes the field immediately.
+	 * @param fields - The hash fields to operate on.
+	 * @param options -
+	 * @returns Array reply. For each field:
+	 * - Integer reply: `-2` if no such field exists in the provided hash key, or the provided key does not exist.
+	 * - Integer reply: `0` if the specified NX | XX | GT | LT condition has not been met.
+	 * - Integer reply: `1` if the expiration time was set/updated.
+	 * - Integer reply: `2` when `HEXPIRE`/`HPEXPIRE` is called with 0 seconds/milliseconds or when `HEXPIREAT`/`HPEXPIREAT` is called with a past Unix time in seconds/milliseconds.
+	 * @see {@link https://redis.io/commands/hpexpireat}
+	 */
+	HPEXPIREAT(
+		key: string,
+		timestamp: number,
+		fields: Collection<string | number>,
+		options?: HpexpireatOptions,
+	): Promise<number[]> {
+		return this.useCommand(input_hpexpireat(key, timestamp, fields, options));
 	}
 
 	/**
@@ -3165,6 +3291,27 @@ export class RedisXClient {
 	 */
 	HSETNX(key: string, field: string, value: string | number): Promise<boolean> {
 		return this.useCommand(input_hsetnx(key, field, value));
+	}
+
+	/**
+	 * Returns the absolute Unix timestamp in seconds since Unix epoch at which the given key's field(s) will expire.
+	 *
+	 * See also the `HPEXPIRETIME` command, which returns the same information with millisecond resolution.
+	 * - Available since: 7.4.0.
+	 * - Time complexity: O(N) where N is the number of specified fields.
+	 * @param key - The name of the key that holds the hash.
+	 * @param fields - The hash fields to retrieve the expiration time for.
+	 * @returns Array reply. For each field:
+	 * - Integer reply: `-2` if no such field exists in the provided hash key, or the provided key does not exist.
+	 * - Integer reply: `-1` if the field exists but has no associated expiration set.
+	 * - Integer reply: the expiration (Unix timestamp) in seconds.
+	 * @see {@link https://redis.io/commands/hexpiretime}
+	 */
+	HEXPIRETIME(
+		key: string,
+		fields: Collection<string | number>,
+	): Promise<number[]> {
+		return this.useCommand(input_hexpiretime(key, fields));
 	}
 
 	/**
@@ -3429,8 +3576,20 @@ import { input as input_hset } from './commands/hash/hset.js';
 import { input as input_hincrbyfloat } from './commands/hash/hincrbyfloat.js';
 import { input as input_hgetall } from './commands/hash/hgetall.js';
 import { input as input_hget } from './commands/hash/hget.js';
+import {
+	type HpexpireOptions,
+	input as input_hpexpire,
+} from './commands/hash/hpexpire.js';
+import {
+	type HexpireOptions,
+	input as input_hexpire,
+} from './commands/hash/hexpire.js';
 import { input as input_hmset } from './commands/hash/hmset.js';
 import { input as input_hmget } from './commands/hash/hmget.js';
+import {
+	type HexpireatOptions,
+	input as input_hexpireat,
+} from './commands/hash/hexpireat.js';
 import {
 	type HrandfieldOptions,
 	input as input_hrandfield,
@@ -3440,8 +3599,14 @@ import { input as input_hkeys } from './commands/hash/hkeys.js';
 import { input as input_hincrby } from './commands/hash/hincrby.js';
 import { input as input_hdel } from './commands/hash/hdel.js';
 import { input as input_hstrlen } from './commands/hash/hstrlen.js';
+import { input as input_hpexpiretime } from './commands/hash/hpexpiretime.js';
 import { input as input_hexists } from './commands/hash/hexists.js';
+import {
+	type HpexpireatOptions,
+	input as input_hpexpireat,
+} from './commands/hash/hpexpireat.js';
 import { input as input_hsetnx } from './commands/hash/hsetnx.js';
+import { input as input_hexpiretime } from './commands/hash/hexpiretime.js';
 import { input as input_eval_ro } from './commands/scripting/eval_ro.js';
 import { input as input_eval } from './commands/scripting/eval.js';
 import { input as input_evalsha } from './commands/scripting/evalsha.js';

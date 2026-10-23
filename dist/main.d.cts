@@ -617,6 +617,90 @@ type ZrangebylexOptions = {
   LIMIT?: [number, number];
 };
 //#endregion
+//#region src/commands/hash/hpexpire.d.ts
+type HpexpireOptions = {
+  /**
+   * For each specified field, set expiration only when the field has no expiration.
+   * - Incompatible with options `XX`, `GT` and `LT`.
+   * - Available since: 7.4.0.
+   */
+  NX?: boolean;
+  /**
+   * For each specified field, set expiration only when the field has an existing expiration.
+   * - Incompatible with options `NX`, `GT` and `LT`.
+   * - Available since: 7.4.0.
+   */
+  XX?: boolean;
+  /**
+   * For each specified field, set expiration only when the new expiration is greater than the current one. A non-volatile field is treated as an infinite TTL for the purposes of `GT`.
+   * - Incompatible with options `NX`, `XX` and `LT`.
+   * - Available since: 7.4.0.
+   */
+  GT?: boolean;
+  /**
+   * For each specified field, set expiration only when the new expiration is less than the current one. A non-volatile field is treated as an infinite TTL for the purposes of `LT`.
+   * - Incompatible with options `NX`, `XX` and `GT`.
+   * - Available since: 7.4.0.
+   */
+  LT?: boolean;
+};
+//#endregion
+//#region src/commands/hash/hexpire.d.ts
+type HexpireOptions = {
+  /**
+   * For each specified field, set expiration only when the field has no expiration.
+   * - Incompatible with options `XX`, `GT` and `LT`.
+   * - Available since: 7.4.0.
+   */
+  NX?: boolean;
+  /**
+   * For each specified field, set expiration only when the field has an existing expiration.
+   * - Incompatible with options `NX`, `GT` and `LT`.
+   * - Available since: 7.4.0.
+   */
+  XX?: boolean;
+  /**
+   * For each specified field, set expiration only when the new expiration is greater than the current one. A non-volatile field is treated as an infinite TTL for the purposes of `GT`.
+   * - Incompatible with options `NX`, `XX` and `LT`.
+   * - Available since: 7.4.0.
+   */
+  GT?: boolean;
+  /**
+   * For each specified field, set expiration only when the new expiration is less than the current one. A non-volatile field is treated as an infinite TTL for the purposes of `LT`.
+   * - Incompatible with options `NX`, `XX` and `GT`.
+   * - Available since: 7.4.0.
+   */
+  LT?: boolean;
+};
+//#endregion
+//#region src/commands/hash/hexpireat.d.ts
+type HexpireatOptions = {
+  /**
+   * For each specified field, set expiration only when the field has no expiration.
+   * - Incompatible with options `XX`, `GT` and `LT`.
+   * - Available since: 7.4.0.
+   */
+  NX?: boolean;
+  /**
+   * For each specified field, set expiration only when the field has an existing expiration.
+   * - Incompatible with options `NX`, `GT` and `LT`.
+   * - Available since: 7.4.0.
+   */
+  XX?: boolean;
+  /**
+   * For each specified field, set expiration only when the new expiration is greater than the current one. A non-volatile field is treated as an infinite TTL for the purposes of `GT`.
+   * - Incompatible with options `NX`, `XX` and `LT`.
+   * - Available since: 7.4.0.
+   */
+  GT?: boolean;
+  /**
+   * For each specified field, set expiration only when the new expiration is less than the current one. A non-volatile field is treated as an infinite TTL for the purposes of `LT`.
+   * - Incompatible with options `NX`, `XX` and `GT`.
+   * - Available since: 7.4.0.
+   */
+  LT?: boolean;
+};
+//#endregion
 //#region src/commands/hash/hrandfield.d.ts
 type HrandfieldOptions = {
   /**
@@ -624,6 +708,34 @@ type HrandfieldOptions = {
    * - Available since: 6.2.0.
    */
   WITHVALUES?: boolean;
+};
+//#endregion
+//#region src/commands/hash/hpexpireat.d.ts
+type HpexpireatOptions = {
+  /**
+   * For each specified field, set expiration only when the field has no expiration.
+   * - Incompatible with options `XX`, `GT` and `LT`.
+   * - Available since: 7.4.0.
+   */
+  NX?: boolean;
+  /**
+   * For each specified field, set expiration only when the field has an existing expiration.
+   * - Incompatible with options `NX`, `GT` and `LT`.
+   * - Available since: 7.4.0.
+   */
+  XX?: boolean;
+  /**
+   * For each specified field, set expiration only when the new expiration is greater than the current one. A non-volatile field is treated as an infinite TTL for the purposes of `GT`.
+   * - Incompatible with options `NX`, `XX` and `LT`.
+   * - Available since: 7.4.0.
+   */
+  GT?: boolean;
+  /**
+   * For each specified field, set expiration only when the new expiration is less than the current one. A non-volatile field is treated as an infinite TTL for the purposes of `LT`.
+   * - Incompatible with options `NX`, `XX` and `GT`.
+   * - Available since: 7.4.0.
+   */
+  LT?: boolean;
 };
 //#endregion
 //#region src/transaction/use.d.ts
@@ -2738,6 +2850,46 @@ declare class RedisXTransactionUse {
    */
   HGET(key: string, field: string): RedisXTransactionCommand<string | null>;
   /**
+   * This command works like `HEXPIRE`, but the expiration of a field is specified in milliseconds instead of seconds.
+   * - Available since: 7.4.0.
+   * - Time complexity: O(N) where N is the number of specified fields.
+   * @param key - The name of the key that holds the hash.
+   * @param milliseconds - The timeout, in milliseconds.
+   * @param fields - The hash fields to operate on.
+   * @param options -
+   * @returns Array reply. For each field:
+   * - Integer reply: `-2` if no such field exists in the provided hash key, or the provided key does not exist.
+   * - Integer reply: `0` if the specified NX | XX | GT | LT condition has not been met.
+   * - Integer reply: `1` if the expiration time was set/updated.
+   * - Integer reply: `2` when `HEXPIRE`/`HPEXPIRE` is called with 0 seconds/milliseconds or when `HEXPIREAT`/`HPEXPIREAT` is called with a past Unix time in seconds/milliseconds.
+   * @see {@link https://redis.io/commands/hpexpire}
+   */
+  HPEXPIRE(key: string, milliseconds: number, fields: Collection<string | number>, options?: HpexpireOptions): RedisXTransactionCommand<number[]>;
+  /**
+   * Set an expiration (TTL or time to live) on one or more fields of a given hash key. You must specify at least one field.
+   * Field(s) will automatically be deleted from the hash key when their TTLs expire.
+   *
+   * Field expirations will only be cleared by commands that delete or overwrite the contents of the hash fields, including `HDEL` and `HSET` commands.
+   * This means that all the operations that conceptually _alter_ the value stored at a hash key's field without replacing it with a new one will leave the TTL untouched.
+   *
+   * You can clear the TTL using the `HPERSIST` command, which turns the hash field back into a persistent field.
+   *
+   * Note that calling `HEXPIRE`/`HPEXPIRE` with a zero TTL or `HEXPIREAT`/`HPEXPIREAT` with a time in the past will result in the hash field being deleted.
+   * - Available since: 7.4.0.
+   * - Time complexity: O(N) where N is the number of specified fields.
+   * @param key - The name of the key that holds the hash.
+   * @param seconds - The time to live, in seconds. Each specified field is deleted after this many seconds.
+   * @param fields - The hash fields to set expiration for.
+   * @param options -
+   * @returns Array reply. For each field:
+   * - Integer reply: `-2` if no such field exists in the provided hash key, or the provided key does not exist.
+   * - Integer reply: `0` if the specified NX | XX | GT | LT condition has not been met.
+   * - Integer reply: `1` if the expiration time was set/updated.
+   * - Integer reply: `2` when `HEXPIRE`/`HPEXPIRE` is called with 0 seconds/milliseconds or when `HEXPIREAT`/`HPEXPIREAT` is called with a past Unix time in seconds/milliseconds.
+   * @see {@link https://redis.io/commands/hexpire}
+   */
+  HEXPIRE(key: string, seconds: number, fields: Collection<string | number>, options?: HexpireOptions): RedisXTransactionCommand<number[]>;
+  /**
    * Sets the specified fields to their respective values in the hash stored at key.
    * This command overwrites any specified fields already existing in the hash.
    * If key does not exist, a new key holding a hash is created.
@@ -2794,6 +2946,25 @@ declare class RedisXTransactionUse {
    * @see {@link https://redis.io/commands/hmget}
    */
   HMGET(key: string, ...fields: string[]): RedisXTransactionCommand<(string | null)[]>;
+  /**
+   * `HEXPIREAT` has the same effect and semantics as `HEXPIRE`, but instead of specifying the number of seconds for the TTL (time to live), it takes an absolute Unix timestamp in seconds since Unix epoch.
+   * A timestamp in the past will delete the field immediately.
+   *
+   * For the specific semantics of the command, see `HEXPIRE`.
+   * - Available since: 7.4.0.
+   * - Time complexity: O(N) where N is the number of specified fields.
+   * @param key - The name of the key that holds the hash.
+   * @param timestamp - The absolute Unix expiration timestamp, in seconds since Unix epoch. A timestamp in the past deletes the field immediately.
+   * @param fields - The hash fields to set expiration for.
+   * @param options -
+   * @returns Array reply. For each field:
+   * - Integer reply: `-2` if no such field exists in the provided hash key, or the provided key does not exist.
+   * - Integer reply: `0` if the specified NX | XX | GT | LT condition has not been met.
+   * - Integer reply: `1` if the expiration time was set/updated.
+   * - Integer reply: `2` when `HEXPIRE`/`HPEXPIRE` is called with 0 seconds/milliseconds or when `HEXPIREAT`/`HPEXPIREAT` is called with a past Unix time in seconds/milliseconds.
+   * @see {@link https://redis.io/commands/hexpireat}
+   */
+  HEXPIREAT(key: string, timestamp: number, fields: Collection<string | number>, options?: HexpireatOptions): RedisXTransactionCommand<number[]>;
   /**
    * When called with just the `key` argument, return a random field from the hash value stored at `key`.
    * - Available since: 6.2.0.
@@ -2939,6 +3110,19 @@ declare class RedisXTransactionUse {
    */
   HSTRLEN(key: string, field: string): RedisXTransactionCommand<number>;
   /**
+   * `HPEXPIRETIME` has the same semantics as `HEXPIRETIME`, but returns the absolute Unix expiration timestamp in milliseconds since Unix epoch instead of seconds.
+   * - Available since: 7.4.0.
+   * - Time complexity: O(N) where N is the number of specified fields.
+   * @param key - The name of the key that holds the hash.
+   * @param fields - The hash fields to retrieve the expiration time for.
+   * @returns Array reply. For each field:
+   * - Integer reply: `-2` if no such field exists in the provided hash key, or the provided key does not exist.
+   * - Integer reply: `-1` if the field exists but has no associated expiration set.
+   * - Integer reply: the expiration (Unix timestamp) in milliseconds.
+   * @see {@link https://redis.io/commands/hpexpiretime}
+   */
+  HPEXPIRETIME(key: string, fields: Collection<string | number>): RedisXTransactionCommand<number[]>;
+  /**
    * Returns if field is an existing field in the hash stored at key.
    *
    * - Available since: 2.0.0.
@@ -2949,6 +3133,22 @@ declare class RedisXTransactionUse {
    * @see {@link https://redis.io/commands/hexists}
    */
   HEXISTS(key: string, field: string | number): RedisXTransactionCommand<boolean>;
+  /**
+   * `HPEXPIREAT` has the same effect and semantics as `HEXPIREAT`, but the Unix time at which the field will expire is specified in milliseconds since Unix epoch instead of seconds.
+   * - Available since: 7.4.0.
+   * - Time complexity: O(N) where N is the number of specified fields.
+   * @param key - The name of the key that holds the hash.
+   * @param timestamp - The absolute Unix expiration timestamp, in milliseconds since Unix epoch. A timestamp in the past deletes the field immediately.
+   * @param fields - The hash fields to operate on.
+   * @param options -
+   * @returns Array reply. For each field:
+   * - Integer reply: `-2` if no such field exists in the provided hash key, or the provided key does not exist.
+   * - Integer reply: `0` if the specified NX | XX | GT | LT condition has not been met.
+   * - Integer reply: `1` if the expiration time was set/updated.
+   * - Integer reply: `2` when `HEXPIRE`/`HPEXPIRE` is called with 0 seconds/milliseconds or when `HEXPIREAT`/`HPEXPIREAT` is called with a past Unix time in seconds/milliseconds.
+   * @see {@link https://redis.io/commands/hpexpireat}
+   */
+  HPEXPIREAT(key: string, timestamp: number, fields: Collection<string | number>, options?: HpexpireatOptions): RedisXTransactionCommand<number[]>;
   /**
    * Sets field in the hash stored at key to value, only if field does not yet exist.
    * If key does not exist, a new key holding a hash is created.
@@ -2963,6 +3163,21 @@ declare class RedisXTransactionUse {
    * @see {@link https://redis.io/commands/hsetnx}
    */
   HSETNX(key: string, field: string, value: string | number): RedisXTransactionCommand<boolean>;
+  /**
+   * Returns the absolute Unix timestamp in seconds since Unix epoch at which the given key's field(s) will expire.
+   *
+   * See also the `HPEXPIRETIME` command, which returns the same information with millisecond resolution.
+   * - Available since: 7.4.0.
+   * - Time complexity: O(N) where N is the number of specified fields.
+   * @param key - The name of the key that holds the hash.
+   * @param fields - The hash fields to retrieve the expiration time for.
+   * @returns Array reply. For each field:
+   * - Integer reply: `-2` if no such field exists in the provided hash key, or the provided key does not exist.
+   * - Integer reply: `-1` if the field exists but has no associated expiration set.
+   * - Integer reply: the expiration (Unix timestamp) in seconds.
+   * @see {@link https://redis.io/commands/hexpiretime}
+   */
+  HEXPIRETIME(key: string, fields: Collection<string | number>): RedisXTransactionCommand<number[]>;
   /**
    * Runs a read-only Lua script. Unlike `EVAL`, this command can't run commands that modify data.
    * - Available since: 7.0.0.
@@ -5135,6 +5350,46 @@ declare class RedisXTransaction<L = [], C extends boolean = false, D = unknown> 
    */
   HGET(key: string, field: string): RedisXTransaction<AddToList<L, string | null>, C, D>;
   /**
+   * This command works like `HEXPIRE`, but the expiration of a field is specified in milliseconds instead of seconds.
+   * - Available since: 7.4.0.
+   * - Time complexity: O(N) where N is the number of specified fields.
+   * @param key - The name of the key that holds the hash.
+   * @param milliseconds - The timeout, in milliseconds.
+   * @param fields - The hash fields to operate on.
+   * @param options -
+   * @returns Array reply. For each field:
+   * - Integer reply: `-2` if no such field exists in the provided hash key, or the provided key does not exist.
+   * - Integer reply: `0` if the specified NX | XX | GT | LT condition has not been met.
+   * - Integer reply: `1` if the expiration time was set/updated.
+   * - Integer reply: `2` when `HEXPIRE`/`HPEXPIRE` is called with 0 seconds/milliseconds or when `HEXPIREAT`/`HPEXPIREAT` is called with a past Unix time in seconds/milliseconds.
+   * @see {@link https://redis.io/commands/hpexpire}
+   */
+  HPEXPIRE(key: string, milliseconds: number, fields: Collection<string | number>, options?: HpexpireOptions): RedisXTransaction<AddToList<L, number[]>, C, D>;
+  /**
+   * Set an expiration (TTL or time to live) on one or more fields of a given hash key. You must specify at least one field.
+   * Field(s) will automatically be deleted from the hash key when their TTLs expire.
+   *
+   * Field expirations will only be cleared by commands that delete or overwrite the contents of the hash fields, including `HDEL` and `HSET` commands.
+   * This means that all the operations that conceptually _alter_ the value stored at a hash key's field without replacing it with a new one will leave the TTL untouched.
+   *
+   * You can clear the TTL using the `HPERSIST` command, which turns the hash field back into a persistent field.
+   *
+   * Note that calling `HEXPIRE`/`HPEXPIRE` with a zero TTL or `HEXPIREAT`/`HPEXPIREAT` with a time in the past will result in the hash field being deleted.
+   * - Available since: 7.4.0.
+   * - Time complexity: O(N) where N is the number of specified fields.
+   * @param key - The name of the key that holds the hash.
+   * @param seconds - The time to live, in seconds. Each specified field is deleted after this many seconds.
+   * @param fields - The hash fields to set expiration for.
+   * @param options -
+   * @returns Array reply. For each field:
+   * - Integer reply: `-2` if no such field exists in the provided hash key, or the provided key does not exist.
+   * - Integer reply: `0` if the specified NX | XX | GT | LT condition has not been met.
+   * - Integer reply: `1` if the expiration time was set/updated.
+   * - Integer reply: `2` when `HEXPIRE`/`HPEXPIRE` is called with 0 seconds/milliseconds or when `HEXPIREAT`/`HPEXPIREAT` is called with a past Unix time in seconds/milliseconds.
+   * @see {@link https://redis.io/commands/hexpire}
+   */
+  HEXPIRE(key: string, seconds: number, fields: Collection<string | number>, options?: HexpireOptions): RedisXTransaction<AddToList<L, number[]>, C, D>;
+  /**
    * Sets the specified fields to their respective values in the hash stored at key.
    * This command overwrites any specified fields already existing in the hash.
    * If key does not exist, a new key holding a hash is created.
@@ -5191,6 +5446,25 @@ declare class RedisXTransaction<L = [], C extends boolean = false, D = unknown> 
    * @see {@link https://redis.io/commands/hmget}
    */
   HMGET(key: string, ...fields: string[]): RedisXTransaction<AddToList<L, (string | null)[]>, C, D>;
+  /**
+   * `HEXPIREAT` has the same effect and semantics as `HEXPIRE`, but instead of specifying the number of seconds for the TTL (time to live), it takes an absolute Unix timestamp in seconds since Unix epoch.
+   * A timestamp in the past will delete the field immediately.
+   *
+   * For the specific semantics of the command, see `HEXPIRE`.
+   * - Available since: 7.4.0.
+   * - Time complexity: O(N) where N is the number of specified fields.
+   * @param key - The name of the key that holds the hash.
+   * @param timestamp - The absolute Unix expiration timestamp, in seconds since Unix epoch. A timestamp in the past deletes the field immediately.
+   * @param fields - The hash fields to set expiration for.
+   * @param options -
+   * @returns Array reply. For each field:
+   * - Integer reply: `-2` if no such field exists in the provided hash key, or the provided key does not exist.
+   * - Integer reply: `0` if the specified NX | XX | GT | LT condition has not been met.
+   * - Integer reply: `1` if the expiration time was set/updated.
+   * - Integer reply: `2` when `HEXPIRE`/`HPEXPIRE` is called with 0 seconds/milliseconds or when `HEXPIREAT`/`HPEXPIREAT` is called with a past Unix time in seconds/milliseconds.
+   * @see {@link https://redis.io/commands/hexpireat}
+   */
+  HEXPIREAT(key: string, timestamp: number, fields: Collection<string | number>, options?: HexpireatOptions): RedisXTransaction<AddToList<L, number[]>, C, D>;
   /**
    * When called with just the `key` argument, return a random field from the hash value stored at `key`.
    * - Available since: 6.2.0.
@@ -5336,6 +5610,19 @@ declare class RedisXTransaction<L = [], C extends boolean = false, D = unknown> 
    */
   HSTRLEN(key: string, field: string): RedisXTransaction<AddToList<L, number>, C, D>;
   /**
+   * `HPEXPIRETIME` has the same semantics as `HEXPIRETIME`, but returns the absolute Unix expiration timestamp in milliseconds since Unix epoch instead of seconds.
+   * - Available since: 7.4.0.
+   * - Time complexity: O(N) where N is the number of specified fields.
+   * @param key - The name of the key that holds the hash.
+   * @param fields - The hash fields to retrieve the expiration time for.
+   * @returns Array reply. For each field:
+   * - Integer reply: `-2` if no such field exists in the provided hash key, or the provided key does not exist.
+   * - Integer reply: `-1` if the field exists but has no associated expiration set.
+   * - Integer reply: the expiration (Unix timestamp) in milliseconds.
+   * @see {@link https://redis.io/commands/hpexpiretime}
+   */
+  HPEXPIRETIME(key: string, fields: Collection<string | number>): RedisXTransaction<AddToList<L, number[]>, C, D>;
+  /**
    * Returns if field is an existing field in the hash stored at key.
    *
    * - Available since: 2.0.0.
@@ -5346,6 +5633,22 @@ declare class RedisXTransaction<L = [], C extends boolean = false, D = unknown> 
    * @see {@link https://redis.io/commands/hexists}
    */
   HEXISTS(key: string, field: string | number): RedisXTransaction<AddToList<L, boolean>, C, D>;
+  /**
+   * `HPEXPIREAT` has the same effect and semantics as `HEXPIREAT`, but the Unix time at which the field will expire is specified in milliseconds since Unix epoch instead of seconds.
+   * - Available since: 7.4.0.
+   * - Time complexity: O(N) where N is the number of specified fields.
+   * @param key - The name of the key that holds the hash.
+   * @param timestamp - The absolute Unix expiration timestamp, in milliseconds since Unix epoch. A timestamp in the past deletes the field immediately.
+   * @param fields - The hash fields to operate on.
+   * @param options -
+   * @returns Array reply. For each field:
+   * - Integer reply: `-2` if no such field exists in the provided hash key, or the provided key does not exist.
+   * - Integer reply: `0` if the specified NX | XX | GT | LT condition has not been met.
+   * - Integer reply: `1` if the expiration time was set/updated.
+   * - Integer reply: `2` when `HEXPIRE`/`HPEXPIRE` is called with 0 seconds/milliseconds or when `HEXPIREAT`/`HPEXPIREAT` is called with a past Unix time in seconds/milliseconds.
+   * @see {@link https://redis.io/commands/hpexpireat}
+   */
+  HPEXPIREAT(key: string, timestamp: number, fields: Collection<string | number>, options?: HpexpireatOptions): RedisXTransaction<AddToList<L, number[]>, C, D>;
   /**
    * Sets field in the hash stored at key to value, only if field does not yet exist.
    * If key does not exist, a new key holding a hash is created.
@@ -5360,6 +5663,21 @@ declare class RedisXTransaction<L = [], C extends boolean = false, D = unknown> 
    * @see {@link https://redis.io/commands/hsetnx}
    */
   HSETNX(key: string, field: string, value: string | number): RedisXTransaction<AddToList<L, boolean>, C, D>;
+  /**
+   * Returns the absolute Unix timestamp in seconds since Unix epoch at which the given key's field(s) will expire.
+   *
+   * See also the `HPEXPIRETIME` command, which returns the same information with millisecond resolution.
+   * - Available since: 7.4.0.
+   * - Time complexity: O(N) where N is the number of specified fields.
+   * @param key - The name of the key that holds the hash.
+   * @param fields - The hash fields to retrieve the expiration time for.
+   * @returns Array reply. For each field:
+   * - Integer reply: `-2` if no such field exists in the provided hash key, or the provided key does not exist.
+   * - Integer reply: `-1` if the field exists but has no associated expiration set.
+   * - Integer reply: the expiration (Unix timestamp) in seconds.
+   * @see {@link https://redis.io/commands/hexpiretime}
+   */
+  HEXPIRETIME(key: string, fields: Collection<string | number>): RedisXTransaction<AddToList<L, number[]>, C, D>;
   /**
    * Runs a read-only Lua script. Unlike `EVAL`, this command can't run commands that modify data.
    * - Available since: 7.0.0.
@@ -7523,6 +7841,46 @@ export declare class RedisXClient {
    */
   HGET(key: string, field: string): Promise<string | null>;
   /**
+   * This command works like `HEXPIRE`, but the expiration of a field is specified in milliseconds instead of seconds.
+   * - Available since: 7.4.0.
+   * - Time complexity: O(N) where N is the number of specified fields.
+   * @param key - The name of the key that holds the hash.
+   * @param milliseconds - The timeout, in milliseconds.
+   * @param fields - The hash fields to operate on.
+   * @param options -
+   * @returns Array reply. For each field:
+   * - Integer reply: `-2` if no such field exists in the provided hash key, or the provided key does not exist.
+   * - Integer reply: `0` if the specified NX | XX | GT | LT condition has not been met.
+   * - Integer reply: `1` if the expiration time was set/updated.
+   * - Integer reply: `2` when `HEXPIRE`/`HPEXPIRE` is called with 0 seconds/milliseconds or when `HEXPIREAT`/`HPEXPIREAT` is called with a past Unix time in seconds/milliseconds.
+   * @see {@link https://redis.io/commands/hpexpire}
+   */
+  HPEXPIRE(key: string, milliseconds: number, fields: Collection<string | number>, options?: HpexpireOptions): Promise<number[]>;
+  /**
+   * Set an expiration (TTL or time to live) on one or more fields of a given hash key. You must specify at least one field.
+   * Field(s) will automatically be deleted from the hash key when their TTLs expire.
+   *
+   * Field expirations will only be cleared by commands that delete or overwrite the contents of the hash fields, including `HDEL` and `HSET` commands.
+   * This means that all the operations that conceptually _alter_ the value stored at a hash key's field without replacing it with a new one will leave the TTL untouched.
+   *
+   * You can clear the TTL using the `HPERSIST` command, which turns the hash field back into a persistent field.
+   *
+   * Note that calling `HEXPIRE`/`HPEXPIRE` with a zero TTL or `HEXPIREAT`/`HPEXPIREAT` with a time in the past will result in the hash field being deleted.
+   * - Available since: 7.4.0.
+   * - Time complexity: O(N) where N is the number of specified fields.
+   * @param key - The name of the key that holds the hash.
+   * @param seconds - The time to live, in seconds. Each specified field is deleted after this many seconds.
+   * @param fields - The hash fields to set expiration for.
+   * @param options -
+   * @returns Array reply. For each field:
+   * - Integer reply: `-2` if no such field exists in the provided hash key, or the provided key does not exist.
+   * - Integer reply: `0` if the specified NX | XX | GT | LT condition has not been met.
+   * - Integer reply: `1` if the expiration time was set/updated.
+   * - Integer reply: `2` when `HEXPIRE`/`HPEXPIRE` is called with 0 seconds/milliseconds or when `HEXPIREAT`/`HPEXPIREAT` is called with a past Unix time in seconds/milliseconds.
+   * @see {@link https://redis.io/commands/hexpire}
+   */
+  HEXPIRE(key: string, seconds: number, fields: Collection<string | number>, options?: HexpireOptions): Promise<number[]>;
+  /**
    * Sets the specified fields to their respective values in the hash stored at key.
    * This command overwrites any specified fields already existing in the hash.
    * If key does not exist, a new key holding a hash is created.
@@ -7579,6 +7937,25 @@ export declare class RedisXClient {
    * @see {@link https://redis.io/commands/hmget}
    */
   HMGET(key: string, ...fields: string[]): Promise<(string | null)[]>;
+  /**
+   * `HEXPIREAT` has the same effect and semantics as `HEXPIRE`, but instead of specifying the number of seconds for the TTL (time to live), it takes an absolute Unix timestamp in seconds since Unix epoch.
+   * A timestamp in the past will delete the field immediately.
+   *
+   * For the specific semantics of the command, see `HEXPIRE`.
+   * - Available since: 7.4.0.
+   * - Time complexity: O(N) where N is the number of specified fields.
+   * @param key - The name of the key that holds the hash.
+   * @param timestamp - The absolute Unix expiration timestamp, in seconds since Unix epoch. A timestamp in the past deletes the field immediately.
+   * @param fields - The hash fields to set expiration for.
+   * @param options -
+   * @returns Array reply. For each field:
+   * - Integer reply: `-2` if no such field exists in the provided hash key, or the provided key does not exist.
+   * - Integer reply: `0` if the specified NX | XX | GT | LT condition has not been met.
+   * - Integer reply: `1` if the expiration time was set/updated.
+   * - Integer reply: `2` when `HEXPIRE`/`HPEXPIRE` is called with 0 seconds/milliseconds or when `HEXPIREAT`/`HPEXPIREAT` is called with a past Unix time in seconds/milliseconds.
+   * @see {@link https://redis.io/commands/hexpireat}
+   */
+  HEXPIREAT(key: string, timestamp: number, fields: Collection<string | number>, options?: HexpireatOptions): Promise<number[]>;
   /**
    * When called with just the `key` argument, return a random field from the hash value stored at `key`.
    * - Available since: 6.2.0.
@@ -7724,6 +8101,19 @@ export declare class RedisXClient {
    */
   HSTRLEN(key: string, field: string): Promise<number>;
   /**
+   * `HPEXPIRETIME` has the same semantics as `HEXPIRETIME`, but returns the absolute Unix expiration timestamp in milliseconds since Unix epoch instead of seconds.
+   * - Available since: 7.4.0.
+   * - Time complexity: O(N) where N is the number of specified fields.
+   * @param key - The name of the key that holds the hash.
+   * @param fields - The hash fields to retrieve the expiration time for.
+   * @returns Array reply. For each field:
+   * - Integer reply: `-2` if no such field exists in the provided hash key, or the provided key does not exist.
+   * - Integer reply: `-1` if the field exists but has no associated expiration set.
+   * - Integer reply: the expiration (Unix timestamp) in milliseconds.
+   * @see {@link https://redis.io/commands/hpexpiretime}
+   */
+  HPEXPIRETIME(key: string, fields: Collection<string | number>): Promise<number[]>;
+  /**
    * Returns if field is an existing field in the hash stored at key.
    *
    * - Available since: 2.0.0.
@@ -7734,6 +8124,22 @@ export declare class RedisXClient {
    * @see {@link https://redis.io/commands/hexists}
    */
   HEXISTS(key: string, field: string | number): Promise<boolean>;
+  /**
+   * `HPEXPIREAT` has the same effect and semantics as `HEXPIREAT`, but the Unix time at which the field will expire is specified in milliseconds since Unix epoch instead of seconds.
+   * - Available since: 7.4.0.
+   * - Time complexity: O(N) where N is the number of specified fields.
+   * @param key - The name of the key that holds the hash.
+   * @param timestamp - The absolute Unix expiration timestamp, in milliseconds since Unix epoch. A timestamp in the past deletes the field immediately.
+   * @param fields - The hash fields to operate on.
+   * @param options -
+   * @returns Array reply. For each field:
+   * - Integer reply: `-2` if no such field exists in the provided hash key, or the provided key does not exist.
+   * - Integer reply: `0` if the specified NX | XX | GT | LT condition has not been met.
+   * - Integer reply: `1` if the expiration time was set/updated.
+   * - Integer reply: `2` when `HEXPIRE`/`HPEXPIRE` is called with 0 seconds/milliseconds or when `HEXPIREAT`/`HPEXPIREAT` is called with a past Unix time in seconds/milliseconds.
+   * @see {@link https://redis.io/commands/hpexpireat}
+   */
+  HPEXPIREAT(key: string, timestamp: number, fields: Collection<string | number>, options?: HpexpireatOptions): Promise<number[]>;
   /**
    * Sets field in the hash stored at key to value, only if field does not yet exist.
    * If key does not exist, a new key holding a hash is created.
@@ -7748,6 +8154,21 @@ export declare class RedisXClient {
    * @see {@link https://redis.io/commands/hsetnx}
    */
   HSETNX(key: string, field: string, value: string | number): Promise<boolean>;
+  /**
+   * Returns the absolute Unix timestamp in seconds since Unix epoch at which the given key's field(s) will expire.
+   *
+   * See also the `HPEXPIRETIME` command, which returns the same information with millisecond resolution.
+   * - Available since: 7.4.0.
+   * - Time complexity: O(N) where N is the number of specified fields.
+   * @param key - The name of the key that holds the hash.
+   * @param fields - The hash fields to retrieve the expiration time for.
+   * @returns Array reply. For each field:
+   * - Integer reply: `-2` if no such field exists in the provided hash key, or the provided key does not exist.
+   * - Integer reply: `-1` if the field exists but has no associated expiration set.
+   * - Integer reply: the expiration (Unix timestamp) in seconds.
+   * @see {@link https://redis.io/commands/hexpiretime}
+   */
+  HEXPIRETIME(key: string, fields: Collection<string | number>): Promise<number[]>;
   /**
    * Runs a read-only Lua script. Unlike `EVAL`, this command can't run commands that modify data.
    * - Available since: 7.0.0.
