@@ -3,7 +3,7 @@ import { stringBulkToObject } from '../../utils.js';
 
 export type XreadId = '$' | '+' | (string & {});
 
-export type XReadOptions = {
+export type XreadOptions = {
 	/**
 	 * Maximum number of entries to return per stream.
 	 * - Available since: 5.0.0.
@@ -36,7 +36,7 @@ export type XStreamEntry = {
 declare function _command(
 	key: string,
 	id: XreadId,
-	options?: XReadOptions,
+	options?: XreadOptions,
 ): XStreamEntry[];
 
 /**
@@ -51,16 +51,16 @@ declare function _command(
  */
 declare function _command<const S extends Record<string, XreadId>>(
 	streams: S,
-	options?: XReadOptions,
+	options?: XreadOptions,
 ): { [K in keyof S]: XStreamEntry[] };
 
 // eslint-disable-next-line jsdoc/require-jsdoc
 export function input(
 	arg0: string | Record<string, XreadId>,
-	arg1?: XreadId | XReadOptions,
-	arg2?: XReadOptions,
+	arg1?: XreadId | XreadOptions,
+	arg2?: XreadOptions,
 ): Command<XStreamEntry[] | Record<string, XStreamEntry[] | null> | null> {
-	let options: XReadOptions | undefined;
+	let options: XreadOptions | undefined;
 	const stream_keys: string[] = [];
 	const stream_ids: string[] = [];
 

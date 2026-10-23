@@ -1443,28 +1443,26 @@ export class RedisXTransaction<
 	}
 
 	/**
-	 * Inserts element in the list stored at key either before or after the reference value.
+	 * Inserts `element` in the list stored at `key` either before or after the reference value `pivot`.
 	 *
+	 * When `key` does not exist, it is considered an empty list and no operation is performed.
+	 *
+	 * An error is returned when `key` exists but does not hold a list value.
 	 * - Available since: 2.2.0.
-	 * - Time complexity: O(N) where N is the number of elements to traverse before seeing the value pivot.
-	 *   This means that inserting somewhere on the left end on the list (head) can be considered O(1)
-	 *   and inserting somewhere on the right end (tail) is O(N).
-	 * @param key Key of the list.
-	 * @param element Element to insert.
-	 * @param options Command options.
-	 * @returns The length of the list after the insert operation, or 0 when the key doesn't exist, or -1 when the pivot wasn't found.
+	 * - Time complexity: O(N) where N is the number of elements to traverse before seeing the value pivot. This means that inserting somewhere on the left end on the list (head) can be considered O(1) and inserting somewhere on the right end (tail) is O(N).
+	 * @param key - The name of the key that holds the list.
+	 * @param element - The value to insert.
+	 * @param options -
+	 * @returns Any of the following:
+	 * - Integer reply: the list length after a successful insert operation.
+	 * - Integer reply: `0` when the key doesn't exist.
+	 * - Integer reply: `-1` when the pivot wasn't found.
 	 * @see {@link https://redis.io/commands/linsert}
 	 */
 	LINSERT(
 		key: string,
 		element: string | number,
-		options:
-			| {
-					BEFORE: string | number;
-			  }
-			| {
-					AFTER: string | number;
-			  },
+		options: LinsertOptions,
 	): RedisXTransaction<AddToList<L, number>, C, D> {
 		return this.useCommand(input_linsert(key, element, options));
 	}
@@ -1589,7 +1587,7 @@ export class RedisXTransaction<
 	XREAD(
 		key: string,
 		id: XreadId,
-		options?: XReadOptions,
+		options?: XreadOptions,
 	): RedisXTransaction<AddToList<L, XStreamEntry[]>, C, D>;
 	/**
 	 * Read data from one or multiple streams, only returning entries with an ID greater than the last received ID reported by the caller.
@@ -1603,13 +1601,13 @@ export class RedisXTransaction<
 	 */
 	XREAD<const S extends Record<string, XreadId>>(
 		streams: S,
-		options?: XReadOptions,
+		options?: XreadOptions,
 	): RedisXTransaction<AddToList<L, { [K in keyof S]: XStreamEntry[] }>, C, D>;
 
 	XREAD(
 		arg0: string | Record<string, XreadId>,
-		arg1?: XreadId | XReadOptions,
-		arg2?: XReadOptions,
+		arg1?: XreadId | XreadOptions,
+		arg2?: XreadOptions,
 	): RedisXTransaction<
 		AddToList<L, XStreamEntry[] | Record<string, XStreamEntry[] | null> | null>,
 		C,
@@ -1714,7 +1712,7 @@ export class RedisXTransaction<
 		key: string,
 		start: '-' | (string & {}),
 		end: '+' | (string & {}),
-		options?: XRangeOptions,
+		options?: XrangeOptions,
 	): RedisXTransaction<AddToList<L, XStreamEntry[]>, C, D> {
 		return this.useCommand(input_xrange(key, start, end, options));
 	}
@@ -1738,7 +1736,7 @@ export class RedisXTransaction<
 		key: string,
 		end: '+' | (string & {}),
 		start: '-' | (string & {}),
-		options?: XRevrangeOptions,
+		options?: XrevrangeOptions,
 	): RedisXTransaction<AddToList<L, XStreamEntry[]>, C, D> {
 		return this.useCommand(input_xrevrange(key, end, start, options));
 	}
@@ -2889,14 +2887,17 @@ import { input as input_lpushx } from './commands/list/lpushx.js';
 import { input as input_rpop } from './commands/list/rpop.js';
 import { input as input_lrange } from './commands/list/lrange.js';
 import { input as input_llen } from './commands/list/llen.js';
-import { input as input_linsert } from './commands/list/linsert.js';
+import {
+	type LinsertOptions,
+	input as input_linsert,
+} from './commands/list/linsert.js';
 import { input as input_ltrim } from './commands/list/ltrim.js';
 import { input as input_lindex } from './commands/list/lindex.js';
 import { input as input_xlen } from './commands/stream/xlen.js';
 import { input as input_xdel } from './commands/stream/xdel.js';
 import {
 	type XreadId,
-	type XReadOptions,
+	type XreadOptions,
 	type XStreamEntry,
 	input as input_xread,
 } from './commands/stream/xread.js';
@@ -2907,11 +2908,11 @@ import {
 	input as input_xadd,
 } from './commands/stream/xadd.js';
 import {
-	type XRangeOptions,
+	type XrangeOptions,
 	input as input_xrange,
 } from './commands/stream/xrange.js';
 import {
-	type XRevrangeOptions,
+	type XrevrangeOptions,
 	input as input_xrevrange,
 } from './commands/stream/xrevrange.js';
 import {

@@ -751,14 +751,13 @@ function input$40(key) {
 //#endregion
 //#region src/commands/list/linsert.ts
 function input$39(key, element, options) {
+	const args = ["LINSERT", key];
+	if (options.BEFORE !== void 0) args.push("BEFORE", String(options.BEFORE));
+	if (options.AFTER !== void 0) args.push("AFTER", String(options.AFTER));
+	args.push(String(element));
 	return {
 		kind: "#schema",
-		args: [
-			"LINSERT",
-			key,
-			..."BEFORE" in options ? ["BEFORE", String(options.BEFORE)] : ["AFTER", String(options.AFTER)],
-			String(element)
-		]
+		args
 	};
 }
 //#endregion

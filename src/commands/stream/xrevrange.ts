@@ -2,7 +2,7 @@ import type { Command } from '../../types.js';
 import { stringBulkToObject } from '../../utils.js';
 import type { XStreamEntry } from './xread.js';
 
-export type XRevrangeOptions = {
+export type XrevrangeOptions = {
 	/**
 	 * Maximum number of entries to return.
 	 * - Available since: 5.0.0.
@@ -29,7 +29,7 @@ export function input(
 	key: string,
 	end: '+' | (string & {}),
 	start: '-' | (string & {}),
-	options?: XRevrangeOptions,
+	options?: XrevrangeOptions,
 ): Command<XStreamEntry[]> {
 	const args: string[] = ['XREVRANGE', key, end, start];
 

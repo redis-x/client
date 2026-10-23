@@ -9,6 +9,10 @@ export type XaddOptions = {
 	 * - Available since: 6.2.0.
 	 */
 	NOMKSTREAM?: boolean;
+	/**
+	 * Trims the stream to maintain a specific size or remove old entries.
+	 * - Available since: 5.0.0.
+	 */
 	trim?: {
 		/**
 		 * When specified, limits the stream to the specified threshold.
@@ -32,8 +36,9 @@ export type XaddOptions = {
 		 */
 		threshold: string | number;
 		/**
-		 * The maximum number of entries to trim. By default, all entries that exceed the threshold
-		 * are removed. With LIMIT, only the specified number of entries are removed.
+		 * Limits the number of entries to examine during trimming.
+		 * When not specified, Redis uses a default value of 100 * the number of entries in a macro node.
+		 * Specifying 0 disables the limiting mechanism entirely.
 		 * - Available since: 6.2.0.
 		 */
 		LIMIT?: number;

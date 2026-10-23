@@ -310,9 +310,25 @@ type PexpireatOptions = {
   LT?: boolean;
 };
 //#endregion
+//#region src/commands/list/linsert.d.ts
+type LinsertOptions = {
+  /**
+   * Insert `element` before `pivot`, the existing element to insert relative to.
+   * - Incompatible with option `AFTER`.
+   * - Available since: 2.2.0.
+   */
+  BEFORE?: string | number;
+  /**
+   * Insert `element` after `pivot`, the existing element to insert relative to.
+   * - Incompatible with option `BEFORE`.
+   * - Available since: 2.2.0.
+   */
+  AFTER?: string | number;
+};
+//#endregion
 //#region src/commands/stream/xread.d.ts
 type XreadId = "$" | "+" | (string & {});
-type XReadOptions = {
+type XreadOptions = {
   /**
    * Maximum number of entries to return per stream.
    * - Available since: 5.0.0.
@@ -339,6 +355,10 @@ type XaddOptions = {
    * - Available since: 6.2.0.
    */
   NOMKSTREAM?: boolean;
+  /**
+   * Trims the stream to maintain a specific size or remove old entries.
+   * - Available since: 5.0.0.
+   */
   trim?: {
     /**
      * When specified, limits the stream to the specified threshold.
@@ -362,8 +382,9 @@ type XaddOptions = {
      */
     threshold: string | number;
     /**
-     * The maximum number of entries to trim. By default, all entries that exceed the threshold
-     * are removed. With LIMIT, only the specified number of entries are removed.
+     * Limits the number of entries to examine during trimming.
+     * When not specified, Redis uses a default value of 100 * the number of entries in a macro node.
+     * Specifying 0 disables the limiting mechanism entirely.
      * - Available since: 6.2.0.
      */
     LIMIT?: number;
@@ -371,7 +392,7 @@ type XaddOptions = {
 };
 //#endregion
 //#region src/commands/stream/xrange.d.ts
-type XRangeOptions = {
+type XrangeOptions = {
   /**
    * Maximum number of entries to return.
    * - Available since: 5.0.0.
@@ -380,7 +401,7 @@ type XRangeOptions = {
 };
 //#endregion
 //#region src/commands/stream/xrevrange.d.ts
-type XRevrangeOptions = {
+type XrevrangeOptions = {
   /**
    * Maximum number of entries to return.
    * - Available since: 5.0.0.
@@ -1431,23 +1452,23 @@ declare class RedisXTransactionUse {
    */
   LLEN(key: string): RedisXTransactionCommand<number>;
   /**
-   * Inserts element in the list stored at key either before or after the reference value.
+   * Inserts `element` in the list stored at `key` either before or after the reference value `pivot`.
    *
+   * When `key` does not exist, it is considered an empty list and no operation is performed.
+   *
+   * An error is returned when `key` exists but does not hold a list value.
    * - Available since: 2.2.0.
-   * - Time complexity: O(N) where N is the number of elements to traverse before seeing the value pivot.
-   *   This means that inserting somewhere on the left end on the list (head) can be considered O(1)
-   *   and inserting somewhere on the right end (tail) is O(N).
-   * @param key Key of the list.
-   * @param element Element to insert.
-   * @param options Command options.
-   * @returns The length of the list after the insert operation, or 0 when the key doesn't exist, or -1 when the pivot wasn't found.
+   * - Time complexity: O(N) where N is the number of elements to traverse before seeing the value pivot. This means that inserting somewhere on the left end on the list (head) can be considered O(1) and inserting somewhere on the right end (tail) is O(N).
+   * @param key - The name of the key that holds the list.
+   * @param element - The value to insert.
+   * @param options -
+   * @returns Any of the following:
+   * - Integer reply: the list length after a successful insert operation.
+   * - Integer reply: `0` when the key doesn't exist.
+   * - Integer reply: `-1` when the pivot wasn't found.
    * @see {@link https://redis.io/commands/linsert}
    */
-  LINSERT(key: string, element: string | number, options: {
-    BEFORE: string | number;
-  } | {
-    AFTER: string | number;
-  }): RedisXTransactionCommand<number>;
+  LINSERT(key: string, element: string | number, options: LinsertOptions): RedisXTransactionCommand<number>;
   /**
    * Trim an existing list so that it will contain only the specified range of elements specified.
    * Both `start` and `stop` are zero-based indexes, where 0 is the first element of the list (the head),
@@ -1535,7 +1556,7 @@ declare class RedisXTransactionUse {
    * @returns An array of stream entries or `null` if no entries are available.
    * @see {@link https://redis.io/commands/xread}
    */
-  XREAD(key: string, id: XreadId, options?: XReadOptions): RedisXTransactionCommand<XStreamEntry[]>;
+  XREAD(key: string, id: XreadId, options?: XreadOptions): RedisXTransactionCommand<XStreamEntry[]>;
   /**
    * Read data from one or multiple streams, only returning entries with an ID greater than the last received ID reported by the caller.
    *
@@ -1546,7 +1567,7 @@ declare class RedisXTransactionUse {
    * @returns An object where keys are stream names and values are arrays of stream entries or `null` if no entries are available.
    * @see {@link https://redis.io/commands/xread}
    */
-  XREAD<const S extends Record<string, XreadId>>(streams: S, options?: XReadOptions): RedisXTransactionCommand<{ [K in keyof S]: XStreamEntry[]; }>;
+  XREAD<const S extends Record<string, XreadId>>(streams: S, options?: XreadOptions): RedisXTransactionCommand<{ [K in keyof S]: XStreamEntry[]; }>;
   /**
    * Appends the specified stream entry to the stream at the specified `key`.
    * If the key does not exist, `XADD` will create a new key with the given stream value as a side effect of running this command.
@@ -1618,7 +1639,7 @@ declare class RedisXTransactionUse {
    * @returns An array of stream entries matching the range.
    * @see {@link https://redis.io/commands/xrange}
    */
-  XRANGE(key: string, start: "-" | (string & {}), end: "+" | (string & {}), options?: XRangeOptions): RedisXTransactionCommand<XStreamEntry[]>;
+  XRANGE(key: string, start: "-" | (string & {}), end: "+" | (string & {}), options?: XrangeOptions): RedisXTransactionCommand<XStreamEntry[]>;
   /**
    * This command is exactly like XRANGE, but with the notable difference of returning the entries in reverse order,
    * and also taking the start-end range in reverse order:
@@ -1634,7 +1655,7 @@ declare class RedisXTransactionUse {
    * @returns An array of stream entries matching the range.
    * @see {@link https://redis.io/commands/xrange}
    */
-  XREVRANGE(key: string, end: "+" | (string & {}), start: "-" | (string & {}), options?: XRevrangeOptions): RedisXTransactionCommand<XStreamEntry[]>;
+  XREVRANGE(key: string, end: "+" | (string & {}), start: "-" | (string & {}), options?: XrevrangeOptions): RedisXTransactionCommand<XStreamEntry[]>;
   /**
    * Trims the stream by evicting older entries (entries with lower IDs) if needed.
    *
@@ -3261,23 +3282,23 @@ declare class RedisXTransaction<L = [], C extends boolean = false, D = unknown> 
    */
   LLEN(key: string): RedisXTransaction<AddToList<L, number>, C, D>;
   /**
-   * Inserts element in the list stored at key either before or after the reference value.
+   * Inserts `element` in the list stored at `key` either before or after the reference value `pivot`.
    *
+   * When `key` does not exist, it is considered an empty list and no operation is performed.
+   *
+   * An error is returned when `key` exists but does not hold a list value.
    * - Available since: 2.2.0.
-   * - Time complexity: O(N) where N is the number of elements to traverse before seeing the value pivot.
-   *   This means that inserting somewhere on the left end on the list (head) can be considered O(1)
-   *   and inserting somewhere on the right end (tail) is O(N).
-   * @param key Key of the list.
-   * @param element Element to insert.
-   * @param options Command options.
-   * @returns The length of the list after the insert operation, or 0 when the key doesn't exist, or -1 when the pivot wasn't found.
+   * - Time complexity: O(N) where N is the number of elements to traverse before seeing the value pivot. This means that inserting somewhere on the left end on the list (head) can be considered O(1) and inserting somewhere on the right end (tail) is O(N).
+   * @param key - The name of the key that holds the list.
+   * @param element - The value to insert.
+   * @param options -
+   * @returns Any of the following:
+   * - Integer reply: the list length after a successful insert operation.
+   * - Integer reply: `0` when the key doesn't exist.
+   * - Integer reply: `-1` when the pivot wasn't found.
    * @see {@link https://redis.io/commands/linsert}
    */
-  LINSERT(key: string, element: string | number, options: {
-    BEFORE: string | number;
-  } | {
-    AFTER: string | number;
-  }): RedisXTransaction<AddToList<L, number>, C, D>;
+  LINSERT(key: string, element: string | number, options: LinsertOptions): RedisXTransaction<AddToList<L, number>, C, D>;
   /**
    * Trim an existing list so that it will contain only the specified range of elements specified.
    * Both `start` and `stop` are zero-based indexes, where 0 is the first element of the list (the head),
@@ -3365,7 +3386,7 @@ declare class RedisXTransaction<L = [], C extends boolean = false, D = unknown> 
    * @returns An array of stream entries or `null` if no entries are available.
    * @see {@link https://redis.io/commands/xread}
    */
-  XREAD(key: string, id: XreadId, options?: XReadOptions): RedisXTransaction<AddToList<L, XStreamEntry[]>, C, D>;
+  XREAD(key: string, id: XreadId, options?: XreadOptions): RedisXTransaction<AddToList<L, XStreamEntry[]>, C, D>;
   /**
    * Read data from one or multiple streams, only returning entries with an ID greater than the last received ID reported by the caller.
    *
@@ -3376,7 +3397,7 @@ declare class RedisXTransaction<L = [], C extends boolean = false, D = unknown> 
    * @returns An object where keys are stream names and values are arrays of stream entries or `null` if no entries are available.
    * @see {@link https://redis.io/commands/xread}
    */
-  XREAD<const S extends Record<string, XreadId>>(streams: S, options?: XReadOptions): RedisXTransaction<AddToList<L, { [K in keyof S]: XStreamEntry[]; }>, C, D>;
+  XREAD<const S extends Record<string, XreadId>>(streams: S, options?: XreadOptions): RedisXTransaction<AddToList<L, { [K in keyof S]: XStreamEntry[]; }>, C, D>;
   /**
    * Appends the specified stream entry to the stream at the specified `key`.
    * If the key does not exist, `XADD` will create a new key with the given stream value as a side effect of running this command.
@@ -3448,7 +3469,7 @@ declare class RedisXTransaction<L = [], C extends boolean = false, D = unknown> 
    * @returns An array of stream entries matching the range.
    * @see {@link https://redis.io/commands/xrange}
    */
-  XRANGE(key: string, start: "-" | (string & {}), end: "+" | (string & {}), options?: XRangeOptions): RedisXTransaction<AddToList<L, XStreamEntry[]>, C, D>;
+  XRANGE(key: string, start: "-" | (string & {}), end: "+" | (string & {}), options?: XrangeOptions): RedisXTransaction<AddToList<L, XStreamEntry[]>, C, D>;
   /**
    * This command is exactly like XRANGE, but with the notable difference of returning the entries in reverse order,
    * and also taking the start-end range in reverse order:
@@ -3464,7 +3485,7 @@ declare class RedisXTransaction<L = [], C extends boolean = false, D = unknown> 
    * @returns An array of stream entries matching the range.
    * @see {@link https://redis.io/commands/xrange}
    */
-  XREVRANGE(key: string, end: "+" | (string & {}), start: "-" | (string & {}), options?: XRevrangeOptions): RedisXTransaction<AddToList<L, XStreamEntry[]>, C, D>;
+  XREVRANGE(key: string, end: "+" | (string & {}), start: "-" | (string & {}), options?: XrevrangeOptions): RedisXTransaction<AddToList<L, XStreamEntry[]>, C, D>;
   /**
    * Trims the stream by evicting older entries (entries with lower IDs) if needed.
    *
@@ -5082,23 +5103,23 @@ export declare class RedisXClient {
    */
   LLEN(key: string): Promise<number>;
   /**
-   * Inserts element in the list stored at key either before or after the reference value.
+   * Inserts `element` in the list stored at `key` either before or after the reference value `pivot`.
    *
+   * When `key` does not exist, it is considered an empty list and no operation is performed.
+   *
+   * An error is returned when `key` exists but does not hold a list value.
    * - Available since: 2.2.0.
-   * - Time complexity: O(N) where N is the number of elements to traverse before seeing the value pivot.
-   *   This means that inserting somewhere on the left end on the list (head) can be considered O(1)
-   *   and inserting somewhere on the right end (tail) is O(N).
-   * @param key Key of the list.
-   * @param element Element to insert.
-   * @param options Command options.
-   * @returns The length of the list after the insert operation, or 0 when the key doesn't exist, or -1 when the pivot wasn't found.
+   * - Time complexity: O(N) where N is the number of elements to traverse before seeing the value pivot. This means that inserting somewhere on the left end on the list (head) can be considered O(1) and inserting somewhere on the right end (tail) is O(N).
+   * @param key - The name of the key that holds the list.
+   * @param element - The value to insert.
+   * @param options -
+   * @returns Any of the following:
+   * - Integer reply: the list length after a successful insert operation.
+   * - Integer reply: `0` when the key doesn't exist.
+   * - Integer reply: `-1` when the pivot wasn't found.
    * @see {@link https://redis.io/commands/linsert}
    */
-  LINSERT(key: string, element: string | number, options: {
-    BEFORE: string | number;
-  } | {
-    AFTER: string | number;
-  }): Promise<number>;
+  LINSERT(key: string, element: string | number, options: LinsertOptions): Promise<number>;
   /**
    * Trim an existing list so that it will contain only the specified range of elements specified.
    * Both `start` and `stop` are zero-based indexes, where 0 is the first element of the list (the head),
@@ -5186,7 +5207,7 @@ export declare class RedisXClient {
    * @returns An array of stream entries or `null` if no entries are available.
    * @see {@link https://redis.io/commands/xread}
    */
-  XREAD(key: string, id: XreadId, options?: XReadOptions): Promise<XStreamEntry[]>;
+  XREAD(key: string, id: XreadId, options?: XreadOptions): Promise<XStreamEntry[]>;
   /**
    * Read data from one or multiple streams, only returning entries with an ID greater than the last received ID reported by the caller.
    *
@@ -5197,7 +5218,7 @@ export declare class RedisXClient {
    * @returns An object where keys are stream names and values are arrays of stream entries or `null` if no entries are available.
    * @see {@link https://redis.io/commands/xread}
    */
-  XREAD<const S extends Record<string, XreadId>>(streams: S, options?: XReadOptions): Promise<{ [K in keyof S]: XStreamEntry[]; }>;
+  XREAD<const S extends Record<string, XreadId>>(streams: S, options?: XreadOptions): Promise<{ [K in keyof S]: XStreamEntry[]; }>;
   /**
    * Appends the specified stream entry to the stream at the specified `key`.
    * If the key does not exist, `XADD` will create a new key with the given stream value as a side effect of running this command.
@@ -5269,7 +5290,7 @@ export declare class RedisXClient {
    * @returns An array of stream entries matching the range.
    * @see {@link https://redis.io/commands/xrange}
    */
-  XRANGE(key: string, start: "-" | (string & {}), end: "+" | (string & {}), options?: XRangeOptions): Promise<XStreamEntry[]>;
+  XRANGE(key: string, start: "-" | (string & {}), end: "+" | (string & {}), options?: XrangeOptions): Promise<XStreamEntry[]>;
   /**
    * This command is exactly like XRANGE, but with the notable difference of returning the entries in reverse order,
    * and also taking the start-end range in reverse order:
@@ -5285,7 +5306,7 @@ export declare class RedisXClient {
    * @returns An array of stream entries matching the range.
    * @see {@link https://redis.io/commands/xrange}
    */
-  XREVRANGE(key: string, end: "+" | (string & {}), start: "-" | (string & {}), options?: XRevrangeOptions): Promise<XStreamEntry[]>;
+  XREVRANGE(key: string, end: "+" | (string & {}), start: "-" | (string & {}), options?: XrevrangeOptions): Promise<XStreamEntry[]>;
   /**
    * Trims the stream by evicting older entries (entries with lower IDs) if needed.
    *
