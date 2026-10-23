@@ -1636,6 +1636,27 @@ export class RedisXTransactionUse {
 	}
 
 	/**
+	 * Removes all elements in the sorted set stored at `key` with rank between `start` and `stop`.
+	 * Both `start` and `stop` are `0` -based indexes with `0` being the element with the lowest score.
+	 * These indexes can be negative numbers, where they indicate offsets starting at the element with the highest score.
+	 * For example: `-1` is the element with the highest score, `-2` the element with the second highest score and so forth.
+	 * - Available since: 2.0.0.
+	 * - Time complexity: O(log(N)+M) with N being the number of elements in the sorted set and M the number of elements removed by the operation.
+	 * @param key - The name of the key that holds the sorted set.
+	 * @param start - The start index, zero-based. Negative values count from the end of the sorted set (`-1` is the member with the highest score).
+	 * @param stop - The stop index, zero-based and inclusive. Negative values count from the end of the sorted set.
+	 * @returns Integer reply: the number of members removed.
+	 * @see {@link https://redis.io/commands/zremrangebyrank}
+	 */
+	ZREMRANGEBYRANK(
+		key: string,
+		start: number,
+		stop: number,
+	): RedisXTransactionCommand<number> {
+		return this.useCommand(input_zremrangebyrank(key, start, stop));
+	}
+
+	/**
 	 * Returns the sorted set cardinality (number of elements) of the sorted set stored at key.
 	 * - Available since: 1.2.0.
 	 * - Time complexity: O(1).
@@ -2154,6 +2175,26 @@ export class RedisXTransactionUse {
 	}
 
 	/**
+	 * When all the elements in a sorted set are inserted with the same score, in order to force lexicographical ordering, this command removes all elements in the sorted set stored at `key` between the lexicographical range specified by `min` and `max`.
+	 *
+	 * The meaning of `min` and `max` are the same of the `ZRANGEBYLEX` command. Similarly, this command actually removes the same elements that `ZRANGEBYLEX` would return if called with the same `min` and `max` arguments.
+	 * - Available since: 2.8.9.
+	 * - Time complexity: O(log(N)+M) with N being the number of elements in the sorted set and M the number of elements removed by the operation.
+	 * @param key - The name of the key that holds the sorted set.
+	 * @param min - The minimum member, compared lexicographically. Prefix with `[` for an inclusive bound or `(` for an exclusive bound; use `-` for the lowest possible value.
+	 * @param max - The maximum member, compared lexicographically. Prefix with `[` for an inclusive bound or `(` for an exclusive bound; use `+` for the highest possible value.
+	 * @returns Integer reply: the number of members removed.
+	 * @see {@link https://redis.io/commands/zremrangebylex}
+	 */
+	ZREMRANGEBYLEX(
+		key: string,
+		min: `(${string}` | `[${string}` | '-',
+		max: `(${string}` | `[${string}` | '+',
+	): RedisXTransactionCommand<number> {
+		return this.useCommand(input_zremrangebylex(key, min, max));
+	}
+
+	/**
 	 * Computes the intersection of sorted sets given by the specified keys, and stores the result in destination. It is mandatory to provide the number of input keys (numkeys) before passing the input keys and the other (optional) arguments.
 	 * - Available since: 2.0.0.
 	 * - Time complexity: O(N*K)+O(M*log(M)).
@@ -2669,6 +2710,7 @@ import {
 	type XtrimOptions,
 	input as input_xtrim,
 } from '../commands/stream/xtrim.js';
+import { input as input_zremrangebyrank } from '../commands/sorted-set/zremrangebyrank.js';
 import { input as input_zcard } from '../commands/sorted-set/zcard.js';
 import {
 	type ZrangebyscoreOptions,
@@ -2695,6 +2737,7 @@ import {
 	input as input_zrange,
 } from '../commands/sorted-set/zrange.js';
 import { input as input_zincrby } from '../commands/sorted-set/zincrby.js';
+import { input as input_zremrangebylex } from '../commands/sorted-set/zremrangebylex.js';
 import {
 	type ZinterstoreOptions,
 	input as input_zinterstore,
