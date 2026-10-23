@@ -1,3 +1,4 @@
+import { doubleToNumber } from '../../reply-transformers/double-to-number.js';
 import type { Command } from '../../types.js';
 
 export type ZrangebyscoreOptions = {
@@ -114,7 +115,7 @@ export function input(
 				for (let index = 0; index < result.length; index += 2) {
 					transformed_result.push({
 						member: result[index],
-						score: Number(result[index + 1]),
+						score: doubleToNumber(result[index + 1]!),
 					});
 				}
 

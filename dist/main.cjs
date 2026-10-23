@@ -96,7 +96,7 @@ function unwrapRedisTransactionCommand(target, result) {
 }
 //#endregion
 //#region src/commands/set/srem.ts
-function input$88(key, arg1, ...args_rest) {
+function input$89(key, arg1, ...args_rest) {
 	const args = ["SREM", key];
 	if (typeof arg1 === "string" || typeof arg1 === "number") args.push(String(arg1), ...args_rest.map(String));
 	else args.push(...collectionToStringArray(arg1));
@@ -107,7 +107,7 @@ function input$88(key, arg1, ...args_rest) {
 }
 //#endregion
 //#region src/commands/set/smismember.ts
-function input$87(key, arg1, ...args_rest) {
+function input$88(key, arg1, ...args_rest) {
 	const args = ["SMISMEMBER", key];
 	if (typeof arg1 === "string" || typeof arg1 === "number") args.push(String(arg1), ...args_rest.map(String));
 	else args.push(...collectionToStringArray(arg1));
@@ -146,7 +146,7 @@ function replyTransform$1(reply) {
 * @returns A set with all the members of the set.
 * @see {@link https://redis.io/commands/smembers}
 */
-function input$86(key) {
+function input$87(key) {
 	return {
 		kind: "#schema",
 		args: ["SMEMBERS", key],
@@ -175,7 +175,7 @@ function replyTransform(reply) {
 * @returns `true` if the member is a member of the set stored at key, `false` otherwise.
 * @see {@link https://redis.io/commands/sismember}
 */
-function input$85(key, member) {
+function input$86(key, member) {
 	return {
 		kind: "#schema",
 		args: [
@@ -197,7 +197,7 @@ function input$85(key, member) {
 * @returns The cardinality (number of elements) of the set, or `0` if the key does not exist.
 * @see {@link https://redis.io/commands/scard}
 */
-function input$84(key) {
+function input$85(key) {
 	return {
 		kind: "#schema",
 		args: ["SCARD", key]
@@ -205,7 +205,7 @@ function input$84(key) {
 }
 //#endregion
 //#region src/commands/set/sadd.ts
-function input$83(key, arg1, ...args_rest) {
+function input$84(key, arg1, ...args_rest) {
 	const args = ["SADD", key];
 	if (typeof arg1 === "string" || typeof arg1 === "number") args.push(String(arg1), ...args_rest.map(String));
 	else args.push(...collectionToStringArray(arg1));
@@ -226,7 +226,7 @@ function input$83(key, arg1, ...args_rest) {
 * @returns `true` if all the keys were set, `false` if no key was set (at least one key already existed).
 * @see {@link https://redis.io/commands/msetnx}
 */
-function input$82(pairs) {
+function input$83(pairs) {
 	const args = ["MSETNX"];
 	for (const [key, value] of Object.entries(pairs)) args.push(key, String(value));
 	return {
@@ -249,7 +249,7 @@ function input$82(pairs) {
 * @returns Integer reply: 1 if the key was set, 0 if the key was not set.
 * @see {@link https://redis.io/commands/setnx}
 */
-function input$81(key, value) {
+function input$82(key, value) {
 	return {
 		kind: "#schema",
 		args: [
@@ -274,7 +274,7 @@ function input$81(key, value) {
 * @returns The value of key, or `null` when key does not exist.
 * @see {@link https://redis.io/commands/get}
 */
-function input$80(key) {
+function input$81(key) {
 	return {
 		kind: "#schema",
 		args: ["GET", key]
@@ -282,7 +282,7 @@ function input$80(key) {
 }
 //#endregion
 //#region src/commands/string/set.ts
-function input$79(key, value, options) {
+function input$80(key, value, options) {
 	const args_options = [];
 	if (options) {
 		if (options.NX) args_options.push("NX");
@@ -322,7 +322,7 @@ function input$79(key, value, options) {
 * @returns The length of the string after the append operation.
 * @see {@link https://redis.io/commands/append}
 */
-function input$78(key, value) {
+function input$79(key, value) {
 	return {
 		kind: "#schema",
 		args: [
@@ -345,7 +345,7 @@ function input$78(key, value) {
 * @returns The value of the key after incrementing it.
 * @see {@link https://redis.io/commands/incr}
 */
-function input$77(key) {
+function input$78(key) {
 	return {
 		kind: "#schema",
 		args: ["INCR", key]
@@ -365,7 +365,7 @@ function input$77(key) {
 * @returns The value of key after the increment.
 * @see {@link https://redis.io/commands/incrbyfloat}
 */
-function input$76(key, increment) {
+function input$77(key, increment) {
 	return {
 		kind: "#schema",
 		args: [
@@ -377,7 +377,7 @@ function input$76(key, increment) {
 }
 //#endregion
 //#region src/commands/string/mget.ts
-function input$75(...args) {
+function input$76(...args) {
 	return {
 		kind: "#schema",
 		args: ["MGET", ...args.flat()]
@@ -395,7 +395,7 @@ function input$75(...args) {
 * @returns The value of key, or `null` when key does not exist or its value is not a string.
 * @see {@link https://redis.io/commands/getdel}
 */
-function input$74(key) {
+function input$75(key) {
 	return {
 		kind: "#schema",
 		args: ["GETDEL", key]
@@ -412,7 +412,7 @@ function input$74(key) {
 * @returns "OK"
 * @see {@link https://redis.io/commands/mset}
 */
-function input$73(pairs) {
+function input$74(pairs) {
 	const args = ["MSET"];
 	for (const [key, value] of Object.entries(pairs)) args.push(key, String(value));
 	return {
@@ -434,7 +434,7 @@ function input$73(pairs) {
 * @returns The value of the key after the increment.
 * @see {@link https://redis.io/commands/incrby}
 */
-function input$72(key, increment) {
+function input$73(key, increment) {
 	return {
 		kind: "#schema",
 		args: [
@@ -461,7 +461,7 @@ function input$72(key, increment) {
 * @returns The length of the string after it was modified by the command.
 * @see {@link https://redis.io/commands/setrange}
 */
-function input$71(key, offset, value) {
+function input$72(key, offset, value) {
 	return {
 		kind: "#schema",
 		args: [
@@ -487,7 +487,7 @@ function input$71(key, offset, value) {
 * @returns The substring of the string value stored at key.
 * @see {@link https://redis.io/commands/substr}
 */
-function input$70(key, start, end) {
+function input$71(key, start, end) {
 	return {
 		kind: "#schema",
 		args: [
@@ -513,7 +513,7 @@ function input$70(key, start, end) {
 * @returns The old value stored at key, or `null` if key did not exist.
 * @see {@link https://redis.io/commands/getset}
 */
-function input$69(key, value) {
+function input$70(key, value) {
 	return {
 		kind: "#schema",
 		args: [
@@ -538,7 +538,7 @@ function input$69(key, value) {
 * @returns The value of the key after decrementing it.
 * @see {@link https://redis.io/commands/decrby}
 */
-function input$68(key, decrement) {
+function input$69(key, decrement) {
 	return {
 		kind: "#schema",
 		args: [
@@ -564,7 +564,7 @@ function input$68(key, decrement) {
 * @returns The substring.
 * @see {@link https://redis.io/commands/getrange}
 */
-function input$67(key, start, end) {
+function input$68(key, start, end) {
 	return {
 		kind: "#schema",
 		args: [
@@ -590,7 +590,7 @@ function input$67(key, start, end) {
 * @returns Simple string reply: OK.
 * @see {@link https://redis.io/commands/setex}
 */
-function input$66(key, seconds, value) {
+function input$67(key, seconds, value) {
 	return {
 		kind: "#schema",
 		args: [
@@ -615,7 +615,7 @@ function input$66(key, seconds, value) {
 * @returns The value of key, or `null` when key does not exist.
 * @see {@link https://redis.io/commands/getex}
 */
-function input$65(key, options) {
+function input$66(key, options) {
 	const args_options = [];
 	if (options) {
 		if (options.EX !== void 0) args_options.push("EX", String(options.EX));
@@ -645,7 +645,7 @@ function input$65(key, options) {
 * @returns The length of the string stored at key, or 0 when the key does not exist.
 * @see {@link https://redis.io/commands/strlen}
 */
-function input$64(key) {
+function input$65(key) {
 	return {
 		kind: "#schema",
 		args: ["STRLEN", key]
@@ -664,7 +664,7 @@ function input$64(key) {
 * @returns The value of the key after decrementing it.
 * @see {@link https://redis.io/commands/decr}
 */
-function input$63(key) {
+function input$64(key) {
 	return {
 		kind: "#schema",
 		args: ["DECR", key]
@@ -685,7 +685,7 @@ function input$63(key) {
 * @returns "OK" if the command was executed successfully.
 * @see {@link https://redis.io/commands/psetex}
 */
-function input$62(key, milliseconds, value) {
+function input$63(key, milliseconds, value) {
 	return {
 		kind: "#schema",
 		args: [
@@ -709,7 +709,7 @@ function input$62(key, milliseconds, value) {
 * @see {@link https://redis.io/commands/pexpire}
 * @see {@link https://redis.io/commands/expire}
 */
-function input$61(key, seconds, options) {
+function input$62(key, seconds, options) {
 	const args_options = [];
 	if (options) {
 		if (options.NX) args_options.push("NX");
@@ -747,7 +747,7 @@ function input$61(key, seconds, options) {
 * @see {@link https://redis.io/commands/pttl}
 * @see {@link https://redis.io/commands/ttl}
 */
-function input$60(key) {
+function input$61(key) {
 	return {
 		kind: "#schema",
 		args: ["PTTL", key]
@@ -770,7 +770,7 @@ function input$60(key) {
 * - `-2`: if the key does not exist.
 * @see {@link https://redis.io/commands/ttl}
 */
-function input$59(key) {
+function input$60(key) {
 	return {
 		kind: "#schema",
 		args: ["TTL", key]
@@ -790,7 +790,7 @@ function input$59(key) {
 * @returns Returns `true` if the timeout was set. Returns `false` if the timeout was not set; for example, the key doesn't exist, or the operation was skipped because of the provided arguments.
 * @see {@link https://redis.io/commands/expire}
 */
-function input$58(key, seconds, options) {
+function input$59(key, seconds, options) {
 	const args_options = [];
 	if (options) {
 		if (options.NX) args_options.push("NX");
@@ -819,7 +819,7 @@ function input$58(key, seconds, options) {
 * @returns The type of the value stored at the key, or `"none"` if the key does not exist.
 * @see {@link https://redis.io/commands/type}
 */
-function input$57(key) {
+function input$58(key) {
 	return {
 		kind: "#schema",
 		args: ["TYPE", key]
@@ -835,7 +835,7 @@ function input$57(key) {
 * @returns A set of keys matching pattern.
 * @see {@link https://redis.io/commands/keys}
 */
-function input$56(pattern) {
+function input$57(pattern) {
 	return {
 		kind: "#schema",
 		args: ["KEYS", pattern],
@@ -854,7 +854,7 @@ function input$56(pattern) {
 * @returns Whether the copy was successful.
 * @see {@link https://redis.io/commands/copy}
 */
-function input$55(source, destination, options) {
+function input$56(source, destination, options) {
 	const args = [
 		"COPY",
 		source,
@@ -883,7 +883,7 @@ function input$55(source, destination, options) {
 * @see {@link https://redis.io/commands/expireat}
 * @see {@link https://redis.io/commands/expire}
 */
-function input$54(key, timestamp, options) {
+function input$55(key, timestamp, options) {
 	const args_options = [];
 	if (options) {
 		if (options.NX) args_options.push("NX");
@@ -915,7 +915,7 @@ function input$54(key, timestamp, options) {
 * @see {@link https://redis.io/commands/pexpireat}
 * @see {@link https://redis.io/commands/expireat}
 */
-function input$53(key, timestamp, options) {
+function input$54(key, timestamp, options) {
 	const args_options = [];
 	if (options) {
 		if (options.NX) args_options.push("NX");
@@ -945,7 +945,7 @@ function input$53(key, timestamp, options) {
 * @returns Returns `true` if the timeout was removed. Returns `false` if the key does not exist or does not have an associated timeout.
 * @see {@link https://redis.io/commands/persist}
 */
-function input$52(key) {
+function input$53(key) {
 	return {
 		kind: "#schema",
 		args: ["PERSIST", key],
@@ -965,7 +965,7 @@ function input$52(key) {
 * - `-2` if the key does not exist.
 * @see {@link https://redis.io/commands/expiretime}
 */
-function input$51(key) {
+function input$52(key) {
 	return {
 		kind: "#schema",
 		args: ["EXPIRETIME", key]
@@ -983,7 +983,7 @@ function input$51(key) {
 * @returns "OK".
 * @see {@link https://redis.io/commands/rename}
 */
-function input$50(key, newkey) {
+function input$51(key, newkey) {
 	return {
 		kind: "#schema",
 		args: [
@@ -1005,7 +1005,7 @@ function input$50(key, newkey) {
 * @returns `1` if the key was renamed, or `0` if the destination key already exists.
 * @see {@link https://redis.io/commands/renamenx}
 */
-function input$49(key, newkey) {
+function input$50(key, newkey) {
 	return {
 		kind: "#schema",
 		args: [
@@ -1029,7 +1029,7 @@ function input$49(key, newkey) {
 * @see {@link https://redis.io/commands/pexpiretime}
 * @see {@link https://redis.io/commands/expiretime}
 */
-function input$48(key) {
+function input$49(key) {
 	return {
 		kind: "#schema",
 		args: ["PEXPIRETIME", key]
@@ -1037,7 +1037,7 @@ function input$48(key) {
 }
 //#endregion
 //#region src/commands/generic/del.ts
-function input$47(arg0, ...args_rest) {
+function input$48(arg0, ...args_rest) {
 	const args = ["DEL"];
 	if (typeof arg0 === "string") args.push(arg0, ...args_rest);
 	else args.push(...collectionToStringArray(arg0));
@@ -1048,7 +1048,7 @@ function input$47(arg0, ...args_rest) {
 }
 //#endregion
 //#region src/commands/generic/exists.ts
-function input$46(arg0, ...args_rest) {
+function input$47(arg0, ...args_rest) {
 	const args = ["EXISTS"];
 	if (typeof arg0 === "string") args.push(arg0, ...args_rest);
 	else args.push(...collectionToStringArray(arg0));
@@ -1059,7 +1059,7 @@ function input$46(arg0, ...args_rest) {
 }
 //#endregion
 //#region src/commands/list/rpush.ts
-function input$45(key, ...elements) {
+function input$46(key, ...elements) {
 	return {
 		kind: "#schema",
 		args: [
@@ -1071,7 +1071,7 @@ function input$45(key, ...elements) {
 }
 //#endregion
 //#region src/commands/list/lpop.ts
-function input$44(key, count) {
+function input$45(key, count) {
 	if (count !== void 0) return {
 		kind: "#schema",
 		args: [
@@ -1107,7 +1107,7 @@ function input$44(key, count) {
 * @returns The element being popped and pushed, or `null` if the source list is empty.
 * @see {@link https://redis.io/commands/rpoplpush}
 */
-function input$43(source, destination) {
+function input$44(source, destination) {
 	return {
 		kind: "#schema",
 		args: [
@@ -1119,7 +1119,7 @@ function input$43(source, destination) {
 }
 //#endregion
 //#region src/commands/list/rpushx.ts
-function input$42(key, ...elements) {
+function input$43(key, ...elements) {
 	return {
 		kind: "#schema",
 		args: [
@@ -1144,7 +1144,7 @@ function input$42(key, ...elements) {
 * @returns "OK" if successful.
 * @see {@link https://redis.io/commands/lset}
 */
-function input$41(key, index, element) {
+function input$42(key, index, element) {
 	return {
 		kind: "#schema",
 		args: [
@@ -1172,7 +1172,7 @@ function input$41(key, index, element) {
 * @returns The number of removed elements.
 * @see {@link https://redis.io/commands/lrem}
 */
-function input$40(key, count, element) {
+function input$41(key, count, element) {
 	return {
 		kind: "#schema",
 		args: [
@@ -1185,7 +1185,7 @@ function input$40(key, count, element) {
 }
 //#endregion
 //#region src/commands/list/lpush.ts
-function input$39(key, ...elements) {
+function input$40(key, ...elements) {
 	return {
 		kind: "#schema",
 		args: [
@@ -1197,7 +1197,7 @@ function input$39(key, ...elements) {
 }
 //#endregion
 //#region src/commands/list/lpushx.ts
-function input$38(key, ...elements) {
+function input$39(key, ...elements) {
 	return {
 		kind: "#schema",
 		args: [
@@ -1209,7 +1209,7 @@ function input$38(key, ...elements) {
 }
 //#endregion
 //#region src/commands/list/rpop.ts
-function input$37(key, count) {
+function input$38(key, count) {
 	if (count !== void 0) return {
 		kind: "#schema",
 		args: [
@@ -1246,7 +1246,7 @@ function input$37(key, count) {
 * @returns Array of elements in the specified range, or an empty array if the key doesn't exist.
 * @see {@link https://redis.io/commands/lrange}
 */
-function input$36(key, start, stop) {
+function input$37(key, start, stop) {
 	return {
 		kind: "#schema",
 		args: [
@@ -1269,7 +1269,7 @@ function input$36(key, start, stop) {
 * @returns The length of the list at key.
 * @see {@link https://redis.io/commands/llen}
 */
-function input$35(key) {
+function input$36(key) {
 	return {
 		kind: "#schema",
 		args: ["LLEN", key]
@@ -1290,7 +1290,7 @@ function input$35(key) {
 * @returns The length of the list after the insert operation, or 0 when the key doesn't exist, or -1 when the pivot wasn't found.
 * @see {@link https://redis.io/commands/linsert}
 */
-function input$34(key, element, options) {
+function input$35(key, element, options) {
 	return {
 		kind: "#schema",
 		args: [
@@ -1323,7 +1323,7 @@ function input$34(key, element, options) {
 * @returns "OK"
 * @see {@link https://redis.io/commands/ltrim}
 */
-function input$33(key, start, stop) {
+function input$34(key, start, stop) {
 	return {
 		kind: "#schema",
 		args: [
@@ -1348,7 +1348,7 @@ function input$33(key, start, stop) {
 * @returns The requested element, or `null` when index is out of range.
 * @see {@link https://redis.io/commands/lindex}
 */
-function input$32(key, index) {
+function input$33(key, index) {
 	return {
 		kind: "#schema",
 		args: [
@@ -1375,7 +1375,7 @@ function input$32(key, index) {
 * @returns The number of entries of the stream at key.
 * @see {@link https://redis.io/commands/xlen}
 */
-function input$31(key) {
+function input$32(key) {
 	return {
 		kind: "#schema",
 		args: ["XLEN", key]
@@ -1383,7 +1383,7 @@ function input$31(key) {
 }
 //#endregion
 //#region src/commands/stream/xdel.ts
-function input$30(key, ...ids) {
+function input$31(key, ...ids) {
 	return {
 		kind: "#schema",
 		args: [
@@ -1395,7 +1395,7 @@ function input$30(key, ...ids) {
 }
 //#endregion
 //#region src/commands/stream/xread.ts
-function input$29(arg0, arg1, arg2) {
+function input$30(arg0, arg1, arg2) {
 	let options;
 	const stream_keys = [];
 	const stream_ids = [];
@@ -1434,7 +1434,7 @@ function input$29(arg0, arg1, arg2) {
 }
 //#endregion
 //#region src/commands/stream/xadd.ts
-function input$28(key, id, pairs, options) {
+function input$29(key, id, pairs, options) {
 	const cmdArgs = ["XADD", key];
 	if (options) {
 		if (options.NOMKSTREAM) cmdArgs.push("NOMKSTREAM");
@@ -1478,7 +1478,7 @@ function input$28(key, id, pairs, options) {
 * @returns An array of stream entries matching the range.
 * @see {@link https://redis.io/commands/xrange}
 */
-function input$27(key, start, end, options) {
+function input$28(key, start, end, options) {
 	const args = [
 		"XRANGE",
 		key,
@@ -1516,7 +1516,7 @@ function input$27(key, start, end, options) {
 * @returns An array of stream entries matching the range.
 * @see {@link https://redis.io/commands/xrange}
 */
-function input$26(key, end, start, options) {
+function input$27(key, end, start, options) {
 	const args = [
 		"XREVRANGE",
 		key,
@@ -1539,7 +1539,7 @@ function input$26(key, end, start, options) {
 }
 //#endregion
 //#region src/commands/stream/xtrim.ts
-function input$25(key, strategy, threshold, options) {
+function input$26(key, strategy, threshold, options) {
 	const args = [
 		"XTRIM",
 		key,
@@ -1563,15 +1563,29 @@ function input$25(key, strategy, threshold, options) {
 * @returns The cardinality (number of members) of the sorted set, or 0 if the key doesn't exist.
 * @see {@link https://redis.io/commands/zcard}
 */
-function input$24(key) {
+function input$25(key) {
 	return {
 		kind: "#schema",
 		args: ["ZCARD", key]
 	};
 }
 //#endregion
+//#region src/reply-transformers/double-to-number.ts
+/**
+* Converts a double reply, which RESP2 sends as a bulk string, to a number.
+* @param reply The double as a string, where `inf` and `-inf` mean infinite values.
+* @returns The number, including `Infinity` and `-Infinity`.
+*/
+function doubleToNumber(reply) {
+	switch (reply) {
+		case "inf": return Infinity;
+		case "-inf": return -Infinity;
+		default: return Number(reply);
+	}
+}
+//#endregion
 //#region src/commands/sorted-set/zrangebyscore.ts
-function input$23(key, min, max, options) {
+function input$24(key, min, max, options) {
 	const args = [
 		"ZRANGEBYSCORE",
 		key,
@@ -1590,7 +1604,7 @@ function input$23(key, min, max, options) {
 				const transformed_result = [];
 				for (let index = 0; index < result.length; index += 2) transformed_result.push({
 					member: result[index],
-					score: Number(result[index + 1])
+					score: doubleToNumber(result[index + 1])
 				});
 				return transformed_result;
 			}
@@ -1609,7 +1623,7 @@ function input$23(key, min, max, options) {
 * @returns The score of the member (a double-precision floating point number), represented as a string, or `null` if member does not exist in the sorted set, or the key does not exist.
 * @see {@link https://redis.io/commands/zscore}
 */
-function input$22(key, member) {
+function input$23(key, member) {
 	return {
 		kind: "#schema",
 		args: [
@@ -1618,7 +1632,7 @@ function input$22(key, member) {
 			String(member)
 		],
 		replyTransform(result) {
-			return result ? Number(result) : null;
+			return result === null ? null : doubleToNumber(result);
 		}
 	};
 }
@@ -1639,7 +1653,7 @@ function input$22(key, member) {
 * @returns The number of elements in the specified score range.
 * @see {@link https://redis.io/commands/zcount}
 */
-function input$21(key, min, max) {
+function input$22(key, min, max) {
 	return {
 		kind: "#schema",
 		args: [
@@ -1652,7 +1666,7 @@ function input$21(key, min, max) {
 }
 //#endregion
 //#region src/commands/sorted-set/zadd.ts
-function input$20(key, arg1, arg2, arg3) {
+function input$21(key, arg1, arg2, arg3) {
 	const args = ["ZADD", key];
 	const pairs = [];
 	if (typeof arg1 === "number") pairs.push(String(arg1), String(arg2));
@@ -1671,14 +1685,14 @@ function input$20(key, arg1, arg2, arg3) {
 		kind: "#schema",
 		args,
 		replyTransform(result) {
-			if (typeof result === "string") return Number(result);
+			if (typeof result === "string") return doubleToNumber(result);
 			return result;
 		}
 	};
 }
 //#endregion
 //#region src/commands/sorted-set/zrank.ts
-function input$19(key, member, options) {
+function input$20(key, member, options) {
 	const args = [
 		"ZRANK",
 		key,
@@ -1694,7 +1708,7 @@ function input$19(key, member, options) {
 				const [rank, score] = result;
 				return {
 					rank,
-					score: Number(score)
+					score: doubleToNumber(score)
 				};
 			}
 			return result;
@@ -1703,7 +1717,7 @@ function input$19(key, member, options) {
 }
 //#endregion
 //#region src/commands/sorted-set/zrem.ts
-function input$18(key, arg1, ...args_rest) {
+function input$19(key, arg1, ...args_rest) {
 	const args = ["ZREM", key];
 	if (typeof arg1 === "string" || typeof arg1 === "number") args.push(String(arg1), ...args_rest.map(String));
 	else args.push(...collectionToStringArray(arg1));
@@ -1714,7 +1728,7 @@ function input$18(key, arg1, ...args_rest) {
 }
 //#endregion
 //#region src/commands/sorted-set/zrange.ts
-function input$17(key, start, stop, options) {
+function input$18(key, start, stop, options) {
 	const args = [
 		"ZRANGE",
 		key,
@@ -1735,12 +1749,43 @@ function input$17(key, start, stop, options) {
 				const transformed_result = [];
 				for (let index = 0; index < result.length; index += 2) transformed_result.push({
 					member: result[index],
-					score: Number(result[index + 1])
+					score: doubleToNumber(result[index + 1])
 				});
 				return transformed_result;
 			}
 			return result;
 		}
+	};
+}
+//#endregion
+//#region src/commands/sorted-set/zincrby.ts
+/**
+* Increments the score of `member` in the sorted set stored at `key` by `increment`.
+* If `member` does not exist in the sorted set, it is added with `increment` as its score (as if its previous score was `0.0`).
+* If `key` does not exist, a new sorted set with the specified `member` as its sole member is created.
+*
+* An error is returned when `key` exists but does not hold a sorted set.
+*
+* The `score` value should be the string representation of a numeric value, and accepts double precision floating point numbers.
+* It is possible to provide a negative value to decrement the score.
+* - Available since: 1.2.0.
+* - Time complexity: O(log(N)) where N is the number of elements in the sorted set.
+* @param key - The name of the key that holds the sorted set.
+* @param increment - The amount to add to the member's current score.
+* @param member - The member whose score to increment. It is added with the increment as its score if it does not exist.
+* @returns Bulk string reply: the new score of `member` as a double precision floating point number.
+* @see {@link https://redis.io/commands/zincrby}
+*/
+function input$17(key, increment, member) {
+	return {
+		kind: "#schema",
+		args: [
+			"ZINCRBY",
+			key,
+			String(increment),
+			String(member)
+		],
+		replyTransform: doubleToNumber
 	};
 }
 //#endregion
@@ -2115,10 +2160,10 @@ var RedisXTransactionUse = class {
 		return redis_transaction_command;
 	}
 	SREM(key, arg1, ...args_rest) {
-		return this.useCommand(input$88(key, arg1, ...args_rest));
+		return this.useCommand(input$89(key, arg1, ...args_rest));
 	}
 	SMISMEMBER(key, arg1, ...args_rest) {
-		return this.useCommand(input$87(key, arg1, ...args_rest));
+		return this.useCommand(input$88(key, arg1, ...args_rest));
 	}
 	/**
 	* Returns all the members of the set value stored at key.
@@ -2130,7 +2175,7 @@ var RedisXTransactionUse = class {
 	* @see {@link https://redis.io/commands/smembers}
 	*/
 	SMEMBERS(key) {
-		return this.useCommand(input$86(key));
+		return this.useCommand(input$87(key));
 	}
 	/**
 	* Returns if member is a member of the set stored at key.
@@ -2143,7 +2188,7 @@ var RedisXTransactionUse = class {
 	* @see {@link https://redis.io/commands/sismember}
 	*/
 	SISMEMBER(key, member) {
-		return this.useCommand(input$85(key, member));
+		return this.useCommand(input$86(key, member));
 	}
 	/**
 	* Returns the set cardinality (number of elements) of the set stored at key.
@@ -2155,10 +2200,10 @@ var RedisXTransactionUse = class {
 	* @see {@link https://redis.io/commands/scard}
 	*/
 	SCARD(key) {
-		return this.useCommand(input$84(key));
+		return this.useCommand(input$85(key));
 	}
 	SADD(key, arg1, ...args_rest) {
-		return this.useCommand(input$83(key, arg1, ...args_rest));
+		return this.useCommand(input$84(key, arg1, ...args_rest));
 	}
 	/**
 	* Sets the given keys to their respective values. MSETNX will not perform
@@ -2171,7 +2216,7 @@ var RedisXTransactionUse = class {
 	* @see {@link https://redis.io/commands/msetnx}
 	*/
 	MSETNX(pairs) {
-		return this.useCommand(input$82(pairs));
+		return this.useCommand(input$83(pairs));
 	}
 	/**
 	* Set key to hold string value if key does not exist. In that case, it is equal to SET.
@@ -2186,7 +2231,7 @@ var RedisXTransactionUse = class {
 	* @see {@link https://redis.io/commands/setnx}
 	*/
 	SETNX(key, value) {
-		return this.useCommand(input$81(key, value));
+		return this.useCommand(input$82(key, value));
 	}
 	/**
 	* Get the value of key.
@@ -2201,10 +2246,10 @@ var RedisXTransactionUse = class {
 	* @see {@link https://redis.io/commands/get}
 	*/
 	GET(key) {
-		return this.useCommand(input$80(key));
+		return this.useCommand(input$81(key));
 	}
 	SET(key, value, options) {
-		return this.useCommand(input$79(key, value, options));
+		return this.useCommand(input$80(key, value, options));
 	}
 	/**
 	* Append a value to a key.
@@ -2219,7 +2264,7 @@ var RedisXTransactionUse = class {
 	* @see {@link https://redis.io/commands/append}
 	*/
 	APPEND(key, value) {
-		return this.useCommand(input$78(key, value));
+		return this.useCommand(input$79(key, value));
 	}
 	/**
 	* Increments the number stored at key by one. If the key does not exist,
@@ -2233,7 +2278,7 @@ var RedisXTransactionUse = class {
 	* @see {@link https://redis.io/commands/incr}
 	*/
 	INCR(key) {
-		return this.useCommand(input$77(key));
+		return this.useCommand(input$78(key));
 	}
 	/**
 	* Increment the string representing a floating point number stored at key by the specified increment.
@@ -2248,10 +2293,10 @@ var RedisXTransactionUse = class {
 	* @see {@link https://redis.io/commands/incrbyfloat}
 	*/
 	INCRBYFLOAT(key, increment) {
-		return this.useCommand(input$76(key, increment));
+		return this.useCommand(input$77(key, increment));
 	}
 	MGET(...args) {
-		return this.useCommand(input$75(...args));
+		return this.useCommand(input$76(...args));
 	}
 	/**
 	* Get the value of key and delete the key. This command is similar to GET, except for the fact
@@ -2264,7 +2309,7 @@ var RedisXTransactionUse = class {
 	* @see {@link https://redis.io/commands/getdel}
 	*/
 	GETDEL(key) {
-		return this.useCommand(input$74(key));
+		return this.useCommand(input$75(key));
 	}
 	/**
 	* Sets the given keys to their respective values. MSET replaces existing values with new values, just as regular SET.
@@ -2276,7 +2321,7 @@ var RedisXTransactionUse = class {
 	* @see {@link https://redis.io/commands/mset}
 	*/
 	MSET(pairs) {
-		return this.useCommand(input$73(pairs));
+		return this.useCommand(input$74(pairs));
 	}
 	/**
 	* Increments the number stored at key by increment. If the key does not exist, it is set to 0 before performing the operation.
@@ -2291,7 +2336,7 @@ var RedisXTransactionUse = class {
 	* @see {@link https://redis.io/commands/incrby}
 	*/
 	INCRBY(key, increment) {
-		return this.useCommand(input$72(key, increment));
+		return this.useCommand(input$73(key, increment));
 	}
 	/**
 	* Overwrites part of the string stored at key, starting at the specified offset, for the entire length of value.
@@ -2309,7 +2354,7 @@ var RedisXTransactionUse = class {
 	* @see {@link https://redis.io/commands/setrange}
 	*/
 	SETRANGE(key, offset, value) {
-		return this.useCommand(input$71(key, offset, value));
+		return this.useCommand(input$72(key, offset, value));
 	}
 	/**
 	* Returns the substring of the string value stored at key, determined by the offsets start and end (both are inclusive).
@@ -2325,7 +2370,7 @@ var RedisXTransactionUse = class {
 	* @see {@link https://redis.io/commands/substr}
 	*/
 	SUBSTR(key, start, end) {
-		return this.useCommand(input$70(key, start, end));
+		return this.useCommand(input$71(key, start, end));
 	}
 	/**
 	* Atomically sets key to value and returns the old value stored at key.
@@ -2341,7 +2386,7 @@ var RedisXTransactionUse = class {
 	* @see {@link https://redis.io/commands/getset}
 	*/
 	GETSET(key, value) {
-		return this.useCommand(input$69(key, value));
+		return this.useCommand(input$70(key, value));
 	}
 	/**
 	* Reduces the value stored at the specified key by the specified decrement.
@@ -2357,7 +2402,7 @@ var RedisXTransactionUse = class {
 	* @see {@link https://redis.io/commands/decrby}
 	*/
 	DECRBY(key, decrement) {
-		return this.useCommand(input$68(key, decrement));
+		return this.useCommand(input$69(key, decrement));
 	}
 	/**
 	* Returns the substring of the string value stored at key, determined by the offsets start and end (both are inclusive).
@@ -2374,7 +2419,7 @@ var RedisXTransactionUse = class {
 	* @see {@link https://redis.io/commands/getrange}
 	*/
 	GETRANGE(key, start, end) {
-		return this.useCommand(input$67(key, start, end));
+		return this.useCommand(input$68(key, start, end));
 	}
 	/**
 	* Set key to hold the string value and set key to timeout after a given number of seconds.
@@ -2390,7 +2435,7 @@ var RedisXTransactionUse = class {
 	* @see {@link https://redis.io/commands/setex}
 	*/
 	SETEX(key, seconds, value) {
-		return this.useCommand(input$66(key, seconds, value));
+		return this.useCommand(input$67(key, seconds, value));
 	}
 	/**
 	* Get the value of key and optionally set its expiration.
@@ -2405,7 +2450,7 @@ var RedisXTransactionUse = class {
 	* @see {@link https://redis.io/commands/getex}
 	*/
 	GETEX(key, options) {
-		return this.useCommand(input$65(key, options));
+		return this.useCommand(input$66(key, options));
 	}
 	/**
 	* Returns the length of the string value stored at key.
@@ -2418,7 +2463,7 @@ var RedisXTransactionUse = class {
 	* @see {@link https://redis.io/commands/strlen}
 	*/
 	STRLEN(key) {
-		return this.useCommand(input$64(key));
+		return this.useCommand(input$65(key));
 	}
 	/**
 	* Decrements the number stored at key by one. If the key does not exist,
@@ -2432,7 +2477,7 @@ var RedisXTransactionUse = class {
 	* @see {@link https://redis.io/commands/decr}
 	*/
 	DECR(key) {
-		return this.useCommand(input$63(key));
+		return this.useCommand(input$64(key));
 	}
 	/**
 	* Set key to hold the string value and set key to timeout after a given number of milliseconds.
@@ -2448,7 +2493,7 @@ var RedisXTransactionUse = class {
 	* @see {@link https://redis.io/commands/psetex}
 	*/
 	PSETEX(key, milliseconds, value) {
-		return this.useCommand(input$62(key, milliseconds, value));
+		return this.useCommand(input$63(key, milliseconds, value));
 	}
 	/**
 	* This command works exactly like EXPIRE but the time to live of the key is specified in milliseconds instead of seconds.
@@ -2462,7 +2507,7 @@ var RedisXTransactionUse = class {
 	* @see {@link https://redis.io/commands/expire}
 	*/
 	PEXPIRE(key, seconds, options) {
-		return this.useCommand(input$61(key, seconds, options));
+		return this.useCommand(input$62(key, seconds, options));
 	}
 	/**
 	* Returns the remaining time to live of a key that has a timeout, in milliseconds.
@@ -2482,7 +2527,7 @@ var RedisXTransactionUse = class {
 	* @see {@link https://redis.io/commands/ttl}
 	*/
 	PTTL(key) {
-		return this.useCommand(input$60(key));
+		return this.useCommand(input$61(key));
 	}
 	/**
 	* Returns the remaining time to live of a key that has a timeout.
@@ -2500,7 +2545,7 @@ var RedisXTransactionUse = class {
 	* @see {@link https://redis.io/commands/ttl}
 	*/
 	TTL(key) {
-		return this.useCommand(input$59(key));
+		return this.useCommand(input$60(key));
 	}
 	/**
 	* Set a timeout on key.
@@ -2515,7 +2560,7 @@ var RedisXTransactionUse = class {
 	* @see {@link https://redis.io/commands/expire}
 	*/
 	EXPIRE(key, seconds, options) {
-		return this.useCommand(input$58(key, seconds, options));
+		return this.useCommand(input$59(key, seconds, options));
 	}
 	/**
 	* Returns the string representation of the type of the value stored at `key`.
@@ -2526,7 +2571,7 @@ var RedisXTransactionUse = class {
 	* @see {@link https://redis.io/commands/type}
 	*/
 	TYPE(key) {
-		return this.useCommand(input$57(key));
+		return this.useCommand(input$58(key));
 	}
 	/**
 	* Returns all keys matching pattern.
@@ -2537,7 +2582,7 @@ var RedisXTransactionUse = class {
 	* @see {@link https://redis.io/commands/keys}
 	*/
 	KEYS(pattern) {
-		return this.useCommand(input$56(pattern));
+		return this.useCommand(input$57(pattern));
 	}
 	/**
 	* Copy the value stored at the source key to the destination key.
@@ -2550,7 +2595,7 @@ var RedisXTransactionUse = class {
 	* @see {@link https://redis.io/commands/copy}
 	*/
 	COPY(source, destination, options) {
-		return this.useCommand(input$55(source, destination, options));
+		return this.useCommand(input$56(source, destination, options));
 	}
 	/**
 	* This command has the same effect and semantic as EXPIRE, but instead of specifying the number of seconds representing the TTL (time to live), it takes an absolute Unix timestamp (seconds since January 1, 1970).
@@ -2566,7 +2611,7 @@ var RedisXTransactionUse = class {
 	* @see {@link https://redis.io/commands/expire}
 	*/
 	EXPIREAT(key, timestamp, options) {
-		return this.useCommand(input$54(key, timestamp, options));
+		return this.useCommand(input$55(key, timestamp, options));
 	}
 	/**
 	* This command has the same effect and semantic as EXPIREAT, but the Unix time at which the key will expire is specified in milliseconds instead of seconds.
@@ -2580,7 +2625,7 @@ var RedisXTransactionUse = class {
 	* @see {@link https://redis.io/commands/expireat}
 	*/
 	PEXPIREAT(key, timestamp, options) {
-		return this.useCommand(input$53(key, timestamp, options));
+		return this.useCommand(input$54(key, timestamp, options));
 	}
 	/**
 	* Remove the existing timeout on key, turning the key from volatile (a key with an expire set) to persistent (a key that will never expire as no timeout is associated).
@@ -2592,7 +2637,7 @@ var RedisXTransactionUse = class {
 	* @see {@link https://redis.io/commands/persist}
 	*/
 	PERSIST(key) {
-		return this.useCommand(input$52(key));
+		return this.useCommand(input$53(key));
 	}
 	/**
 	* Returns the absolute Unix timestamp (since January 1, 1970) in seconds at which the given key will expire.
@@ -2606,7 +2651,7 @@ var RedisXTransactionUse = class {
 	* @see {@link https://redis.io/commands/expiretime}
 	*/
 	EXPIRETIME(key) {
-		return this.useCommand(input$51(key));
+		return this.useCommand(input$52(key));
 	}
 	/**
 	* Renames `key` to `newkey`. It returns an error when `key` does not exist. If `newkey` already exists it is overwritten.
@@ -2619,7 +2664,7 @@ var RedisXTransactionUse = class {
 	* @see {@link https://redis.io/commands/rename}
 	*/
 	RENAME(key, newkey) {
-		return this.useCommand(input$50(key, newkey));
+		return this.useCommand(input$51(key, newkey));
 	}
 	/**
 	* Renames `key` to `newkey` if `newkey` does not yet exist. It returns an error when `key` does not exist.
@@ -2632,7 +2677,7 @@ var RedisXTransactionUse = class {
 	* @see {@link https://redis.io/commands/renamenx}
 	*/
 	RENAMENX(key, newkey) {
-		return this.useCommand(input$49(key, newkey));
+		return this.useCommand(input$50(key, newkey));
 	}
 	/**
 	* PEXPIRETIME has the same semantic as EXPIRETIME, but returns the absolute Unix expiration timestamp in milliseconds instead of seconds.
@@ -2647,19 +2692,19 @@ var RedisXTransactionUse = class {
 	* @see {@link https://redis.io/commands/expiretime}
 	*/
 	PEXPIRETIME(key) {
-		return this.useCommand(input$48(key));
+		return this.useCommand(input$49(key));
 	}
 	DEL(arg0, ...args_rest) {
-		return this.useCommand(input$47(arg0, ...args_rest));
+		return this.useCommand(input$48(arg0, ...args_rest));
 	}
 	EXISTS(arg0, ...args_rest) {
-		return this.useCommand(input$46(arg0, ...args_rest));
+		return this.useCommand(input$47(arg0, ...args_rest));
 	}
 	RPUSH(key, ...elements) {
-		return this.useCommand(input$45(key, ...elements));
+		return this.useCommand(input$46(key, ...elements));
 	}
 	LPOP(key, count) {
-		return this.useCommand(input$44(key, count));
+		return this.useCommand(input$45(key, count));
 	}
 	/**
 	* Atomically returns and removes the last element (tail) of the list stored at source,
@@ -2682,10 +2727,10 @@ var RedisXTransactionUse = class {
 	* @see {@link https://redis.io/commands/rpoplpush}
 	*/
 	RPOPLPUSH(source, destination) {
-		return this.useCommand(input$43(source, destination));
+		return this.useCommand(input$44(source, destination));
 	}
 	RPUSHX(key, ...elements) {
-		return this.useCommand(input$42(key, ...elements));
+		return this.useCommand(input$43(key, ...elements));
 	}
 	/**
 	* Sets the list element at index to element. For more information on the index argument, see LINDEX.
@@ -2701,7 +2746,7 @@ var RedisXTransactionUse = class {
 	* @see {@link https://redis.io/commands/lset}
 	*/
 	LSET(key, index, element) {
-		return this.useCommand(input$41(key, index, element));
+		return this.useCommand(input$42(key, index, element));
 	}
 	/**
 	* Removes the first count occurrences of elements equal to element from the list stored at key.
@@ -2719,16 +2764,16 @@ var RedisXTransactionUse = class {
 	* @see {@link https://redis.io/commands/lrem}
 	*/
 	LREM(key, count, element) {
-		return this.useCommand(input$40(key, count, element));
+		return this.useCommand(input$41(key, count, element));
 	}
 	LPUSH(key, ...elements) {
-		return this.useCommand(input$39(key, ...elements));
+		return this.useCommand(input$40(key, ...elements));
 	}
 	LPUSHX(key, ...elements) {
-		return this.useCommand(input$38(key, ...elements));
+		return this.useCommand(input$39(key, ...elements));
 	}
 	RPOP(key, count) {
-		return this.useCommand(input$37(key, count));
+		return this.useCommand(input$38(key, count));
 	}
 	/**
 	* Returns the specified elements of the list stored at key. The offsets start and stop
@@ -2752,7 +2797,7 @@ var RedisXTransactionUse = class {
 	* @see {@link https://redis.io/commands/lrange}
 	*/
 	LRANGE(key, start, stop) {
-		return this.useCommand(input$36(key, start, stop));
+		return this.useCommand(input$37(key, start, stop));
 	}
 	/**
 	* Returns the length of the list stored at key. If key does not exist, it is interpreted as an empty list and 0 is returned.
@@ -2765,7 +2810,7 @@ var RedisXTransactionUse = class {
 	* @see {@link https://redis.io/commands/llen}
 	*/
 	LLEN(key) {
-		return this.useCommand(input$35(key));
+		return this.useCommand(input$36(key));
 	}
 	/**
 	* Inserts element in the list stored at key either before or after the reference value.
@@ -2781,7 +2826,7 @@ var RedisXTransactionUse = class {
 	* @see {@link https://redis.io/commands/linsert}
 	*/
 	LINSERT(key, element, options) {
-		return this.useCommand(input$34(key, element, options));
+		return this.useCommand(input$35(key, element, options));
 	}
 	/**
 	* Trim an existing list so that it will contain only the specified range of elements specified.
@@ -2804,7 +2849,7 @@ var RedisXTransactionUse = class {
 	* @see {@link https://redis.io/commands/ltrim}
 	*/
 	LTRIM(key, start, stop) {
-		return this.useCommand(input$33(key, start, stop));
+		return this.useCommand(input$34(key, start, stop));
 	}
 	/**
 	* Returns the element at index in the list stored at key.
@@ -2819,7 +2864,7 @@ var RedisXTransactionUse = class {
 	* @see {@link https://redis.io/commands/lindex}
 	*/
 	LINDEX(key, index) {
-		return this.useCommand(input$32(key, index));
+		return this.useCommand(input$33(key, index));
 	}
 	/**
 	* Returns the number of entries inside a stream. If the specified key does not exist
@@ -2837,16 +2882,16 @@ var RedisXTransactionUse = class {
 	* @see {@link https://redis.io/commands/xlen}
 	*/
 	XLEN(key) {
-		return this.useCommand(input$31(key));
+		return this.useCommand(input$32(key));
 	}
 	XDEL(key, ...ids) {
-		return this.useCommand(input$30(key, ...ids));
+		return this.useCommand(input$31(key, ...ids));
 	}
 	XREAD(arg0, arg1, arg2) {
-		return this.useCommand(input$29(arg0, arg1, arg2));
+		return this.useCommand(input$30(arg0, arg1, arg2));
 	}
 	XADD(key, id, pairs, options) {
-		return this.useCommand(input$28(key, id, pairs, options));
+		return this.useCommand(input$29(key, id, pairs, options));
 	}
 	/**
 	* Returns the stream entries matching a given range of IDs.
@@ -2870,7 +2915,7 @@ var RedisXTransactionUse = class {
 	* @see {@link https://redis.io/commands/xrange}
 	*/
 	XRANGE(key, start, end, options) {
-		return this.useCommand(input$27(key, start, end, options));
+		return this.useCommand(input$28(key, start, end, options));
 	}
 	/**
 	* This command is exactly like XRANGE, but with the notable difference of returning the entries in reverse order,
@@ -2888,10 +2933,10 @@ var RedisXTransactionUse = class {
 	* @see {@link https://redis.io/commands/xrange}
 	*/
 	XREVRANGE(key, end, start, options) {
-		return this.useCommand(input$26(key, end, start, options));
+		return this.useCommand(input$27(key, end, start, options));
 	}
 	XTRIM(key, strategy, threshold, options) {
-		return this.useCommand(input$25(key, strategy, threshold, options));
+		return this.useCommand(input$26(key, strategy, threshold, options));
 	}
 	/**
 	* Returns the sorted set cardinality (number of elements) of the sorted set stored at key.
@@ -2902,10 +2947,10 @@ var RedisXTransactionUse = class {
 	* @see {@link https://redis.io/commands/zcard}
 	*/
 	ZCARD(key) {
-		return this.useCommand(input$24(key));
+		return this.useCommand(input$25(key));
 	}
 	ZRANGEBYSCORE(key, min, max, options) {
-		return this.useCommand(input$23(key, min, max, options));
+		return this.useCommand(input$24(key, min, max, options));
 	}
 	/**
 	* Returns the score of member in the sorted set at key.
@@ -2917,7 +2962,7 @@ var RedisXTransactionUse = class {
 	* @see {@link https://redis.io/commands/zscore}
 	*/
 	ZSCORE(key, member) {
-		return this.useCommand(input$22(key, member));
+		return this.useCommand(input$23(key, member));
 	}
 	/**
 	* Returns the number of elements in the sorted set at key with a score between min and max.
@@ -2935,19 +2980,39 @@ var RedisXTransactionUse = class {
 	* @see {@link https://redis.io/commands/zcount}
 	*/
 	ZCOUNT(key, min, max) {
-		return this.useCommand(input$21(key, min, max));
+		return this.useCommand(input$22(key, min, max));
 	}
 	ZADD(key, arg1, arg2, arg3) {
-		return this.useCommand(input$20(key, arg1, arg2, arg3));
+		return this.useCommand(input$21(key, arg1, arg2, arg3));
 	}
 	ZRANK(key, member, options) {
-		return this.useCommand(input$19(key, member, options));
+		return this.useCommand(input$20(key, member, options));
 	}
 	ZREM(key, arg1, ...args_rest) {
-		return this.useCommand(input$18(key, arg1, ...args_rest));
+		return this.useCommand(input$19(key, arg1, ...args_rest));
 	}
 	ZRANGE(key, start, stop, options) {
-		return this.useCommand(input$17(key, start, stop, options));
+		return this.useCommand(input$18(key, start, stop, options));
+	}
+	/**
+	* Increments the score of `member` in the sorted set stored at `key` by `increment`.
+	* If `member` does not exist in the sorted set, it is added with `increment` as its score (as if its previous score was `0.0`).
+	* If `key` does not exist, a new sorted set with the specified `member` as its sole member is created.
+	*
+	* An error is returned when `key` exists but does not hold a sorted set.
+	*
+	* The `score` value should be the string representation of a numeric value, and accepts double precision floating point numbers.
+	* It is possible to provide a negative value to decrement the score.
+	* - Available since: 1.2.0.
+	* - Time complexity: O(log(N)) where N is the number of elements in the sorted set.
+	* @param key - The name of the key that holds the sorted set.
+	* @param increment - The amount to add to the member's current score.
+	* @param member - The member whose score to increment. It is added with the increment as its score if it does not exist.
+	* @returns Bulk string reply: the new score of `member` as a double precision floating point number.
+	* @see {@link https://redis.io/commands/zincrby}
+	*/
+	ZINCRBY(key, increment, member) {
+		return this.useCommand(input$17(key, increment, member));
 	}
 	ZINTERSTORE(destination, arg1, options) {
 		return this.useCommand(input$16(destination, arg1, options));
@@ -3197,10 +3262,10 @@ var RedisXTransaction = class {
 		return Object.assign(result, result_named);
 	}
 	SREM(key, arg1, ...args_rest) {
-		return this.useCommand(input$88(key, arg1, ...args_rest));
+		return this.useCommand(input$89(key, arg1, ...args_rest));
 	}
 	SMISMEMBER(key, arg1, ...args_rest) {
-		return this.useCommand(input$87(key, arg1, ...args_rest));
+		return this.useCommand(input$88(key, arg1, ...args_rest));
 	}
 	/**
 	* Returns all the members of the set value stored at key.
@@ -3212,7 +3277,7 @@ var RedisXTransaction = class {
 	* @see {@link https://redis.io/commands/smembers}
 	*/
 	SMEMBERS(key) {
-		return this.useCommand(input$86(key));
+		return this.useCommand(input$87(key));
 	}
 	/**
 	* Returns if member is a member of the set stored at key.
@@ -3225,7 +3290,7 @@ var RedisXTransaction = class {
 	* @see {@link https://redis.io/commands/sismember}
 	*/
 	SISMEMBER(key, member) {
-		return this.useCommand(input$85(key, member));
+		return this.useCommand(input$86(key, member));
 	}
 	/**
 	* Returns the set cardinality (number of elements) of the set stored at key.
@@ -3237,10 +3302,10 @@ var RedisXTransaction = class {
 	* @see {@link https://redis.io/commands/scard}
 	*/
 	SCARD(key) {
-		return this.useCommand(input$84(key));
+		return this.useCommand(input$85(key));
 	}
 	SADD(key, arg1, ...args_rest) {
-		return this.useCommand(input$83(key, arg1, ...args_rest));
+		return this.useCommand(input$84(key, arg1, ...args_rest));
 	}
 	/**
 	* Sets the given keys to their respective values. MSETNX will not perform
@@ -3253,7 +3318,7 @@ var RedisXTransaction = class {
 	* @see {@link https://redis.io/commands/msetnx}
 	*/
 	MSETNX(pairs) {
-		return this.useCommand(input$82(pairs));
+		return this.useCommand(input$83(pairs));
 	}
 	/**
 	* Set key to hold string value if key does not exist. In that case, it is equal to SET.
@@ -3268,7 +3333,7 @@ var RedisXTransaction = class {
 	* @see {@link https://redis.io/commands/setnx}
 	*/
 	SETNX(key, value) {
-		return this.useCommand(input$81(key, value));
+		return this.useCommand(input$82(key, value));
 	}
 	/**
 	* Get the value of key.
@@ -3283,10 +3348,10 @@ var RedisXTransaction = class {
 	* @see {@link https://redis.io/commands/get}
 	*/
 	GET(key) {
-		return this.useCommand(input$80(key));
+		return this.useCommand(input$81(key));
 	}
 	SET(key, value, options) {
-		return this.useCommand(input$79(key, value, options));
+		return this.useCommand(input$80(key, value, options));
 	}
 	/**
 	* Append a value to a key.
@@ -3301,7 +3366,7 @@ var RedisXTransaction = class {
 	* @see {@link https://redis.io/commands/append}
 	*/
 	APPEND(key, value) {
-		return this.useCommand(input$78(key, value));
+		return this.useCommand(input$79(key, value));
 	}
 	/**
 	* Increments the number stored at key by one. If the key does not exist,
@@ -3315,7 +3380,7 @@ var RedisXTransaction = class {
 	* @see {@link https://redis.io/commands/incr}
 	*/
 	INCR(key) {
-		return this.useCommand(input$77(key));
+		return this.useCommand(input$78(key));
 	}
 	/**
 	* Increment the string representing a floating point number stored at key by the specified increment.
@@ -3330,10 +3395,10 @@ var RedisXTransaction = class {
 	* @see {@link https://redis.io/commands/incrbyfloat}
 	*/
 	INCRBYFLOAT(key, increment) {
-		return this.useCommand(input$76(key, increment));
+		return this.useCommand(input$77(key, increment));
 	}
 	MGET(...args) {
-		return this.useCommand(input$75(...args));
+		return this.useCommand(input$76(...args));
 	}
 	/**
 	* Get the value of key and delete the key. This command is similar to GET, except for the fact
@@ -3346,7 +3411,7 @@ var RedisXTransaction = class {
 	* @see {@link https://redis.io/commands/getdel}
 	*/
 	GETDEL(key) {
-		return this.useCommand(input$74(key));
+		return this.useCommand(input$75(key));
 	}
 	/**
 	* Sets the given keys to their respective values. MSET replaces existing values with new values, just as regular SET.
@@ -3358,7 +3423,7 @@ var RedisXTransaction = class {
 	* @see {@link https://redis.io/commands/mset}
 	*/
 	MSET(pairs) {
-		return this.useCommand(input$73(pairs));
+		return this.useCommand(input$74(pairs));
 	}
 	/**
 	* Increments the number stored at key by increment. If the key does not exist, it is set to 0 before performing the operation.
@@ -3373,7 +3438,7 @@ var RedisXTransaction = class {
 	* @see {@link https://redis.io/commands/incrby}
 	*/
 	INCRBY(key, increment) {
-		return this.useCommand(input$72(key, increment));
+		return this.useCommand(input$73(key, increment));
 	}
 	/**
 	* Overwrites part of the string stored at key, starting at the specified offset, for the entire length of value.
@@ -3391,7 +3456,7 @@ var RedisXTransaction = class {
 	* @see {@link https://redis.io/commands/setrange}
 	*/
 	SETRANGE(key, offset, value) {
-		return this.useCommand(input$71(key, offset, value));
+		return this.useCommand(input$72(key, offset, value));
 	}
 	/**
 	* Returns the substring of the string value stored at key, determined by the offsets start and end (both are inclusive).
@@ -3407,7 +3472,7 @@ var RedisXTransaction = class {
 	* @see {@link https://redis.io/commands/substr}
 	*/
 	SUBSTR(key, start, end) {
-		return this.useCommand(input$70(key, start, end));
+		return this.useCommand(input$71(key, start, end));
 	}
 	/**
 	* Atomically sets key to value and returns the old value stored at key.
@@ -3423,7 +3488,7 @@ var RedisXTransaction = class {
 	* @see {@link https://redis.io/commands/getset}
 	*/
 	GETSET(key, value) {
-		return this.useCommand(input$69(key, value));
+		return this.useCommand(input$70(key, value));
 	}
 	/**
 	* Reduces the value stored at the specified key by the specified decrement.
@@ -3439,7 +3504,7 @@ var RedisXTransaction = class {
 	* @see {@link https://redis.io/commands/decrby}
 	*/
 	DECRBY(key, decrement) {
-		return this.useCommand(input$68(key, decrement));
+		return this.useCommand(input$69(key, decrement));
 	}
 	/**
 	* Returns the substring of the string value stored at key, determined by the offsets start and end (both are inclusive).
@@ -3456,7 +3521,7 @@ var RedisXTransaction = class {
 	* @see {@link https://redis.io/commands/getrange}
 	*/
 	GETRANGE(key, start, end) {
-		return this.useCommand(input$67(key, start, end));
+		return this.useCommand(input$68(key, start, end));
 	}
 	/**
 	* Set key to hold the string value and set key to timeout after a given number of seconds.
@@ -3472,7 +3537,7 @@ var RedisXTransaction = class {
 	* @see {@link https://redis.io/commands/setex}
 	*/
 	SETEX(key, seconds, value) {
-		return this.useCommand(input$66(key, seconds, value));
+		return this.useCommand(input$67(key, seconds, value));
 	}
 	/**
 	* Get the value of key and optionally set its expiration.
@@ -3487,7 +3552,7 @@ var RedisXTransaction = class {
 	* @see {@link https://redis.io/commands/getex}
 	*/
 	GETEX(key, options) {
-		return this.useCommand(input$65(key, options));
+		return this.useCommand(input$66(key, options));
 	}
 	/**
 	* Returns the length of the string value stored at key.
@@ -3500,7 +3565,7 @@ var RedisXTransaction = class {
 	* @see {@link https://redis.io/commands/strlen}
 	*/
 	STRLEN(key) {
-		return this.useCommand(input$64(key));
+		return this.useCommand(input$65(key));
 	}
 	/**
 	* Decrements the number stored at key by one. If the key does not exist,
@@ -3514,7 +3579,7 @@ var RedisXTransaction = class {
 	* @see {@link https://redis.io/commands/decr}
 	*/
 	DECR(key) {
-		return this.useCommand(input$63(key));
+		return this.useCommand(input$64(key));
 	}
 	/**
 	* Set key to hold the string value and set key to timeout after a given number of milliseconds.
@@ -3530,7 +3595,7 @@ var RedisXTransaction = class {
 	* @see {@link https://redis.io/commands/psetex}
 	*/
 	PSETEX(key, milliseconds, value) {
-		return this.useCommand(input$62(key, milliseconds, value));
+		return this.useCommand(input$63(key, milliseconds, value));
 	}
 	/**
 	* This command works exactly like EXPIRE but the time to live of the key is specified in milliseconds instead of seconds.
@@ -3544,7 +3609,7 @@ var RedisXTransaction = class {
 	* @see {@link https://redis.io/commands/expire}
 	*/
 	PEXPIRE(key, seconds, options) {
-		return this.useCommand(input$61(key, seconds, options));
+		return this.useCommand(input$62(key, seconds, options));
 	}
 	/**
 	* Returns the remaining time to live of a key that has a timeout, in milliseconds.
@@ -3564,7 +3629,7 @@ var RedisXTransaction = class {
 	* @see {@link https://redis.io/commands/ttl}
 	*/
 	PTTL(key) {
-		return this.useCommand(input$60(key));
+		return this.useCommand(input$61(key));
 	}
 	/**
 	* Returns the remaining time to live of a key that has a timeout.
@@ -3582,7 +3647,7 @@ var RedisXTransaction = class {
 	* @see {@link https://redis.io/commands/ttl}
 	*/
 	TTL(key) {
-		return this.useCommand(input$59(key));
+		return this.useCommand(input$60(key));
 	}
 	/**
 	* Set a timeout on key.
@@ -3597,7 +3662,7 @@ var RedisXTransaction = class {
 	* @see {@link https://redis.io/commands/expire}
 	*/
 	EXPIRE(key, seconds, options) {
-		return this.useCommand(input$58(key, seconds, options));
+		return this.useCommand(input$59(key, seconds, options));
 	}
 	/**
 	* Returns the string representation of the type of the value stored at `key`.
@@ -3608,7 +3673,7 @@ var RedisXTransaction = class {
 	* @see {@link https://redis.io/commands/type}
 	*/
 	TYPE(key) {
-		return this.useCommand(input$57(key));
+		return this.useCommand(input$58(key));
 	}
 	/**
 	* Returns all keys matching pattern.
@@ -3619,7 +3684,7 @@ var RedisXTransaction = class {
 	* @see {@link https://redis.io/commands/keys}
 	*/
 	KEYS(pattern) {
-		return this.useCommand(input$56(pattern));
+		return this.useCommand(input$57(pattern));
 	}
 	/**
 	* Copy the value stored at the source key to the destination key.
@@ -3632,7 +3697,7 @@ var RedisXTransaction = class {
 	* @see {@link https://redis.io/commands/copy}
 	*/
 	COPY(source, destination, options) {
-		return this.useCommand(input$55(source, destination, options));
+		return this.useCommand(input$56(source, destination, options));
 	}
 	/**
 	* This command has the same effect and semantic as EXPIRE, but instead of specifying the number of seconds representing the TTL (time to live), it takes an absolute Unix timestamp (seconds since January 1, 1970).
@@ -3648,7 +3713,7 @@ var RedisXTransaction = class {
 	* @see {@link https://redis.io/commands/expire}
 	*/
 	EXPIREAT(key, timestamp, options) {
-		return this.useCommand(input$54(key, timestamp, options));
+		return this.useCommand(input$55(key, timestamp, options));
 	}
 	/**
 	* This command has the same effect and semantic as EXPIREAT, but the Unix time at which the key will expire is specified in milliseconds instead of seconds.
@@ -3662,7 +3727,7 @@ var RedisXTransaction = class {
 	* @see {@link https://redis.io/commands/expireat}
 	*/
 	PEXPIREAT(key, timestamp, options) {
-		return this.useCommand(input$53(key, timestamp, options));
+		return this.useCommand(input$54(key, timestamp, options));
 	}
 	/**
 	* Remove the existing timeout on key, turning the key from volatile (a key with an expire set) to persistent (a key that will never expire as no timeout is associated).
@@ -3674,7 +3739,7 @@ var RedisXTransaction = class {
 	* @see {@link https://redis.io/commands/persist}
 	*/
 	PERSIST(key) {
-		return this.useCommand(input$52(key));
+		return this.useCommand(input$53(key));
 	}
 	/**
 	* Returns the absolute Unix timestamp (since January 1, 1970) in seconds at which the given key will expire.
@@ -3688,7 +3753,7 @@ var RedisXTransaction = class {
 	* @see {@link https://redis.io/commands/expiretime}
 	*/
 	EXPIRETIME(key) {
-		return this.useCommand(input$51(key));
+		return this.useCommand(input$52(key));
 	}
 	/**
 	* Renames `key` to `newkey`. It returns an error when `key` does not exist. If `newkey` already exists it is overwritten.
@@ -3701,7 +3766,7 @@ var RedisXTransaction = class {
 	* @see {@link https://redis.io/commands/rename}
 	*/
 	RENAME(key, newkey) {
-		return this.useCommand(input$50(key, newkey));
+		return this.useCommand(input$51(key, newkey));
 	}
 	/**
 	* Renames `key` to `newkey` if `newkey` does not yet exist. It returns an error when `key` does not exist.
@@ -3714,7 +3779,7 @@ var RedisXTransaction = class {
 	* @see {@link https://redis.io/commands/renamenx}
 	*/
 	RENAMENX(key, newkey) {
-		return this.useCommand(input$49(key, newkey));
+		return this.useCommand(input$50(key, newkey));
 	}
 	/**
 	* PEXPIRETIME has the same semantic as EXPIRETIME, but returns the absolute Unix expiration timestamp in milliseconds instead of seconds.
@@ -3729,19 +3794,19 @@ var RedisXTransaction = class {
 	* @see {@link https://redis.io/commands/expiretime}
 	*/
 	PEXPIRETIME(key) {
-		return this.useCommand(input$48(key));
+		return this.useCommand(input$49(key));
 	}
 	DEL(arg0, ...args_rest) {
-		return this.useCommand(input$47(arg0, ...args_rest));
+		return this.useCommand(input$48(arg0, ...args_rest));
 	}
 	EXISTS(arg0, ...args_rest) {
-		return this.useCommand(input$46(arg0, ...args_rest));
+		return this.useCommand(input$47(arg0, ...args_rest));
 	}
 	RPUSH(key, ...elements) {
-		return this.useCommand(input$45(key, ...elements));
+		return this.useCommand(input$46(key, ...elements));
 	}
 	LPOP(key, count) {
-		return this.useCommand(input$44(key, count));
+		return this.useCommand(input$45(key, count));
 	}
 	/**
 	* Atomically returns and removes the last element (tail) of the list stored at source,
@@ -3764,10 +3829,10 @@ var RedisXTransaction = class {
 	* @see {@link https://redis.io/commands/rpoplpush}
 	*/
 	RPOPLPUSH(source, destination) {
-		return this.useCommand(input$43(source, destination));
+		return this.useCommand(input$44(source, destination));
 	}
 	RPUSHX(key, ...elements) {
-		return this.useCommand(input$42(key, ...elements));
+		return this.useCommand(input$43(key, ...elements));
 	}
 	/**
 	* Sets the list element at index to element. For more information on the index argument, see LINDEX.
@@ -3783,7 +3848,7 @@ var RedisXTransaction = class {
 	* @see {@link https://redis.io/commands/lset}
 	*/
 	LSET(key, index, element) {
-		return this.useCommand(input$41(key, index, element));
+		return this.useCommand(input$42(key, index, element));
 	}
 	/**
 	* Removes the first count occurrences of elements equal to element from the list stored at key.
@@ -3801,16 +3866,16 @@ var RedisXTransaction = class {
 	* @see {@link https://redis.io/commands/lrem}
 	*/
 	LREM(key, count, element) {
-		return this.useCommand(input$40(key, count, element));
+		return this.useCommand(input$41(key, count, element));
 	}
 	LPUSH(key, ...elements) {
-		return this.useCommand(input$39(key, ...elements));
+		return this.useCommand(input$40(key, ...elements));
 	}
 	LPUSHX(key, ...elements) {
-		return this.useCommand(input$38(key, ...elements));
+		return this.useCommand(input$39(key, ...elements));
 	}
 	RPOP(key, count) {
-		return this.useCommand(input$37(key, count));
+		return this.useCommand(input$38(key, count));
 	}
 	/**
 	* Returns the specified elements of the list stored at key. The offsets start and stop
@@ -3834,7 +3899,7 @@ var RedisXTransaction = class {
 	* @see {@link https://redis.io/commands/lrange}
 	*/
 	LRANGE(key, start, stop) {
-		return this.useCommand(input$36(key, start, stop));
+		return this.useCommand(input$37(key, start, stop));
 	}
 	/**
 	* Returns the length of the list stored at key. If key does not exist, it is interpreted as an empty list and 0 is returned.
@@ -3847,7 +3912,7 @@ var RedisXTransaction = class {
 	* @see {@link https://redis.io/commands/llen}
 	*/
 	LLEN(key) {
-		return this.useCommand(input$35(key));
+		return this.useCommand(input$36(key));
 	}
 	/**
 	* Inserts element in the list stored at key either before or after the reference value.
@@ -3863,7 +3928,7 @@ var RedisXTransaction = class {
 	* @see {@link https://redis.io/commands/linsert}
 	*/
 	LINSERT(key, element, options) {
-		return this.useCommand(input$34(key, element, options));
+		return this.useCommand(input$35(key, element, options));
 	}
 	/**
 	* Trim an existing list so that it will contain only the specified range of elements specified.
@@ -3886,7 +3951,7 @@ var RedisXTransaction = class {
 	* @see {@link https://redis.io/commands/ltrim}
 	*/
 	LTRIM(key, start, stop) {
-		return this.useCommand(input$33(key, start, stop));
+		return this.useCommand(input$34(key, start, stop));
 	}
 	/**
 	* Returns the element at index in the list stored at key.
@@ -3901,7 +3966,7 @@ var RedisXTransaction = class {
 	* @see {@link https://redis.io/commands/lindex}
 	*/
 	LINDEX(key, index) {
-		return this.useCommand(input$32(key, index));
+		return this.useCommand(input$33(key, index));
 	}
 	/**
 	* Returns the number of entries inside a stream. If the specified key does not exist
@@ -3919,16 +3984,16 @@ var RedisXTransaction = class {
 	* @see {@link https://redis.io/commands/xlen}
 	*/
 	XLEN(key) {
-		return this.useCommand(input$31(key));
+		return this.useCommand(input$32(key));
 	}
 	XDEL(key, ...ids) {
-		return this.useCommand(input$30(key, ...ids));
+		return this.useCommand(input$31(key, ...ids));
 	}
 	XREAD(arg0, arg1, arg2) {
-		return this.useCommand(input$29(arg0, arg1, arg2));
+		return this.useCommand(input$30(arg0, arg1, arg2));
 	}
 	XADD(key, id, pairs, options) {
-		return this.useCommand(input$28(key, id, pairs, options));
+		return this.useCommand(input$29(key, id, pairs, options));
 	}
 	/**
 	* Returns the stream entries matching a given range of IDs.
@@ -3952,7 +4017,7 @@ var RedisXTransaction = class {
 	* @see {@link https://redis.io/commands/xrange}
 	*/
 	XRANGE(key, start, end, options) {
-		return this.useCommand(input$27(key, start, end, options));
+		return this.useCommand(input$28(key, start, end, options));
 	}
 	/**
 	* This command is exactly like XRANGE, but with the notable difference of returning the entries in reverse order,
@@ -3970,10 +4035,10 @@ var RedisXTransaction = class {
 	* @see {@link https://redis.io/commands/xrange}
 	*/
 	XREVRANGE(key, end, start, options) {
-		return this.useCommand(input$26(key, end, start, options));
+		return this.useCommand(input$27(key, end, start, options));
 	}
 	XTRIM(key, strategy, threshold, options) {
-		return this.useCommand(input$25(key, strategy, threshold, options));
+		return this.useCommand(input$26(key, strategy, threshold, options));
 	}
 	/**
 	* Returns the sorted set cardinality (number of elements) of the sorted set stored at key.
@@ -3984,10 +4049,10 @@ var RedisXTransaction = class {
 	* @see {@link https://redis.io/commands/zcard}
 	*/
 	ZCARD(key) {
-		return this.useCommand(input$24(key));
+		return this.useCommand(input$25(key));
 	}
 	ZRANGEBYSCORE(key, min, max, options) {
-		return this.useCommand(input$23(key, min, max, options));
+		return this.useCommand(input$24(key, min, max, options));
 	}
 	/**
 	* Returns the score of member in the sorted set at key.
@@ -3999,7 +4064,7 @@ var RedisXTransaction = class {
 	* @see {@link https://redis.io/commands/zscore}
 	*/
 	ZSCORE(key, member) {
-		return this.useCommand(input$22(key, member));
+		return this.useCommand(input$23(key, member));
 	}
 	/**
 	* Returns the number of elements in the sorted set at key with a score between min and max.
@@ -4017,19 +4082,39 @@ var RedisXTransaction = class {
 	* @see {@link https://redis.io/commands/zcount}
 	*/
 	ZCOUNT(key, min, max) {
-		return this.useCommand(input$21(key, min, max));
+		return this.useCommand(input$22(key, min, max));
 	}
 	ZADD(key, arg1, arg2, arg3) {
-		return this.useCommand(input$20(key, arg1, arg2, arg3));
+		return this.useCommand(input$21(key, arg1, arg2, arg3));
 	}
 	ZRANK(key, member, options) {
-		return this.useCommand(input$19(key, member, options));
+		return this.useCommand(input$20(key, member, options));
 	}
 	ZREM(key, arg1, ...args_rest) {
-		return this.useCommand(input$18(key, arg1, ...args_rest));
+		return this.useCommand(input$19(key, arg1, ...args_rest));
 	}
 	ZRANGE(key, start, stop, options) {
-		return this.useCommand(input$17(key, start, stop, options));
+		return this.useCommand(input$18(key, start, stop, options));
+	}
+	/**
+	* Increments the score of `member` in the sorted set stored at `key` by `increment`.
+	* If `member` does not exist in the sorted set, it is added with `increment` as its score (as if its previous score was `0.0`).
+	* If `key` does not exist, a new sorted set with the specified `member` as its sole member is created.
+	*
+	* An error is returned when `key` exists but does not hold a sorted set.
+	*
+	* The `score` value should be the string representation of a numeric value, and accepts double precision floating point numbers.
+	* It is possible to provide a negative value to decrement the score.
+	* - Available since: 1.2.0.
+	* - Time complexity: O(log(N)) where N is the number of elements in the sorted set.
+	* @param key - The name of the key that holds the sorted set.
+	* @param increment - The amount to add to the member's current score.
+	* @param member - The member whose score to increment. It is added with the increment as its score if it does not exist.
+	* @returns Bulk string reply: the new score of `member` as a double precision floating point number.
+	* @see {@link https://redis.io/commands/zincrby}
+	*/
+	ZINCRBY(key, increment, member) {
+		return this.useCommand(input$17(key, increment, member));
 	}
 	ZINTERSTORE(destination, arg1, options) {
 		return this.useCommand(input$16(destination, arg1, options));
@@ -4247,10 +4332,10 @@ var RedisXClient = class {
 		return new RedisXScript(this.redisClient, options);
 	}
 	SREM(key, arg1, ...args_rest) {
-		return this.useCommand(input$88(key, arg1, ...args_rest));
+		return this.useCommand(input$89(key, arg1, ...args_rest));
 	}
 	SMISMEMBER(key, arg1, ...args_rest) {
-		return this.useCommand(input$87(key, arg1, ...args_rest));
+		return this.useCommand(input$88(key, arg1, ...args_rest));
 	}
 	/**
 	* Returns all the members of the set value stored at key.
@@ -4262,7 +4347,7 @@ var RedisXClient = class {
 	* @see {@link https://redis.io/commands/smembers}
 	*/
 	SMEMBERS(key) {
-		return this.useCommand(input$86(key));
+		return this.useCommand(input$87(key));
 	}
 	/**
 	* Returns if member is a member of the set stored at key.
@@ -4275,7 +4360,7 @@ var RedisXClient = class {
 	* @see {@link https://redis.io/commands/sismember}
 	*/
 	SISMEMBER(key, member) {
-		return this.useCommand(input$85(key, member));
+		return this.useCommand(input$86(key, member));
 	}
 	/**
 	* Returns the set cardinality (number of elements) of the set stored at key.
@@ -4287,10 +4372,10 @@ var RedisXClient = class {
 	* @see {@link https://redis.io/commands/scard}
 	*/
 	SCARD(key) {
-		return this.useCommand(input$84(key));
+		return this.useCommand(input$85(key));
 	}
 	SADD(key, arg1, ...args_rest) {
-		return this.useCommand(input$83(key, arg1, ...args_rest));
+		return this.useCommand(input$84(key, arg1, ...args_rest));
 	}
 	/**
 	* Sets the given keys to their respective values. MSETNX will not perform
@@ -4303,7 +4388,7 @@ var RedisXClient = class {
 	* @see {@link https://redis.io/commands/msetnx}
 	*/
 	MSETNX(pairs) {
-		return this.useCommand(input$82(pairs));
+		return this.useCommand(input$83(pairs));
 	}
 	/**
 	* Set key to hold string value if key does not exist. In that case, it is equal to SET.
@@ -4318,7 +4403,7 @@ var RedisXClient = class {
 	* @see {@link https://redis.io/commands/setnx}
 	*/
 	SETNX(key, value) {
-		return this.useCommand(input$81(key, value));
+		return this.useCommand(input$82(key, value));
 	}
 	/**
 	* Get the value of key.
@@ -4333,10 +4418,10 @@ var RedisXClient = class {
 	* @see {@link https://redis.io/commands/get}
 	*/
 	GET(key) {
-		return this.useCommand(input$80(key));
+		return this.useCommand(input$81(key));
 	}
 	SET(key, value, options) {
-		return this.useCommand(input$79(key, value, options));
+		return this.useCommand(input$80(key, value, options));
 	}
 	/**
 	* Append a value to a key.
@@ -4351,7 +4436,7 @@ var RedisXClient = class {
 	* @see {@link https://redis.io/commands/append}
 	*/
 	APPEND(key, value) {
-		return this.useCommand(input$78(key, value));
+		return this.useCommand(input$79(key, value));
 	}
 	/**
 	* Increments the number stored at key by one. If the key does not exist,
@@ -4365,7 +4450,7 @@ var RedisXClient = class {
 	* @see {@link https://redis.io/commands/incr}
 	*/
 	INCR(key) {
-		return this.useCommand(input$77(key));
+		return this.useCommand(input$78(key));
 	}
 	/**
 	* Increment the string representing a floating point number stored at key by the specified increment.
@@ -4380,10 +4465,10 @@ var RedisXClient = class {
 	* @see {@link https://redis.io/commands/incrbyfloat}
 	*/
 	INCRBYFLOAT(key, increment) {
-		return this.useCommand(input$76(key, increment));
+		return this.useCommand(input$77(key, increment));
 	}
 	MGET(...args) {
-		return this.useCommand(input$75(...args));
+		return this.useCommand(input$76(...args));
 	}
 	/**
 	* Get the value of key and delete the key. This command is similar to GET, except for the fact
@@ -4396,7 +4481,7 @@ var RedisXClient = class {
 	* @see {@link https://redis.io/commands/getdel}
 	*/
 	GETDEL(key) {
-		return this.useCommand(input$74(key));
+		return this.useCommand(input$75(key));
 	}
 	/**
 	* Sets the given keys to their respective values. MSET replaces existing values with new values, just as regular SET.
@@ -4408,7 +4493,7 @@ var RedisXClient = class {
 	* @see {@link https://redis.io/commands/mset}
 	*/
 	MSET(pairs) {
-		return this.useCommand(input$73(pairs));
+		return this.useCommand(input$74(pairs));
 	}
 	/**
 	* Increments the number stored at key by increment. If the key does not exist, it is set to 0 before performing the operation.
@@ -4423,7 +4508,7 @@ var RedisXClient = class {
 	* @see {@link https://redis.io/commands/incrby}
 	*/
 	INCRBY(key, increment) {
-		return this.useCommand(input$72(key, increment));
+		return this.useCommand(input$73(key, increment));
 	}
 	/**
 	* Overwrites part of the string stored at key, starting at the specified offset, for the entire length of value.
@@ -4441,7 +4526,7 @@ var RedisXClient = class {
 	* @see {@link https://redis.io/commands/setrange}
 	*/
 	SETRANGE(key, offset, value) {
-		return this.useCommand(input$71(key, offset, value));
+		return this.useCommand(input$72(key, offset, value));
 	}
 	/**
 	* Returns the substring of the string value stored at key, determined by the offsets start and end (both are inclusive).
@@ -4457,7 +4542,7 @@ var RedisXClient = class {
 	* @see {@link https://redis.io/commands/substr}
 	*/
 	SUBSTR(key, start, end) {
-		return this.useCommand(input$70(key, start, end));
+		return this.useCommand(input$71(key, start, end));
 	}
 	/**
 	* Atomically sets key to value and returns the old value stored at key.
@@ -4473,7 +4558,7 @@ var RedisXClient = class {
 	* @see {@link https://redis.io/commands/getset}
 	*/
 	GETSET(key, value) {
-		return this.useCommand(input$69(key, value));
+		return this.useCommand(input$70(key, value));
 	}
 	/**
 	* Reduces the value stored at the specified key by the specified decrement.
@@ -4489,7 +4574,7 @@ var RedisXClient = class {
 	* @see {@link https://redis.io/commands/decrby}
 	*/
 	DECRBY(key, decrement) {
-		return this.useCommand(input$68(key, decrement));
+		return this.useCommand(input$69(key, decrement));
 	}
 	/**
 	* Returns the substring of the string value stored at key, determined by the offsets start and end (both are inclusive).
@@ -4506,7 +4591,7 @@ var RedisXClient = class {
 	* @see {@link https://redis.io/commands/getrange}
 	*/
 	GETRANGE(key, start, end) {
-		return this.useCommand(input$67(key, start, end));
+		return this.useCommand(input$68(key, start, end));
 	}
 	/**
 	* Set key to hold the string value and set key to timeout after a given number of seconds.
@@ -4522,7 +4607,7 @@ var RedisXClient = class {
 	* @see {@link https://redis.io/commands/setex}
 	*/
 	SETEX(key, seconds, value) {
-		return this.useCommand(input$66(key, seconds, value));
+		return this.useCommand(input$67(key, seconds, value));
 	}
 	/**
 	* Get the value of key and optionally set its expiration.
@@ -4537,7 +4622,7 @@ var RedisXClient = class {
 	* @see {@link https://redis.io/commands/getex}
 	*/
 	GETEX(key, options) {
-		return this.useCommand(input$65(key, options));
+		return this.useCommand(input$66(key, options));
 	}
 	/**
 	* Returns the length of the string value stored at key.
@@ -4550,7 +4635,7 @@ var RedisXClient = class {
 	* @see {@link https://redis.io/commands/strlen}
 	*/
 	STRLEN(key) {
-		return this.useCommand(input$64(key));
+		return this.useCommand(input$65(key));
 	}
 	/**
 	* Decrements the number stored at key by one. If the key does not exist,
@@ -4564,7 +4649,7 @@ var RedisXClient = class {
 	* @see {@link https://redis.io/commands/decr}
 	*/
 	DECR(key) {
-		return this.useCommand(input$63(key));
+		return this.useCommand(input$64(key));
 	}
 	/**
 	* Set key to hold the string value and set key to timeout after a given number of milliseconds.
@@ -4580,7 +4665,7 @@ var RedisXClient = class {
 	* @see {@link https://redis.io/commands/psetex}
 	*/
 	PSETEX(key, milliseconds, value) {
-		return this.useCommand(input$62(key, milliseconds, value));
+		return this.useCommand(input$63(key, milliseconds, value));
 	}
 	/**
 	* This command works exactly like EXPIRE but the time to live of the key is specified in milliseconds instead of seconds.
@@ -4594,7 +4679,7 @@ var RedisXClient = class {
 	* @see {@link https://redis.io/commands/expire}
 	*/
 	PEXPIRE(key, seconds, options) {
-		return this.useCommand(input$61(key, seconds, options));
+		return this.useCommand(input$62(key, seconds, options));
 	}
 	/**
 	* Returns the remaining time to live of a key that has a timeout, in milliseconds.
@@ -4614,7 +4699,7 @@ var RedisXClient = class {
 	* @see {@link https://redis.io/commands/ttl}
 	*/
 	PTTL(key) {
-		return this.useCommand(input$60(key));
+		return this.useCommand(input$61(key));
 	}
 	/**
 	* Returns the remaining time to live of a key that has a timeout.
@@ -4632,7 +4717,7 @@ var RedisXClient = class {
 	* @see {@link https://redis.io/commands/ttl}
 	*/
 	TTL(key) {
-		return this.useCommand(input$59(key));
+		return this.useCommand(input$60(key));
 	}
 	/**
 	* Set a timeout on key.
@@ -4647,7 +4732,7 @@ var RedisXClient = class {
 	* @see {@link https://redis.io/commands/expire}
 	*/
 	EXPIRE(key, seconds, options) {
-		return this.useCommand(input$58(key, seconds, options));
+		return this.useCommand(input$59(key, seconds, options));
 	}
 	/**
 	* Returns the string representation of the type of the value stored at `key`.
@@ -4658,7 +4743,7 @@ var RedisXClient = class {
 	* @see {@link https://redis.io/commands/type}
 	*/
 	TYPE(key) {
-		return this.useCommand(input$57(key));
+		return this.useCommand(input$58(key));
 	}
 	/**
 	* Returns all keys matching pattern.
@@ -4669,7 +4754,7 @@ var RedisXClient = class {
 	* @see {@link https://redis.io/commands/keys}
 	*/
 	KEYS(pattern) {
-		return this.useCommand(input$56(pattern));
+		return this.useCommand(input$57(pattern));
 	}
 	/**
 	* Copy the value stored at the source key to the destination key.
@@ -4682,7 +4767,7 @@ var RedisXClient = class {
 	* @see {@link https://redis.io/commands/copy}
 	*/
 	COPY(source, destination, options) {
-		return this.useCommand(input$55(source, destination, options));
+		return this.useCommand(input$56(source, destination, options));
 	}
 	/**
 	* This command has the same effect and semantic as EXPIRE, but instead of specifying the number of seconds representing the TTL (time to live), it takes an absolute Unix timestamp (seconds since January 1, 1970).
@@ -4698,7 +4783,7 @@ var RedisXClient = class {
 	* @see {@link https://redis.io/commands/expire}
 	*/
 	EXPIREAT(key, timestamp, options) {
-		return this.useCommand(input$54(key, timestamp, options));
+		return this.useCommand(input$55(key, timestamp, options));
 	}
 	/**
 	* This command has the same effect and semantic as EXPIREAT, but the Unix time at which the key will expire is specified in milliseconds instead of seconds.
@@ -4712,7 +4797,7 @@ var RedisXClient = class {
 	* @see {@link https://redis.io/commands/expireat}
 	*/
 	PEXPIREAT(key, timestamp, options) {
-		return this.useCommand(input$53(key, timestamp, options));
+		return this.useCommand(input$54(key, timestamp, options));
 	}
 	/**
 	* Remove the existing timeout on key, turning the key from volatile (a key with an expire set) to persistent (a key that will never expire as no timeout is associated).
@@ -4724,7 +4809,7 @@ var RedisXClient = class {
 	* @see {@link https://redis.io/commands/persist}
 	*/
 	PERSIST(key) {
-		return this.useCommand(input$52(key));
+		return this.useCommand(input$53(key));
 	}
 	/**
 	* Returns the absolute Unix timestamp (since January 1, 1970) in seconds at which the given key will expire.
@@ -4738,7 +4823,7 @@ var RedisXClient = class {
 	* @see {@link https://redis.io/commands/expiretime}
 	*/
 	EXPIRETIME(key) {
-		return this.useCommand(input$51(key));
+		return this.useCommand(input$52(key));
 	}
 	/**
 	* Renames `key` to `newkey`. It returns an error when `key` does not exist. If `newkey` already exists it is overwritten.
@@ -4751,7 +4836,7 @@ var RedisXClient = class {
 	* @see {@link https://redis.io/commands/rename}
 	*/
 	RENAME(key, newkey) {
-		return this.useCommand(input$50(key, newkey));
+		return this.useCommand(input$51(key, newkey));
 	}
 	/**
 	* Renames `key` to `newkey` if `newkey` does not yet exist. It returns an error when `key` does not exist.
@@ -4764,7 +4849,7 @@ var RedisXClient = class {
 	* @see {@link https://redis.io/commands/renamenx}
 	*/
 	RENAMENX(key, newkey) {
-		return this.useCommand(input$49(key, newkey));
+		return this.useCommand(input$50(key, newkey));
 	}
 	/**
 	* PEXPIRETIME has the same semantic as EXPIRETIME, but returns the absolute Unix expiration timestamp in milliseconds instead of seconds.
@@ -4779,19 +4864,19 @@ var RedisXClient = class {
 	* @see {@link https://redis.io/commands/expiretime}
 	*/
 	PEXPIRETIME(key) {
-		return this.useCommand(input$48(key));
+		return this.useCommand(input$49(key));
 	}
 	DEL(arg0, ...args_rest) {
-		return this.useCommand(input$47(arg0, ...args_rest));
+		return this.useCommand(input$48(arg0, ...args_rest));
 	}
 	EXISTS(arg0, ...args_rest) {
-		return this.useCommand(input$46(arg0, ...args_rest));
+		return this.useCommand(input$47(arg0, ...args_rest));
 	}
 	RPUSH(key, ...elements) {
-		return this.useCommand(input$45(key, ...elements));
+		return this.useCommand(input$46(key, ...elements));
 	}
 	LPOP(key, count) {
-		return this.useCommand(input$44(key, count));
+		return this.useCommand(input$45(key, count));
 	}
 	/**
 	* Atomically returns and removes the last element (tail) of the list stored at source,
@@ -4814,10 +4899,10 @@ var RedisXClient = class {
 	* @see {@link https://redis.io/commands/rpoplpush}
 	*/
 	RPOPLPUSH(source, destination) {
-		return this.useCommand(input$43(source, destination));
+		return this.useCommand(input$44(source, destination));
 	}
 	RPUSHX(key, ...elements) {
-		return this.useCommand(input$42(key, ...elements));
+		return this.useCommand(input$43(key, ...elements));
 	}
 	/**
 	* Sets the list element at index to element. For more information on the index argument, see LINDEX.
@@ -4833,7 +4918,7 @@ var RedisXClient = class {
 	* @see {@link https://redis.io/commands/lset}
 	*/
 	LSET(key, index, element) {
-		return this.useCommand(input$41(key, index, element));
+		return this.useCommand(input$42(key, index, element));
 	}
 	/**
 	* Removes the first count occurrences of elements equal to element from the list stored at key.
@@ -4851,16 +4936,16 @@ var RedisXClient = class {
 	* @see {@link https://redis.io/commands/lrem}
 	*/
 	LREM(key, count, element) {
-		return this.useCommand(input$40(key, count, element));
+		return this.useCommand(input$41(key, count, element));
 	}
 	LPUSH(key, ...elements) {
-		return this.useCommand(input$39(key, ...elements));
+		return this.useCommand(input$40(key, ...elements));
 	}
 	LPUSHX(key, ...elements) {
-		return this.useCommand(input$38(key, ...elements));
+		return this.useCommand(input$39(key, ...elements));
 	}
 	RPOP(key, count) {
-		return this.useCommand(input$37(key, count));
+		return this.useCommand(input$38(key, count));
 	}
 	/**
 	* Returns the specified elements of the list stored at key. The offsets start and stop
@@ -4884,7 +4969,7 @@ var RedisXClient = class {
 	* @see {@link https://redis.io/commands/lrange}
 	*/
 	LRANGE(key, start, stop) {
-		return this.useCommand(input$36(key, start, stop));
+		return this.useCommand(input$37(key, start, stop));
 	}
 	/**
 	* Returns the length of the list stored at key. If key does not exist, it is interpreted as an empty list and 0 is returned.
@@ -4897,7 +4982,7 @@ var RedisXClient = class {
 	* @see {@link https://redis.io/commands/llen}
 	*/
 	LLEN(key) {
-		return this.useCommand(input$35(key));
+		return this.useCommand(input$36(key));
 	}
 	/**
 	* Inserts element in the list stored at key either before or after the reference value.
@@ -4913,7 +4998,7 @@ var RedisXClient = class {
 	* @see {@link https://redis.io/commands/linsert}
 	*/
 	LINSERT(key, element, options) {
-		return this.useCommand(input$34(key, element, options));
+		return this.useCommand(input$35(key, element, options));
 	}
 	/**
 	* Trim an existing list so that it will contain only the specified range of elements specified.
@@ -4936,7 +5021,7 @@ var RedisXClient = class {
 	* @see {@link https://redis.io/commands/ltrim}
 	*/
 	LTRIM(key, start, stop) {
-		return this.useCommand(input$33(key, start, stop));
+		return this.useCommand(input$34(key, start, stop));
 	}
 	/**
 	* Returns the element at index in the list stored at key.
@@ -4951,7 +5036,7 @@ var RedisXClient = class {
 	* @see {@link https://redis.io/commands/lindex}
 	*/
 	LINDEX(key, index) {
-		return this.useCommand(input$32(key, index));
+		return this.useCommand(input$33(key, index));
 	}
 	/**
 	* Returns the number of entries inside a stream. If the specified key does not exist
@@ -4969,16 +5054,16 @@ var RedisXClient = class {
 	* @see {@link https://redis.io/commands/xlen}
 	*/
 	XLEN(key) {
-		return this.useCommand(input$31(key));
+		return this.useCommand(input$32(key));
 	}
 	XDEL(key, ...ids) {
-		return this.useCommand(input$30(key, ...ids));
+		return this.useCommand(input$31(key, ...ids));
 	}
 	XREAD(arg0, arg1, arg2) {
-		return this.useCommand(input$29(arg0, arg1, arg2));
+		return this.useCommand(input$30(arg0, arg1, arg2));
 	}
 	XADD(key, id, pairs, options) {
-		return this.useCommand(input$28(key, id, pairs, options));
+		return this.useCommand(input$29(key, id, pairs, options));
 	}
 	/**
 	* Returns the stream entries matching a given range of IDs.
@@ -5002,7 +5087,7 @@ var RedisXClient = class {
 	* @see {@link https://redis.io/commands/xrange}
 	*/
 	XRANGE(key, start, end, options) {
-		return this.useCommand(input$27(key, start, end, options));
+		return this.useCommand(input$28(key, start, end, options));
 	}
 	/**
 	* This command is exactly like XRANGE, but with the notable difference of returning the entries in reverse order,
@@ -5020,10 +5105,10 @@ var RedisXClient = class {
 	* @see {@link https://redis.io/commands/xrange}
 	*/
 	XREVRANGE(key, end, start, options) {
-		return this.useCommand(input$26(key, end, start, options));
+		return this.useCommand(input$27(key, end, start, options));
 	}
 	XTRIM(key, strategy, threshold, options) {
-		return this.useCommand(input$25(key, strategy, threshold, options));
+		return this.useCommand(input$26(key, strategy, threshold, options));
 	}
 	/**
 	* Returns the sorted set cardinality (number of elements) of the sorted set stored at key.
@@ -5034,10 +5119,10 @@ var RedisXClient = class {
 	* @see {@link https://redis.io/commands/zcard}
 	*/
 	ZCARD(key) {
-		return this.useCommand(input$24(key));
+		return this.useCommand(input$25(key));
 	}
 	ZRANGEBYSCORE(key, min, max, options) {
-		return this.useCommand(input$23(key, min, max, options));
+		return this.useCommand(input$24(key, min, max, options));
 	}
 	/**
 	* Returns the score of member in the sorted set at key.
@@ -5049,7 +5134,7 @@ var RedisXClient = class {
 	* @see {@link https://redis.io/commands/zscore}
 	*/
 	ZSCORE(key, member) {
-		return this.useCommand(input$22(key, member));
+		return this.useCommand(input$23(key, member));
 	}
 	/**
 	* Returns the number of elements in the sorted set at key with a score between min and max.
@@ -5067,19 +5152,39 @@ var RedisXClient = class {
 	* @see {@link https://redis.io/commands/zcount}
 	*/
 	ZCOUNT(key, min, max) {
-		return this.useCommand(input$21(key, min, max));
+		return this.useCommand(input$22(key, min, max));
 	}
 	ZADD(key, arg1, arg2, arg3) {
-		return this.useCommand(input$20(key, arg1, arg2, arg3));
+		return this.useCommand(input$21(key, arg1, arg2, arg3));
 	}
 	ZRANK(key, member, options) {
-		return this.useCommand(input$19(key, member, options));
+		return this.useCommand(input$20(key, member, options));
 	}
 	ZREM(key, arg1, ...args_rest) {
-		return this.useCommand(input$18(key, arg1, ...args_rest));
+		return this.useCommand(input$19(key, arg1, ...args_rest));
 	}
 	ZRANGE(key, start, stop, options) {
-		return this.useCommand(input$17(key, start, stop, options));
+		return this.useCommand(input$18(key, start, stop, options));
+	}
+	/**
+	* Increments the score of `member` in the sorted set stored at `key` by `increment`.
+	* If `member` does not exist in the sorted set, it is added with `increment` as its score (as if its previous score was `0.0`).
+	* If `key` does not exist, a new sorted set with the specified `member` as its sole member is created.
+	*
+	* An error is returned when `key` exists but does not hold a sorted set.
+	*
+	* The `score` value should be the string representation of a numeric value, and accepts double precision floating point numbers.
+	* It is possible to provide a negative value to decrement the score.
+	* - Available since: 1.2.0.
+	* - Time complexity: O(log(N)) where N is the number of elements in the sorted set.
+	* @param key - The name of the key that holds the sorted set.
+	* @param increment - The amount to add to the member's current score.
+	* @param member - The member whose score to increment. It is added with the increment as its score if it does not exist.
+	* @returns Bulk string reply: the new score of `member` as a double precision floating point number.
+	* @see {@link https://redis.io/commands/zincrby}
+	*/
+	ZINCRBY(key, increment, member) {
+		return this.useCommand(input$17(key, increment, member));
 	}
 	ZINTERSTORE(destination, arg1, options) {
 		return this.useCommand(input$16(destination, arg1, options));

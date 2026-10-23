@@ -1,3 +1,4 @@
+import { doubleToNumber } from '../../reply-transformers/double-to-number.js';
 import type { Command } from '../../types.js';
 
 /**
@@ -17,7 +18,7 @@ export function input(
 		kind: '#schema',
 		args: ['ZSCORE', key, String(member)],
 		replyTransform(result: string | null) {
-			return result ? Number(result) : null;
+			return result === null ? null : doubleToNumber(result);
 		},
 	};
 }

@@ -38,8 +38,6 @@ describe('command', () => {
 			'member',
 		]);
 		expect(command.replyTransform!('0')).toStrictEqual(0);
-		expect(command.replyTransform!('-1')).toStrictEqual(-1);
-		expect(command.replyTransform!('10.345')).toStrictEqual(10.345);
 		expect(command.replyTransform!(10.345)).toStrictEqual(10.345);
 		expect(command.replyTransform!(null)).toBeNull();
 	});

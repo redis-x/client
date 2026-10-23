@@ -1,3 +1,4 @@
+import { doubleToNumber } from '../../reply-transformers/double-to-number.js';
 import type { Command } from '../../types.js';
 
 export type ZrankOptionsWithscore = {
@@ -66,7 +67,7 @@ export function input(
 				const [rank, score] = result as [number, string];
 				return {
 					rank,
-					score: Number(score),
+					score: doubleToNumber(score),
 				};
 			}
 

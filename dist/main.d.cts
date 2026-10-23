@@ -1914,6 +1914,24 @@ declare class RedisXTransactionUse {
     score: number;
   }[]>;
   /**
+   * Increments the score of `member` in the sorted set stored at `key` by `increment`.
+   * If `member` does not exist in the sorted set, it is added with `increment` as its score (as if its previous score was `0.0`).
+   * If `key` does not exist, a new sorted set with the specified `member` as its sole member is created.
+   *
+   * An error is returned when `key` exists but does not hold a sorted set.
+   *
+   * The `score` value should be the string representation of a numeric value, and accepts double precision floating point numbers.
+   * It is possible to provide a negative value to decrement the score.
+   * - Available since: 1.2.0.
+   * - Time complexity: O(log(N)) where N is the number of elements in the sorted set.
+   * @param key - The name of the key that holds the sorted set.
+   * @param increment - The amount to add to the member's current score.
+   * @param member - The member whose score to increment. It is added with the increment as its score if it does not exist.
+   * @returns Bulk string reply: the new score of `member` as a double precision floating point number.
+   * @see {@link https://redis.io/commands/zincrby}
+   */
+  ZINCRBY(key: string, increment: number, member: string | number): RedisXTransactionCommand<number>;
+  /**
    * Computes the intersection of sorted sets given by the specified keys, and stores the result in destination. It is mandatory to provide the number of input keys (numkeys) before passing the input keys and the other (optional) arguments.
    * - Available since: 2.0.0.
    * - Time complexity: O(N*K)+O(M*log(M)).
@@ -3598,6 +3616,24 @@ declare class RedisXTransaction<L = [], C extends boolean = false, D = unknown> 
     score: number;
   }[]>, C, D>;
   /**
+   * Increments the score of `member` in the sorted set stored at `key` by `increment`.
+   * If `member` does not exist in the sorted set, it is added with `increment` as its score (as if its previous score was `0.0`).
+   * If `key` does not exist, a new sorted set with the specified `member` as its sole member is created.
+   *
+   * An error is returned when `key` exists but does not hold a sorted set.
+   *
+   * The `score` value should be the string representation of a numeric value, and accepts double precision floating point numbers.
+   * It is possible to provide a negative value to decrement the score.
+   * - Available since: 1.2.0.
+   * - Time complexity: O(log(N)) where N is the number of elements in the sorted set.
+   * @param key - The name of the key that holds the sorted set.
+   * @param increment - The amount to add to the member's current score.
+   * @param member - The member whose score to increment. It is added with the increment as its score if it does not exist.
+   * @returns Bulk string reply: the new score of `member` as a double precision floating point number.
+   * @see {@link https://redis.io/commands/zincrby}
+   */
+  ZINCRBY(key: string, increment: number, member: string | number): RedisXTransaction<AddToList<L, number>, C, D>;
+  /**
    * Computes the intersection of sorted sets given by the specified keys, and stores the result in destination. It is mandatory to provide the number of input keys (numkeys) before passing the input keys and the other (optional) arguments.
    * - Available since: 2.0.0.
    * - Time complexity: O(N*K)+O(M*log(M)).
@@ -5272,6 +5308,24 @@ export declare class RedisXClient {
     member: string;
     score: number;
   }[]>;
+  /**
+   * Increments the score of `member` in the sorted set stored at `key` by `increment`.
+   * If `member` does not exist in the sorted set, it is added with `increment` as its score (as if its previous score was `0.0`).
+   * If `key` does not exist, a new sorted set with the specified `member` as its sole member is created.
+   *
+   * An error is returned when `key` exists but does not hold a sorted set.
+   *
+   * The `score` value should be the string representation of a numeric value, and accepts double precision floating point numbers.
+   * It is possible to provide a negative value to decrement the score.
+   * - Available since: 1.2.0.
+   * - Time complexity: O(log(N)) where N is the number of elements in the sorted set.
+   * @param key - The name of the key that holds the sorted set.
+   * @param increment - The amount to add to the member's current score.
+   * @param member - The member whose score to increment. It is added with the increment as its score if it does not exist.
+   * @returns Bulk string reply: the new score of `member` as a double precision floating point number.
+   * @see {@link https://redis.io/commands/zincrby}
+   */
+  ZINCRBY(key: string, increment: number, member: string | number): Promise<number>;
   /**
    * Computes the intersection of sorted sets given by the specified keys, and stores the result in destination. It is mandatory to provide the number of input keys (numkeys) before passing the input keys and the other (optional) arguments.
    * - Available since: 2.0.0.

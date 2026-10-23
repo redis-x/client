@@ -1,3 +1,4 @@
+import { doubleToNumber } from '../../reply-transformers/double-to-number.js';
 import type { Command } from '../../types.js';
 
 export type ZaddOptions = {
@@ -176,7 +177,7 @@ export function input(
 		args,
 		replyTransform(result: string | number | null) {
 			if (typeof result === 'string') {
-				return Number(result);
+				return doubleToNumber(result);
 			}
 
 			return result;
