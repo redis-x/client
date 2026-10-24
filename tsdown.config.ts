@@ -8,8 +8,8 @@ export default defineConfig({
 	publint: true,
 	deps: {
 		neverBundle: ['redis'],
-		// Promisable is inlined into declarations, without a runtime dependency.
-		onlyBundle: ['type-fest'],
+		// Type-only packages are inlined into declarations, without a runtime dependency.
+		onlyBundle: ['@standard-schema/spec', 'type-fest'],
 	},
 	unused: {
 		level: 'error',

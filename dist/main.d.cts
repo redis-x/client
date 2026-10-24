@@ -1,4 +1,81 @@
 import { RedisClientType, RedisFunctions, RedisModules, RedisScripts } from "redis";
+//#region node_modules/@standard-schema/spec/dist/index.d.ts
+/** The Standard Typed interface. This is a base type extended by other specs. */
+interface StandardTypedV1<Input = unknown, Output = Input> {
+  /** The Standard properties. */
+  readonly "~standard": StandardTypedV1.Props<Input, Output>;
+}
+declare namespace StandardTypedV1 {
+  /** The Standard Typed properties interface. */
+  interface Props<Input = unknown, Output = Input> {
+    /** The version number of the standard. */
+    readonly version: 1;
+    /** The vendor name of the schema library. */
+    readonly vendor: string;
+    /** Inferred types associated with the schema. */
+    readonly types?: Types<Input, Output> | undefined;
+  }
+  /** The Standard Typed types interface. */
+  interface Types<Input = unknown, Output = Input> {
+    /** The input type of the schema. */
+    readonly input: Input;
+    /** The output type of the schema. */
+    readonly output: Output;
+  }
+  /** Infers the input type of a Standard Typed. */
+  type InferInput<Schema extends StandardTypedV1> = NonNullable<Schema["~standard"]["types"]>["input"];
+  /** Infers the output type of a Standard Typed. */
+  type InferOutput<Schema extends StandardTypedV1> = NonNullable<Schema["~standard"]["types"]>["output"];
+}
+/** The Standard Schema interface. */
+interface StandardSchemaV1<Input = unknown, Output = Input> {
+  /** The Standard Schema properties. */
+  readonly "~standard": StandardSchemaV1.Props<Input, Output>;
+}
+declare namespace StandardSchemaV1 {
+  /** The Standard Schema properties interface. */
+  interface Props<Input = unknown, Output = Input> extends StandardTypedV1.Props<Input, Output> {
+    /** Validates unknown input values. */
+    readonly validate: (value: unknown, options?: StandardSchemaV1.Options | undefined) => Result<Output> | Promise<Result<Output>>;
+  }
+  /** The result interface of the validate function. */
+  type Result<Output> = SuccessResult<Output> | FailureResult;
+  /** The result interface if validation succeeds. */
+  interface SuccessResult<Output> {
+    /** The typed output value. */
+    readonly value: Output;
+    /** A falsy value for `issues` indicates success. */
+    readonly issues?: undefined;
+  }
+  interface Options {
+    /** Explicit support for additional vendor-specific parameters, if needed. */
+    readonly libraryOptions?: Record<string, unknown> | undefined;
+  }
+  /** The result interface if validation fails. */
+  interface FailureResult {
+    /** The issues of failed validation. */
+    readonly issues: ReadonlyArray<Issue>;
+  }
+  /** The issue interface of the failure output. */
+  interface Issue {
+    /** The error message of the issue. */
+    readonly message: string;
+    /** The path of the issue, if any. */
+    readonly path?: ReadonlyArray<PropertyKey | PathSegment> | undefined;
+  }
+  /** The path segment interface of the issue. */
+  interface PathSegment {
+    /** The key representing a path segment. */
+    readonly key: PropertyKey;
+  }
+  /** The Standard types interface. */
+  interface Types<Input = unknown, Output = Input> extends StandardTypedV1.Types<Input, Output> {}
+  /** Infers the input type of a Standard. */
+  type InferInput<Schema extends StandardTypedV1> = StandardTypedV1.InferInput<Schema>;
+  /** Infers the output type of a Standard. */
+  type InferOutput<Schema extends StandardTypedV1> = StandardTypedV1.InferOutput<Schema>;
+}
+//#endregion
 //#region src/types.d.ts
 type RedisClient = RedisClientType<RedisModules, RedisFunctions, RedisScripts>;
 type Command<T = unknown> = {
@@ -8,16 +85,46 @@ type Command<T = unknown> = {
 };
 //#endregion
 //#region src/script.d.ts
+type RedisXScriptInputOptions<I> = {
+  /** Converts `execute()` arguments to script arguments. */
+  inputValidator?: (value: I) => (string | number)[];
+  inputSchema?: never;
+} | {
+  /**
+   * Standard Schema that validates `execute()` arguments and converts them to script arguments.
+   * Its input must be an array or a tuple.
+   */
+  inputSchema: StandardSchemaV1<I, readonly (string | number)[]>;
+  inputValidator?: never;
+};
+type RedisXScriptOutputOptions<O> = {
+  /** Converts the script result. */
+  outputValidator?: (value: unknown) => O;
+  outputSchema?: never;
+} | {
+  /** Standard Schema that validates and converts the script result. */
+  outputSchema: StandardSchemaV1<unknown, O>;
+  outputValidator?: never;
+};
 type RedisXScriptOptions<I = string[], O = unknown> = {
   code: string;
   keys?: string[];
-  inputValidator?: (value: I) => (string | number)[];
-  outputValidator?: (value: unknown) => O;
-};
-declare class RedisXScript<I extends any[] = string[], O = unknown> {
+} & RedisXScriptInputOptions<I> & RedisXScriptOutputOptions<O>;
+export declare class RedisXScriptValidationError extends Error {
+  override readonly name = "RedisXScriptValidationError";
+  /** Whether the `execute()` arguments or the script result failed validation. */
+  readonly target: "input" | "output";
+  /** Issues reported by the schema. */
+  readonly issues: readonly StandardSchemaV1.Issue[];
+  /**
+   * @param target Whether the `execute()` arguments or the script result failed validation.
+   * @param issues Issues reported by the schema.
+   */
+  constructor(target: "input" | "output", issues: readonly StandardSchemaV1.Issue[]);
+}
+declare class RedisXScript<I extends readonly unknown[] = string[], O = unknown> {
   #private;
   constructor(redisClient: RedisClient, options: RedisXScriptOptions<I, O>);
-  private load;
   execute(...args: I): Promise<O>;
   executeWithKeys(keys: string[], ...args: I): Promise<O>;
 }
@@ -6146,7 +6253,7 @@ export declare class RedisXClient {
   createScript(code: string, keys: string[]): RedisXScript<string[], unknown>;
   createScript<O = unknown>(code: string, outputValidator: (value: unknown) => O): RedisXScript<string[], O>;
   createScript<O = unknown>(code: string, keys: string[], outputValidator: (value: unknown) => O): RedisXScript<string[], O>;
-  createScript<I extends any[] = string[], O = unknown>(options: RedisXScriptOptions<I, O>): RedisXScript<I, O>;
+  createScript<I extends readonly unknown[] = string[], O = unknown>(options: RedisXScriptOptions<I, O>): RedisXScript<I, O>;
   /**
    * This command is similar to `SINTER`, but instead of returning the result set, it returns just the cardinality of the result.
    * Returns the cardinality of the set which would result from the intersection of all the given sets.

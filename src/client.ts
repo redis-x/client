@@ -42,16 +42,10 @@ export class RedisXClient {
 		keys: string[],
 		outputValidator: (value: unknown) => O,
 	): RedisXScript<string[], O>;
-	createScript<
-		// oxlint-disable-next-line @typescript-eslint/no-explicit-any
-		I extends any[] = string[],
-		O = unknown,
-	>(options: RedisXScriptOptions<I, O>): RedisXScript<I, O>;
-	createScript<
-		// oxlint-disable-next-line @typescript-eslint/no-explicit-any
-		I extends any[] = string[],
-		O = unknown,
-	>(
+	createScript<I extends readonly unknown[] = string[], O = unknown>(
+		options: RedisXScriptOptions<I, O>,
+	): RedisXScript<I, O>;
+	createScript<I extends readonly unknown[] = string[], O = unknown>(
 		arg_0: string | RedisXScriptOptions<I, O>,
 		arg_1?: string[] | ((value: unknown) => O),
 		arg_2?: (value: unknown) => O,
