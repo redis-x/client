@@ -302,6 +302,29 @@ await script.execute([ 123 ]); // Type error
 
 With input validation, you can transform function arguments from any complex object into strings array that Redis server expects. This makes it more convenient to call Redis scripts from TypeScript code.
 
+#### Standard Schema
+
+Instead of validator functions, you can pass any [Standard Schema](https://standardschema.dev) (Valibot, Zod, ArkType and others) as `inputSchema` and `outputSchema`. Types of `execute()` arguments and result are inferred from the schemas, so the previous example doesn't need a helper:
+
+```typescript
+import * as v from 'valibot';
+
+const script = client.createScript({
+  code: 'return redis.call("KEYS", ARGV[1])',
+  inputSchema: v.tuple([v.string()]),
+  outputSchema: v.pipe(
+    v.array(v.string()),
+    v.transform((value) => new Set(value)),
+  ),
+});
+
+const keys = await script.execute('user:*'); // Set<string>
+```
+
+- The input schema receives `execute()` arguments as an array, so its input must be an array or a tuple; other schemas are a type error. Its output must be an array of strings or numbers.
+- For each side, pass either a validator or a schema, not both. You can mix them, such as `inputSchema` with `outputValidator`.
+- When a schema reports issues, `execute()` throws `RedisXScriptValidationError` with `target` (`'input'` or `'output'`) and `issues`. Invalid input is rejected before the script is sent to Redis.
+
 ### Available commands
 
 The `redis-x` client is more a proof of concept than a complete implementation. It currently supports a subset of Redis commands, but the full support for all commands is planned.

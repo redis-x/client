@@ -1,14 +1,31 @@
 Object.defineProperty(exports, Symbol.toStringTag, { value: "Module" });
 //#region src/script.ts
+var RedisXScriptValidationError = class extends Error {
+	name = "RedisXScriptValidationError";
+	target;
+	issues;
+	constructor(target, issues) {
+		super(`Script ${target} failed schema validation: ${issues.map((issue) => issue.message).join("; ")}`);
+		this.target = target;
+		this.issues = issues;
+	}
+};
+async function validate(schema, value, target) {
+	const result = await schema["~standard"].validate(value);
+	if (result.issues) throw new RedisXScriptValidationError(target, result.issues);
+	return result.value;
+}
 var RedisXScript = class {
 	#redisClient;
 	#options;
 	#sha = null;
 	constructor(redisClient, options) {
+		if (options.inputValidator && options.inputSchema) throw new TypeError("Pass either inputValidator or inputSchema, not both.");
+		if (options.outputValidator && options.outputSchema) throw new TypeError("Pass either outputValidator or outputSchema, not both.");
 		this.#redisClient = redisClient;
 		this.#options = options;
 	}
-	async load() {
+	async #load() {
 		const result = await this.#redisClient.sendCommand([
 			"SCRIPT",
 			"LOAD",
@@ -22,20 +39,34 @@ var RedisXScript = class {
 		return this.executeWithKeys(this.#options.keys ?? [], ...args);
 	}
 	async executeWithKeys(keys, ...args) {
-		this.#sha ??= await this.load();
+		const script_args = await this.#convertInput(args);
+		const result = await this.#evalsha(keys, script_args);
+		return await this.#convertOutput(result);
+	}
+	async #convertInput(args) {
+		if (this.#options.inputSchema) return (await validate(this.#options.inputSchema, args, "input")).map(String);
+		if (this.#options.inputValidator) return this.#options.inputValidator(args).map(String);
+		return args;
+	}
+	async #convertOutput(result) {
+		if (this.#options.outputSchema) return await validate(this.#options.outputSchema, result, "output");
+		if (this.#options.outputValidator) return this.#options.outputValidator(result);
+		return result;
+	}
+	async #evalsha(keys, args) {
+		this.#sha ??= await this.#load();
 		try {
-			const result = await this.#redisClient.sendCommand([
+			return await this.#redisClient.sendCommand([
 				"EVALSHA",
 				this.#sha,
 				String(keys.length),
 				...keys,
-				...this.#options.inputValidator ? this.#options.inputValidator(args).map(String) : args
+				...args
 			]);
-			return this.#options.outputValidator ? this.#options.outputValidator(result) : result;
 		} catch (error) {
 			if (error instanceof Error && error.message.startsWith("NOSCRIPT")) {
 				this.#sha = null;
-				return this.executeWithKeys(keys, ...args);
+				return this.#evalsha(keys, args);
 			}
 			throw error;
 		}
@@ -3205,4 +3236,5 @@ var RedisXClient = class {
 };
 //#endregion
 exports.RedisXClient = RedisXClient;
+exports.RedisXScriptValidationError = RedisXScriptValidationError;
 exports.stringBulkToObject = stringBulkToObject;

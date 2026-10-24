@@ -1,6 +1,6 @@
 {
 	"name": "@redis-x/client",
-	"version": "0.4.0",
+	"version": "0.4.1",
 	"description": "Enhanced redis client built on top of \"redis\" package.",
 	"publishConfig": {
 		"access": "public"
@@ -28,6 +28,7 @@
 	"devDependencies": {
 		"@biomejs/biome": "2.5.4",
 		"@kirick/lint": "0.4.1",
+		"@standard-schema/spec": "1.1.0",
 		"@types/bun": "1.4.2",
 		"eslint": "10.7.0",
 		"oxc-parser": "0.76.0",
