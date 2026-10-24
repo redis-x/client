@@ -2824,10 +2824,15 @@ var RedisXTransaction = class {
 };
 //#endregion
 //#region src/client.ts
+const REDIS_X_CLIENT_SYMBOL = Symbol.for("@redis-x/client");
 var RedisXClient = class {
 	redisClient;
+	"~x" = REDIS_X_CLIENT_SYMBOL;
 	constructor(redisClient) {
 		this.redisClient = redisClient;
+	}
+	get "~redisClient"() {
+		return this.redisClient;
 	}
 	async sendCommand(command, ...args) {
 		return await this.redisClient.sendCommand([command, ...args.map(String)]);
@@ -3234,4 +3239,17 @@ var RedisXClient = class {
 	}
 };
 //#endregion
-export { RedisXClient, RedisXScriptValidationError, stringBulkToObject };
+//#region src/clients.ts
+const REDIS_X_CLIENTS = /* @__PURE__ */ new WeakMap();
+function isRedisXClient(client) {
+	return client["~x"] === REDIS_X_CLIENT_SYMBOL;
+}
+function getRedisXClient(redisClient) {
+	if (isRedisXClient(redisClient)) return redisClient;
+	if (REDIS_X_CLIENTS.has(redisClient)) return REDIS_X_CLIENTS.get(redisClient);
+	const client = new RedisXClient(redisClient);
+	REDIS_X_CLIENTS.set(redisClient, client);
+	return client;
+}
+//#endregion
+export { RedisXClient, RedisXScriptValidationError, getRedisXClient, stringBulkToObject };
