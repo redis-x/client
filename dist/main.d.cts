@@ -6246,6 +6246,8 @@ declare class RedisXTransaction<L = [], C extends boolean = false, D = unknown> 
 export declare class RedisXClient {
   private redisClient;
   constructor(redisClient: RedisClient);
+  /** The `redis` client this RedisX client wraps, for features it doesn't cover, such as Pub/Sub. */
+  get "~redisClient"(): RedisClient;
   sendCommand<T extends string>(command: T, ...args: (string | number)[]): Promise<unknown>;
   private useCommand;
   createTransaction(): RedisXTransaction<[], false, unknown>;
@@ -8903,5 +8905,14 @@ export declare class RedisXClient {
    */
   EVALSHA_RO(sha1: string, keys: (string | number)[], args?: (string | number)[]): Promise<unknown>;
 }
+//#endregion
+//#region src/clients.d.ts
+/**
+ * Returns a `RedisXClient` instance for the given `RedisClient`.
+ *
+ * If `RedisXClient` instance already exists for that given `RedisClient`, it is returned from the cache, not created anew.
+ * A `RedisXClient` is returned as is.
+ */
+export declare function getRedisXClient(redisClient: RedisClient | RedisXClient): RedisXClient;
 //#endregion
 export type { RedisXScript, RedisXTransaction };

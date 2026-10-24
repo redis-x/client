@@ -5,8 +5,23 @@ import { RedisXTransaction } from './transaction.js';
 import type { Command, RedisClient } from './types.js';
 import type { Collection } from './utils.js';
 
+/** Marks RedisX clients. Registered globally, so every copy of this package shares it. */
+export const REDIS_X_CLIENT_SYMBOL: unique symbol =
+	Symbol.for('@redis-x/client');
+
 export class RedisXClient {
+	/**
+	 * Marks this object as a RedisX client, including clients from other copies of this package.
+	 * @internal
+	 */
+	readonly '~x': typeof REDIS_X_CLIENT_SYMBOL = REDIS_X_CLIENT_SYMBOL;
+
 	constructor(private redisClient: RedisClient) {}
+
+	/** The `redis` client this RedisX client wraps, for features it doesn't cover, such as Pub/Sub. */
+	get '~redisClient'(): RedisClient {
+		return this.redisClient;
+	}
 
 	async sendCommand<T extends string>(
 		command: T,
