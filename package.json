@@ -61,9 +61,13 @@
 	},
 	"keywords": [
 		"redis",
-		"client",
+		"redis-x",
+		"redis-client",
+		"typescript",
+		"type-safe",
 		"transaction",
-		"multi"
+		"lua",
+		"standard-schema"
 	],
 	"author": "Daniil Kirichenko (https://twitter.com/kirickme)",
 	"license": "MIT",
