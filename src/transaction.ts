@@ -3235,7 +3235,7 @@ export class RedisXTransaction<
 	 */
 	HSET(
 		key: string,
-		field: string,
+		field: string | number,
 		value: string | number,
 	): RedisXTransaction<AddToList<L, number>, C, D>;
 	/**
@@ -3255,7 +3255,7 @@ export class RedisXTransaction<
 
 	HSET(
 		key: string,
-		arg1: string | Record<string, string | number>,
+		arg1: string | number | Record<string, string | number>,
 		arg2?: string | number,
 	) {
 		return this.useCommand(input_hset(key, arg1, arg2));
@@ -3326,7 +3326,7 @@ export class RedisXTransaction<
 	 */
 	HGET(
 		key: string,
-		field: string,
+		field: string | number,
 	): RedisXTransaction<AddToList<L, string | null>, C, D> {
 		return this.useCommand(input_hget(key, field));
 	}
@@ -3425,7 +3425,7 @@ export class RedisXTransaction<
 	 */
 	HMSET(
 		key: string,
-		field: string,
+		field: string | number,
 		value: string | number,
 	): RedisXTransaction<AddToList<L, 'OK'>, C, D>;
 	/**
@@ -3448,7 +3448,7 @@ export class RedisXTransaction<
 
 	HMSET(
 		key: string,
-		arg1: string | Record<string, string | number>,
+		arg1: string | number | Record<string, string | number>,
 		arg2?: string | number,
 	): RedisXTransaction<AddToList<L, 'OK'>, C, D> {
 		return this.useCommand(input_hmset(key, arg1, arg2));
@@ -3469,7 +3469,7 @@ export class RedisXTransaction<
 	 */
 	HMGET(
 		key: string,
-		fields: string[],
+		fields: Collection<string | number>,
 	): RedisXTransaction<AddToList<L, (string | null)[]>, C, D>;
 	/**
 	 * Returns the values associated with the specified fields in the hash stored at key.
@@ -3486,14 +3486,15 @@ export class RedisXTransaction<
 	 */
 	HMGET(
 		key: string,
-		...fields: string[]
+		...fields: (string | number)[]
 	): RedisXTransaction<AddToList<L, (string | null)[]>, C, D>;
 
 	HMGET(
 		key: string,
-		...fields: (string | string[])[]
+		arg1: string | number | Collection<string | number>,
+		...args_rest: (string | number)[]
 	): RedisXTransaction<AddToList<L, (string | null)[]>, C, D> {
-		return this.useCommand(input_hmget(key, ...fields));
+		return this.useCommand(input_hmget(key, arg1, ...args_rest));
 	}
 
 	/**
@@ -3803,7 +3804,7 @@ export class RedisXTransaction<
 	 */
 	HSTRLEN(
 		key: string,
-		field: string,
+		field: string | number,
 	): RedisXTransaction<AddToList<L, number>, C, D> {
 		return this.useCommand(input_hstrlen(key, field));
 	}
@@ -3902,7 +3903,7 @@ export class RedisXTransaction<
 	 */
 	HSETNX(
 		key: string,
-		field: string,
+		field: string | number,
 		value: string | number,
 	): RedisXTransaction<AddToList<L, boolean>, C, D> {
 		return this.useCommand(input_hsetnx(key, field, value));

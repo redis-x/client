@@ -1,6 +1,6 @@
 {
 	"name": "@redis-x/client",
-	"version": "0.4.2",
+	"version": "0.4.3",
 	"description": "Enhanced redis client built on top of \"redis\" package.",
 	"publishConfig": {
 		"access": "public"
@@ -61,9 +61,13 @@
 	},
 	"keywords": [
 		"redis",
-		"client",
+		"redis-x",
+		"redis-client",
+		"typescript",
+		"type-safe",
 		"transaction",
-		"multi"
+		"lua",
+		"standard-schema"
 	],
 	"author": "Daniil Kirichenko (https://twitter.com/kirickme)",
 	"license": "MIT",

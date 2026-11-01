@@ -2986,7 +2986,7 @@ export class RedisXTransactionUse {
 	 */
 	HSET(
 		key: string,
-		field: string,
+		field: string | number,
 		value: string | number,
 	): RedisXTransactionCommand<number>;
 	/**
@@ -3006,7 +3006,7 @@ export class RedisXTransactionUse {
 
 	HSET(
 		key: string,
-		arg1: string | Record<string, string | number>,
+		arg1: string | number | Record<string, string | number>,
 		arg2?: string | number,
 	) {
 		return this.useCommand(input_hset(key, arg1, arg2));
@@ -3073,7 +3073,10 @@ export class RedisXTransactionUse {
 	 * @returns The value associated with field in the hash stored at key or null.
 	 * @see {@link https://redis.io/commands/hget}
 	 */
-	HGET(key: string, field: string): RedisXTransactionCommand<string | null> {
+	HGET(
+		key: string,
+		field: string | number,
+	): RedisXTransactionCommand<string | null> {
 		return this.useCommand(input_hget(key, field));
 	}
 
@@ -3171,7 +3174,7 @@ export class RedisXTransactionUse {
 	 */
 	HMSET(
 		key: string,
-		field: string,
+		field: string | number,
 		value: string | number,
 	): RedisXTransactionCommand<'OK'>;
 	/**
@@ -3194,7 +3197,7 @@ export class RedisXTransactionUse {
 
 	HMSET(
 		key: string,
-		arg1: string | Record<string, string | number>,
+		arg1: string | number | Record<string, string | number>,
 		arg2?: string | number,
 	): RedisXTransactionCommand<'OK'> {
 		return this.useCommand(input_hmset(key, arg1, arg2));
@@ -3215,7 +3218,7 @@ export class RedisXTransactionUse {
 	 */
 	HMGET(
 		key: string,
-		fields: string[],
+		fields: Collection<string | number>,
 	): RedisXTransactionCommand<(string | null)[]>;
 	/**
 	 * Returns the values associated with the specified fields in the hash stored at key.
@@ -3232,14 +3235,15 @@ export class RedisXTransactionUse {
 	 */
 	HMGET(
 		key: string,
-		...fields: string[]
+		...fields: (string | number)[]
 	): RedisXTransactionCommand<(string | null)[]>;
 
 	HMGET(
 		key: string,
-		...fields: (string | string[])[]
+		arg1: string | number | Collection<string | number>,
+		...args_rest: (string | number)[]
 	): RedisXTransactionCommand<(string | null)[]> {
-		return this.useCommand(input_hmget(key, ...fields));
+		return this.useCommand(input_hmget(key, arg1, ...args_rest));
 	}
 
 	/**
@@ -3529,7 +3533,10 @@ export class RedisXTransactionUse {
 	 * @returns The string length of the value associated with the field, or zero when the field isn't present in the hash or the key doesn't exist at all.
 	 * @see {@link https://redis.io/commands/hstrlen}
 	 */
-	HSTRLEN(key: string, field: string): RedisXTransactionCommand<number> {
+	HSTRLEN(
+		key: string,
+		field: string | number,
+	): RedisXTransactionCommand<number> {
 		return this.useCommand(input_hstrlen(key, field));
 	}
 
@@ -3627,7 +3634,7 @@ export class RedisXTransactionUse {
 	 */
 	HSETNX(
 		key: string,
-		field: string,
+		field: string | number,
 		value: string | number,
 	): RedisXTransactionCommand<boolean> {
 		return this.useCommand(input_hsetnx(key, field, value));

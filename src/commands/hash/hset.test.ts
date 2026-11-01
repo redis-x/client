@@ -10,6 +10,12 @@ describe('command', () => {
 		expect(command.replyTransform).toBeUndefined();
 	});
 
+	test('inline pair with number field', () => {
+		const command = input('key', 123, 'red');
+
+		expect(command.args).toStrictEqual(['HSET', 'key', '123', 'red']);
+	});
+
 	test('object', () => {
 		const command = input('key', {
 			apple: 'red',

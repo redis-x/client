@@ -11,9 +11,9 @@ import type { Command } from '../../types.js';
  * @returns The string length of the value associated with the field, or zero when the field isn't present in the hash or the key doesn't exist at all.
  * @see {@link https://redis.io/commands/hstrlen}
  */
-export function input(key: string, field: string): Command<number> {
+export function input(key: string, field: string | number): Command<number> {
 	return {
 		kind: '#schema',
-		args: ['HSTRLEN', key, field],
+		args: ['HSTRLEN', key, String(field)],
 	};
 }

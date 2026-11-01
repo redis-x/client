@@ -1,4 +1,5 @@
 import type { Command } from '../../types.js';
+import { type Collection, collectionToStringArray } from '../../utils.js';
 
 /**
  * Returns the values associated with the specified fields in the hash stored at key.
@@ -13,7 +14,10 @@ import type { Command } from '../../types.js';
  * @returns Array of values associated with the given fields, in the same order as they are requested.
  * @see {@link https://redis.io/commands/hmget}
  */
-declare function _command(key: string, fields: string[]): (string | null)[];
+declare function _command(
+	key: string,
+	fields: Collection<string | number>,
+): (string | null)[];
 
 /**
  * Returns the values associated with the specified fields in the hash stored at key.
@@ -28,15 +32,27 @@ declare function _command(key: string, fields: string[]): (string | null)[];
  * @returns Array of values associated with the given fields, in the same order as they are requested.
  * @see {@link https://redis.io/commands/hmget}
  */
-declare function _command(key: string, ...fields: string[]): (string | null)[];
+declare function _command(
+	key: string,
+	...fields: (string | number)[]
+): (string | null)[];
 
 // eslint-disable-next-line jsdoc/require-jsdoc
 export function input(
 	key: string,
-	...fields: (string | string[])[]
+	arg1: string | number | Collection<string | number>,
+	...args_rest: (string | number)[]
 ): Command<(string | null)[]> {
+	const args = ['HMGET', key];
+
+	if (typeof arg1 === 'string' || typeof arg1 === 'number') {
+		args.push(String(arg1), ...args_rest.map(String));
+	} else {
+		args.push(...collectionToStringArray(arg1));
+	}
+
 	return {
 		kind: '#schema',
-		args: ['HMGET', key, ...fields.flat()],
+		args,
 	};
 }

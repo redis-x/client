@@ -16,12 +16,12 @@ import type { Command } from '../../types.js';
  */
 export function input(
 	key: string,
-	field: string,
+	field: string | number,
 	value: string | number,
 ): Command<boolean> {
 	return {
 		kind: '#schema',
-		args: ['HSETNX', key, field, String(value)],
+		args: ['HSETNX', key, String(field), String(value)],
 		replyTransform,
 	};
 }

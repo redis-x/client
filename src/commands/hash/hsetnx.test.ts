@@ -15,4 +15,9 @@ describe('command', () => {
 
 		expect(command.replyTransform).toBeTypeOf('function');
 	});
+
+	test('number field', () => {
+		const command = input('myhash', 123, 'value');
+		expect(command.args).toStrictEqual(['HSETNX', 'myhash', '123', 'value']);
+	});
 });

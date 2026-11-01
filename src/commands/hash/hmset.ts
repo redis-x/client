@@ -16,7 +16,7 @@ import type { Command } from '../../types.js';
  */
 declare function _command(
 	key: string,
-	field: string,
+	field: string | number,
 	value: string | number,
 ): 'OK';
 
@@ -41,13 +41,13 @@ declare function _command(
 // eslint-disable-next-line jsdoc/require-jsdoc
 export function input(
 	key: string,
-	arg1: string | Record<string, string | number>,
+	arg1: string | number | Record<string, string | number>,
 	arg2?: string | number,
 ): Command<'OK'> {
 	const pairs: string[] = [];
 
-	if (typeof arg1 === 'string') {
-		pairs.push(arg1, String(arg2));
+	if (typeof arg1 === 'string' || typeof arg1 === 'number') {
+		pairs.push(String(arg1), String(arg2));
 	} else {
 		for (const [field, value] of Object.entries(arg1)) {
 			pairs.push(field, String(value));

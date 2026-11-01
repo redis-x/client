@@ -3039,7 +3039,7 @@ declare class RedisXTransactionUse {
    * @returns The number of fields that were added.
    * @see {@link https://redis.io/commands/hset}
    */
-  HSET(key: string, field: string, value: string | number): RedisXTransactionCommand<number>;
+  HSET(key: string, field: string | number, value: string | number): RedisXTransactionCommand<number>;
   /**
    * Sets the specified fields to their respective values in the hash stored at key.
    * - Available since: 2.0.0.
@@ -3096,7 +3096,7 @@ declare class RedisXTransactionUse {
    * @returns The value associated with field in the hash stored at key or null.
    * @see {@link https://redis.io/commands/hget}
    */
-  HGET(key: string, field: string): RedisXTransactionCommand<string | null>;
+  HGET(key: string, field: string | number): RedisXTransactionCommand<string | null>;
   /**
    * This command works like `HEXPIRE`, but the expiration of a field is specified in milliseconds instead of seconds.
    * - Available since: 7.4.0.
@@ -3167,7 +3167,7 @@ declare class RedisXTransactionUse {
    * @returns Simple string reply: "OK".
    * @see {@link https://redis.io/commands/hmset}
    */
-  HMSET(key: string, field: string, value: string | number): RedisXTransactionCommand<"OK">;
+  HMSET(key: string, field: string | number, value: string | number): RedisXTransactionCommand<"OK">;
   /**
    * Sets the specified fields to their respective values in the hash stored at key.
    * This command overwrites any specified fields already existing in the hash.
@@ -3195,7 +3195,7 @@ declare class RedisXTransactionUse {
    * @returns Array of values associated with the given fields, in the same order as they are requested.
    * @see {@link https://redis.io/commands/hmget}
    */
-  HMGET(key: string, fields: string[]): RedisXTransactionCommand<(string | null)[]>;
+  HMGET(key: string, fields: Collection<string | number>): RedisXTransactionCommand<(string | null)[]>;
   /**
    * Returns the values associated with the specified fields in the hash stored at key.
    *
@@ -3209,7 +3209,7 @@ declare class RedisXTransactionUse {
    * @returns Array of values associated with the given fields, in the same order as they are requested.
    * @see {@link https://redis.io/commands/hmget}
    */
-  HMGET(key: string, ...fields: string[]): RedisXTransactionCommand<(string | null)[]>;
+  HMGET(key: string, ...fields: (string | number)[]): RedisXTransactionCommand<(string | null)[]>;
   /**
    * `HEXPIREAT` has the same effect and semantics as `HEXPIRE`, but instead of specifying the number of seconds for the TTL (time to live), it takes an absolute Unix timestamp in seconds since Unix epoch.
    * A timestamp in the past will delete the field immediately.
@@ -3439,7 +3439,7 @@ declare class RedisXTransactionUse {
    * @returns The string length of the value associated with the field, or zero when the field isn't present in the hash or the key doesn't exist at all.
    * @see {@link https://redis.io/commands/hstrlen}
    */
-  HSTRLEN(key: string, field: string): RedisXTransactionCommand<number>;
+  HSTRLEN(key: string, field: string | number): RedisXTransactionCommand<number>;
   /**
    * `HPEXPIRETIME` has the same semantics as `HEXPIRETIME`, but returns the absolute Unix expiration timestamp in milliseconds since Unix epoch instead of seconds.
    * - Available since: 7.4.0.
@@ -3506,7 +3506,7 @@ declare class RedisXTransactionUse {
    * @returns Returns `true` if the field is new and the value was set. Returns `false` if the field already exists and no operation was performed.
    * @see {@link https://redis.io/commands/hsetnx}
    */
-  HSETNX(key: string, field: string, value: string | number): RedisXTransactionCommand<boolean>;
+  HSETNX(key: string, field: string | number, value: string | number): RedisXTransactionCommand<boolean>;
   /**
    * Returns the absolute Unix timestamp in seconds since Unix epoch at which the given key's field(s) will expire.
    *
@@ -5710,7 +5710,7 @@ declare class RedisXTransaction<L = [], C extends boolean = false, D = unknown> 
    * @returns The number of fields that were added.
    * @see {@link https://redis.io/commands/hset}
    */
-  HSET(key: string, field: string, value: string | number): RedisXTransaction<AddToList<L, number>, C, D>;
+  HSET(key: string, field: string | number, value: string | number): RedisXTransaction<AddToList<L, number>, C, D>;
   /**
    * Sets the specified fields to their respective values in the hash stored at key.
    * - Available since: 2.0.0.
@@ -5767,7 +5767,7 @@ declare class RedisXTransaction<L = [], C extends boolean = false, D = unknown> 
    * @returns The value associated with field in the hash stored at key or null.
    * @see {@link https://redis.io/commands/hget}
    */
-  HGET(key: string, field: string): RedisXTransaction<AddToList<L, string | null>, C, D>;
+  HGET(key: string, field: string | number): RedisXTransaction<AddToList<L, string | null>, C, D>;
   /**
    * This command works like `HEXPIRE`, but the expiration of a field is specified in milliseconds instead of seconds.
    * - Available since: 7.4.0.
@@ -5838,7 +5838,7 @@ declare class RedisXTransaction<L = [], C extends boolean = false, D = unknown> 
    * @returns Simple string reply: "OK".
    * @see {@link https://redis.io/commands/hmset}
    */
-  HMSET(key: string, field: string, value: string | number): RedisXTransaction<AddToList<L, "OK">, C, D>;
+  HMSET(key: string, field: string | number, value: string | number): RedisXTransaction<AddToList<L, "OK">, C, D>;
   /**
    * Sets the specified fields to their respective values in the hash stored at key.
    * This command overwrites any specified fields already existing in the hash.
@@ -5866,7 +5866,7 @@ declare class RedisXTransaction<L = [], C extends boolean = false, D = unknown> 
    * @returns Array of values associated with the given fields, in the same order as they are requested.
    * @see {@link https://redis.io/commands/hmget}
    */
-  HMGET(key: string, fields: string[]): RedisXTransaction<AddToList<L, (string | null)[]>, C, D>;
+  HMGET(key: string, fields: Collection<string | number>): RedisXTransaction<AddToList<L, (string | null)[]>, C, D>;
   /**
    * Returns the values associated with the specified fields in the hash stored at key.
    *
@@ -5880,7 +5880,7 @@ declare class RedisXTransaction<L = [], C extends boolean = false, D = unknown> 
    * @returns Array of values associated with the given fields, in the same order as they are requested.
    * @see {@link https://redis.io/commands/hmget}
    */
-  HMGET(key: string, ...fields: string[]): RedisXTransaction<AddToList<L, (string | null)[]>, C, D>;
+  HMGET(key: string, ...fields: (string | number)[]): RedisXTransaction<AddToList<L, (string | null)[]>, C, D>;
   /**
    * `HEXPIREAT` has the same effect and semantics as `HEXPIRE`, but instead of specifying the number of seconds for the TTL (time to live), it takes an absolute Unix timestamp in seconds since Unix epoch.
    * A timestamp in the past will delete the field immediately.
@@ -6110,7 +6110,7 @@ declare class RedisXTransaction<L = [], C extends boolean = false, D = unknown> 
    * @returns The string length of the value associated with the field, or zero when the field isn't present in the hash or the key doesn't exist at all.
    * @see {@link https://redis.io/commands/hstrlen}
    */
-  HSTRLEN(key: string, field: string): RedisXTransaction<AddToList<L, number>, C, D>;
+  HSTRLEN(key: string, field: string | number): RedisXTransaction<AddToList<L, number>, C, D>;
   /**
    * `HPEXPIRETIME` has the same semantics as `HEXPIRETIME`, but returns the absolute Unix expiration timestamp in milliseconds since Unix epoch instead of seconds.
    * - Available since: 7.4.0.
@@ -6177,7 +6177,7 @@ declare class RedisXTransaction<L = [], C extends boolean = false, D = unknown> 
    * @returns Returns `true` if the field is new and the value was set. Returns `false` if the field already exists and no operation was performed.
    * @see {@link https://redis.io/commands/hsetnx}
    */
-  HSETNX(key: string, field: string, value: string | number): RedisXTransaction<AddToList<L, boolean>, C, D>;
+  HSETNX(key: string, field: string | number, value: string | number): RedisXTransaction<AddToList<L, boolean>, C, D>;
   /**
    * Returns the absolute Unix timestamp in seconds since Unix epoch at which the given key's field(s) will expire.
    *
@@ -8374,7 +8374,7 @@ export declare class RedisXClient {
    * @returns The number of fields that were added.
    * @see {@link https://redis.io/commands/hset}
    */
-  HSET(key: string, field: string, value: string | number): Promise<number>;
+  HSET(key: string, field: string | number, value: string | number): Promise<number>;
   /**
    * Sets the specified fields to their respective values in the hash stored at key.
    * - Available since: 2.0.0.
@@ -8431,7 +8431,7 @@ export declare class RedisXClient {
    * @returns The value associated with field in the hash stored at key or null.
    * @see {@link https://redis.io/commands/hget}
    */
-  HGET(key: string, field: string): Promise<string | null>;
+  HGET(key: string, field: string | number): Promise<string | null>;
   /**
    * This command works like `HEXPIRE`, but the expiration of a field is specified in milliseconds instead of seconds.
    * - Available since: 7.4.0.
@@ -8502,7 +8502,7 @@ export declare class RedisXClient {
    * @returns Simple string reply: "OK".
    * @see {@link https://redis.io/commands/hmset}
    */
-  HMSET(key: string, field: string, value: string | number): Promise<"OK">;
+  HMSET(key: string, field: string | number, value: string | number): Promise<"OK">;
   /**
    * Sets the specified fields to their respective values in the hash stored at key.
    * This command overwrites any specified fields already existing in the hash.
@@ -8530,7 +8530,7 @@ export declare class RedisXClient {
    * @returns Array of values associated with the given fields, in the same order as they are requested.
    * @see {@link https://redis.io/commands/hmget}
    */
-  HMGET(key: string, fields: string[]): Promise<(string | null)[]>;
+  HMGET(key: string, fields: Collection<string | number>): Promise<(string | null)[]>;
   /**
    * Returns the values associated with the specified fields in the hash stored at key.
    *
@@ -8544,7 +8544,7 @@ export declare class RedisXClient {
    * @returns Array of values associated with the given fields, in the same order as they are requested.
    * @see {@link https://redis.io/commands/hmget}
    */
-  HMGET(key: string, ...fields: string[]): Promise<(string | null)[]>;
+  HMGET(key: string, ...fields: (string | number)[]): Promise<(string | null)[]>;
   /**
    * `HEXPIREAT` has the same effect and semantics as `HEXPIRE`, but instead of specifying the number of seconds for the TTL (time to live), it takes an absolute Unix timestamp in seconds since Unix epoch.
    * A timestamp in the past will delete the field immediately.
@@ -8774,7 +8774,7 @@ export declare class RedisXClient {
    * @returns The string length of the value associated with the field, or zero when the field isn't present in the hash or the key doesn't exist at all.
    * @see {@link https://redis.io/commands/hstrlen}
    */
-  HSTRLEN(key: string, field: string): Promise<number>;
+  HSTRLEN(key: string, field: string | number): Promise<number>;
   /**
    * `HPEXPIRETIME` has the same semantics as `HEXPIRETIME`, but returns the absolute Unix expiration timestamp in milliseconds since Unix epoch instead of seconds.
    * - Available since: 7.4.0.
@@ -8841,7 +8841,7 @@ export declare class RedisXClient {
    * @returns Returns `true` if the field is new and the value was set. Returns `false` if the field already exists and no operation was performed.
    * @see {@link https://redis.io/commands/hsetnx}
    */
-  HSETNX(key: string, field: string, value: string | number): Promise<boolean>;
+  HSETNX(key: string, field: string | number, value: string | number): Promise<boolean>;
   /**
    * Returns the absolute Unix timestamp in seconds since Unix epoch at which the given key's field(s) will expire.
    *
