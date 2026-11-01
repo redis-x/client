@@ -9,9 +9,12 @@ import type { Command } from '../../types.js';
  * @returns The value associated with field in the hash stored at key or null.
  * @see {@link https://redis.io/commands/hget}
  */
-export function input(key: string, field: string): Command<string | null> {
+export function input(
+	key: string,
+	field: string | number,
+): Command<string | null> {
 	return {
 		kind: '#schema',
-		args: ['HGET', key, field],
+		args: ['HGET', key, String(field)],
 	};
 }

@@ -15,15 +15,15 @@ describe('command', () => {
 		expect(command.replyTransform).toBeUndefined();
 	});
 
-	test('multi members', () => {
-		const command = input('key', 'member1', 'member2', 'member3');
+	test('rest arguments', () => {
+		const command = input('key', 'member1', 'member2', 3);
 
 		expect(command.args).toStrictEqual([
 			'ZREM',
 			'key',
 			'member1',
 			'member2',
-			'member3',
+			'3',
 		]);
 
 		expect(command.replyTransform).toBeUndefined();

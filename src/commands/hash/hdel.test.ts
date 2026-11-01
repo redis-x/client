@@ -7,15 +7,9 @@ describe('command', () => {
 		expect(command.args).toStrictEqual(['HDEL', 'myhash', '0', 'foo']);
 	});
 
-	test('array arguments', () => {
-		const command = input('myhash', ['field1', 'field2', 3]);
-		expect(command.args).toStrictEqual([
-			'HDEL',
-			'myhash',
-			'field1',
-			'field2',
-			'3',
-		]);
+	test('collection argument', () => {
+		const command = input('myhash', ['field1', 3]);
+		expect(command.args).toStrictEqual(['HDEL', 'myhash', 'field1', '3']);
 
 		expect(command.replyTransform).toBeUndefined();
 	});

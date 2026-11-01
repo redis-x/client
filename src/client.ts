@@ -2896,7 +2896,11 @@ export class RedisXClient {
 	 * @returns The number of fields that were added.
 	 * @see {@link https://redis.io/commands/hset}
 	 */
-	HSET(key: string, field: string, value: string | number): Promise<number>;
+	HSET(
+		key: string,
+		field: string | number,
+		value: string | number,
+	): Promise<number>;
 	/**
 	 * Sets the specified fields to their respective values in the hash stored at key.
 	 * - Available since: 2.0.0.
@@ -2911,7 +2915,7 @@ export class RedisXClient {
 
 	HSET(
 		key: string,
-		arg1: string | Record<string, string | number>,
+		arg1: string | number | Record<string, string | number>,
 		arg2?: string | number,
 	) {
 		return this.useCommand(input_hset(key, arg1, arg2));
@@ -2975,7 +2979,7 @@ export class RedisXClient {
 	 * @returns The value associated with field in the hash stored at key or null.
 	 * @see {@link https://redis.io/commands/hget}
 	 */
-	HGET(key: string, field: string): Promise<string | null> {
+	HGET(key: string, field: string | number): Promise<string | null> {
 		return this.useCommand(input_hget(key, field));
 	}
 
@@ -3068,7 +3072,11 @@ export class RedisXClient {
 	 * @returns Simple string reply: "OK".
 	 * @see {@link https://redis.io/commands/hmset}
 	 */
-	HMSET(key: string, field: string, value: string | number): Promise<'OK'>;
+	HMSET(
+		key: string,
+		field: string | number,
+		value: string | number,
+	): Promise<'OK'>;
 	/**
 	 * Sets the specified fields to their respective values in the hash stored at key.
 	 * This command overwrites any specified fields already existing in the hash.
@@ -3086,7 +3094,7 @@ export class RedisXClient {
 
 	HMSET(
 		key: string,
-		arg1: string | Record<string, string | number>,
+		arg1: string | number | Record<string, string | number>,
 		arg2?: string | number,
 	): Promise<'OK'> {
 		return this.useCommand(input_hmset(key, arg1, arg2));
@@ -3105,7 +3113,10 @@ export class RedisXClient {
 	 * @returns Array of values associated with the given fields, in the same order as they are requested.
 	 * @see {@link https://redis.io/commands/hmget}
 	 */
-	HMGET(key: string, fields: string[]): Promise<(string | null)[]>;
+	HMGET(
+		key: string,
+		fields: Collection<string | number>,
+	): Promise<(string | null)[]>;
 	/**
 	 * Returns the values associated with the specified fields in the hash stored at key.
 	 *
@@ -3119,13 +3130,17 @@ export class RedisXClient {
 	 * @returns Array of values associated with the given fields, in the same order as they are requested.
 	 * @see {@link https://redis.io/commands/hmget}
 	 */
-	HMGET(key: string, ...fields: string[]): Promise<(string | null)[]>;
+	HMGET(
+		key: string,
+		...fields: (string | number)[]
+	): Promise<(string | null)[]>;
 
 	HMGET(
 		key: string,
-		...fields: (string | string[])[]
+		arg1: string | number | Collection<string | number>,
+		...args_rest: (string | number)[]
 	): Promise<(string | null)[]> {
-		return this.useCommand(input_hmget(key, ...fields));
+		return this.useCommand(input_hmget(key, arg1, ...args_rest));
 	}
 
 	/**
@@ -3403,7 +3418,7 @@ export class RedisXClient {
 	 * @returns The string length of the value associated with the field, or zero when the field isn't present in the hash or the key doesn't exist at all.
 	 * @see {@link https://redis.io/commands/hstrlen}
 	 */
-	HSTRLEN(key: string, field: string): Promise<number> {
+	HSTRLEN(key: string, field: string | number): Promise<number> {
 		return this.useCommand(input_hstrlen(key, field));
 	}
 
@@ -3496,7 +3511,11 @@ export class RedisXClient {
 	 * @returns Returns `true` if the field is new and the value was set. Returns `false` if the field already exists and no operation was performed.
 	 * @see {@link https://redis.io/commands/hsetnx}
 	 */
-	HSETNX(key: string, field: string, value: string | number): Promise<boolean> {
+	HSETNX(
+		key: string,
+		field: string | number,
+		value: string | number,
+	): Promise<boolean> {
 		return this.useCommand(input_hsetnx(key, field, value));
 	}
 

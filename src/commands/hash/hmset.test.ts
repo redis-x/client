@@ -16,6 +16,11 @@ describe('command', () => {
 		expect(command.replyTransform).toBeUndefined();
 	});
 
+	test('number field', () => {
+		const command = input('myhash', 123, 'hello');
+		expect(command.args).toStrictEqual(['HMSET', 'myhash', '123', 'hello']);
+	});
+
 	test('object argument', () => {
 		const command = input('myhash', {
 			foo: 'hello',

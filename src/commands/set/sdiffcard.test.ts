@@ -2,12 +2,7 @@ import { describe, expect, test } from 'vitest';
 import { input } from './sdiffcard.js';
 
 describe('command', () => {
-	test('one-shot iterator argument', () => {
-		const command = input(['key1', 'key2'].values());
-		expect(command.args).toStrictEqual(['SDIFFCARD', '2', 'key1', 'key2']);
-	});
-
-	test('keys', () => {
+	test('collection argument', () => {
 		const command = input(['key1', 'key2']);
 		expect(command.args).toStrictEqual(['SDIFFCARD', '2', 'key1', 'key2']);
 

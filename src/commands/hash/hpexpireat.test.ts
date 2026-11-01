@@ -2,24 +2,7 @@ import { describe, expect, test } from 'vitest';
 import { input } from './hpexpireat.js';
 
 describe('command', () => {
-	test('one-shot iterator argument', () => {
-		const command = input(
-			'myhash',
-			1700000000000,
-			['field1', 'field2'].values(),
-		);
-		expect(command.args).toStrictEqual([
-			'HPEXPIREAT',
-			'myhash',
-			'1700000000000',
-			'FIELDS',
-			'2',
-			'field1',
-			'field2',
-		]);
-	});
-
-	test('no options', () => {
+	test('collection argument', () => {
 		const command = input('myhash', 1700000000000, ['field1', 2]);
 		expect(command.args).toStrictEqual([
 			'HPEXPIREAT',

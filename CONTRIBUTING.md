@@ -68,7 +68,12 @@ The structure for implementing Redis commands follows these rules:
   - Keep the documented property in the intersection. Do not remove it with `Omit` and redeclare it: doing so loses its original JSDoc and omitting a property alone does not forbid it on an existing object variable.
   - Hover and autocomplete must retain option descriptions and JSDoc tags, including for properties narrowed by intersections. Verify both on the generated API and published declarations using the supported TypeScript language service; passing type checks alone does not verify documentation.
 
-5. **Transformations**:
+5. **Arguments**:
+  - Accept a hash field or a set or sorted set member as `string | number`, and convert it with `String()`. Keys are only `string`.
+  - Accept several fields, members, or keys as a `Collection<T>`, and convert it with `collectionToStringArray`. A command may also accept them as rest arguments, like [HDEL](src/commands/hash/hdel.ts).
+  - Accept field-value and member-score pairs as a `Record`.
+
+6. **Transformations**:
   - If you need to transform the Redis reply, implement a `replyTransform` function.
   - Choose how to transform the reply from the request, such as the options passed to the command, not by inspecting the reply. Expect the reply Redis documents for that request and do not handle other shapes.
   - Use transformations to convert Redis responses to more developer-friendly structures.
@@ -95,7 +100,9 @@ However, we **do not** test the Redis server itself. Instead, we test **transfor
   - [Example](src/commands/string/set.test.ts)
 - The reply should be transformed to the correct type **only if** there is `replyTransform` defined as a local function. Do not re-test it if it is imported.
   - [Example](src/commands/set/smismember.test.ts#L30)
-- Shared argument helpers, such as `collectionToStringArray`, are tested in their own modules. Do not re-test them in command tests: cover a collection argument once to check the command's own dispatch and argument order, not every collection type.
+- Shared argument helpers, such as `collectionToStringArray`, are tested in their own modules. For a command that takes a collection, add one `collection argument` test that checks the command accepts it and puts it in the right place. Pass an array of two elements; if the collection accepts numbers, make one of them a number. The helper covers the other collection types.
+- If the command also accepts these values as rest arguments, add a separate `rest arguments` test. If the rest arguments accept numbers, include one.
+  - [Example](src/commands/hash/hdel.test.ts)
 
 #### Step 4. Generate the client code
 

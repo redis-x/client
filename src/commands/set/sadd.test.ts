@@ -7,9 +7,9 @@ describe('command', () => {
 		expect(command.args).toStrictEqual(['SADD', 'myset', '0', 'foo']);
 	});
 
-	test('array arguments', () => {
-		const command = input('myset', ['foo', 'bar', 1]);
-		expect(command.args).toStrictEqual(['SADD', 'myset', 'foo', 'bar', '1']);
+	test('collection argument', () => {
+		const command = input('myset', ['foo', 1]);
+		expect(command.args).toStrictEqual(['SADD', 'myset', 'foo', '1']);
 
 		expect(command.replyTransform).toBeUndefined();
 	});

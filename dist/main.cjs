@@ -1570,7 +1570,7 @@ function input$28(key) {
 //#region src/commands/hash/hset.ts
 function input$27(key, arg1, arg2) {
 	const pairs = [];
-	if (typeof arg1 === "string") pairs.push(arg1, String(arg2));
+	if (typeof arg1 === "string" || typeof arg1 === "number") pairs.push(String(arg1), String(arg2));
 	else for (const [field, value] of Object.entries(arg1)) pairs.push(field, String(value));
 	return {
 		kind: "#schema",
@@ -1626,7 +1626,7 @@ function input$23(key, field) {
 		args: [
 			"HGET",
 			key,
-			field
+			String(field)
 		]
 	};
 }
@@ -1687,7 +1687,7 @@ function input$20(key, seconds, fields, options) {
 //#region src/commands/hash/hmset.ts
 function input$19(key, arg1, arg2) {
 	const pairs = [];
-	if (typeof arg1 === "string") pairs.push(arg1, String(arg2));
+	if (typeof arg1 === "string" || typeof arg1 === "number") pairs.push(String(arg1), String(arg2));
 	else for (const [field, value] of Object.entries(arg1)) pairs.push(field, String(value));
 	return {
 		kind: "#schema",
@@ -1700,14 +1700,13 @@ function input$19(key, arg1, arg2) {
 }
 //#endregion
 //#region src/commands/hash/hmget.ts
-function input$18(key, ...fields) {
+function input$18(key, arg1, ...args_rest) {
+	const args = ["HMGET", key];
+	if (typeof arg1 === "string" || typeof arg1 === "number") args.push(String(arg1), ...args_rest.map(String));
+	else args.push(...collectionToStringArray(arg1));
 	return {
 		kind: "#schema",
-		args: [
-			"HMGET",
-			key,
-			...fields.flat()
-		]
+		args
 	};
 }
 //#endregion
@@ -1825,7 +1824,7 @@ function input$10(key, field) {
 		args: [
 			"HSTRLEN",
 			key,
-			field
+			String(field)
 		]
 	};
 }
@@ -1899,7 +1898,7 @@ function input$5(key, field, value) {
 		args: [
 			"HSETNX",
 			key,
-			field,
+			String(field),
 			String(value)
 		],
 		replyTransform: numberToBoolean
@@ -2326,8 +2325,8 @@ var RedisXTransactionUse = class {
 	HMSET(key, arg1, arg2) {
 		return this.useCommand(input$19(key, arg1, arg2));
 	}
-	HMGET(key, ...fields) {
-		return this.useCommand(input$18(key, ...fields));
+	HMGET(key, arg1, ...args_rest) {
+		return this.useCommand(input$18(key, arg1, ...args_rest));
 	}
 	HEXPIREAT(key, timestamp, fields, options) {
 		return this.useCommand(input$17(key, timestamp, fields, options));
@@ -2765,8 +2764,8 @@ var RedisXTransaction = class {
 	HMSET(key, arg1, arg2) {
 		return this.useCommand(input$19(key, arg1, arg2));
 	}
-	HMGET(key, ...fields) {
-		return this.useCommand(input$18(key, ...fields));
+	HMGET(key, arg1, ...args_rest) {
+		return this.useCommand(input$18(key, arg1, ...args_rest));
 	}
 	HEXPIREAT(key, timestamp, fields, options) {
 		return this.useCommand(input$17(key, timestamp, fields, options));
@@ -3181,8 +3180,8 @@ var RedisXClient = class {
 	HMSET(key, arg1, arg2) {
 		return this.useCommand(input$19(key, arg1, arg2));
 	}
-	HMGET(key, ...fields) {
-		return this.useCommand(input$18(key, ...fields));
+	HMGET(key, arg1, ...args_rest) {
+		return this.useCommand(input$18(key, arg1, ...args_rest));
 	}
 	HEXPIREAT(key, timestamp, fields, options) {
 		return this.useCommand(input$17(key, timestamp, fields, options));

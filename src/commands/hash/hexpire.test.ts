@@ -2,20 +2,7 @@ import { describe, expect, test } from 'vitest';
 import { input } from './hexpire.js';
 
 describe('command', () => {
-	test('one-shot iterator argument', () => {
-		const command = input('myhash', 10, ['field1', 'field2'].values());
-		expect(command.args).toStrictEqual([
-			'HEXPIRE',
-			'myhash',
-			'10',
-			'FIELDS',
-			'2',
-			'field1',
-			'field2',
-		]);
-	});
-
-	test('no options', () => {
+	test('collection argument', () => {
 		const command = input('myhash', 10, ['field1', 2]);
 		expect(command.args).toStrictEqual([
 			'HEXPIRE',
